@@ -1,0 +1,45 @@
+# Dependencies, environments, generated output
+node_modules/
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+__pycache__/
+*.py[cod]
+*.tsbuildinfo
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.cache/
+.uv-cache/
+.npm-cache/
+.playwright/
+coverage/
+htmlcov/
+.coverage*
+playwright-report/
+test-results/
+*.log
+
+# Secrets and local data; examples are intentionally public and empty
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+*.sqlite*
+data/
+
+# Editor and operating system metadata
+.idea/
+.vscode/
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo

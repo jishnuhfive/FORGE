@@ -1,0 +1,39 @@
+{
+  "name": "forge",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/web",
+    "packages/design-system"
+  ],
+  "engines": {
+    "node": ">=24 <25",
+    "npm": ">=11 <12"
+  },
+  "packageManager": "npm@11.19.0",
+  "scripts": {
+    "dev": "python3 scripts/dev.py",
+    "dev:web": "npm run dev --workspace @forge/web",
+    "build": "npm run build --workspace @forge/web",
+    "lint": "eslint . --max-warnings 0 && prettier --check .",
+    "typecheck": "npm run typecheck --workspaces && tsc -p tsconfig.tools.json",
+    "test": "npm run test --workspace @forge/web",
+    "test:e2e": "playwright test",
+    "format": "prettier --write .",
+    "audit:dependencies": "npm audit"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.56.0",
+    "@types/node": "^24.10.0",
+    "eslint": "^10.12.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^16.5.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.0"
+  }
+}
