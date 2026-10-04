@@ -1,10 +1,10 @@
 # Planned Onshape integration
 
-## Phase 0 status
+## Phase 1 status
 
 No OAuth routes, Onshape SDK/client, client-messaging listener, extension registration,
 CAD inspection, writes, assembly operations, or API calls exist. The standalone
-placeholder does not prove that embedding or authentication works. Integration
+UI does not prove that embedding or authentication works. Integration
 capabilities below are planned and require live official-platform verification.
 
 ## Authentication and extension
@@ -81,3 +81,6 @@ assume cross-service database/CAD transactions are atomic.
 - Exercise read-only inspection before the first user-approved write in a sandbox document.
 - Verify editable parametric geometry and supported mates from actual inspected results.
 - Meet Onshape launch requirements before public App Store submission.
+
+Phase 1 provides labeled development-only UI fixtures for these future flows.
+They perform no integration requests, execution or evidence collection.

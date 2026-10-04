@@ -15,7 +15,18 @@
 - Lockfiles, strict checks, unit/browser tests, and `make audit` support dependency
   hygiene. Audits are point-in-time checks, not proof of complete security.
 
-Phase 0 has **not** implemented authentication, sessions, CSRF defense, object-level
+- Phase 1 makes no API, AI or Onshape requests and registers no `postMessage`
+  listeners. Context is disconnected in the normal workspace. Mock CAD context,
+  plans, approval actions, runs, history and reports are confined to a clearly
+  labeled development lab; production compilation excludes the lab and fixtures.
+- Browser storage contains only allowlisted theme/unit/manufacturing preferences
+  and onboarding completion. Values are bounded and checked on read. Prompts,
+  sample edits and lesson position stay in memory. Storage failure leaves usable
+  session-only preferences. There are no session IDs, tokens or keys in storage.
+- UI errors use fixed public messages; a render boundary avoids raw stack traces.
+  Progress describes public actions only, never private model reasoning.
+
+Phases 0–1 have **not** implemented authentication, sessions, CSRF defense, object-level
 authorization, token encryption, request/rate/AI usage limits, CSP, audit persistence,
 deletion workflows, or production infrastructure. Do not expose this development
 setup publicly or claim those controls work. Forge claims no SOC 2 or other certification.

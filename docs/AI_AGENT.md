@@ -2,7 +2,7 @@
 
 ## Status and ownership
 
-Phase 0 implements no model calls, SDK, agent runner, tools, or fake AI responses.
+Phases 0–1 implement no model calls, SDK, agent runner, tools, or fake AI responses.
 Codex builds Forge; Forge's eventual runtime AI will be a separate backend service
 using the OpenAI Responses API. Its key remains backend-only, and `OPENAI_MODEL`
 selects an explicitly evaluated model at deployment time. No default model is
@@ -85,3 +85,6 @@ assistance, not professional engineering certification. Do not develop harmful-d
 or weapon-specific capabilities. Add adversarial evaluations for prompt injection,
 unit confusion, stale approvals, fabricated results, repeated writes, and quota bypass
 before enabling real execution.
+
+Phase 1 provides labeled development-only UI fixtures for these future flows.
+They perform no integration requests, execution or evidence collection.

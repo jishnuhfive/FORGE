@@ -41,7 +41,7 @@ make dev
 Web: <http://127.0.0.1:5173>. API: <http://127.0.0.1:8000/health>.
 OpenAPI development docs: <http://127.0.0.1:8000/docs>. Vite forwards `/api/*` to the
 local API and strips `/api`; for example `/api/health` forwards to `/health`.
-No broad CORS policy is enabled. The placeholder makes no API or external requests.
+No broad CORS policy is enabled. The Phase 1 UI makes no API or external requests.
 
 `scripts/dev.py` starts both servers and stops the other if one exits or Ctrl+C is
 pressed. Occupied ports cause a clear failure; do not stop unrelated processes to
@@ -121,12 +121,17 @@ handles web/config/documentation formatting; Ruff formats/lints Python. TypeScri
 strict mode covers the app, shared package, Vite config, and browser tests. mypy
 strict mode with the Pydantic plugin covers API source, tests, and the supervisor.
 
-Vitest + React Testing Library exercise real rendered landmarks, title, description,
-and phase label. Pytest exercises `/health`, response shape, absent product routes,
+Vitest + React Testing Library exercise application landmarks, purpose and phase
+labels, modes, composer behavior, brief/plan interactions, all progress states,
+validation provenance, stale selections, lessons, error messages, settings,
+onboarding, storage validation and development preview behavior. Pytest exercises `/health`, response shape, absent product routes,
 production documentation policy, environment validation, and secret redaction.
-Playwright tests the built SPA at narrow-panel/desktop widths in Chromium, Firefox,
-and WebKit, including automated WCAG accessibility checks. Build first. Preview runs on port 4173 and never reuses an unrelated
-server. Traces are retained only on failure and must not contain real private data.
+Playwright tests the production SPA and development-only lab in Chromium, Firefox
+and WebKit with axe WCAG checks, keyboard navigation, dialog focus, theme changes,
+reduced motion and overflow checks. Build first. Production preview runs on port
+4173 and the dev lab on 4174. Neither reuses an unrelated server. Both are stopped
+by Playwright after the run. Chromium lab screenshots go to ignored
+`.cache/phase1/` for visual review. Traces are retained only on failure and must not contain real private data.
 
 `make audit` runs npm audit and pip-audit against installed dependencies. Investigate
 findings and update within supported versions; don't automatically apply forced
@@ -166,3 +171,27 @@ to Makefile recipes, which use only Make 3.81-compatible syntax.
 - Browser missing: run `make browsers`; don't silently skip E2E verification.
 - API config error: inspect variable names/validity without printing secret values.
 - Database unhealthy: review local container logs; retain existing volumes and data.
+
+## Phase 1 UI review
+
+```sh
+make dev-web
+```
+
+Open <http://127.0.0.1:5173> for the normal disconnected workspace and
+<http://127.0.0.1:5173/#/lab> for synthetic previews. The lab has state, layout and
+theme controls and an onboarding preview. Normal standalone pages use
+`#/settings` and `#/history`. Hash navigation needs no server rewrite or router.
+Production `make build` removes the lab, its route entry links and fixtures;
+`#/lab` in a production preview falls back to the normal workspace.
+
+Use browser responsive tools at 320, 380 and 480 px with an 850 px height, then
+1280 px desktop width. Check every mode, settings, onboarding and below-fold
+controls. Container queries also keep a narrow lab frame narrow on a wide screen.
+The automated lab matrix covers every state at 320 px dark and 1280 px light.
+Additional regular workspace coverage exercises all four widths and both themes.
+
+No live Onshape integration exists yet. No OpenAI calls exist yet. No CAD is
+modified. Sample approval and Apply actions only change local preview state.
+Manufacturing fields use explicit mm, regardless of the saved future units
+preference. Read [UI.md](UI.md) for state ownership and fixture behavior.

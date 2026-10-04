@@ -28,7 +28,8 @@ Later hardening does not defer security for earlier live integrations.
 | 19    | Production deployment: HTTPS, managed secrets/database, images, migrations, backups, observability             |
 | 20    | Onshape App Store preparation: current official launch checklist and review requirements                       |
 
-Phase 0 provides no product functionality beyond the placeholder and process
-liveness. The flagship camera-slider example is a future evaluation scenario,
+Phase 0 is preserved in commit `2b68754`. Phase 1 implements the accessible UI
+foundation, local preferences and development-only synthetic previews. Live
+functionality described by later phases remains planned. Phase 2 has not begun. The flagship camera-slider example is a future evaluation scenario,
 not a generated design or promise that all engineering constraints can be certified.
 Forge v1 targets education, makers, low-risk prototypes, and student engineering.

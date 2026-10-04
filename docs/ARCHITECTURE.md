@@ -1,29 +1,37 @@
 # Architecture
 
-## Phase 0 implementation
+## Current implementation — Phase 1 UI foundation
 
 Forge is a monorepo with one web client (`apps/web`), one Python API (`apps/api`),
 and a shared presentation package (`packages/design-system`). It is intended to
 run inside Onshape as a right-panel web extension on macOS and Windows desktop
 browsers. It does not require native applications on either platform.
 
-Currently the client shows only Forge, its purpose, and the Phase 0 label. The
-API exposes `GET /health` plus development documentation. SQLAlchemy/psycopg are
-dependencies only. PostgreSQL can start independently through Compose. There are
-no domain models, migrations, authentication, model calls, external adapters,
-or product workflows.
+The client now provides a narrow-panel Design/Modify/Learn shell, local drafts,
+an authored lesson preview, settings, onboarding and empty history. A DEV-gated
+UI lab supplies synthetic engineering briefs, plans, progress, validation,
+selection and history. It never invokes the backend, AI or CAD services.
+
+The API still exposes only `GET /health` plus development documentation.
+SQLAlchemy/psycopg remain dependencies only. PostgreSQL can start independently
+through Compose. No backend domain models, migrations, authentication, model
+calls, external adapters or executable CAD workflows have been added.
+
+See [UI.md](UI.md) for component ownership, state contracts, tokens and route
+behavior. No live Onshape integration exists yet. No OpenAI calls exist yet.
+No CAD is modified. Phase 2 is not implemented.
 
 ## Intended component responsibilities
 
-| Component        | Responsibility                                                                                      | Phase 0 state              |
-| ---------------- | --------------------------------------------------------------------------------------------------- | -------------------------- |
-| Frontend         | Narrow-panel UI, accessible controls, typed API calls, approved plan presentation                   | Static placeholder         |
-| API              | Configuration, sessions, authorization, validated contracts, orchestration                          | Settings and liveness only |
-| Database         | Users linked to Onshape identity, encrypted token records, sessions, plans, inventory, audit events | Container only             |
-| AI layer         | Responses API, bounded agent loop, allowlisted functions, streamed user-facing status               | Documentation only         |
-| Onshape layer    | Server REST adapter, OAuth, document inspection, supported feature/assembly operations              | Documentation only         |
-| Validation layer | Unit-aware deterministic calculations and evidence-backed results                                   | Documentation only         |
-| Tool layer       | High-level operations joining user permissions, approvals, schemas, adapters, verification          | Documentation only         |
+| Component        | Responsibility                                                                                      | Current state                   |
+| ---------------- | --------------------------------------------------------------------------------------------------- | ------------------------------- |
+| Frontend         | Narrow-panel UI, accessible controls, typed API calls, approved plan presentation                   | Local UI + development fixtures |
+| API              | Configuration, sessions, authorization, validated contracts, orchestration                          | Settings and liveness only      |
+| Database         | Users linked to Onshape identity, encrypted token records, sessions, plans, inventory, audit events | Container only                  |
+| AI layer         | Responses API, bounded agent loop, allowlisted functions, streamed user-facing status               | Documentation only              |
+| Onshape layer    | Server REST adapter, OAuth, document inspection, supported feature/assembly operations              | Documentation only              |
+| Validation layer | Unit-aware deterministic calculations and evidence-backed results                                   | Documentation only              |
+| Tool layer       | High-level operations joining user permissions, approvals, schemas, adapters, verification          | Documentation only              |
 
 Reserved backend ownership boundaries are described in `src/forge_api/db/`,
 `integrations/`, and `validation/` README files. These are documentation placeholders,
@@ -60,9 +68,13 @@ Keep units and bounds explicit, and treat missing evidence as UNVERIFIED.
 - **Native web/API, containerized database:** faster reloads and fewer Dockerfiles.
   Production images are deferred to the deployment phase.
 - **Source-exported design system:** Vite compiles the local TypeScript package;
-  it is private and not published. It exposes a Radix separator and a static badge.
-- **No motion, router, state framework, or AI SDK:** Phase 0 has no behavior that
-  warrants these dependencies. Add only when an authorized feature requires them.
+  it is private and not published. It exports semantic tokens, component styles
+  and reusable accessible primitives backed by Radix where appropriate.
+- **Small local UI state:** React hooks and a hash subscription own Phase 1 UI
+  state. No router, global-state framework, motion library or AI SDK was added.
+  Five small Radix packages provide focus management, keyboard behavior and
+  notifications. The development-only lazy import is eliminated by production
+  compilation, including its synthetic fixture module.
 - **PostgreSQL 18:** pinned release image, persistent volume mounted at the supported
   parent path, a real health check, and host access limited to loopback.
 - **Health is liveness:** database readiness and external-service checks need a
@@ -76,12 +88,12 @@ or alternate framework was introduced.
 
 Serve the built SPA and `/api` through one HTTPS origin, with the API and managed
 PostgreSQL on private networks. A same-origin proxy avoids permissive CORS. A worker
-may become appropriate for long-running operations, but is not part of Phase 0.
+may become appropriate for long-running operations, but is not part of Phases 0–1.
 Use production secret management, encryption key rotation, backups, migration
 review, request/rate/usage limits, sanitized telemetry, and deployment gates.
 
 Set the extension's `frame-ancestors` allowlist at the hosting layer after verifying
 registered Onshape environments. Browser third-party-cookie restrictions require
 real embedded-session testing. Do not assume an iframe works because the standalone
-placeholder renders. [SECURITY.md](SECURITY.md) records the required controls;
+UI renders. [SECURITY.md](SECURITY.md) records the required controls;
 [ONSHAPE.md](ONSHAPE.md) records integration verification gates.

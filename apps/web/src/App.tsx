@@ -1,24 +1,145 @@
-import { Separator, StatusBadge } from '@forge/design-system';
-import { Wrench } from 'lucide-react';
+import { Suspense, lazy, useState, useSyncExternalStore } from 'react';
+import {
+  Button,
+  Skeleton,
+  Tabs,
+  Toast,
+  TooltipProvider,
+} from '@forge/design-system';
+import { BookOpen, PencilRuler, SlidersHorizontal } from 'lucide-react';
+import { Shell } from './components/Shell';
+import { Onboarding } from './components/Onboarding';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { Design } from './features/Design';
+import { Modify } from './features/Modify';
+import { Learn } from './features/Learn';
+import { Settings } from './features/Settings';
+import { History } from './features/History';
+import { usePreferences } from './lib/preferences';
+import type { Mode } from './lib/types';
+
+// Vite removes this branch and its fixtures from a production build.
+const UiLab = import.meta.env.DEV
+  ? lazy(() => import('./preview/UiLab'))
+  : null;
+const subscribe = (notify: () => void) => {
+  window.addEventListener('hashchange', notify);
+  return () => window.removeEventListener('hashchange', notify);
+};
+const snapshot = () => window.location.hash;
 
 export function App() {
+  const route = useSyncExternalStore(subscribe, snapshot);
+  const { preferences, setPreferences, storageAvailable } = usePreferences();
+  const [mode, setMode] = useState<Mode>('design');
+  const [introRequested, setIntroRequested] = useState(false);
+  const [message, setMessage] = useState('');
+  const [toastOpen, setToastOpen] = useState(false);
+  const notify = (text: string) => {
+    setMessage(text);
+    setToastOpen(true);
+  };
+  const closeIntro = () => {
+    setIntroRequested(false);
+    setPreferences({ ...preferences, onboarded: true });
+  };
+  const standalone = route === '#/settings' || route === '#/history';
+  const labActive = route === '#/lab' && UiLab !== null;
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-slate-50 px-6 py-12 text-slate-950">
-      <section aria-labelledby="forge-title" className="w-full max-w-sm">
-        <Wrench
-          aria-hidden="true"
-          className="mb-6 size-7 text-slate-700"
-          strokeWidth={1.5}
+    <TooltipProvider delayDuration={400}>
+      <ErrorBoundary>
+        {labActive && UiLab ? (
+          <Suspense
+            fallback={
+              <main className="feature">
+                <Skeleton label="Loading development preview" />
+              </main>
+            }
+          >
+            <UiLab
+              preferences={preferences}
+              onPreferencesChange={setPreferences}
+              storageAvailable={storageAvailable}
+            />
+          </Suspense>
+        ) : (
+          <Shell onOnboarding={() => setIntroRequested(true)} onNotify={notify}>
+            {standalone ? (
+              <main>
+                <div className="page-nav">
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      window.location.hash = '/';
+                    }}
+                  >
+                    ← Back to workspace
+                  </Button>
+                </div>
+                {route === '#/settings' ? (
+                  <Settings
+                    preferences={preferences}
+                    onChange={setPreferences}
+                    storageAvailable={storageAvailable}
+                  />
+                ) : (
+                  <History />
+                )}
+              </main>
+            ) : (
+              <Tabs
+                label="Engineering mode"
+                value={mode}
+                onValueChange={(value) => {
+                  if (
+                    value === 'design' ||
+                    value === 'modify' ||
+                    value === 'learn'
+                  )
+                    setMode(value);
+                }}
+                items={[
+                  {
+                    id: 'design',
+                    label: 'Design',
+                    icon: <PencilRuler size={16} aria-hidden="true" />,
+                    content: (
+                      <main>
+                        <Design />
+                      </main>
+                    ),
+                  },
+                  {
+                    id: 'modify',
+                    label: 'Modify',
+                    icon: <SlidersHorizontal size={16} aria-hidden="true" />,
+                    content: (
+                      <main>
+                        <Modify />
+                      </main>
+                    ),
+                  },
+                  {
+                    id: 'learn',
+                    label: 'Learn',
+                    icon: <BookOpen size={16} aria-hidden="true" />,
+                    content: (
+                      <main>
+                        <Learn />
+                      </main>
+                    ),
+                  },
+                ]}
+              />
+            )}
+          </Shell>
+        )}
+        <Onboarding
+          open={introRequested || (!preferences.onboarded && !labActive)}
+          onClose={closeIntro}
         />
-        <h1 id="forge-title" className="text-3xl font-semibold tracking-tight">
-          Forge
-        </h1>
-        <p className="mt-3 text-base leading-relaxed text-slate-600">
-          AI engineering inside Onshape
-        </p>
-        <Separator className="my-6 h-px w-full bg-slate-200" />
-        <StatusBadge>Phase 0 — Foundation</StatusBadge>
-      </section>
-    </main>
+        <Toast message={message} open={toastOpen} onOpenChange={setToastOpen} />
+      </ErrorBoundary>
+    </TooltipProvider>
   );
 }
