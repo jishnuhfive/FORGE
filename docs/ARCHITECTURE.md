@@ -1,41 +1,41 @@
 # Architecture
 
-## Current implementation — Phase 1 UI foundation
+## Current implementation — Phase 2 authentication
 
-Forge is a monorepo with one web client (`apps/web`), one Python API (`apps/api`),
-and a shared presentation package (`packages/design-system`). It is intended to
-run inside Onshape as a right-panel web extension on macOS and Windows desktop
-browsers. It does not require native applications on either platform.
+One React/TypeScript/Vite web client, one FastAPI/Pydantic API and shared presentation
+primitives serve desktop browsers. Native clients are not part of Forge.
 
-The client now provides a narrow-panel Design/Modify/Learn shell, local drafts,
-an authored lesson preview, settings, onboarding and empty history. A DEV-gated
-UI lab supplies synthetic engineering briefs, plans, progress, validation,
-selection and history. It never invokes the backend, AI or CAD services.
+The Phase 1 Design/Modify/Learn shell remains, now behind an Onshape sign-in gate.
+The development UI lab is independent of authentication and remains excluded from
+production builds. Engineering workflows remain local or explicitly synthetic.
+No AI, CAD reads/writes or extension messaging are implemented.
 
-The API still exposes only `GET /health` plus development documentation.
-SQLAlchemy/psycopg remain dependencies only. PostgreSQL can start independently
-through Compose. No backend domain models, migrations, authentication, model
-calls, external adapters or executable CAD workflows have been added.
+FastAPI owns OAuth code exchange, identity, revocable opaque sessions, encrypted
+refresh tokens and CSRF. SQLAlchemy models and Alembic migrations use PostgreSQL.
+Browser status calls receive minimized identity, connection status and CSRF data.
+No provider credentials cross into the browser. See [AUTHENTICATION.md](AUTHENTICATION.md)
+for the sequence, model contracts, cache/refresh tradeoffs and lifecycle semantics.
 
-See [UI.md](UI.md) for component ownership, state contracts, tokens and route
-behavior. No live Onshape integration exists yet. No OpenAI calls exist yet.
-No CAD is modified. Phase 2 is not implemented.
+`GET /health` still means liveness only. Database schema checks run at startup when
+DATABASE_URL is supplied. Without credentials the app starts and reports sign-in
+unconfigured. Production fails closed on incomplete auth settings. Tests inject
+HTTP transports; no runtime setting enables mock sessions.
 
 ## Intended component responsibilities
 
-| Component        | Responsibility                                                                                      | Current state                   |
-| ---------------- | --------------------------------------------------------------------------------------------------- | ------------------------------- |
-| Frontend         | Narrow-panel UI, accessible controls, typed API calls, approved plan presentation                   | Local UI + development fixtures |
-| API              | Configuration, sessions, authorization, validated contracts, orchestration                          | Settings and liveness only      |
-| Database         | Users linked to Onshape identity, encrypted token records, sessions, plans, inventory, audit events | Container only                  |
-| AI layer         | Responses API, bounded agent loop, allowlisted functions, streamed user-facing status               | Documentation only              |
-| Onshape layer    | Server REST adapter, OAuth, document inspection, supported feature/assembly operations              | Documentation only              |
-| Validation layer | Unit-aware deterministic calculations and evidence-backed results                                   | Documentation only              |
-| Tool layer       | High-level operations joining user permissions, approvals, schemas, adapters, verification          | Documentation only              |
+| Component        | Responsibility                                                                                      | Current state                                           |
+| ---------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Frontend         | Narrow-panel UI, accessible controls, typed API calls, approved plan presentation                   | Authenticated local UI + DEV fixtures                   |
+| API              | Configuration, sessions, authorization, validated contracts, orchestration                          | OAuth, sessions, CSRF and liveness                      |
+| Database         | Users linked to Onshape identity, encrypted token records, sessions, plans, inventory, audit events | Identity, grants, sessions, states and audit migrations |
+| AI layer         | Responses API, bounded agent loop, allowlisted functions, streamed user-facing status               | Documentation only                                      |
+| Onshape layer    | Server REST adapter, OAuth, document inspection, supported feature/assembly operations              | OAuth and identity only; CAD planned                    |
+| Validation layer | Unit-aware deterministic calculations and evidence-backed results                                   | Documentation only                                      |
+| Tool layer       | High-level operations joining user permissions, approvals, schemas, adapters, verification          | Documentation only                                      |
 
-Reserved backend ownership boundaries are described in `src/forge_api/db/`,
-`integrations/`, and `validation/` README files. These are documentation placeholders,
-not runnable implementations or capabilities advertised to the model.
+Backend `auth/` owns identity/security and `db/` owns persistence. `integrations/`
+and `validation/` reserve the future CAD/AI and deterministic validation boundaries.
+No authentication helper is exposed as a model tool.
 
 ## Planned flow and trust boundaries
 
@@ -88,7 +88,7 @@ or alternate framework was introduced.
 
 Serve the built SPA and `/api` through one HTTPS origin, with the API and managed
 PostgreSQL on private networks. A same-origin proxy avoids permissive CORS. A worker
-may become appropriate for long-running operations, but is not part of Phases 0–1.
+may become appropriate for long-running operations, but is not part of Phases 0–2.
 Use production secret management, encryption key rotation, backups, migration
 review, request/rate/usage limits, sanitized telemetry, and deployment gates.
 
@@ -97,3 +97,18 @@ registered Onshape environments. Browser third-party-cookie restrictions require
 real embedded-session testing. Do not assume an iframe works because the standalone
 UI renders. [SECURITY.md](SECURITY.md) records the required controls;
 [ONSHAPE.md](ONSHAPE.md) records integration verification gates.
+
+## Phase 2 deployment decisions
+
+- Vite proxies `/auth` and `/api` unchanged to FastAPI; the historical `/api/health`
+  liveness proxy is retained. Production hosting must make the same paths available.
+- Standard-library primitives provide randomness, hashing and HMAC. cryptography
+  provides authenticated encryption; Alembic provides migrations. The existing
+  httpx2 transport dependency is now a runtime dependency. No framework change.
+- Access tokens remain ephemeral; refresh tokens are encrypted in PostgreSQL.
+  Per-grant row locks coordinate workers. A cache miss can add one refresh per
+  worker, trading modest provider traffic for less persisted sensitive data.
+- Identity includes its configured Onshape stack; company context is operator-owned.
+  Multi-stack routing and live enterprise validation remain future work.
+- Credentials and live OAuth are externally configured and remain unverified.
+  Phase 3 has not begun.

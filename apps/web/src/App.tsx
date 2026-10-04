@@ -16,6 +16,7 @@ import { Learn } from './features/Learn';
 import { Settings } from './features/Settings';
 import { History } from './features/History';
 import { usePreferences } from './lib/preferences';
+import { AuthGate } from './auth/AuthGate';
 import type { Mode } from './lib/types';
 
 // Vite removes this branch and its fixtures from a production build.
@@ -29,6 +30,16 @@ const subscribe = (notify: () => void) => {
 const snapshot = () => window.location.hash;
 
 export function App() {
+  const route = useSyncExternalStore(subscribe, snapshot);
+  if (import.meta.env.DEV && route === '#/lab') return <Workspace />;
+  return (
+    <AuthGate>
+      <Workspace />
+    </AuthGate>
+  );
+}
+
+export function Workspace() {
   const route = useSyncExternalStore(subscribe, snapshot);
   const { preferences, setPreferences, storageAvailable } = usePreferences();
   const [mode, setMode] = useState<Mode>('design');
@@ -63,7 +74,11 @@ export function App() {
             />
           </Suspense>
         ) : (
-          <Shell onOnboarding={() => setIntroRequested(true)} onNotify={notify}>
+          <Shell
+            context={{ kind: 'no-document' }}
+            onOnboarding={() => setIntroRequested(true)}
+            onNotify={notify}
+          >
             {standalone ? (
               <main>
                 <div className="page-nav">

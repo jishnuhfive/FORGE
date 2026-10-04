@@ -19,7 +19,7 @@ export function Design({
           <PencilRuler size={14} aria-hidden="true" />
           DESIGN WORKSPACE
         </span>
-        <Badge>{preview ? 'Mock preview' : 'Phase 1 · UI foundation'}</Badge>
+        <Badge>{preview ? 'Mock preview' : 'Local design draft'}</Badge>
       </div>
       <div className="design-intro">
         <MechanismDrawing />
@@ -44,7 +44,7 @@ export function Design({
       <p className="local-notice">
         {preview
           ? 'Development sample only. No AI runs and no CAD changes.'
-          : 'Local draft only. AI and Onshape integration are not available yet.'}
+          : 'Local draft only. AI and CAD operations are not available yet.'}
       </p>
       {draft && (
         <Card className="draft-card">

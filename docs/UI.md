@@ -1,11 +1,11 @@
-# Phase 1 UI architecture
+# UI architecture through Phase 2
 
 ## Ownership
 
-`App.tsx` composes the shell, modes, hash navigation, preferences, onboarding,
+`App.tsx` applies the authentication gate and composes the shell, modes, hash navigation, preferences, onboarding,
 notifications and error boundary. React hooks own local interaction state; no
-state-management or routing framework is required. The Phase 0 API and database
-infrastructure are unchanged.
+state-management or routing framework is required. The `auth/` frontend boundary validates `/api/me` at runtime; account mutations
+include a session-bound CSRF header. Provider credentials never enter this boundary.
 
 | Directory                    | Responsibility                                                                                |
 | ---------------------------- | --------------------------------------------------------------------------------------------- |
@@ -45,8 +45,8 @@ The rail-carriage SVG is a labeled concept illustration, not generated CAD.
 
 | Hash            | Behavior                                                                    |
 | --------------- | --------------------------------------------------------------------------- |
-| `#/` or no hash | Disconnected workspace, Design/Modify/Learn                                 |
-| `#/settings`    | Local settings with disabled account/integration/privacy placeholders       |
+| `#/` or no hash | Sign-in gate, then authenticated Design/Modify/Learn workspace              |
+| `#/settings`    | Account status, disconnect/sign out; local preferences                      |
 | `#/history`     | Empty history; no fake real project records                                 |
 | `#/lab`         | Development only: lazy-loaded mock preview with state/layout/theme controls |
 
@@ -92,6 +92,18 @@ units. Prompts, proposals, brief edits and reading progress are never persisted.
 The reader reconstructs an allowlisted record and rejects invalid stored values.
 Blocked storage preserves usable session state and explains the limitation.
 
-**No live Onshape integration exists yet. No OpenAI calls exist yet. No CAD is
-modified.** No real approval records, backend persistence, engineering validation,
-authentication or private model reasoning are implemented in this phase.
+Phase 2 adds real backend OAuth and account persistence; real-provider verification
+awaits credentials. No OpenAI calls or CAD reads/writes exist. There are no real CAD
+approval records, engineering validations or private model reasoning.
+
+The gate supports checking session, signed out, authorizing, denied, invalid/expired
+state, session expired, network failure and unconfigured deployment. Account settings
+support connected, disconnected/reconnect, revoked and authorization-error states.
+Connection status describes the last verification; Check connection performs a real
+identity request. Disconnect has an accessible confirmation and clearly distinguishes
+local token deletion from revocation in Onshape. Sign out ends only the current session.
+
+The frontend polls minimized session status once per minute and on focus. CSRF tokens
+stay in memory; cookies are HttpOnly. The login action navigates the top-level browser;
+a separate-tab link supports blocked embedding. The development-only lab bypasses
+the gate for presentation review but can neither mint sessions nor call provider APIs.

@@ -1,7 +1,7 @@
-# Future database boundary
+# Database boundary
 
-SQLAlchemy and psycopg are installed. No engine, session, tables, migrations, seed
-data, or automatic schema creation exists. `DATABASE_URL` is optional and redacted.
-Add scoped sessions and reviewed migrations only when persistence is authorized.
-Design future user ownership, encrypted token storage, audit retention, and deletion
-from the requirements in `docs/SECURITY.md` before creating real multi-user records.
+SQLAlchemy models and explicit Alembic migrations own Phase 2 users, authorizations,
+opaque sessions, OAuth states, preference foundations and minimized audit events.
+Startup verifies the migration revision; it never creates or destroys tables.
+PostgreSQL row locks serialize rotating refresh tokens. SQLite is a unit-test-only
+backend, with separate real PostgreSQL concurrency tests. See docs/AUTHENTICATION.md.

@@ -49,8 +49,8 @@ export function Onboarding({
         ))}
       </ol>
       <div className="notice">
-        Phase 1 is an interface foundation. No live Onshape integration exists
-        yet, no OpenAI calls run, and no CAD is modified.
+        Phase 2 connects your Onshape account. Engineering workflows remain
+        interface previews; no OpenAI calls run and no CAD is modified.
       </div>
       <div className="action-bar">
         <Button variant="primary" onClick={onClose}>

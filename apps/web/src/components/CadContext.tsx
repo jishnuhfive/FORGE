@@ -40,7 +40,7 @@ export function CadContext({ context }: { context: Context }) {
               ? 'Document and selection context will appear here when the integration is available.'
               : 'No Onshape document is available in this view.'}
           </p>
-          <Badge>Integration planned</Badge>
+          <Badge>CAD integration planned</Badge>
         </div>
       )}
     </Panel>

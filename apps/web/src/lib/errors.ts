@@ -5,7 +5,7 @@ export const errors: Record<ErrorCode, { title: string; description: string }> =
     disconnected: {
       title: 'Onshape is disconnected',
       description:
-        'Connecting an Onshape account will be available in a future phase. You can explore the interface today.',
+        'Open account settings to reconnect Onshape. CAD context will be available in a later phase.',
     },
     'no-document': {
       title: 'No document context',

@@ -1,5 +1,10 @@
 import { expect, test } from '@playwright/test';
+import { authenticatedFixture } from './auth-fixtures';
 import AxeBuilder from '@axe-core/playwright';
+
+test.beforeEach(async ({ page }) => {
+  await authenticatedFixture(page);
+});
 
 for (const width of [320, 380, 480, 1280]) {
   test(`workspace modes, settings and focus fit at ${width}px`, async ({
@@ -22,7 +27,7 @@ for (const width of [320, 380, 480, 1280]) {
     await expect(
       page
         .getByRole('dialog', { name: 'Document & selection' })
-        .getByText('Not connected to Onshape', { exact: true }),
+        .getByText('No document context', { exact: true }),
     ).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(contextButton).toBeFocused();
@@ -95,7 +100,11 @@ test('production excludes the development lab, fixtures and AI/CAD requests', as
 }) => {
   const unexpectedRequests: string[] = [];
   page.on('request', (request) => {
-    if (request.resourceType() === 'fetch' || request.resourceType() === 'xhr')
+    if (
+      (request.resourceType() === 'fetch' ||
+        request.resourceType() === 'xhr') &&
+      !request.url().endsWith('/api/me')
+    )
       unexpectedRequests.push(request.url());
   });
   await page.goto('/#/lab');

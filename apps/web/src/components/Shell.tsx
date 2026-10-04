@@ -18,6 +18,7 @@ import {
   Settings2,
   Unplug,
 } from 'lucide-react';
+import { useAuth } from '../auth/context';
 import { CadContext } from './CadContext';
 import type { CadContext as Context } from '../lib/types';
 
@@ -32,6 +33,7 @@ export function Shell({
   onOnboarding: () => void;
   onNotify: (message: string) => void;
 }) {
+  const auth = useAuth();
   const [contextOpen, setContextOpen] = useState(false);
   return (
     <div className="app-shell">
@@ -61,7 +63,7 @@ export function Shell({
         <div className="header-actions">
           <span className="connection-label">
             <Unplug size={13} aria-hidden="true" />
-            Disconnected
+            {auth ? auth.me.display_name : 'Preview'}
           </span>
           <IconButton
             label="Settings"
@@ -85,7 +87,7 @@ export function Shell({
                 label: 'About this foundation',
                 onSelect: () =>
                   onNotify(
-                    'Phase 1 UI foundation. No live AI, Onshape or CAD operations.',
+                    'Phase 2 account authentication. No live AI or CAD operations.',
                   ),
               },
             ]}
@@ -148,10 +150,16 @@ export function Shell({
           </div>
         </aside>
         <div className="workspace-pane">
+          {auth && auth.me.connection !== 'connected' && (
+            <p role="status" className="notice">
+              Onshape needs to reconnect.{' '}
+              <a href="#/settings">Open account settings</a>.
+            </p>
+          )}
           {children}
           <footer className="workspace-footer">
-            <span>FORGE / PHASE 1</span>
-            <span>No live integrations</span>
+            <span>FORGE / PHASE 2</span>
+            <span>No AI or CAD operations</span>
           </footer>
         </div>
         <aside className="context-rail" aria-label="Workspace context">
@@ -207,7 +215,7 @@ export function Shell({
         open={contextOpen}
         onOpenChange={setContextOpen}
         title="Document & selection"
-        description="Live Onshape context is not available in Phase 1."
+        description="CAD context is not available in Phase 2."
       >
         <CadContext context={context} />
       </Dialog>

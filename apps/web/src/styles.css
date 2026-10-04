@@ -929,3 +929,64 @@ ol.compact-list {
 ul.compact-list {
   list-style: disc;
 }
+
+.auth-page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  padding: 32px 20px;
+  background: radial-gradient(
+    ellipse at top,
+    var(--surface),
+    var(--background) 65%
+  );
+}
+.auth-card {
+  width: min(100%, 420px);
+  display: grid;
+  gap: 20px;
+}
+.auth-card .wordmark {
+  margin-bottom: 40px;
+}
+.auth-card h1 {
+  font-size: clamp(27px, 4vw, 36px);
+  margin: 0;
+}
+.auth-card p {
+  margin: 0;
+}
+.auth-continue {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 13px 16px;
+  color: var(--text);
+  background: var(--surface);
+  text-decoration: none;
+  font-weight: 600;
+}
+.auth-continue:hover {
+  border-color: var(--accent);
+}
+.auth-continue:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+.auth-security {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.header-actions .connection-label {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

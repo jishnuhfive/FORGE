@@ -7,15 +7,14 @@ right panel. Users describe **what** a mechanism must accomplish; Forge will hel
 determine **how** it should be engineered, with approval before CAD changes and
 deterministic checks of supported constraints.
 
-**Current status: Phase 1 — UI foundation.** Forge now has a responsive
-Design/Modify/Learn workspace, shared accessible components, themes, local
-preferences, onboarding, and a development-only UI lab. Engineering briefs,
-plans, runs, modification proposals, history and validation in the lab are
-**synthetic mock previews**.
+**Current status: Phase 2 — Onshape authentication implemented; real credential
+verification pending.** Forge has a responsive Design/Modify/Learn workspace,
+Onshape sign-in, revocable server sessions, encrypted refresh tokens, account controls
+and database migrations. The development UI lab works without an account.
 
-**No live Onshape integration exists yet. No OpenAI calls exist yet. No CAD is
-modified.** The backend remains the Phase 0 health-only API. Phase 2 has not begun.
-This is an interface foundation, not a production service release.
+**No OpenAI calls, CAD reads/writes or embedded extension messaging exist.** Engineering
+workflows remain local drafts or clearly labeled synthetic previews. Phase 3 has not
+begun. This is not a publicly deployed production service.
 
 ## Architecture and stack
 
@@ -24,8 +23,7 @@ macOS and Windows. Tailwind CSS, Radix accessible primitives, and Lucide provide
 the presentation foundation. Motion is limited to loading skeletons and respects reduced-motion preferences.
 
 FastAPI + Pydantic owns server boundaries; SQLAlchemy and psycopg are installed
-for future PostgreSQL access, but no database models, connections, or migrations
-exist yet. uv manages Python. npm workspaces manage the web and shared design
+with Alembic for PostgreSQL authentication persistence. uv manages Python. npm workspaces manage the web and shared design
 system. Docker Compose runs PostgreSQL; native development servers provide fast
 reloads. Git provides local source control; no remote is configured.
 
@@ -41,23 +39,24 @@ No OpenAI key, Onshape account, or GitHub account is required to review the UI.
 
 ## Quick start
 
-For the Phase 1 frontend, run this exact command:
+For the sign-in screen and credential-free development UI lab, run:
 
 ```sh
 cd /Users/jishnuhiremath/Developer/FORGE && make dev-web
 ```
 
 Open <http://127.0.0.1:5173>. The development-only UI lab is
-<http://127.0.0.1:5173/#/lab>. Settings: <http://127.0.0.1:5173/#/settings>.
+<http://127.0.0.1:5173/#/lab>. Account settings after sign-in: <http://127.0.0.1:5173/#/settings>.
 Projects/activity: <http://127.0.0.1:5173/#/history>. Ctrl+C stops the server.
 
 For a fresh checkout, run `make setup` first. `make dev` still starts both native
 web and API servers. Optional PostgreSQL starts with `make db-up` and stops with
-`make db-down`, retaining its data. Neither is required for the Phase 1 UI.
+`make db-down`, retaining its data. Neither is required for the development UI lab.
 The API health endpoint remains <http://127.0.0.1:8000/health>.
 
-No `.env` file is required. `.env.example` contains empty placeholders for future
-configuration. The local database uses deliberately public development defaults
+No `.env` is required for the UI lab or tests. Real login needs the exact
+[Onshape application and local HTTPS setup](docs/AUTHENTICATION.md). `.env.example`
+contains empty placeholders; never put real credentials in it. The local database uses deliberately public development defaults
 on loopback only. See [development](docs/DEVELOPMENT.md) before overriding them.
 
 ## Developer commands
@@ -100,18 +99,15 @@ package-lock.json        Reproducible JavaScript dependency graph
 
 ## Scope, limitations, and security
 
-`GET /health` reports process liveness only. It does not claim database, OpenAI, or
-Onshape readiness. The UI's phase label identifies its implementation stage, not service readiness.
-Design prompts are local drafts. Learn progression tracks reading only; Check my
-work returns UNVERIFIED. Authentication, agent tools, live inventory, persistence
-and CAD editing await later phases. See [UI architecture](docs/UI.md) for the
-preview boundaries and [Phase 1 review](docs/PHASE_1_REVIEW.md) for verification.
+`GET /health` reports process liveness only. Authentication readiness is distinct.
+The workspace displays the last verified Onshape authorization status; its Check
+connection action verifies identity, without accessing CAD. Design prompts remain
+local drafts and Learn validation remains UNVERIFIED. See [UI architecture](docs/UI.md).
 
-Never commit secrets. Keep future OpenAI keys and Onshape tokens backend-only.
-No client `VITE_*` secret variables are defined. Production sessions, encrypted
-tokens, authorization, rate limits, request limits, CSP, and deployment controls
-are documented requirements, not finished controls. The Phase 1 foundation is not a production
-release and claims no security certification.
+Provider credentials stay backend-only. Sessions, CSRF, token encryption and audit
+persistence are implemented. Real OAuth, iframe/browser integration, managed hosting,
+rate limits and operational launch controls still need verification/configuration.
+See [Phase 2 review](docs/PHASE_2_REVIEW.md). No certification is claimed.
 
 Forge v1 targets education and low-risk mechanical prototyping. Future results
 must distinguish PASS, WARNING, FAIL, and UNVERIFIED. Design assistance is not
@@ -125,3 +121,7 @@ write meaningful tests for important behavior, run quality checks, and document
 architecture changes. Never add fake integrations or fabricate validation results.
 Advance only into the phase explicitly authorized by the user. This repository
 has no public contribution policy or open-source license selected yet.
+
+Phase 2 adds `make migrate`, `make migration-check`, `make test-postgres` and
+`make dev-web-https`. See [authentication](docs/AUTHENTICATION.md) before using them
+with real account credentials. Existing Phase 0 and Phase 1 commits remain intact.

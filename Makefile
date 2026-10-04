@@ -33,7 +33,7 @@ lint:
 
 typecheck:
 	npm run typecheck
-	cd apps/api && uv run --frozen mypy src tests ../../scripts
+	cd apps/api && uv run --frozen mypy src tests migrations ../../scripts
 
 format:
 	npm run format
@@ -56,3 +56,16 @@ db-down:
 	docker compose down
 
 check: lint typecheck test build compose-check
+
+.PHONY: migrate migration-check dev-web-https test-postgres
+migrate:
+	cd apps/api && uv run --frozen alembic upgrade head
+
+migration-check:
+	cd apps/api && uv run --frozen alembic check
+
+dev-web-https:
+	npm run dev --workspace @forge/web -- --mode local-https
+
+test-postgres:
+	cd apps/api && uv run --frozen pytest tests/test_postgres.py

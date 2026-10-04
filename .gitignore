@@ -43,3 +43,6 @@ Thumbs.db
 Desktop.ini
 *.swp
 *.swo
+
+# Local HTTPS development certificates
+.certs/

@@ -1,5 +1,6 @@
 import { Badge, Button, Input, Panel } from '@forge/design-system';
 import { useId, useState } from 'react';
+import { Account } from '../auth/Account';
 import type { Preferences } from '../lib/types';
 
 export function Settings({
@@ -23,24 +24,7 @@ export function Settings({
         <h1>Settings</h1>
         <p>A workspace that fits how you engineer.</p>
       </div>
-      <Panel title="Account">
-        <div className="profile-placeholder">
-          <span className="avatar" aria-hidden="true">
-            F
-          </span>
-          <div>
-            <strong>No account connected</strong>
-            <p className="muted small">
-              Profile and Onshape sign-in are planned.
-            </p>
-          </div>
-        </div>
-        <div className="settings-row">
-          <span>Onshape connection</span>
-          <Badge>Not implemented</Badge>
-        </div>
-        <Button disabled>Sign out · not available</Button>
-      </Panel>
+      <Account />
       <Panel title="Preferences">
         <fieldset>
           <legend>Units</legend>
@@ -165,12 +149,14 @@ export function Settings({
       <Panel title="Privacy">
         <p>
           Only interface preferences and onboarding completion are stored
-          locally. Prompts and sample edits stay in memory. No data is sent to
-          OpenAI or Onshape.
+          locally. Prompts and sample edits stay in memory. Account
+          authentication communicates with Onshape through the Forge server. No
+          engineering prompts are sent to a service.
         </p>
         <p className="muted small">
-          Account data retention and deletion controls will be defined with the
-          future backend integration.
+          Sign out ends this session. Disconnect removes stored Onshape tokens.
+          Account deletion requires operator assistance; self-service deletion
+          is planned.
         </p>
         <Button disabled>Delete Forge data · not available</Button>
       </Panel>

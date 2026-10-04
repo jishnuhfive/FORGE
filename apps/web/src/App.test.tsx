@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { App } from './App';
+import { Workspace as App } from './App';
 
 function route(hash: string) {
   act(() => {
@@ -39,7 +39,7 @@ describe('Forge application foundation', () => {
         name: 'What do you want to engineer?',
       }),
     ).toBeVisible();
-    expect(screen.getByText('Phase 1 · UI foundation')).toBeVisible();
+    expect(screen.getByText('Local design draft')).toBeVisible();
   });
   it('persists skipped onboarding and does not reopen on a new mount', () => {
     const first = render(<App />);
