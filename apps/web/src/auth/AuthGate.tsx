@@ -4,6 +4,8 @@ import { Button, Skeleton } from '@forge/design-system';
 import { ArrowUpRight, ShieldCheck } from 'lucide-react';
 import { loadMe } from './api';
 import type { Me } from './api';
+import { useOnshapeContext } from '../onshape/store';
+import { CadContext } from '../components/CadContext';
 import { AuthContext } from './context';
 import { usePreferences } from '../lib/preferences';
 
@@ -18,6 +20,8 @@ const notices: Record<string, string> = {
 
 export function AuthGate({ children }: { children: ReactNode }) {
   usePreferences();
+  const client = useOnshapeContext();
+  const embedded = client.status !== 'STANDALONE';
   const [me, setMe] = useState<Me | null>(null);
   const [networkError, setNetworkError] = useState(false);
   const [authorizing, setAuthorizing] = useState(false);
@@ -162,6 +166,24 @@ export function AuthGate({ children }: { children: ReactNode }) {
             )}
           </>
         )}
+        {embedded && (me || networkError) && (
+          <section aria-label="Embedded session" className="embedded-session">
+            <h2>Panel session</h2>
+            <p role="status">
+              Your Forge session is unavailable in this panel. Sign in in a
+              separate tab, then check again. Browser cookie restrictions may
+              prevent this panel from sharing that session.
+            </p>
+            <Button
+              onClick={() => {
+                void reload();
+              }}
+            >
+              Check panel session
+            </Button>
+            <CadContext context={{ kind: 'live', state: client }} />
+          </section>
+        )}
         <p className="small muted auth-security">
           <ShieldCheck size={17} aria-hidden="true" />
           Your Onshape password stays with Onshape.
@@ -184,9 +206,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
           </a>
         )}
       </div>
-      <span className="muted small">
-        FORGE / PHASE 2 · Account authentication
-      </span>
+      <span className="muted small">FORGE / PHASE 3 · Onshape extension</span>
     </main>
   );
 }

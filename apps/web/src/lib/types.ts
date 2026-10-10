@@ -5,6 +5,7 @@ export type Theme = 'system' | 'light' | 'dark';
 export type SelectionState =
   'none' | 'face' | 'edges' | 'ambiguous' | 'unsupported' | 'stale';
 export type CadContext =
+  | { kind: 'live'; state: import('../onshape/model').ClientState }
   | { kind: 'disconnected' }
   | { kind: 'no-document' }
   | {

@@ -33,6 +33,15 @@ foundation, local preferences and development-only synthetic previews. Live
 functionality described by later phases remains planned. Phase 2 now implements Onshape OAuth, identity persistence, encrypted refresh tokens,
 revocable sessions, CSRF and account UI. Automated verification is recorded in
 [PHASE_2_REVIEW.md](PHASE_2_REVIEW.md); real OAuth requires human credential setup.
-Phase 1 remains preserved in `31f545a`. Phase 3 has not begun. The flagship camera-slider example is a future evaluation scenario,
-not a generated design or promise that all engineering constraints can be certified.
-Forge v1 targets education, makers, low-risk prototypes, and student engineering.
+Phase 1 remains preserved in `31f545a`; Phase 2 is `676414f`. The human reports real
+OAuth login verified. Phase 3 implements validated launch context, exact-origin/parent
+messaging and a bounded single-face/edge/clear adapter. The human verified embedding,
+authenticated iframe session and launch context. The corrected live FACE structure,
+along with EDGE and clear captures, matches the implemented adapter. The full gate
+and targeted FACE regressions pass. Phase 3 is complete and its commit/push authorized.
+Phase 4 remains unauthorized. See [ONSHAPE_EXTENSION.md](ONSHAPE_EXTENSION.md).
+
+Multi-selection, assembly paths, version messaging and browser-wide session behavior
+are not established by these Part Studio samples. The camera-slider example remains
+a future evaluation scenario, not a generated design or engineering certification.
+Forge v1 targets education, makers, low-risk prototypes and student engineering.

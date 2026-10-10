@@ -7,14 +7,17 @@ right panel. Users describe **what** a mechanism must accomplish; Forge will hel
 determine **how** it should be engineered, with approval before CAD changes and
 deterministic checks of supported constraints.
 
-**Current status: Phase 2 — Onshape authentication implemented; real credential
-verification pending.** Forge has a responsive Design/Modify/Learn workspace,
-Onshape sign-in, revocable server sessions, encrypted refresh tokens, account controls
-and database migrations. The development UI lab works without an account.
+**Current status: Phase 3 complete.** The human verified real Onshape right-panel
+embedding, embedded authentication, launch context and FACE/EDGE/clear message
+structures. The strict single-entity/clear adapter matches those live captures.
+See [Phase 3 review](docs/PHASE_3_REVIEW.md). Forge has a responsive Design/Modify/Learn
+workspace, Onshape sign-in, revocable server sessions, encrypted refresh tokens,
+account controls and database migrations. The development UI lab works without an account.
 
-**No OpenAI calls, CAD reads/writes or embedded extension messaging exist.** Engineering
-workflows remain local drafts or clearly labeled synthetic previews. Phase 3 has not
-begun. This is not a publicly deployed production service.
+**No OpenAI calls or CAD REST reads/writes exist.** `/extension` validates launch
+context and receives narrowly validated client selection messages. Engineering
+workflows remain local drafts or labeled synthetic previews. This is not a publicly
+deployed production service. Phase 4 has not begun.
 
 ## Architecture and stack
 
@@ -25,7 +28,7 @@ the presentation foundation. Motion is limited to loading skeletons and respects
 FastAPI + Pydantic owns server boundaries; SQLAlchemy and psycopg are installed
 with Alembic for PostgreSQL authentication persistence. uv manages Python. npm workspaces manage the web and shared design
 system. Docker Compose runs PostgreSQL; native development servers provide fast
-reloads. Git provides local source control; no remote is configured.
+reloads. Git origin is `https://github.com/jishnuhfive/FORGE.git`; Phase 2 main matches origin/main.
 
 ## Prerequisites
 
@@ -105,7 +108,7 @@ connection action verifies identity, without accessing CAD. Design prompts remai
 local drafts and Learn validation remains UNVERIFIED. See [UI architecture](docs/UI.md).
 
 Provider credentials stay backend-only. Sessions, CSRF, token encryption and audit
-persistence are implemented. Real OAuth, iframe/browser integration, managed hosting,
+persistence are implemented. Real OAuth login was manually verified by the human. Browser-wide iframe compatibility, managed hosting,
 rate limits and operational launch controls still need verification/configuration.
 See [Phase 2 review](docs/PHASE_2_REVIEW.md). No certification is claimed.
 
@@ -125,3 +128,6 @@ has no public contribution policy or open-source license selected yet.
 Phase 2 adds `make migrate`, `make migration-check`, `make test-postgres` and
 `make dev-web-https`. See [authentication](docs/AUTHENTICATION.md) before using them
 with real account credentials. Existing Phase 0 and Phase 1 commits remain intact.
+
+Phase 3 extension registration, exact local URLs, source-contract gap and manual
+acceptance steps: [Onshape extension](docs/ONSHAPE_EXTENSION.md).

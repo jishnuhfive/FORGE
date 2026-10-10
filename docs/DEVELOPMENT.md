@@ -240,3 +240,36 @@ and 64-bit Windows/Linux backend environments. Upstream removed Intel macOS and
 32-bit Windows support; native backend development on those hosts is unverified.
 This does not change Forge's browser support on macOS/Windows. See the
 [upstream release notes](https://cryptography.io/en/latest/changelog/).
+
+## Phase 3 development and verification
+
+Use the existing HTTPS/API services. `/extension` is the same app's iframe entry;
+`https://localhost:5173/#/onshape-simulator` previews synthetic presentation, including
+multi-selection beyond the current live contract. No local-origin bypass exists.
+See [ONSHAPE_EXTENSION.md](ONSHAPE_EXTENSION.md) for the unchanged Action URL,
+registration, sanitized diagnostics and exact live retest procedure.
+
+The human verified real embedding, iframe authentication and valid launch context.
+The narrow adapter handles one FACE/EDGE ENTITY or an explicit empty array. Its tests
+use invented reference values matching captured structure only. The corrected live
+FACE capture resolves the final evidence blocker; it matches the existing fixture
+and parser. Phase 3 is complete. Keep automated fixture evidence distinct from the
+human's real Onshape observations. Phase 4 requires separate authorization.
+
+Run targeted tests with `npm run test --workspace @forge/web -- src/onshape`.
+The complete gate is `make format`, `make check`, `make test-e2e`, `make migration-check`
+and `make audit`, with explicit PostgreSQL regressions where configured.
+`tests/e2e/extension.spec.ts` intercepts synthetic HTTPS origins and exercises actual
+browser-generated postMessage origin/source against production and DEV assets. It
+covers valid/replaced/cleared/malformed selection, document/workspace/element reload,
+wrong-origin/source senders, no reference storage/UI leaks, diagnostics and production
+exclusion. Browser screenshots contain synthetic data only in ignored `.cache/phase3/`.
+Playwright owns ports 4173/4174 and stops those services; preserve the user's 5173/8000.
+
+For troubleshooting, **Launch context diagnostic** works even with invalid context
+or unavailable auth. **Selection diagnostic** requires validated launch context and
+starts disabled. Both appear below the DEV app, never in production. Enable explicitly
+and share only sanitized copy-button output; never raw IDs, URLs, network data or logs.
+The selection observer is separate from selection parsing and cannot establish trust.
+Cookie/session/CSRF configuration is unchanged. Real browser-wide cookie behavior,
+assembly paths, multiple selection and version messaging remain unverified.

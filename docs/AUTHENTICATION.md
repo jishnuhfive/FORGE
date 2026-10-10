@@ -1,7 +1,10 @@
 # Phase 2 authentication
 
-Implemented OAuth identity and lifecycle; real Onshape verification is pending
-human credentials. Phase 3 embedding, messaging and CAD context are not implemented.
+Implemented OAuth identity and lifecycle. The human reports real Onshape login
+verified with Forge Development. Phase 3 adds a launch-context bridge and embedded
+session-unavailable guidance. The human now reports genuine right-panel embedding
+and an authenticated display name in the iframe. Live selection decoding and
+browser-wide cookie compatibility remain incomplete. See [ONSHAPE_EXTENSION.md](ONSHAPE_EXTENSION.md).
 See [Onshape evidence](ONSHAPE.md) and [security review](PHASE_2_REVIEW.md).
 
 ## Sequence and trust boundaries
@@ -219,7 +222,7 @@ available if an iframe sandbox prevents that navigation. No tokens are transferr
 via localStorage, URL fragments or `postMessage`. Opening another tab provides a
 working standalone session; it does not magically unblock iframe cookies.
 
-Future embedded deployment can set SESSION_SAMESITE=none on HTTPS, but browsers
+An explicitly configured embedded deployment can set SESSION_SAMESITE=none on HTTPS, but browsers
 may still block third-party cookies. Onshape explicitly calls out allowing them.
 Real embedded Chromium/Firefox/WebKit compatibility is a Phase 3 gate, including
 approved frame ancestors, browser policy, sandboxing and storage-access evaluation.

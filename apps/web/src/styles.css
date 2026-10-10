@@ -990,3 +990,57 @@ ul.compact-list {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Embedded context must remain readable at 320px, including unknown/error states. */
+.context-list dd {
+  overflow-wrap: anywhere;
+}
+.embedded-session {
+  display: grid;
+  gap: 16px;
+  margin-block: 16px;
+}
+.extension-simulator {
+  max-width: 760px;
+  margin-inline: auto;
+}
+.simulator-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-block: 20px;
+}
+
+.selection-diagnostic {
+  padding: 20px;
+  border-top: 1px solid var(--border);
+  max-width: 800px;
+  margin: auto;
+}
+.selection-diagnostic h2 {
+  margin-block: 8px;
+}
+.selection-diagnostic p {
+  margin-block: 12px;
+}
+.selection-diagnostic textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin-block: 8px 12px;
+  padding: 12px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font:
+    12px/1.5 ui-monospace,
+    monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  resize: vertical;
+}
+.diagnostic-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

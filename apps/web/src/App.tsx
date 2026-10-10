@@ -17,11 +17,16 @@ import { Settings } from './features/Settings';
 import { History } from './features/History';
 import { usePreferences } from './lib/preferences';
 import { AuthGate } from './auth/AuthGate';
+import { OnshapeProvider } from './onshape/OnshapeProvider';
+import { useOnshapeContext } from './onshape/store';
 import type { Mode } from './lib/types';
 
 // Vite removes this branch and its fixtures from a production build.
 const UiLab = import.meta.env.DEV
   ? lazy(() => import('./preview/UiLab'))
+  : null;
+const OnshapeSimulator = import.meta.env.DEV
+  ? lazy(() => import('./preview/OnshapeSimulator'))
   : null;
 const subscribe = (notify: () => void) => {
   window.addEventListener('hashchange', notify);
@@ -31,15 +36,28 @@ const snapshot = () => window.location.hash;
 
 export function App() {
   const route = useSyncExternalStore(subscribe, snapshot);
+  if (
+    import.meta.env.DEV &&
+    route === '#/onshape-simulator' &&
+    OnshapeSimulator
+  )
+    return (
+      <Suspense fallback={<p>Loading simulator…</p>}>
+        <OnshapeSimulator />
+      </Suspense>
+    );
   if (import.meta.env.DEV && route === '#/lab') return <Workspace />;
   return (
-    <AuthGate>
-      <Workspace />
-    </AuthGate>
+    <OnshapeProvider>
+      <AuthGate>
+        <Workspace />
+      </AuthGate>
+    </OnshapeProvider>
   );
 }
 
 export function Workspace() {
+  const client = useOnshapeContext();
   const route = useSyncExternalStore(subscribe, snapshot);
   const { preferences, setPreferences, storageAvailable } = usePreferences();
   const [mode, setMode] = useState<Mode>('design');
@@ -75,7 +93,7 @@ export function Workspace() {
           </Suspense>
         ) : (
           <Shell
-            context={{ kind: 'no-document' }}
+            context={{ kind: 'live', state: client }}
             onOnboarding={() => setIntroRequested(true)}
             onNotify={notify}
           >

@@ -3,10 +3,19 @@ import react from '@vitejs/plugin-react';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { defineConfig } from 'vitest/config';
+import { FRAME_ANCESTORS } from './src/onshape/policy.js';
+
+const headers = {
+  'Content-Security-Policy': FRAME_ANCESTORS,
+  'Referrer-Policy': 'no-referrer',
+  'X-Content-Type-Options': 'nosniff',
+};
 
 export default defineConfig(({ mode }) => ({
   plugins: [react(), tailwindcss()],
+  preview: { headers },
   server: {
+    headers,
     // Explicit mode: certificates are never needed for the credential-free UI lab.
     ...(mode === 'local-https'
       ? {

@@ -27,7 +27,7 @@ for (const width of [320, 380, 480, 1280]) {
     await expect(
       page
         .getByRole('dialog', { name: 'Document & selection' })
-        .getByText('No document context', { exact: true }),
+        .getByText('Not inside Onshape', { exact: true }),
     ).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(contextButton).toBeFocused();
@@ -61,7 +61,9 @@ for (const width of [320, 380, 480, 1280]) {
     await page.keyboard.press('ArrowRight');
     await expect(page.getByRole('tab', { name: 'Learn' })).toBeFocused();
     await page.getByRole('button', { name: 'Check my work' }).click();
-    await expect(page.getByRole('status')).toContainText('UNVERIFIED');
+    await expect(page.getByRole('main').getByRole('status')).toContainText(
+      'UNVERIFIED',
+    );
     await page.getByRole('button', { name: 'Next step' }).click();
     await expect(
       page.getByRole('heading', { name: 'Give the plate thickness' }),
@@ -74,7 +76,7 @@ for (const width of [320, 380, 480, 1280]) {
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     await page.getByLabel('Bed width (mm)').fill('250');
     await page.getByRole('button', { name: 'Save local profile' }).click();
-    await expect(page.getByRole('status')).toContainText(
+    await expect(page.getByRole('main').getByRole('status')).toContainText(
       'Profile saved in this browser',
     );
     expect(

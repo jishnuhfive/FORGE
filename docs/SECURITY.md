@@ -1,6 +1,6 @@
 # Security architecture
 
-## Implemented through Phase 2
+## Implemented through Phase 2, with Phase 3 launch boundary
 
 Forge uses Onshape OAuth2 only. There are no passwords, JWT login tokens, CAD tools
 or AI calls. Authentication establishes an account, not permission to change CAD.
@@ -47,8 +47,8 @@ Passing tests is not certification or production deployment approval.
 
 ## Remaining authentication deployment gates
 
-Real Onshape login/refresh/revocation needs the human-owned application and genuine
-credentials. Real embedded browser behavior and enterprise stacks are unverified.
+The human has verified real Onshape login. Additional refresh/revocation evidence
+remains governed by the Phase 2 procedure. The human verified one real embedded session; browser-wide compatibility and enterprise stacks remain unverified.
 Onshape's documented third-party-cookie requirement is not resolved by merely
 setting SameSite=None; top-level/separate-tab authentication is the safe fallback.
 No localStorage credentials or weakened CSRF checks are used to bypass restrictions.
@@ -67,7 +67,7 @@ Disconnect deletes local credentials; users revoke the remote grant in Onshape
 My account → Applications. Deletion from backups follows the deployment retention
 policy; local deletion is not a claim that every historic backup was erased.
 
-## Future iframe and messaging controls
+## Phase 3 iframe and messaging controls
 
 Use same-origin web/API hosting. For embedding, verify Onshape origin allowlists and
 set `frame-ancestors` at hosting; avoid contradictory global frame-denial headers.
@@ -76,7 +76,19 @@ methods and headers. The Onshape parent's origin is not Forge's request origin.
 
 Validate postMessage origin, expected source window, type, size, schema, context and
 freshness. Use an exact targetOrigin. Browser document/workspace/selection IDs never
-establish object authorization. Phase 2 installs no message listeners.
+establish object authorization. Phase 3 uses one dedicated listener with an exact
+operator-owned origin and parent-window source check. The live selection adapter
+accepts only bounded single FACE/EDGE ENTITY references or explicit empty arrays.
+Unknown fields are discarded, malformed trusted selections remove stale references,
+and lifecycle invalidation prevents delayed messages from reviving them. Selection
+references are memory-only and never rendered; they are not authorization. An opt-in DEV-only
+observer behind the same origin/source checks can inspect structure without accepting
+it as CAD state. It emits only fixed labels/types/capped counts; ID/name/URL values
+and unknown property names are redacted, and secret-labelled subtrees suppressed.
+Raw payloads are never retained, logged, stored or sent to the backend. Traversal,
+output and capture frequency are bounded; browser cloning before delivery is outside
+those bounds. Copy requires an explicit click and copies sanitized text only. The
+production build removes this path. See [ONSHAPE_EXTENSION.md](ONSHAPE_EXTENSION.md).
 
 ## Future AI and CAD operation gate
 
@@ -92,3 +104,32 @@ public actions and verify the result. Reconcile uncertain writes before retrying
 Keep deterministic PASS, WARNING, FAIL and UNVERIFIED separate from model judgment.
 Apply quotas and bounded model turns, calls, timeouts, spend and cancellation.
 Never persist private chain-of-thought. No engineering certification is claimed.
+
+Phase 3 dev/preview HTML responses restrict frame ancestors to the standard Onshape
+origin and suppress referrers. Production ingress must replicate those headers;
+Vite build output alone does not configure an ingress. No enterprise wildcard is
+accepted. Missing/unapproved server, URL credentials and malformed IDs fail closed.
+Untrusted messages cannot change CAD context or selection, and no raw payload/query
+is logged or persisted. An unavailable in-frame session keeps the auth gate closed.
+CSRF, cookies, token encryption and account ownership controls remain unchanged.
+
+Workspace-style launch queries remain subject to the same ID validation and exact
+server/parent checks. Version IDs are never remapped into workspaceId for outgoing
+initialization. A workspaceId field alone does not identify a mislabelled version;
+the current registration is verified only for workspace use, not version viewing.
+The context-label repair changes no OAuth/session/CSRF or diagnostic controls.
+
+The opt-in DEV launch diagnostic exposes only field names, presence/types/lengths,
+validation/reason codes and an approved normalized server origin. All query values,
+including default personal metadata and secrets, stay out of the report. Suspicious
+parameter names and unapproved hosts are redacted. The diagnostic is local inspection
+of untrusted launch input, not authorization: it can appear for invalid context while
+the bridge remains closed. No raw logging, storage, upload or parser change is added.
+
+After the real sanitized capture, exactly `sessionCompanyId` and `theme` were added
+to the accepted ancillary names. These and `clientId` are validated as nonempty
+strings up to 128 characters without C0/DEL controls, then discarded. A speculative
+client-ID character class was removed because that value is opaque and unused.
+Unknown names, credentials in query parameters, duplicate fields, invalid CAD IDs
+and untrusted origins still fail closed. Metadata cannot select a company, change
+theme, authenticate a user or widen a postMessage/backend destination.

@@ -1,4 +1,4 @@
-# UI architecture through Phase 2
+# UI architecture through Phase 3 launch shell
 
 ## Ownership
 
@@ -107,3 +107,38 @@ The frontend polls minimized session status once per minute and on focus. CSRF t
 stay in memory; cookies are HttpOnly. The login action navigates the top-level browser;
 a separate-tab link supports blocked embedding. The development-only lab bypasses
 the gate for presentation review but can neither mint sessions nor call provider APIs.
+
+## Phase 3 live-capable CAD Context
+
+`/extension` uses the existing app and hash navigation, with `OnshapeProvider` outside
+AuthGate. A typed in-memory context exposes launch and message status; no raw query
+strings reach feature components. CAD Context now shows Not inside Onshape, Waiting
+for document context, safe launch IDs/revision, or validation/origin errors. IDs are
+abbreviated; document names and element types are never inferred. The narrow header
+opens the existing context dialog and the wide view retains the context rail.
+
+Embedded signed-out/expired sessions have a recheck button and safe top-level/new-tab
+sign-in. Local themes and onboarding are retained. The DEV-only
+`#/onshape-simulator` previews internal no-selection/face/edge/clear/change/stale
+states, including multiple selection beyond the live adapter.
+Normal product UI shows only validated live counts: one face, one edge or no selection.
+Malformed trusted selection shows unavailable and removes stale references. See
+[ONSHAPE_EXTENSION.md](ONSHAPE_EXTENSION.md) for the remaining live verification.
+
+Development frames with valid context also have a **Selection diagnostic** section
+below the app, including when iframe auth is unavailable. It starts disabled and
+exposes a wrapped readonly sanitized textarea plus copy/clear/disable buttons. It
+never changes selection labels; the independent adapter validates live messages. Narrow layouts wrap
+buttons and code; clipboard-policy failures provide a manual-copy fallback. Both
+this diagnostic and the simulator are absent from production.
+
+The Design prompt context badge also reads the normalized store. A valid workspace
+shows **Onshape workspace context**; an explicit version shows **Onshape version
+context · messaging unverified**. Standalone/waiting/error states are distinct. The
+old missing-prop “No CAD context” fallback is no longer used by the Design workspace.
+Preview labels remain explicitly synthetic and no CAD operation is enabled.
+
+**Launch context diagnostic** is a DEV-only section below the workspace/footer,
+before selection diagnostics. It remains visible on `/extension` when context is
+invalid. Show/copy/clear controls manage a wrapped readonly sanitized metadata report;
+no ID values, raw URL or credentials are rendered. Production has no such panel.

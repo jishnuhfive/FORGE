@@ -3,6 +3,7 @@ import { ArrowRight, PencilRuler } from 'lucide-react';
 import { useState } from 'react';
 import { PromptComposer } from '../components/PromptComposer';
 import { MechanismDrawing } from '../components/MechanismDrawing';
+import { useOnshapeContext } from '../onshape/store';
 
 export function Design({
   preview = false,
@@ -12,6 +13,18 @@ export function Design({
   onSubmit?: (text: string) => void;
 }) {
   const [draft, setDraft] = useState('');
+  const client = useOnshapeContext();
+  const contextLabel = client.context
+    ? client.context.revision.kind === 'workspace'
+      ? 'Onshape workspace context'
+      : 'Onshape version context · messaging unverified'
+    : client.status === 'STANDALONE'
+      ? 'Not inside Onshape'
+      : client.status === 'UNTRUSTED_ORIGIN'
+        ? 'Onshape origin could not be verified'
+        : client.status === 'EMBEDDED_CONTEXT_ERROR'
+          ? 'Document context unavailable'
+          : 'Waiting for document context';
   return (
     <div className="feature design-feature">
       <div className="section-kicker">
@@ -32,7 +45,7 @@ export function Design({
         </p>
       </div>
       <PromptComposer
-        context={preview ? 'Mock context · 1 face' : undefined}
+        context={preview ? 'Mock context · 1 face' : contextLabel}
         label="Design prompt"
         placeholder="A camera slider with 400 mm travel, carrying a 0.30 kg camera…"
         onSubmit={(text) => {

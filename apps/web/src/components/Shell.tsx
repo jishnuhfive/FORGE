@@ -57,7 +57,9 @@ export function Shell({
           <span>
             {context.kind === 'preview'
               ? context.document
-              : 'Untitled workspace'}
+              : context.kind === 'live' && context.state.context
+                ? 'Onshape document'
+                : 'Untitled workspace'}
           </span>
         </button>
         <div className="header-actions">
@@ -87,7 +89,7 @@ export function Shell({
                 label: 'About this foundation',
                 onSelect: () =>
                   onNotify(
-                    'Phase 2 account authentication. No live AI or CAD operations.',
+                    'Phase 3 extension bridge. No live AI or CAD operations.',
                   ),
               },
             ]}
@@ -158,7 +160,7 @@ export function Shell({
           )}
           {children}
           <footer className="workspace-footer">
-            <span>FORGE / PHASE 2</span>
+            <span>FORGE / PHASE 3</span>
             <span>No AI or CAD operations</span>
           </footer>
         </div>
@@ -215,7 +217,7 @@ export function Shell({
         open={contextOpen}
         onOpenChange={setContextOpen}
         title="Document & selection"
-        description="CAD context is not available in Phase 2."
+        description="Document and selection context from the Onshape panel."
       >
         <CadContext context={context} />
       </Dialog>

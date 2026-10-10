@@ -34,8 +34,8 @@ and the fixed redirect protect the implemented flow. Reassess PKCE with Onshape
 before public launch. Logout and local disconnect are distinct.
 
 Earlier Forge documentation described OAuth as future work and speculated about
-registration. Authentication now exists; extension registration, message handling,
-document inspection and writes remain future phases. HTTPS is used locally for a
+registration. Authentication now exists; the Phase 3 launch bridge is now implemented. A narrow client selection adapter is implemented;
+document REST inspection and writes remain future phases. HTTPS is used locally for a
 cloud application; the documented HTTP localhost exception is for installed desktop
 apps and is not assumed to apply to Forge.
 
@@ -66,7 +66,8 @@ These labels and navigation are from the official
 [registration guide](https://cad.onshape.com/help/Content/Plans/my_account_developer.htm).
 Use [AUTHENTICATION.md](AUTHENTICATION.md) to create the ignored `.env`, generate
 an encryption key, trust local HTTPS, start Forge and run the manual login test.
-No right-panel extension is created in Phase 2.
+No right-panel extension was created in Phase 2. Phase 3 instructions for the
+existing application are in [ONSHAPE_EXTENSION.md](ONSHAPE_EXTENSION.md).
 
 Company administrators can assign a testing user through company settings →
 Applications → Forge Development → Add users or teams → Add. Individual distribution
@@ -93,7 +94,7 @@ fragments and nonstandard ports are rejected. Enterprise API stack and company I
 are operator-configured and retained, never accepted from browser launch parameters.
 Real enterprise/company association and cross-stack behavior are unverified.
 
-## Future phases: unchanged integration boundaries
+## Current Phase 3 and future integration boundaries
 
 Phase 3 must verify real right-panel embedding and third-party-cookie behavior,
 restricted frame ancestors, expected parent window, exact postMessage origin and
@@ -105,3 +106,31 @@ independent object authorization, bounded retries and rate limits. CAD changes
 require schema/unit/numeric validation, approval bound to a specific plan/document
 version, sanitized audit and actual result verification. No model receives shell,
 arbitrary HTTP or unrestricted Onshape execution. No CAD or AI calls exist in Phase 2.
+
+## Phase 3 evidence — 2026-10-10
+
+The human verified real Phase 2 OAuth login, genuine Part Studio right-panel embedding,
+an authenticated iframe display name and valid workspace launch context. The existing
+Action URL is unchanged. Earlier composer and ancillary-metadata incompatibilities
+are repaired; CAD IDs, server trust and revision validation remain strict.
+
+Official docs establish the Element right panel location, Action URL replacement
+parameters, applicationInit, show and SELECTION message names, but do not publish an
+inbound selection payload schema. The real sanitized captures establish a top-level
+selections array with one ENTITY/FACE or ENTITY/EDGE reference and undefined
+occurrencePath, or an empty array when cleared. The human supplied the corrected
+authoritative FACE capture and confirmed the earlier EDGE-valued sample was mislabeled.
+The corrected structure matches the existing parser without implementation changes.
+These samples do not establish multi-selection/assembly/version behavior.
+
+The strict adapter atomically replaces or clears memory-only selection. Unsupported
+trusted content removes old references and shows unavailable. Exact origin/source
+checks precede parsing; no outgoing highlight command, CAD request or new scope exists.
+DEV-only sanitized diagnostics remain available, redacted and excluded from production.
+Explicit version revisions are retained but never initialized as workspaces.
+
+[ONSHAPE_EXTENSION.md](ONSHAPE_EXTENSION.md) records sources, the exact unchanged
+registration, bounded contract, lifecycle, browser/session limitations and live retest.
+[PHASE_3_REVIEW.md](PHASE_3_REVIEW.md) records the passing quality gate and resolved
+FACE evidence. Phase 3 is complete; the planned commit/push is authorized. Phase 4
+is not started or authorized.

@@ -4,6 +4,14 @@ from pydantic import SecretStr, ValidationError
 from forge_api.core.config import REPOSITORY_ROOT, Settings
 
 
+@pytest.fixture(autouse=True)
+def isolated_config(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Real local OAuth setup must not fill deliberately incomplete test settings.
+    monkeypatch.setitem(Settings.model_config, "env_file", None)
+    for field in Settings.model_fields:
+        monkeypatch.delenv(field.upper(), raising=False)
+
+
 def test_config_finds_repository_and_ignores_empty_environment(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

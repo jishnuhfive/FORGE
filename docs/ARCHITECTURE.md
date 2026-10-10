@@ -1,6 +1,6 @@
 # Architecture
 
-## Current implementation — Phase 2 authentication
+## Current implementation — Phase 3 extension and client context complete
 
 One React/TypeScript/Vite web client, one FastAPI/Pydantic API and shared presentation
 primitives serve desktop browsers. Native clients are not part of Forge.
@@ -8,7 +8,9 @@ primitives serve desktop browsers. Native clients are not part of Forge.
 The Phase 1 Design/Modify/Learn shell remains, now behind an Onshape sign-in gate.
 The development UI lab is independent of authentication and remains excluded from
 production builds. Engineering workflows remain local or explicitly synthetic.
-No AI, CAD reads/writes or extension messaging are implemented.
+No AI or CAD REST reads/writes are implemented. The extension launch bridge sends
+applicationInit, handles documented show messages and normalizes bounded single
+FACE/EDGE or clear SELECTION envelopes matching the human's live sanitized captures.
 
 FastAPI owns OAuth code exchange, identity, revocable opaque sessions, encrypted
 refresh tokens and CSRF. SQLAlchemy models and Alembic migrations use PostgreSQL.
@@ -110,5 +112,49 @@ UI renders. [SECURITY.md](SECURITY.md) records the required controls;
   worker, trading modest provider traffic for less persisted sensitive data.
 - Identity includes its configured Onshape stack; company context is operator-owned.
   Multi-stack routing and live enterprise validation remain future work.
-- Credentials and live OAuth are externally configured and remain unverified.
-  Phase 3 has not begun.
+- The human reports real OAuth login and genuine right-panel embedding with an
+  authenticated display name and launch context verified. Live FACE/EDGE/clear
+  structures match the tested adapter; the corrected FACE capture resolves the
+  final Phase 3 evidence blocker. Browser-wide iframe compatibility remains limited.
+
+## Phase 3 launch bridge
+
+The existing bundle serves `/extension` and standalone `/`. `onshape/context.ts`
+normalizes bounded launch parameters; `policy.ts` owns exact origins and Vite frame
+headers; `bridge.ts` owns message/source validation and initialization; the provider
+exposes an in-memory React store. The browser never selects a backend API host.
+CAD Context consumes safe abbreviated references even when embedded AuthGate cannot
+see a session. The DEV simulator is a separate lazy component eliminated at build.
+No backend production behavior, schema, provider request or dependency changed.
+
+Document/element switches use Action URL navigation and a fresh bridge, not invented
+context-change messages. `selection.ts` validates the captured envelope and requested
+FACE/EDGE categories; it discards unknown fields and stores only an opaque reference
+and normalized type. Malformed trusted selections clear old references. Lifecycle
+invalidation suspends acceptance until show or a fresh frame. Before any future CAD API exists,
+derive the user from the session and independently authorize each object through
+that user's server-held grant. Frontend context is never proof of access.
+
+For live schema discovery, `onshape/dev/` provides an explicitly enabled diagnostic.
+After the existing bridge validates parent/origin, an in-memory observer projects a
+SELECTION envelope to bounded types, fixed field/category labels and redacted values.
+It never populates the CAD store. The provider lazy-loads its panel outside AuthGate
+so a missing iframe session does not prevent capture. Production eliminates these
+modules; there is no alternate origin, backend endpoint or storage path.
+
+The Design composer now reads this same normalized store; its former missing-prop
+fallback incorrectly said “No CAD context” even with a valid workspace launch.
+Only workspace revisions send applicationInit. Explicit versions remain represented
+as versions and show unverified messaging instead of being sent as workspaceId.
+
+`onshape/dev/LaunchDiagnostic` is a separate read-only DEV panel outside AuthGate,
+including invalid launch states. It uses the existing parser's status and a tested
+field-rule mirror to project only sanitized metadata from the current query on an
+explicit click. It adds no message listener or context mutation. Production removes
+it; the launch parser and trusted-parent boundary are unchanged.
+
+The real launch capture identified three unused ancillary fields as compatibility
+failures. `clientId`, `sessionCompanyId` and `theme` now share a bounded opaque-string
+validator and are discarded; they are never part of OnshapeClientContext. The launch
+diagnostic shares that rule. Required CAD references, origin trust and revision
+semantics are unchanged; no provider-specific client-ID syntax is assumed.
