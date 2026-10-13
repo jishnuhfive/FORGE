@@ -49,7 +49,8 @@ class OnshapeProvider:
             "redirect_uri": str(self.settings.onshape_redirect_uri),
         }
         # Permissions are configured in Onshape Developer Settings, not invented
-        # runtime scope strings. Phase 2 registration uses OAuth2ReadPII only.
+        # runtime scope strings. Phase 4 additionally requires OAuth2Read;
+        # registration and renewed consent are operator/user actions.
         if self.settings.onshape_company_id:
             params["company_id"] = self.settings.onshape_company_id
         return str(self.settings.onshape_authorization_url) + "?" + urlencode(params)

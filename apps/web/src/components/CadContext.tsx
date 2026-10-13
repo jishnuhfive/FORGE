@@ -1,5 +1,6 @@
 import { Badge, Panel } from '@forge/design-system';
 import { Box, Unplug } from 'lucide-react';
+import { ReadCad } from '../cad/ReadCad';
 import { selectionLabel, revisionId } from '../onshape/model';
 import type { ClientState } from '../onshape/model';
 import type { CadContext as Context } from '../lib/types';
@@ -95,13 +96,16 @@ function LiveContext({ state }: { state: ClientState }) {
         </div>
         <div>
           <dt>Selection</dt>
-          <dd role="status">{selectionLabel(state.selection)}</dd>
+          <dd>
+            <span role="status">{selectionLabel(state.selection)}</span>
+          </dd>
         </div>
       </dl>
       <p className="muted small">
         Document names are not supplied. Selection supports a single Part Studio
         face or edge.
       </p>
+      <ReadCad state={state} />
       {state.status === 'EMBEDDED_INITIALIZING' && (
         <p className="small muted">
           {context.revision.kind === 'version'

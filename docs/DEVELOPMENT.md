@@ -209,7 +209,7 @@ The automated lab matrix covers every state at 320 px dark and 1280 px light.
 Additional regular workspace coverage exercises all four widths and both themes.
 
 OAuth code exists, but real OAuth requires credential verification. No OpenAI calls
-exist and no CAD is read or modified. Sample approval and Apply actions only change local preview state.
+exist. Only Phase 4’s explicit CAD Context action performs live CAD reads; no CAD is modified. Sample approval and Apply actions only change local preview state.
 Manufacturing fields use explicit mm, regardless of the saved future units
 preference. Read [UI.md](UI.md) for state ownership and fixture behavior.
 
@@ -219,10 +219,12 @@ preference. Read [UI.md](UI.md) for state ownership and fixture behavior.
 checks for model/schema drift against the configured database. Startup refuses an
 unmigrated database; it never runs schema creation or destructive repair.
 
-Real PostgreSQL verification uses a public local development URL only:
+For real PostgreSQL verification, use the local connection URL from your ignored
+`.env`. Replace the placeholder below; never put connection credentials in source
+or share them:
 
 ```sh
-FORGE_TEST_DATABASE_URL='postgresql+psycopg://forge_local:local-development-only@127.0.0.1:5432/forge_local' make test-postgres
+FORGE_TEST_DATABASE_URL='<your-local-PostgreSQL-connection-URL>' make test-postgres
 ```
 
 The tests create/drop only their own UUID-named schemas, preserving application data.
@@ -254,7 +256,8 @@ The narrow adapter handles one FACE/EDGE ENTITY or an explicit empty array. Its 
 use invented reference values matching captured structure only. The corrected live
 FACE capture resolves the final evidence blocker; it matches the existing fixture
 and parser. Phase 3 is complete. Keep automated fixture evidence distinct from the
-human's real Onshape observations. Phase 4 requires separate authorization.
+human's real Onshape observations. Phase 4's separate real REST and stale-context
+tests are now verified by the user's final report.
 
 Run targeted tests with `npm run test --workspace @forge/web -- src/onshape`.
 The complete gate is `make format`, `make check`, `make test-e2e`, `make migration-check`
@@ -273,3 +276,68 @@ and share only sanitized copy-button output; never raw IDs, URLs, network data o
 The selection observer is separate from selection parsing and cannot establish trust.
 Cookie/session/CSRF configuration is unchanged. Real browser-wide cookie behavior,
 assembly paths, multiple selection and version messaging remain unverified.
+
+## Phase 4 read development
+
+No new environment variables, dependencies or database migration are needed. Retain
+the existing HTTPS/API services and working iframe session configuration. Update
+the existing OAuth app's profile-only permission to include OAuth2Read, then renew
+consent as described in [PHASE_4_REVIEW.md](PHASE_4_REVIEW.md). Never enable document
+write permission for this test.
+
+Use CAD Context → **Read CAD data** inside the existing workspace Part Studio.
+The response is a count/status proof, not the future inspector. Default configuration
+and end-of-list evaluation are the verified request settings. Each click can make
+four GETs; no CAD polling occurs. Read time and unverified/mismatched consistency are
+visible. Context/account/lifecycle changes clear old results.
+
+Targeted checks:
+
+```sh
+cd apps/api
+uv run --frozen pytest tests/test_cad_read.py tests/test_mass_structure.py tests/test_mass_normalization.py
+cd ../..
+npm run test --workspace @forge/web -- src/cad
+npm run build
+npm run test:e2e -- --grep 'Phase 4'
+```
+
+Run the full `make format`, `make check`, `make test-e2e`, `make migration-check`,
+`make audit` and isolated PostgreSQL regressions for the phase gate. If the runtime
+sandbox restricts the default uv cache, set `UV_CACHE_DIR=/tmp/forge-uv-cache`.
+The project lockfiles remain authoritative. Do not weaken frozen installs.
+
+The dev-only read diagnostic's copy button includes only fixed statuses/codes,
+completion time, consistency and a random Forge request reference. No raw JSON
+inspection is needed. Production excludes that module. Server integrations may
+enable INFO for logger `forge.onshape.read` and serialize its allowlisted fields;
+never enable HTTP/access debug logs or ingress CAD query/body capture. Browser
+screenshots/test traces use synthetic fixtures only and remain ignored.
+
+The user has verified 2 features, 1 part and 1 body live. The final sanitized mass
+capture establishes a valid ordered triple with zero nominal, negative lower
+tolerance, positive upper tolerance, `hasMass=false` and missing contributions.
+The scalar validator now checks nominal nonnegativity rather than every tolerance
+component; present estimates must still be strict finite triples with ordered
+bounds. The false mass flag suppresses the normalized physical estimate while
+volume and other CAD data remain valid. No material assignment is needed to parse
+this response. The final real test showed **Mass unavailable;
+material/density may be missing**, with the provider response error gone. Switching
+to a separate empty Part Studio cleared the 2/1/1 snapshot and returned 0/0/0 with
+no mass-property bodies. No material assignment was needed to pass parsing.
+
+With the existing development backend, a failed mass read can still supply
+a bounded, sanitized structure header. DEV validates it and shows **Sanitized
+mass response structure** beneath the read diagnostic in CAD Context. Select and
+copy within that box manually; the regular read copy button remains unchanged.
+No raw response, network-header inspection or new credential/configuration is
+needed. Production omits the header and excludes the validator/UI. See the review
+for exact capture steps and the limits of this sampled structure report.
+Useful sign, comparison, strict availability and missing-category metadata remain
+DEV-only and bounded. Field-level fixed error codes replace the investigation's
+validator replay and duplicated predicate logic. No further diagnostic capture is
+needed after the final real test. For a later reproduction, reload the iframe and
+choose **View CAD context → Read CAD data**. Successful mass parsing produces no
+mass structure box. If an
+unexpected failure remains, manually copy the sanitized diagnostic only; do not
+inspect or share raw provider data.

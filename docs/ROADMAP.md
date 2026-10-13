@@ -39,7 +39,20 @@ messaging and a bounded single-face/edge/clear adapter. The human verified embed
 authenticated iframe session and launch context. The corrected live FACE structure,
 along with EDGE and clear captures, matches the implemented adapter. The full gate
 and targeted FACE regressions pass. Phase 3 is complete and its commit/push authorized.
-Phase 4 remains unauthorized. See [ONSHAPE_EXTENSION.md](ONSHAPE_EXTENSION.md).
+Phase 4 is complete: implementation, external live verification and the complete
+final repository gate passed. The user has
+verified 2 features, 1 part and 1 body live. The final sign capture proves the scalar bug: zero nominal mass
+with a negative lower tolerance was rejected despite ordered bounds and a valid
+unavailable-mass flag. The repair now validates exactly three finite numbers,
+nonnegative physical nominal and ordered bounds for mass/volume/surface area.
+Unavailable mass suppresses the normalized estimate; missing counts stay valid,
+other CAD sections remain usable, and the UI reports unavailability safely.
+DEV diagnostics stay bounded and exclude provider numeric values; temporary
+validator replay is removed. The final real read now safely reports missing mass,
+and a separate empty Part Studio returns 0/0/0 without stale prior results. The
+single Phase 4 commit and normal push are explicitly authorized, conditional on
+the reviewed staged tree. Phase 5 is not authorized and has not begun. See [ONSHAPE_EXTENSION.md](ONSHAPE_EXTENSION.md) and
+[PHASE_4_REVIEW.md](PHASE_4_REVIEW.md).
 
 Multi-selection, assembly paths, version messaging and browser-wide session behavior
 are not established by these Part Studio samples. The camera-slider example remains

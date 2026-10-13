@@ -1,9 +1,9 @@
 # Security architecture
 
-## Implemented through Phase 2, with Phase 3 launch boundary
+## Implemented through Phase 4 read boundary
 
-Forge uses Onshape OAuth2 only. There are no passwords, JWT login tokens, CAD tools
-or AI calls. Authentication establishes an account, not permission to change CAD.
+Forge uses Onshape OAuth2 only. There are no passwords, JWT login tokens, CAD mutation tools
+or AI calls. Four backend CAD reads are allowlisted. Authentication establishes an account, not permission to change CAD.
 
 - Strict, secret-redacted backend configuration; production requires complete auth
   configuration, PostgreSQL and HTTPS. Provider URLs are operator-owned HTTPS
@@ -133,3 +133,69 @@ client-ID character class was removed because that value is opaque and unused.
 Unknown names, credentials in query parameters, duplicate fields, invalid CAD IDs
 and untrusted origins still fail closed. Metadata cannot select a company, change
 theme, authenticate a user or widen a postMessage/backend destination.
+
+## Phase 4 CAD reads
+
+The browser sends only validated document/workspace/element references and explicit
+workspace revision kind. The session determines user ownership; Onshape checks
+that user's grant against each exact object. Expired tokens use the existing
+refresh architecture. No credentials, raw CAD bodies or provider errors reach the
+browser. Missing known OAuth2Read and unknown-scope 403 outcomes remain distinct;
+no undocumented scope bitmask is interpreted.
+
+The CAD adapter permits only four fixed GET templates at the exact HTTPS standard
+Onshape origin. Enterprise auth support does not widen this allowlist. URL credentials,
+private/loopback/arbitrary hosts, paths in origins and redirects fail closed.
+The new GET also requires the existing session-bound CSRF header; absent GET Origin
+is allowed only with that header, while a mismatched Origin or cross-site Fetch
+Metadata is rejected. Existing mutation routes and CSRF policy remain unchanged.
+
+Responses are bounded before normalization; compressed payloads, invalid JSON,
+nonfinite values, duplicate keys and excess depth/collection sizes are rejected.
+No CAD response is persisted/cached. The final session/grant check discards data
+following in-flight logout/disconnect. Frontend reference/account/lifecycle changes
+abort reads and clear prior summaries. Response cache policy is always no-store.
+
+Telemetry includes fixed operation/outcome, status class, duration/retry count and
+random correlation only. Ingress/APM must omit query strings for the CAD endpoint
+as well as auth paths: queries contain private CAD references. Do not enable raw
+HTTP request/response logging. The per-process user gate is not a substitute for
+deployment-wide admission/rate limits. Default-configuration, non-atomic reads and
+provider-native unverified mass units cannot establish engineering correctness.
+Only `ENVIRONMENT=development` enables the mass failure structure builder. It
+emits known field names, types, array lengths/categories and fixed validation
+codes through a bounded header after the existing final session/grant check.
+It never copies numeric CAD values, body keys, unknown names, exception messages or
+inputs. Production omits the header and does not import that development module.
+The DEV UI uses an additional strict vocabulary validator before rendering a
+bounded manual-copy text area; both validator and UI are absent from production
+assets. The normal count/status response and existing log fields are unchanged.
+Scalar field validators now emit fixed `negative_nominal` or `bounds_order` codes
+at the actual field. The DEV builder uses these codes without replaying validators
+or copying error messages/context. Body-key locations are removed by position, including keys equal to
+known field names. DEV can also emit only fixed predicate codes and three
+pairwise comparison enums (`greater`, `equal`, `less`) for a failed finite scalar
+triple. It never emits the compared numbers or their record key. The frontend
+allows these optional fields only for mass/volume/periphery `invalid_bounds`, rejects
+unknown keys/values, and retains the 4096-character input and 8192-character
+display limits. The user's authorized sign capture adds only `massSigns` with
+three `negative` / `zero` / `positive` enums, the known `hasMass` boolean, and
+`massMissingCountCategory` as `zero` / `positive`. These come from the first
+failed mass record, with strict number/boolean/integer checks; missing or malformed
+facts are omitted. Neither numeric operands nor the missing count are exposed.
+The frontend rejects extra fields, numeric signs, invalid enums and facts without
+a mass bounds failure. Production excludes these facts with the DEV diagnostic.
+Present physical scalar estimates require exactly three strict finite numbers,
+nonnegative nominal and ordered bounds; negative lower tolerances do not weaken
+these controls. Missing/nullable optional estimates remain unknown. A false mass
+flag suppresses the normalized mass estimate, and a positive missing count prevents
+a partial assigned estimate from claiming verified availability in the proof UI.
+No numeric mass data, missing count or private CAD references enter the browser.
+The final repository review confirms four fixed Onshape CAD GETs only: no CAD
+POST/PUT/PATCH/DELETE, arbitrary proxy, caller-selected provider path or host.
+Existing OAuth tokens remain backend-only, refresh tokens encrypted, and session
+ownership/CSRF unchanged. The user's real read and empty-context tests verify the
+observed integration behavior; source review and regression tests establish the
+read-only security boundary. No security certification or broader production
+readiness is inferred from these checks.
+See [PHASE_4_REVIEW.md](PHASE_4_REVIEW.md) for the full boundary and evidence.

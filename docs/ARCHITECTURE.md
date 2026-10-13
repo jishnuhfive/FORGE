@@ -1,6 +1,6 @@
 # Architecture
 
-## Current implementation — Phase 3 extension and client context complete
+## Current implementation — Phase 4 reads live verified
 
 One React/TypeScript/Vite web client, one FastAPI/Pydantic API and shared presentation
 primitives serve desktop browsers. Native clients are not part of Forge.
@@ -8,7 +8,8 @@ primitives serve desktop browsers. Native clients are not part of Forge.
 The Phase 1 Design/Modify/Learn shell remains, now behind an Onshape sign-in gate.
 The development UI lab is independent of authentication and remains excluded from
 production builds. Engineering workflows remain local or explicitly synthetic.
-No AI or CAD REST reads/writes are implemented. The extension launch bridge sends
+Phase 4 adds four backend CAD REST reads and a compact proof UI. No AI or CAD
+writes are implemented. The extension launch bridge sends
 applicationInit, handles documented show messages and normalizes bounded single
 FACE/EDGE or clear SELECTION envelopes matching the human's live sanitized captures.
 
@@ -28,10 +29,10 @@ HTTP transports; no runtime setting enables mock sessions.
 | Component        | Responsibility                                                                                      | Current state                                           |
 | ---------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
 | Frontend         | Narrow-panel UI, accessible controls, typed API calls, approved plan presentation                   | Authenticated local UI + DEV fixtures                   |
-| API              | Configuration, sessions, authorization, validated contracts, orchestration                          | OAuth, sessions, CSRF and liveness                      |
+| API              | Configuration, sessions, authorization, validated contracts, orchestration                          | OAuth, sessions, CSRF, liveness and read snapshots      |
 | Database         | Users linked to Onshape identity, encrypted token records, sessions, plans, inventory, audit events | Identity, grants, sessions, states and audit migrations |
 | AI layer         | Responses API, bounded agent loop, allowlisted functions, streamed user-facing status               | Documentation only                                      |
-| Onshape layer    | Server REST adapter, OAuth, document inspection, supported feature/assembly operations              | OAuth and identity only; CAD planned                    |
+| Onshape layer    | Server REST adapter, OAuth, document inspection, supported feature/assembly operations              | OAuth, identity and four allowlisted CAD reads          |
 | Validation layer | Unit-aware deterministic calculations and evidence-backed results                                   | Documentation only                                      |
 | Tool layer       | High-level operations joining user permissions, approvals, schemas, adapters, verification          | Documentation only                                      |
 
@@ -158,3 +159,51 @@ failures. `clientId`, `sessionCompanyId` and `theme` now share a bounded opaque-
 validator and are discarded; they are never part of OnshapeClientContext. The launch
 diagnostic shares that rule. Required CAD references, origin trust and revision
 semantics are unchanged; no provider-specific client-ID syntax is assumed.
+
+## Phase 4 REST read boundary
+
+`integrations/onshape/` owns the versioned GET allowlist, exact standard-stack
+origin, workspace-reference validation, bounded transport, provider models,
+normalization, snapshot service and minimized API route. Synchronous HTTP fits
+Phase 2's synchronous SQLAlchemy/token manager; FastAPI executes the route in its
+worker thread pool. A separate pooled transport has bounded timeouts and no redirects.
+No dependencies, migrations or authentication redesign were introduced.
+
+The flow is session → user-owned TokenManager → four allowlisted GETs → strict
+provider projection → independent Forge summaries → count/status proof response.
+Unknown fields remain in bounded request-local server memory. No private CAD cache
+or persistence exists. Source microversions and provider API/schema metadata stay
+inside the snapshot; the browser receives completion time and mismatch/unverified
+consistency. Separate workspace reads never claim atomicity.
+
+GET `/api/onshape/part-studio/snapshot` requires the existing session CSRF token
+as a quota-protection header. A bounded per-user process-local gate limits duplicate
+reads and cooldowns. Context/account/lifecycle changes invalidate frontend results.
+The dev-only diagnostic is lazy-loaded and absent from production assets.
+For unresolved mass normalization failures, a development-only callback produces
+bounded structure metadata in a response header after ownership is
+rechecked. Production does not enable or import this builder. The normal JSON
+proof contract is unchanged; DEV alone validates and displays the header through
+a lazily imported fixed-vocabulary module. No new read operation is introduced.
+The final live capture proves nominal zero, negative lower tolerance, positive
+upper tolerance and unavailable assigned mass. Present mass/volume/periphery
+(surface area) estimates now require exactly three finite numbers, nonnegative
+nominal and `lower <= nominal <= upper`. Tolerance limits may cross zero; unrelated
+vector/matrix handling is unchanged. A false `hasMass` suppresses the normalized
+mass estimate while preserving volume and the missing count. Partial assigned
+mass with a positive missing count yields unverified proof availability.
+Field validators identify errors directly, so DEV no longer replays validation
+or recomputes failing predicates. It reports fixed field error codes plus pairwise
+`greater` / `equal` / `less` comparisons from the failed scalar, with no operands.
+`normalize_provider_scalar_estimate` explicitly maps the verified v17
+`[nominal, lower, upper]` ordering. Periphery is validated as a scalar surface area
+but is not a new summary; axes remain in the bounded request-local provider record.
+DEV additionally reports authorized mass sign categories, the strict `hasMass`
+boolean, and a zero/positive missing-count category from the first failed mass
+record. The minimized proof contract is unchanged. The normal false-availability
+message says mass is unavailable and material/density may be missing. The user
+verified all four real reads, valid unavailable mass, and clearing of the previous
+2/1/1 snapshot when a separate empty Part Studio returned 0/0/0. These are reported
+live observations; automated fixtures do not substitute for them. No broader live
+browser, configuration, geometry or atomic-snapshot claim is made.
+See [PHASE_4_REVIEW.md](PHASE_4_REVIEW.md) for contracts, limits and live verification.

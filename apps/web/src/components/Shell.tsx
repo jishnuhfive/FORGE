@@ -89,7 +89,7 @@ export function Shell({
                 label: 'About this foundation',
                 onSelect: () =>
                   onNotify(
-                    'Phase 3 extension bridge. No live AI or CAD operations.',
+                    'Phase 4 read-only Onshape data. AI and CAD changes are planned.',
                   ),
               },
             ]}
@@ -160,8 +160,8 @@ export function Shell({
           )}
           {children}
           <footer className="workspace-footer">
-            <span>FORGE / PHASE 3</span>
-            <span>No AI or CAD operations</span>
+            <span>FORGE / PHASE 4</span>
+            <span>Read-only CAD · AI planned</span>
           </footer>
         </div>
         <aside className="context-rail" aria-label="Workspace context">

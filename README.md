@@ -7,17 +7,22 @@ right panel. Users describe **what** a mechanism must accomplish; Forge will hel
 determine **how** it should be engineered, with approval before CAD changes and
 deterministic checks of supported constraints.
 
-**Current status: Phase 3 complete.** The human verified real Onshape right-panel
+**Current status: Phase 4 complete.** Real Onshape read access, safe unavailable mass
+and stale-context clearing are verified. Phase 3 is complete. The human verified real Onshape right-panel
 embedding, embedded authentication, launch context and FACE/EDGE/clear message
 structures. The strict single-entity/clear adapter matches those live captures.
 See [Phase 3 review](docs/PHASE_3_REVIEW.md). Forge has a responsive Design/Modify/Learn
 workspace, Onshape sign-in, revocable server sessions, encrypted refresh tokens,
 account controls and database migrations. The development UI lab works without an account.
 
-**No OpenAI calls or CAD REST reads/writes exist.** `/extension` validates launch
+**Four backend-only, read-only Onshape REST operations are implemented. No OpenAI
+calls or CAD writes exist.** `/extension` validates launch
 context and receives narrowly validated client selection messages. Engineering
 workflows remain local drafts or labeled synthetic previews. This is not a publicly
-deployed production service. Phase 4 has not begun.
+deployed production service. Use CAD Context → Read CAD data for the compact proof
+interaction. See [Phase 4 review](docs/PHASE_4_REVIEW.md) for the required OAuth read
+permission, verified 2/1/1 CAD counts, valid unavailable mass, and clearing when
+switching to an empty Part Studio. Phase 5 has not begun and is not authorized.
 
 ## Architecture and stack
 
@@ -28,7 +33,7 @@ the presentation foundation. Motion is limited to loading skeletons and respects
 FastAPI + Pydantic owns server boundaries; SQLAlchemy and psycopg are installed
 with Alembic for PostgreSQL authentication persistence. uv manages Python. npm workspaces manage the web and shared design
 system. Docker Compose runs PostgreSQL; native development servers provide fast
-reloads. Git origin is `https://github.com/jishnuhfive/FORGE.git`; Phase 2 main matches origin/main.
+reloads. Git origin is `https://github.com/jishnuhfive/FORGE.git`.
 
 ## Prerequisites
 

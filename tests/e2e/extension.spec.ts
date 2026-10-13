@@ -7,6 +7,8 @@ import {
   edgeSelection,
   faceSelection,
 } from '../../apps/web/src/onshape/__fixtures__/selection';
+import { syntheticProof } from '../../apps/web/src/cad/__fixtures__/proof';
+import { syntheticMassStructure } from '../../apps/web/src/cad/__fixtures__/massStructure';
 import { capturedLaunchQuery } from '../../apps/web/src/onshape/__fixtures__/launch';
 
 const search = `documentId=${'a'.repeat(24)}&workspaceOrVersion=w&workspaceOrVersionId=${'b'.repeat(24)}&elementId=${'c'.repeat(24)}&server=https://cad.onshape.com`;
@@ -270,6 +272,23 @@ test('production excludes the simulator and its selection fixtures', async ({
     expect(source).not.toContain('No scenario applied');
     expect(source).not.toContain('forge-selection-structure-v1');
     expect(source).not.toContain('forge-launch-diagnostic-v1');
+    expect(source).not.toContain('forge-rest-diagnostic-v1');
+    expect(source).not.toContain('forge-mass-structure-v1');
+    expect(source).not.toContain('position0_vs_position1');
+    expect(source).not.toContain('negative_component');
+    expect(source).not.toContain('negative_nominal');
+    expect(source).not.toContain('failedPredicates');
+    expect(source).not.toContain('massSigns');
+    expect(source).not.toContain('massMissingCountCategory');
+    expect(source).not.toContain('X-Forge-Mass-Structure');
+    expect(source).not.toContain('Sanitized mass response structure');
+    expect(source).not.toContain('Copy sanitized read diagnostic');
+    expect(source).not.toContain(
+      'select and copy the sanitized diagnostic below',
+    );
+    expect(source).not.toContain(
+      'Sanitized read diagnostic exceeds the size limit',
+    );
     expect(source).not.toContain('synthetic.client:');
     expect(source).not.toContain('synthetic-edge-reference');
     expect(source).not.toContain('synthetic-face-reference');
@@ -762,3 +781,402 @@ for (const key of ['documentId', 'workspaceId', 'elementId']) {
       .toBe(2);
   });
 }
+
+test('Phase 4 explicit read shows bounded summary, loading, accessibility and context invalidation', async ({
+  page,
+  browserName,
+}) => {
+  await page.setViewportSize({ width: 380, height: 950 });
+  const frame = await parentFixture(page);
+  let calls = 0;
+  let release!: () => void;
+  const ready = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route(
+    'https://forge-panel.test/api/onshape/part-studio/snapshot?*',
+    async (route) => {
+      ++calls;
+      expect(route.request().method()).toBe('GET');
+      expect(route.request().headers()['x-csrf-token']).toBe(
+        signedIn.csrf_token,
+      );
+      const query = new URL(route.request().url()).searchParams;
+      expect([...query.keys()].sort()).toEqual([
+        'documentId',
+        'elementId',
+        'revisionKind',
+        'workspaceId',
+      ]);
+      await ready;
+      await route.fulfill({ json: syntheticProof });
+    },
+  );
+  await frame.getByRole('button', { name: 'View CAD context' }).click();
+  const dialog = frame.getByRole('dialog');
+  expect(calls).toBe(0);
+  await dialog
+    .getByRole('button', { name: 'Read CAD data', exact: true })
+    .click();
+  await expect(
+    dialog.getByRole('button', { name: 'Reading CAD data…' }),
+  ).toBeDisabled();
+  release();
+  await expect(dialog.getByText('Onshape data connected')).toBeVisible();
+  await expect(dialog.getByText('2 features', { exact: true })).toBeVisible();
+  await expect(dialog.getByText('1 part', { exact: true })).toBeVisible();
+  await expect(dialog.getByText('Mass properties available')).toBeVisible();
+  await expect(
+    dialog.getByText(/single consistent CAD version is unverified/),
+  ).toBeVisible();
+  await expect(dialog.getByText(/DEVELOPMENT ONLY/)).toHaveCount(0);
+  expect(calls).toBe(1);
+  for (const value of [
+    'a'.repeat(24),
+    'b'.repeat(24),
+    'c'.repeat(24),
+    'access_token',
+    'btType',
+  ])
+    await expect(dialog).not.toContainText(value);
+  const child = page
+    .frames()
+    .find((item) => item.url().includes('forge-panel.test/extension'))!;
+  for (const width of [320, 380, 480, 1280]) {
+    await page.setViewportSize({ width, height: 950 });
+    for (const theme of ['light', 'dark']) {
+      await child.evaluate((theme) => {
+        document.documentElement.dataset.theme = theme;
+      }, theme);
+      expect(
+        await child.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBe(true);
+      if (browserName === 'chromium')
+        await page.screenshot({
+          path: `.cache/phase4/read-${width}-${theme}.png`,
+          fullPage: true,
+        });
+    }
+  }
+  const accessibility = await new AxeBuilder({ page })
+    .include('iframe')
+    .analyze();
+  expect(accessibility.violations).toEqual([]);
+  const query = new URLSearchParams(search);
+  query.set('elementId', 'e'.repeat(24));
+  await page
+    .locator('iframe[title="Forge extension"]')
+    .evaluate((node, query) => {
+      (node as HTMLIFrameElement).src =
+        `https://forge-panel.test/extension?${query}`;
+    }, query.toString());
+  await frame.getByRole('button', { name: 'View CAD context' }).click();
+  await expect(dialog.getByText('Onshape data connected')).toHaveCount(0);
+  expect(calls).toBe(1);
+});
+
+for (const [status, code, message] of [
+  [
+    'unauthorized',
+    'read_permission_required',
+    'Additional Onshape read permission required',
+  ],
+  [
+    'forbidden',
+    'permission_or_access_required',
+    'Check the app’s document-read permission',
+  ],
+  ['forbidden', 'document_forbidden', 'Access to this document is forbidden'],
+  ['rate_limited', 'rate_limited', 'Onshape API rate limit reached'],
+  [
+    'provider_failure',
+    'provider_unavailable',
+    'Onshape temporarily unavailable',
+  ],
+] as const) {
+  test(`Phase 4 read safely presents ${code}`, async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 950 });
+    const frame = await parentFixture(page);
+    const section = {
+      status,
+      code,
+      count: null,
+      retry_after_seconds: status === 'rate_limited' ? 120 : null,
+    };
+    await page.route(
+      'https://forge-panel.test/api/onshape/part-studio/snapshot?*',
+      (route) =>
+        route.fulfill({
+          json: {
+            ...syntheticProof,
+            features: section,
+            parts: section,
+            bodies: section,
+            mass: section,
+            has_mass: null,
+          },
+        }),
+    );
+    await frame.getByRole('button', { name: 'View CAD context' }).click();
+    const dialog = frame.getByRole('dialog');
+    await dialog
+      .getByRole('button', { name: 'Read CAD data', exact: true })
+      .click();
+    await expect(
+      dialog.getByText(message, { exact: false }).first(),
+    ).toBeVisible();
+    await expect(dialog.getByText('Onshape data connected')).toHaveCount(0);
+    await expect(dialog.getByText(/not found/)).toHaveCount(0);
+  });
+}
+
+test('Phase 4 successfully read missing mass preserves CAD counts without a provider error', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 950 });
+  const frame = await parentFixture(page);
+  await page.route(
+    'https://forge-panel.test/api/onshape/part-studio/snapshot?*',
+    (route) => route.fulfill({ json: { ...syntheticProof, has_mass: false } }),
+  );
+  await frame.getByRole('button', { name: 'View CAD context' }).click();
+  const dialog = frame.getByRole('dialog');
+  await dialog
+    .getByRole('button', { name: 'Read CAD data', exact: true })
+    .click();
+  await expect(dialog.getByText('Onshape data connected')).toBeVisible();
+  await expect(dialog.getByText('2 features')).toBeVisible();
+  await expect(dialog.getByText('1 part')).toBeVisible();
+  await expect(dialog.getByText('1 body')).toBeVisible();
+  await expect(
+    dialog.getByText('Mass unavailable; material/density may be missing'),
+  ).toBeVisible();
+  await expect(dialog.getByText('Mass properties available')).toHaveCount(0);
+  await expect(
+    dialog.getByText(/Onshape returned data Forge could not verify/),
+  ).toHaveCount(0);
+  await expect(
+    dialog.getByRole('textbox', { name: 'Sanitized mass response structure' }),
+  ).toHaveCount(0);
+  await expect(dialog).not.toContainText(/nominal|massSigns|principalAxes/);
+});
+
+test('Phase 4 development diagnostic copies only fixed metadata', async ({
+  page,
+}) => {
+  const frame = await parentFixture(
+    page,
+    search,
+    true,
+    'https://cad.onshape.com',
+    4174,
+  );
+  await page.route(
+    'https://forge-panel.test/api/onshape/part-studio/snapshot?*',
+    (route) => route.fulfill({ json: syntheticProof }),
+  );
+  const child = page
+    .frames()
+    .find((item) => item.url().includes('forge-panel.test/extension'))!;
+  await child.evaluate(() =>
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: {
+        writeText: async (text: string) => {
+          (window as unknown as { copiedRead: string }).copiedRead = text;
+        },
+      },
+    }),
+  );
+  await frame.getByRole('button', { name: 'View CAD context' }).click();
+  const dialog = frame.getByRole('dialog');
+  await dialog
+    .getByRole('button', { name: 'Read CAD data', exact: true })
+    .click();
+  await expect(
+    dialog.getByText(/DEVELOPMENT ONLY · REST diagnostic/),
+  ).toBeVisible();
+  await dialog
+    .getByRole('button', { name: 'Copy sanitized read diagnostic' })
+    .click();
+  const copied = await child.evaluate(
+    () => (window as unknown as { copiedRead: string }).copiedRead,
+  );
+  expect(copied).toContain('forge-rest-diagnostic-v1');
+  expect(copied.length).toBeLessThan(2000);
+  expect(copied).not.toMatch(
+    /count|has_mass|token|documentId|workspaceId|elementId|raw/,
+  );
+  await expect(
+    dialog.getByRole('textbox', { name: 'Sanitized read diagnostic' }),
+  ).toHaveCount(0);
+});
+
+for (const clipboard of ['missing', 'rejected'] as const) {
+  test(`Phase 4 development diagnostic offers manual copying with ${clipboard} clipboard`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 950 });
+    const frame = await parentFixture(
+      page,
+      search,
+      true,
+      'https://cad.onshape.com',
+      4174,
+    );
+    await page.route(
+      'https://forge-panel.test/api/onshape/part-studio/snapshot?*',
+      (route) =>
+        route.fulfill({
+          json: {
+            ...syntheticProof,
+            has_mass: null,
+            mass: {
+              status: 'provider_failure',
+              code: 'invalid_response',
+              count: null,
+              retry_after_seconds: null,
+            },
+          },
+        }),
+    );
+    const child = page
+      .frames()
+      .find((item) => item.url().includes('forge-panel.test/extension'))!;
+    await child.evaluate(
+      (failure) =>
+        Object.defineProperty(navigator, 'clipboard', {
+          configurable: true,
+          value:
+            failure === 'missing'
+              ? undefined
+              : {
+                  writeText: async (text: string) => {
+                    (
+                      window as unknown as { attemptedRead: string }
+                    ).attemptedRead = text;
+                    throw new Error('Denied');
+                  },
+                },
+        }),
+      clipboard,
+    );
+    await frame.getByRole('button', { name: 'View CAD context' }).click();
+    const dialog = frame.getByRole('dialog');
+    await dialog
+      .getByRole('button', { name: 'Read CAD data', exact: true })
+      .click();
+    await expect(
+      dialog.getByText(
+        'Mass properties: Onshape returned data Forge could not verify.',
+      ),
+    ).toBeVisible();
+    const textbox = dialog.getByRole('textbox', {
+      name: 'Sanitized read diagnostic',
+    });
+    await expect(textbox).toHaveCount(0);
+    await dialog
+      .getByRole('button', { name: 'Copy sanitized read diagnostic' })
+      .click();
+    await expect(
+      dialog.getByText(
+        'Clipboard unavailable — select and copy the sanitized diagnostic below.',
+      ),
+    ).toBeVisible();
+    await expect(textbox).toBeVisible();
+    await expect(textbox).toHaveAttribute('readonly', '');
+    const text = await textbox.inputValue();
+    expect(text.length).toBeLessThanOrEqual(2000);
+    expect(JSON.parse(text).sections.mass).toEqual({
+      status: 'provider_failure',
+      code: 'invalid_response',
+      retryAfterSeconds: null,
+    });
+    expect(text).not.toMatch(
+      /count|has_mass|token|secret|documentId|workspaceId|elementId|selection|raw|https?:/,
+    );
+    for (const id of ['a', 'b', 'c']) expect(text).not.toContain(id.repeat(24));
+    if (clipboard === 'rejected')
+      expect(text).toBe(
+        await child.evaluate(
+          () => (window as unknown as { attemptedRead: string }).attemptedRead,
+        ),
+      );
+    await textbox.evaluate((node: HTMLTextAreaElement) => {
+      node.focus();
+      node.select();
+    });
+    expect(
+      await textbox.evaluate(
+        (node: HTMLTextAreaElement) => node.selectionEnd - node.selectionStart,
+      ),
+    ).toBe(text.length);
+    const bounds = await textbox.boundingBox();
+    expect(bounds!.x).toBeGreaterThanOrEqual(0);
+    expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(320);
+    expect(bounds!.height).toBeLessThanOrEqual(256);
+  });
+}
+
+test('Phase 4 development diagnostic shows only validated mass structure for manual capture', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 950 });
+  const frame = await parentFixture(
+    page,
+    search,
+    true,
+    'https://cad.onshape.com',
+    4174,
+  );
+  await page.route(
+    'https://forge-panel.test/api/onshape/part-studio/snapshot?*',
+    (route) =>
+      route.fulfill({
+        json: {
+          ...syntheticProof,
+          has_mass: null,
+          mass: {
+            status: 'provider_failure',
+            code: 'invalid_response',
+            count: null,
+            retry_after_seconds: null,
+          },
+        },
+        headers: {
+          'X-Forge-Mass-Structure': JSON.stringify(syntheticMassStructure),
+        },
+      }),
+  );
+  await frame.getByRole('button', { name: 'View CAD context' }).click();
+  const dialog = frame.getByRole('dialog');
+  await dialog
+    .getByRole('button', { name: 'Read CAD data', exact: true })
+    .click();
+  const textbox = dialog.getByRole('textbox', {
+    name: 'Sanitized mass response structure',
+  });
+  await expect(textbox).toBeVisible();
+  await expect(textbox).toHaveAttribute('readonly', '');
+  expect(await textbox.inputValue()).toBe(
+    JSON.stringify(syntheticMassStructure, null, 2),
+  );
+  await textbox.evaluate((node: HTMLTextAreaElement) => {
+    node.focus();
+    node.select();
+  });
+  expect(
+    await textbox.evaluate(
+      (node: HTMLTextAreaElement) => node.selectionEnd - node.selectionStart,
+    ),
+  ).toBe((await textbox.inputValue()).length);
+  const bounds = await textbox.boundingBox();
+  expect(bounds!.x).toBeGreaterThanOrEqual(0);
+  expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(320);
+  expect(bounds!.height).toBeLessThanOrEqual(256);
+  await expect(dialog.getByText('2 features')).toBeVisible();
+  await expect(dialog.getByText('1 part')).toBeVisible();
+  await expect(dialog.getByText('1 body')).toBeVisible();
+});

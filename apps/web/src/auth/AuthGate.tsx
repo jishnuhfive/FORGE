@@ -11,7 +11,7 @@ import { usePreferences } from '../lib/preferences';
 
 const notices: Record<string, string> = {
   authorization_denied:
-    'Authorization was denied. Continue with Onshape when you’re ready to grant profile access.',
+    'Authorization was denied. Continue with Onshape when you’re ready to grant account access.',
   authorization_error:
     'Onshape authorization could not be completed. Try again, or check your connection.',
   invalid_state:
@@ -206,7 +206,9 @@ export function AuthGate({ children }: { children: ReactNode }) {
           </a>
         )}
       </div>
-      <span className="muted small">FORGE / PHASE 3 · Onshape extension</span>
+      <span className="muted small">
+        FORGE / PHASE 4 · Read-only Onshape data
+      </span>
     </main>
   );
 }

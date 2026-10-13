@@ -45,7 +45,7 @@ def test_context_ids_cannot_redirect_an_authenticated_account_action(
     assert harness.client.get("/api/me").json()["status"] == "authenticated"
 
 
-def test_phase_three_exposes_no_cad_or_context_proxy_route(harness: Harness) -> None:
+def test_only_allowlisted_auth_and_read_routes_exist(harness: Harness) -> None:
     paths = harness.client.get("/openapi.json").json()["paths"]
     assert set(paths) == {
         "/health",
@@ -55,4 +55,6 @@ def test_phase_three_exposes_no_cad_or_context_proxy_route(harness: Harness) -> 
         "/auth/logout",
         "/api/onshape/check",
         "/api/onshape/disconnect",
+        "/api/onshape/part-studio/snapshot",
     }
+    assert set(paths["/api/onshape/part-studio/snapshot"]) == {"get"}

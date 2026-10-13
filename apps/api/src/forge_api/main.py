@@ -13,6 +13,8 @@ from forge_api.auth.routes import router as auth_router
 from forge_api.auth.runtime import AuthRuntime
 from forge_api.core.config import Settings
 from forge_api.db.database import make_engine, verify_schema
+from forge_api.integrations.onshape.routes import router as cad_router
+from forge_api.integrations.onshape.service import ReadGate
 from forge_api.routes.health import router as health_router
 
 
@@ -71,9 +73,20 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     raise RuntimeError(
                         "Database unavailable or migration required; run make migrate"
                     ) from None
-            with httpx.Client(
-                timeout=10, follow_redirects=False, trust_env=False
-            ) as client:
+            with (
+                httpx.Client(
+                    timeout=10, follow_redirects=False, trust_env=False
+                ) as client,
+                httpx.Client(
+                    timeout=httpx.Timeout(connect=3, read=8, write=3, pool=2),
+                    limits=httpx.Limits(
+                        max_connections=16, max_keepalive_connections=8
+                    ),
+                    follow_redirects=False,
+                    trust_env=False,
+                ) as cad_transport,
+            ):
+                application.state.cad_transport = cad_transport
                 if config.auth_configured and engine is not None:
                     application.state.auth = AuthRuntime.create(config, engine, client)
                 yield
@@ -84,7 +97,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     development_docs = config.environment != "production"
     application = FastAPI(
         title="Forge API",
-        version="0.2.0",
+        version="0.4.0",
         debug=False,
         lifespan=lifespan,
         docs_url="/docs" if development_docs else None,
@@ -92,10 +105,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         openapi_url="/openapi.json" if development_docs else None,
     )
     application.state.auth = None
+    application.state.cad_gate = ReadGate()
     application.state.settings = config
     application.add_middleware(SafeBoundary)
     application.include_router(health_router)
     application.include_router(auth_router)
+    application.include_router(cad_router)
     return application
 
 

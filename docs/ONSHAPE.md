@@ -35,7 +35,7 @@ before public launch. Logout and local disconnect are distinct.
 
 Earlier Forge documentation described OAuth as future work and speculated about
 registration. Authentication now exists; the Phase 3 launch bridge is now implemented. A narrow client selection adapter is implemented;
-document REST inspection and writes remain future phases. HTTPS is used locally for a
+document REST reads are implemented and live verified in Phase 4; writes remain future work. HTTPS is used locally for a
 cloud application; the documented HTTP localhost exception is for installed desktop
 apps and is not assumed to apply to Forge.
 
@@ -84,8 +84,8 @@ Permissions are configured on the application. If the token response supplies sc
 Forge retains it; otherwise a reported identity `oauth2Scopes` mask is retained as
 `onshape_bitmask:<integer>` without interpreting undocumented bit assignments.
 When neither is supplied, the field stays null; permissions are never invented.
-OAuth2Read and OAuth2Write are planned for authorized CAD-read and CAD-write phases,
-respectively. Changes will require a permissions review and renewed user consent.
+OAuth2Read is now required for Phase 4 CAD reads. OAuth2Write remains deferred
+to a separately authorized CAD-write phase. Changes will require a permissions review and renewed user consent.
 No delete, share, purchase or internal scopes are justified now.
 
 Server configuration defaults to the official standard OAuth and CAD API origins.
@@ -132,5 +132,50 @@ Explicit version revisions are retained but never initialized as workspaces.
 [ONSHAPE_EXTENSION.md](ONSHAPE_EXTENSION.md) records sources, the exact unchanged
 registration, bounded contract, lifecycle, browser/session limitations and live retest.
 [PHASE_3_REVIEW.md](PHASE_3_REVIEW.md) records the passing quality gate and resolved
-FACE evidence. Phase 3 is complete; the planned commit/push is authorized. Phase 4
+FACE evidence. Phase 3 is complete. Phase 4 real REST verification passed; its
+commit/push is authorized after the complete final repository gate. Phase 5
 is not started or authorized.
+
+## Phase 4 official REST contract and permission update
+
+The live [Glassworks OpenAPI contract](https://cad.onshape.com/api/openapi), reviewed
+2026-10-10, advertises **v17**. Its features, parts-in-element, bodydetails and
+massproperties GET operations all require **OAuth2Read**. The existing Phase 2
+registration instructions above are historical: the profile-only grant must now
+be expanded to document read and renewed. Do not add write permission.
+
+Open the existing Forge Development OAuth application → Permissions, retain
+OAuth2ReadPII, enable **Application can read your documents (OAuth2Read)** and save.
+Revoke the old grant in My account → Applications if necessary, then reconnect
+through Forge and approve the updated read consent. Do not recreate the extension,
+change its Action URL or regenerate the secret. A token response's explicit scopes
+are used when available; the stored identity bitmask remains uninterpreted.
+
+The full endpoint allowlist, schema observations, model choices, exact user steps
+and evidence limitations are in [PHASE_4_REVIEW.md](PHASE_4_REVIEW.md). Browser launch
+origin never selects a backend host. Only the standard CAD stack and workspace
+Part Studios are supported for these reads. Four separate requests cannot prove an
+atomic snapshot; mass units remain provider-native/unverified. The user reports
+final real success for 2 features, 1 part and 1 body. Mass now parses successfully
+and displays **Mass unavailable; material/density may be missing**, with the old
+invalid-response message gone. OAuth2Read authorization is verified by these reads.
+The final live sign capture establishes zero nominal mass, negative lower tolerance,
+positive upper tolerance, `hasMass=false` and positive missing count. The previous
+blanket negative-component rule was the exact rejection. The verified v17 order
+is `[nominal, lower, upper]`; its mass, volume and periphery (surface area) descriptions
+identify nonnegative physical nominal quantities, distinct from tolerance limits.
+Forge now requires strict finite triples, a nonnegative nominal and ordered bounds
+for these three fields. This nominal constraint is Forge's physical validation,
+not a claim that OpenAPI imposes numeric minima on tolerance limits. Centroid,
+inertia, principal-inertia components and principal axes remain unchanged.
+Official mass-tool documentation describes density-dependent calculations that
+omit parts without assigned material. A false mass flag now suppresses the physical
+estimate, while retaining valid volume and the missing count. The mass section
+parses successfully; the proof UI reports mass unavailable instead of malformed
+provider data. Positive missing counts are valid; partial assigned mass remains
+unverified. No material assignment is required merely to parse the provider response.
+Useful bounded DEV diagnostics remain, without validator replay or raw numeric
+values. The user also verified a separate empty Part Studio returned 0 features,
+0 parts, 0 bodies and no mass-property bodies, clearing the earlier snapshot.
+No further diagnostic capture or live retest is currently required. Actual live
+browser/version was not supplied; cross-engine automated coverage is separate.
