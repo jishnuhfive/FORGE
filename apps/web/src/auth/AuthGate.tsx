@@ -207,7 +207,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
         )}
       </div>
       <span className="muted small">
-        FORGE / PHASE 4 · Read-only Onshape data
+        FORGE / INSPECTOR · Read-only Onshape data
       </span>
     </main>
   );

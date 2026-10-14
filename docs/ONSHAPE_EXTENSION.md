@@ -70,8 +70,9 @@ it. Nothing attaches a bridge to the development simulator.
    referrer grants nothing; the incoming origin/source checks remain mandatory.
 4. Each event must have that exact browser-supplied origin and `window.parent`
    source before its data is examined. Other frames on the same origin fail.
-5. The documented exact `{messageName: 'show'}` focuses the frame and clears stale
-   selection. `selection.ts` validates SELECTION after origin/source checks. Valid
+5. The documented exact `{messageName: 'show'}` focuses the active frame and preserves
+   its selection. It provides no new context identity. `selection.ts` validates
+   SELECTION after origin/source checks. Valid
    data atomically replaces selection; malformed trusted selection clears references
    to unavailable, never claiming an empty selection. Unsupported message names
    and messages from the wrong origin/source leave state unchanged.
@@ -80,10 +81,13 @@ it. Nothing attaches a bridge to the development simulator.
    Explicit version context is retained for display but never sent as workspaceId;
    version messaging remains unverified and is withheld. No wildcard or tokens are used.
 
-The native browser visibility/pagehide/persisted-pageshow lifecycle clears selection
-evidence and suspends selection acceptance. Delayed selection events cannot revive
-old references; a documented show or a fresh frame resumes acceptance. If a browser
-restores the page without show, reopen Forge to receive fresh context.
+Ordinary browser visibility and blur/focus preserve this same frame's validated
+launch and latest verified selection. There is no automatic CAD read or repeated
+applicationInit. Actual pagehide/navigation and persisted-pageshow restoration
+clear selection and suspend acceptance; show alone cannot revive that old launch.
+A fresh frame is required after navigation suspension. The official right-panel
+sequence destroys the iframe when the panel closes and starts a new application
+when it opens. This differs from switching ordinary browser tabs.
 A changed Action URL loads a new frame/context and therefore clears old state.
 No invented documentChanged/elementChanged message is accepted. Panel reopen starts
 fresh. Without a documented selection timestamp/context contract, in-place geometry
@@ -130,10 +134,18 @@ simulator's multiple-edge label is presentation only.
 An empty array produces **No selection**. A single FACE/EDGE produces **1 face selected**
 or **1 edge selected**; a new valid message replaces the old selection atomically.
 Malformed/unsupported selection content produces **Selection details unavailable** and
-removes old references. show, lifecycle invalidation and fresh document/workspace/
-element navigation clear selection. Unsupported context-change message names cannot
+removes old references. Navigation suspension and fresh document/workspace/element
+launches clear selection. When a trusted SELECTION supplies documented envelope
+documentId/workspaceId/elementId fields, each must exactly match the validated
+launch; a mismatch clears the context until a fresh launch. Unsupported context-change message names cannot
 change launch context. No captured selection timestamp or context revision exists,
 so geometry freshness and authorization still require future server verification.
+
+The 2026-10-14 lifecycle repair rechecked the current official messaging and
+right-panel sequence above. The general messaging guidance treats show as a focus
+cue; it gives no selection-reset, browser-visibility or selection-replay guarantee.
+The Element Tab page's hide/show semantics are not applied as a right-panel close
+contract. No invented lifecycle message or requestSelection polling is used.
 
 ## Frame headers and authentication
 
@@ -384,3 +396,9 @@ character opaque validator, then are discarded. They do not establish user/compa
 identity, theme or trust. Duplicate/unknown parameters still fail closed, and required
 IDs/server/version validation is unchanged. The human now reports `valid-context`
 with no reason codes. No Action URL or authentication change was required.
+
+Phase 5 final live evidence (2026-10-14): the user verified FACE, EDGE and clear
+selection, preserved FACE/inspection/capture time across an ordinary Chrome tab
+switch with no CAD refresh/reopen demand, and cleared old evidence on a real Part
+Studio change. This supersedes the earlier requirement to retest those repairs.
+No selection ownership or wider browser/provider compatibility claim is made.

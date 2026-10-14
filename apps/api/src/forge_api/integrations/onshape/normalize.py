@@ -47,12 +47,15 @@ def normalize(operation: Operation, raw: JsonValue) -> ProviderDocument[object]:
                         suppressed=f.suppressed,
                         parameters=[
                             ParameterSummary(
-                                parameter_id=p.parameterId, provider_type=p.btType
+                                parameter_id=p.parameterId,
+                                provider_type=p.btType,
+                                value=p.summary,
                             )
                             for p in f.parameters
                         ]
                         if f.parameters is not None
                         else None,
+                        custom_namespace=bool(f.namespace),
                     )
                     for f in features.features
                 ],
@@ -92,9 +95,12 @@ def normalize(operation: Operation, raw: JsonValue) -> ProviderDocument[object]:
                 BodySummary(
                     body_id=b.id,
                     body_type=b.type,
-                    face_count=len(b.faces) if b.faces is not None else None,
-                    edge_count=len(b.edges) if b.edges is not None else None,
-                    vertex_count=len(b.vertices) if b.vertices is not None else None,
+                    # The fixed includeGeometricData=false request has no
+                    # documented completeness guarantee for empty arrays. An
+                    # empty export collection is not proof of zero topology.
+                    face_count=len(b.faces) if b.faces else None,
+                    edge_count=len(b.edges) if b.edges else None,
+                    vertex_count=len(b.vertices) if b.vertices else None,
                 )
                 for b in bodies.bodies
             ]

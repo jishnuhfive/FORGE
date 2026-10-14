@@ -85,6 +85,7 @@ class OnshapeReadClient:
         transport: httpx.Client,
         *,
         mass_diagnostic: Callable[[JsonValue, ValueError | None], str] | None = None,
+        body_diagnostic: Callable[[JsonValue], str | None] | None = None,
     ) -> None:
         try:
             self._origin = api_origin(api_base)
@@ -93,6 +94,8 @@ class OnshapeReadClient:
         self._transport = transport
         self._mass_diagnostic = mass_diagnostic
         self.mass_structure: str | None = None
+        self._body_diagnostic = body_diagnostic
+        self.body_structure: str | None = None
 
     def features(
         self, reference: WorkspaceReference, token: str, correlation: str
@@ -128,6 +131,8 @@ class OnshapeReadClient:
         raw: JsonValue = None
         if operation is Operation.MASS:
             self.mass_structure = None
+        if operation is Operation.BODIES:
+            self.body_structure = None
         try:
             # Stream bounds response size; identity avoids decompression bombs.
             with self._transport.stream(
@@ -186,6 +191,8 @@ class OnshapeReadClient:
                     content.extend(chunk)
                 raw = bounded_json(bytes(content))
                 document = normalize(operation, raw)
+                if operation is Operation.BODIES and self._body_diagnostic:
+                    self.body_structure = self._body_diagnostic(raw)
                 outcome = "success"
                 return document
         except ReadError as error:

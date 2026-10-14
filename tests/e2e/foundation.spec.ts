@@ -123,6 +123,21 @@ test('production excludes the development lab, fixtures and AI/CAD requests', as
     page.getByRole('link', { name: /development preview|UI development lab/ }),
   ).toHaveCount(0);
   expect(unexpectedRequests).toEqual([]);
+  for (const script of await page.locator('script[src]').all()) {
+    const src = await script.getAttribute('src');
+    const asset = await page.request.get(src!);
+    const code = await asset.text();
+    for (const marker of [
+      'Synthetic preview part',
+      'Synthetic custom feature',
+      'forge-rest-diagnostic-v1',
+      'forge-selection-structure-v1',
+      'BTMParameterBoolean-144',
+      'Sanitized body response structure',
+      'X-Forge-Body-Structure',
+    ])
+      expect(code).not.toContain(marker);
+  }
 });
 
 test('dialog traps keyboard focus, closes with Escape and restores the opener', async ({

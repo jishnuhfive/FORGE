@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import InspectorPreview from './InspectorPreview';
 import {
   Badge,
   Button,
@@ -35,6 +36,7 @@ import {
 } from './data';
 
 const views = [
+  'CAD inspector',
   'Design empty',
   'Engineering brief',
   'Plan',
@@ -76,6 +78,9 @@ export default function UiLab({
         : sampleContext;
   let content;
   switch (view) {
+    case 'CAD inspector':
+      content = <InspectorPreview />;
+      break;
     case 'Design empty':
       content = (
         <Design preview onSubmit={() => setView('Engineering brief')} />

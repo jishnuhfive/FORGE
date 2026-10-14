@@ -7,8 +7,10 @@ import {
   edgeSelection,
   faceSelection,
 } from '../../apps/web/src/onshape/__fixtures__/selection';
+import { inspectorFixture } from '../../apps/web/src/cad/__fixtures__/inspector';
 import { syntheticProof } from '../../apps/web/src/cad/__fixtures__/proof';
 import { syntheticMassStructure } from '../../apps/web/src/cad/__fixtures__/massStructure';
+import { syntheticBodyStructure } from '../../apps/web/src/cad/__fixtures__/bodyStructure';
 import { capturedLaunchQuery } from '../../apps/web/src/onshape/__fixtures__/launch';
 
 const search = `documentId=${'a'.repeat(24)}&workspaceOrVersion=w&workspaceOrVersionId=${'b'.repeat(24)}&elementId=${'c'.repeat(24)}&server=https://cad.onshape.com`;
@@ -45,11 +47,300 @@ async function parentFixture(
   await page.route(`${origin}/forge-panel-test`, (route) =>
     route.fulfill({
       contentType: 'text/html',
-      body: `<!doctype html><html><head><title>Test Onshape parent</title></head><body style="margin:0"><script>window.received=[];addEventListener('message',e=>{if(e.origin==='https://forge-panel.test')window.received.push(e.data)});</script><iframe title="Forge extension" style="border:0;width:100vw;height:95vh" src="https://forge-panel.test/extension?${query}"></iframe></body></html>`,
+      body: `<!doctype html><html lang="en"><head><title>Test Onshape parent</title></head><body style="margin:0"><script>window.received=[];addEventListener('message',e=>{if(e.origin==='https://forge-panel.test')window.received.push(e.data)});</script><iframe title="Forge extension" style="border:0;width:100vw;height:95vh" src="https://forge-panel.test/extension?${query}"></iframe></body></html>`,
     }),
   );
   await page.goto(`${origin}/forge-panel-test`);
   return page.frameLocator('iframe');
+}
+
+async function inspectedLifecycle(page: Page) {
+  const frame = await parentFixture(page);
+  let reads = 0;
+  await page.route(
+    'https://forge-panel.test/api/onshape/part-studio/inspector?*',
+    async (route) => {
+      reads++;
+      const params = new URL(route.request().url()).searchParams;
+      const source = structuredClone(syntheticProof);
+      if (
+        params.get('documentId') !== 'a'.repeat(24) ||
+        params.get('workspaceId') !== 'b'.repeat(24) ||
+        params.get('elementId') !== 'c'.repeat(24)
+      )
+        for (const name of ['features', 'parts', 'bodies', 'mass'] as const)
+          source[name].count = 0;
+      await route.fulfill({ json: inspectorFixture(source) });
+    },
+  );
+  await frame.getByRole('button', { name: 'View CAD context' }).click();
+  const dialog = frame.getByRole('dialog');
+  await dialog.getByRole('button', { name: 'Refresh CAD' }).click();
+  await expect(dialog.getByText('Sketch 1', { exact: true })).toBeVisible();
+  const send = async (data: unknown) =>
+    page.evaluate(
+      (data) =>
+        document
+          .querySelector('iframe')
+          ?.contentWindow?.postMessage(data, 'https://forge-panel.test'),
+      data,
+    );
+  await send(faceSelection);
+  await expect(
+    dialog.getByText('1 face selected', { exact: true }),
+  ).toBeVisible();
+  const child = page
+    .frames()
+    .find((f) => f.url().includes('forge-panel.test/extension'))!;
+  return { frame, dialog, child, send, reads: () => reads };
+}
+
+test('Phase 5 lifecycle preserves same-frame inspection and FACE through browser visibility, focus and show', async ({
+  page,
+}) => {
+  const h = await inspectedLifecycle(page);
+  const capturedAt = await h.dialog.locator('time').getAttribute('datetime');
+  const capturedText = await h.dialog.locator('time').textContent();
+  let sessionChecks = 0;
+  await page.route('https://forge-panel.test/api/me', async (route) => {
+    sessionChecks++;
+    await route.fulfill({ json: signedIn });
+  });
+  await h.child.evaluate(() => {
+    for (const hidden of [true, false, true, false]) {
+      Object.defineProperty(document, 'hidden', {
+        configurable: true,
+        value: hidden,
+      });
+      Object.defineProperty(document, 'visibilityState', {
+        configurable: true,
+        value: hidden ? 'hidden' : 'visible',
+      });
+      document.dispatchEvent(new Event('visibilitychange'));
+      window.dispatchEvent(new Event(hidden ? 'blur' : 'focus'));
+    }
+    Reflect.deleteProperty(document, 'hidden');
+    Reflect.deleteProperty(document, 'visibilityState');
+  });
+  await expect.poll(() => sessionChecks).toBeGreaterThan(0);
+  await h.send({ messageName: 'show' });
+  await expect(h.dialog.getByText('Sketch 1', { exact: true })).toBeVisible();
+  await expect(
+    h.dialog.getByText('1 face selected', { exact: true }),
+  ).toBeVisible();
+  await expect(h.dialog.locator('time')).toHaveAttribute(
+    'datetime',
+    capturedAt!,
+  );
+  await expect(h.dialog.locator('time')).toHaveText(capturedText!);
+  await expect(h.dialog.getByText(/currentness unverified/)).toBeVisible();
+  await expect(
+    h.dialog.getByText(/Reopen the Forge panel|Selection needs refresh/),
+  ).toHaveCount(0);
+  expect(h.reads()).toBe(1);
+  expect(
+    await page.evaluate(
+      () => (window as unknown as { received: object[] }).received.length,
+    ),
+  ).toBe(1);
+  await h.send(clearedSelection);
+  await expect(
+    h.dialog.getByText('No selection', { exact: true }),
+  ).toBeVisible();
+  expect(h.reads()).toBe(1);
+});
+
+for (const field of ['documentId', 'workspaceOrVersionId', 'elementId']) {
+  test(`Phase 5 lifecycle clears inspection and selection on real ${field} navigation`, async ({
+    page,
+  }) => {
+    const h = await inspectedLifecycle(page);
+    const query = new URLSearchParams(search);
+    query.set(field, 'e'.repeat(24));
+    await page.locator('iframe').evaluate((node, query) => {
+      (node as HTMLIFrameElement).src =
+        `https://forge-panel.test/extension?${query}`;
+    }, query.toString());
+    await h.frame.getByRole('button', { name: 'View CAD context' }).click();
+    await expect(h.dialog.getByText('Sketch 1', { exact: true })).toHaveCount(
+      0,
+    );
+    await expect(h.dialog.locator('time')).toHaveCount(0);
+    await expect(
+      h.dialog.getByText('Waiting for selection context', { exact: true }),
+    ).toBeVisible();
+    expect(h.reads()).toBe(1);
+    await h.dialog.getByRole('button', { name: 'Refresh CAD' }).click();
+    await expect(
+      h.dialog.getByText('0 features', { exact: true }),
+    ).toBeVisible();
+    expect(h.reads()).toBe(2);
+  });
+}
+
+for (const change of ['logout', 'disconnected', 'revoked']) {
+  test(`Phase 5 lifecycle clears inspection when focus detects ${change}`, async ({
+    page,
+  }) => {
+    const h = await inspectedLifecycle(page);
+    await page.route('https://forge-panel.test/api/me', (route) =>
+      route.fulfill({
+        json:
+          change === 'logout' ? signedOut : { ...signedIn, connection: change },
+      }),
+    );
+    await h.child.evaluate(() => window.dispatchEvent(new Event('focus')));
+    await expect(h.frame.getByText('Sketch 1', { exact: true })).toHaveCount(0);
+    await expect(h.frame.locator('time')).toHaveCount(0);
+    await expect(
+      h.frame.getByRole('button', { name: 'Refresh CAD' }),
+    ).toHaveCount(0);
+    expect(h.reads()).toBe(1);
+  });
+}
+
+test('Phase 5 lifecycle panel destruction starts a fresh same-context frame and initialization', async ({
+  page,
+}) => {
+  const h = await inspectedLifecycle(page);
+  await page.evaluate(() => {
+    const old = document.querySelector('iframe')!;
+    const replacement = old.cloneNode() as HTMLIFrameElement;
+    old.remove();
+    document.body.appendChild(replacement);
+  });
+  await h.frame.getByRole('button', { name: 'View CAD context' }).click();
+  await expect(h.dialog.getByText('Sketch 1', { exact: true })).toHaveCount(0);
+  await expect(
+    h.dialog.getByText('Waiting for selection context', { exact: true }),
+  ).toBeVisible();
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => (window as unknown as { received: object[] }).received.length,
+      ),
+    )
+    .toBe(2);
+  expect(h.reads()).toBe(1);
+  await h.dialog.getByRole('button', { name: 'Refresh CAD' }).click();
+  await expect(h.dialog.getByText('Sketch 1', { exact: true })).toBeVisible();
+  expect(h.reads()).toBe(2);
+});
+
+test('Phase 5 lifecycle ignores untrusted messages, clears malformed evidence and blocks genuine mismatch resurrection', async ({
+  page,
+}) => {
+  const h = await inspectedLifecycle(page);
+  await h.child.evaluate(
+    (data) => window.postMessage(data, 'https://forge-panel.test'),
+    edgeSelection,
+  );
+  await expect(
+    h.dialog.getByText('1 face selected', { exact: true }),
+  ).toBeVisible();
+  await h.send({
+    messageName: 'SELECTION',
+    selections: [{ entityType: 'FACE' }],
+  });
+  await expect(h.dialog.getByText('Sketch 1', { exact: true })).toHaveCount(0);
+  await expect(
+    h.dialog.getByText('Selection details unavailable', { exact: true }),
+  ).toBeVisible();
+  await h.send({ messageName: 'show' });
+  await expect(
+    h.dialog.getByRole('button', { name: 'Refresh CAD' }),
+  ).toHaveCount(0);
+  await h.send(clearedSelection);
+  await expect(
+    h.dialog.getByRole('button', { name: 'Refresh CAD' }),
+  ).toBeEnabled();
+  expect(h.reads()).toBe(1);
+  await h.dialog.getByRole('button', { name: 'Refresh CAD' }).click();
+  await expect(h.dialog.getByText('Sketch 1', { exact: true })).toBeVisible();
+  await h.send({ ...faceSelection, elementId: 'e'.repeat(24) });
+  await expect(
+    h.dialog.getByText('Document context could not be validated', {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(h.dialog.getByText('Sketch 1', { exact: true })).toHaveCount(0);
+  await h.send({ messageName: 'show' });
+  await h.send(faceSelection);
+  await expect(
+    h.dialog.getByRole('button', { name: 'Refresh CAD' }),
+  ).toHaveCount(0);
+  expect(h.reads()).toBe(2);
+});
+
+for (const development of [true, false]) {
+  test(`Phase 5 topology unknowns and structure capture in ${development ? 'development' : 'production'}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 950 });
+    const frame = await parentFixture(
+      page,
+      search,
+      true,
+      'https://cad.onshape.com',
+      development ? 4174 : 4173,
+    );
+    const result = inspectorFixture();
+    result.bodies.items[0]!.edge_count = null;
+    result.bodies.items[0]!.vertex_count = null;
+    result.bodies.completeness = 'partial';
+    await page.route(
+      'https://forge-panel.test/api/onshape/part-studio/inspector?*',
+      (route) =>
+        route.fulfill({
+          json: result,
+          headers: {
+            'X-Forge-Body-Structure': JSON.stringify(syntheticBodyStructure),
+          },
+        }),
+    );
+    await frame.getByRole('button', { name: 'View CAD context' }).click();
+    const dialog = frame.getByRole('dialog');
+    await dialog.getByRole('button', { name: 'Refresh CAD' }).click();
+    await dialog.locator('summary').filter({ hasText: 'Body 1' }).click();
+    const body = dialog
+      .locator('details.inspector-item')
+      .filter({ has: frame.locator('summary').filter({ hasText: 'Body 1' }) });
+    await expect(body.locator('dd')).toHaveText(['6', 'Unknown', 'Unknown']);
+    const textbox = dialog.getByRole('textbox', {
+      name: 'Sanitized body response structure',
+    });
+    if (development) {
+      await expect(textbox).toBeVisible();
+      await expect(textbox).toHaveAttribute('readonly', '');
+      expect(await textbox.inputValue()).toBe(
+        JSON.stringify(syntheticBodyStructure, null, 2),
+      );
+      await textbox.evaluate((node: HTMLTextAreaElement) => {
+        node.focus();
+        node.select();
+      });
+      expect(
+        await textbox.evaluate(
+          (node: HTMLTextAreaElement) =>
+            node.selectionEnd - node.selectionStart,
+        ),
+      ).toBe((await textbox.inputValue()).length);
+      const bounds = await textbox.boundingBox();
+      expect(bounds!.x).toBeGreaterThanOrEqual(0);
+      expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(320);
+    } else {
+      await expect(textbox).toHaveCount(0);
+      await expect(dialog.getByText(/DEVELOPMENT ONLY/)).toHaveCount(0);
+    }
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+    await dialog.getByRole('button', { name: 'Close dialog' }).click();
+  });
 }
 
 test('actual parent messaging initializes once, ignores unsupported payloads and resets on element navigation', async ({
@@ -110,15 +401,35 @@ test('actual parent messaging initializes once, ignores unsupported payloads and
         'https://forge-panel.test',
       ),
   );
-  await expect(dialog.getByText('Selection needs refresh')).toBeVisible();
+  await expect(dialog.getByText('Selection details unavailable')).toBeVisible();
   await page.locator('iframe').evaluate((node, query) => {
     (node as HTMLIFrameElement).src =
       `https://forge-panel.test/extension?${query.replace('c'.repeat(24), 'd'.repeat(24))}`;
   }, search);
   await frame.getByRole('button', { name: 'View CAD context' }).click();
   await expect(
-    frame.getByRole('dialog').getByText('dddddd…dddd'),
+    frame.getByRole('dialog').getByText('Current element'),
   ).toBeVisible();
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => (window as unknown as { received: object[] }).received,
+      ),
+    )
+    .toEqual([
+      {
+        messageName: 'applicationInit',
+        documentId: 'a'.repeat(24),
+        workspaceId: 'b'.repeat(24),
+        elementId: 'c'.repeat(24),
+      },
+      {
+        messageName: 'applicationInit',
+        documentId: 'a'.repeat(24),
+        workspaceId: 'b'.repeat(24),
+        elementId: 'd'.repeat(24),
+      },
+    ]);
   await expect(
     frame.getByRole('dialog').getByText('Waiting for selection context'),
   ).toBeVisible();
@@ -768,7 +1079,7 @@ for (const key of ['documentId', 'workspaceId', 'elementId']) {
           `https://forge-panel.test/extension?${query}`;
       }, query.toString());
     await frame.getByRole('button', { name: 'View CAD context' }).click();
-    await expect(dialog.getByText('eeeeee…eeee')).toBeVisible();
+    await expect(dialog.getByText('Current document')).toBeVisible();
     await expect(
       dialog.getByText('Waiting for selection context'),
     ).toBeVisible();
@@ -794,7 +1105,7 @@ test('Phase 4 explicit read shows bounded summary, loading, accessibility and co
     release = resolve;
   });
   await page.route(
-    'https://forge-panel.test/api/onshape/part-studio/snapshot?*',
+    'https://forge-panel.test/api/onshape/part-studio/inspector?*',
     async (route) => {
       ++calls;
       expect(route.request().method()).toBe('GET');
@@ -809,14 +1120,14 @@ test('Phase 4 explicit read shows bounded summary, loading, accessibility and co
         'workspaceId',
       ]);
       await ready;
-      await route.fulfill({ json: syntheticProof });
+      await route.fulfill({ json: inspectorFixture() });
     },
   );
   await frame.getByRole('button', { name: 'View CAD context' }).click();
   const dialog = frame.getByRole('dialog');
   expect(calls).toBe(0);
   await dialog
-    .getByRole('button', { name: 'Read CAD data', exact: true })
+    .getByRole('button', { name: 'Refresh CAD', exact: true })
     .click();
   await expect(
     dialog.getByRole('button', { name: 'Reading CAD data…' }),
@@ -906,23 +1217,23 @@ for (const [status, code, message] of [
       retry_after_seconds: status === 'rate_limited' ? 120 : null,
     };
     await page.route(
-      'https://forge-panel.test/api/onshape/part-studio/snapshot?*',
+      'https://forge-panel.test/api/onshape/part-studio/inspector?*',
       (route) =>
         route.fulfill({
-          json: {
+          json: inspectorFixture({
             ...syntheticProof,
             features: section,
             parts: section,
             bodies: section,
             mass: section,
             has_mass: null,
-          },
+          }),
         }),
     );
     await frame.getByRole('button', { name: 'View CAD context' }).click();
     const dialog = frame.getByRole('dialog');
     await dialog
-      .getByRole('button', { name: 'Read CAD data', exact: true })
+      .getByRole('button', { name: 'Refresh CAD', exact: true })
       .click();
     await expect(
       dialog.getByText(message, { exact: false }).first(),
@@ -938,13 +1249,16 @@ test('Phase 4 successfully read missing mass preserves CAD counts without a prov
   await page.setViewportSize({ width: 320, height: 950 });
   const frame = await parentFixture(page);
   await page.route(
-    'https://forge-panel.test/api/onshape/part-studio/snapshot?*',
-    (route) => route.fulfill({ json: { ...syntheticProof, has_mass: false } }),
+    'https://forge-panel.test/api/onshape/part-studio/inspector?*',
+    (route) =>
+      route.fulfill({
+        json: inspectorFixture({ ...syntheticProof, has_mass: false }),
+      }),
   );
   await frame.getByRole('button', { name: 'View CAD context' }).click();
   const dialog = frame.getByRole('dialog');
   await dialog
-    .getByRole('button', { name: 'Read CAD data', exact: true })
+    .getByRole('button', { name: 'Refresh CAD', exact: true })
     .click();
   await expect(dialog.getByText('Onshape data connected')).toBeVisible();
   await expect(dialog.getByText('2 features')).toBeVisible();
@@ -974,8 +1288,8 @@ test('Phase 4 development diagnostic copies only fixed metadata', async ({
     4174,
   );
   await page.route(
-    'https://forge-panel.test/api/onshape/part-studio/snapshot?*',
-    (route) => route.fulfill({ json: syntheticProof }),
+    'https://forge-panel.test/api/onshape/part-studio/inspector?*',
+    (route) => route.fulfill({ json: inspectorFixture() }),
   );
   const child = page
     .frames()
@@ -993,7 +1307,7 @@ test('Phase 4 development diagnostic copies only fixed metadata', async ({
   await frame.getByRole('button', { name: 'View CAD context' }).click();
   const dialog = frame.getByRole('dialog');
   await dialog
-    .getByRole('button', { name: 'Read CAD data', exact: true })
+    .getByRole('button', { name: 'Refresh CAD', exact: true })
     .click();
   await expect(
     dialog.getByText(/DEVELOPMENT ONLY · REST diagnostic/),
@@ -1027,10 +1341,10 @@ for (const clipboard of ['missing', 'rejected'] as const) {
       4174,
     );
     await page.route(
-      'https://forge-panel.test/api/onshape/part-studio/snapshot?*',
+      'https://forge-panel.test/api/onshape/part-studio/inspector?*',
       (route) =>
         route.fulfill({
-          json: {
+          json: inspectorFixture({
             ...syntheticProof,
             has_mass: null,
             mass: {
@@ -1039,7 +1353,7 @@ for (const clipboard of ['missing', 'rejected'] as const) {
               count: null,
               retry_after_seconds: null,
             },
-          },
+          }),
         }),
     );
     const child = page
@@ -1066,12 +1380,10 @@ for (const clipboard of ['missing', 'rejected'] as const) {
     await frame.getByRole('button', { name: 'View CAD context' }).click();
     const dialog = frame.getByRole('dialog');
     await dialog
-      .getByRole('button', { name: 'Read CAD data', exact: true })
+      .getByRole('button', { name: 'Refresh CAD', exact: true })
       .click();
     await expect(
-      dialog.getByText(
-        'Mass properties: Onshape returned data Forge could not verify.',
-      ),
+      dialog.getByText('Onshape returned data Forge could not verify.'),
     ).toBeVisible();
     const textbox = dialog.getByRole('textbox', {
       name: 'Sanitized read diagnostic',
@@ -1132,10 +1444,10 @@ test('Phase 4 development diagnostic shows only validated mass structure for man
     4174,
   );
   await page.route(
-    'https://forge-panel.test/api/onshape/part-studio/snapshot?*',
+    'https://forge-panel.test/api/onshape/part-studio/inspector?*',
     (route) =>
       route.fulfill({
-        json: {
+        json: inspectorFixture({
           ...syntheticProof,
           has_mass: null,
           mass: {
@@ -1144,7 +1456,7 @@ test('Phase 4 development diagnostic shows only validated mass structure for man
             count: null,
             retry_after_seconds: null,
           },
-        },
+        }),
         headers: {
           'X-Forge-Mass-Structure': JSON.stringify(syntheticMassStructure),
         },
@@ -1153,7 +1465,7 @@ test('Phase 4 development diagnostic shows only validated mass structure for man
   await frame.getByRole('button', { name: 'View CAD context' }).click();
   const dialog = frame.getByRole('dialog');
   await dialog
-    .getByRole('button', { name: 'Read CAD data', exact: true })
+    .getByRole('button', { name: 'Refresh CAD', exact: true })
     .click();
   const textbox = dialog.getByRole('textbox', {
     name: 'Sanitized mass response structure',
@@ -1179,4 +1491,207 @@ test('Phase 4 development diagnostic shows only validated mass structure for man
   await expect(dialog.getByText('2 features')).toBeVisible();
   await expect(dialog.getByText('1 part')).toBeVisible();
   await expect(dialog.getByText('1 body')).toBeVisible();
+});
+
+test('Phase 5 ordered inspector details, keyboard, filtering, selection and partial evidence', async ({
+  page,
+  browserName,
+}) => {
+  await page.setViewportSize({ width: 320, height: 950 });
+  const frame = await parentFixture(page);
+  let reads = 0;
+  const result = inspectorFixture({ ...syntheticProof, has_mass: false });
+  result.bodies.items[0]!.face_count = null;
+  result.bodies.completeness = 'partial';
+  await page.route(
+    'https://forge-panel.test/api/onshape/part-studio/inspector?*',
+    async (route) => {
+      reads++;
+      await route.fulfill({ json: result });
+    },
+  );
+  await frame.getByRole('button', { name: 'View CAD context' }).click();
+  const dialog = frame.getByRole('dialog');
+  await dialog.getByRole('button', { name: 'Refresh CAD' }).click();
+  await expect(dialog.getByText('2 features', { exact: true })).toBeVisible();
+  await expect(
+    dialog.getByRole('list', { name: 'Feature order' }).locator('li strong'),
+  ).toHaveText(['Sketch 1', 'Extrude 1']);
+  const extrude = dialog.locator('summary').filter({ hasText: 'Extrude 1' });
+  await extrude.focus();
+  await page.keyboard.press('Enter');
+  await expect(dialog.getByText(/12 mm/)).toBeVisible();
+  await expect(extrude).toBeFocused();
+  await page.keyboard.press('Space');
+  await expect(dialog.getByText(/12 mm/)).not.toBeVisible();
+  await dialog.getByLabel('Search features').fill('extrude');
+  await expect(dialog.getByText('Sketch 1', { exact: true })).toHaveCount(0);
+  await expect(dialog.getByText('Extrude 1', { exact: true })).toBeVisible();
+  await dialog.getByLabel('Search features').fill('');
+  await dialog.locator('summary').filter({ hasText: 'Part 1' }).click();
+  await expect(dialog.getByText('DEMO-001')).toBeVisible();
+  await dialog.locator('summary').filter({ hasText: 'Body 1' }).click();
+  await expect(dialog.getByText('Unknown', { exact: true })).toBeVisible();
+  await dialog
+    .locator('summary')
+    .filter({ hasText: 'Physical properties' })
+    .click();
+  await expect(
+    dialog.getByText(/Numeric mass and volume are withheld/),
+  ).toBeVisible();
+  for (const [selection, label] of [
+    [faceSelection, '1 face selected'],
+    [edgeSelection, '1 edge selected'],
+    [clearedSelection, 'No selection'],
+  ] as const) {
+    await page.evaluate(
+      (data) =>
+        document
+          .querySelector('iframe')
+          ?.contentWindow?.postMessage(data, 'https://forge-panel.test'),
+      selection,
+    );
+    await expect(dialog.getByText(label, { exact: true })).toBeVisible();
+  }
+  expect(reads).toBe(1);
+  const child = page
+    .frames()
+    .find((f) => f.url().includes('forge-panel.test/extension'))!;
+  for (const width of [320, 380, 480, 1280]) {
+    await page.setViewportSize({ width, height: 950 });
+    for (const theme of ['dark', 'light']) {
+      await child.evaluate((theme) => {
+        document.documentElement.dataset.theme = theme;
+      }, theme);
+      expect(
+        await child.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBe(true);
+    }
+  }
+  expect(
+    (await new AxeBuilder({ page }).include('iframe').analyze()).violations,
+  ).toEqual([]);
+  if (browserName === 'chromium') {
+    await page.setViewportSize({ width: 380, height: 950 });
+    await page.screenshot({
+      path: '.cache/phase5/inspector-details.png',
+      fullPage: true,
+    });
+  }
+  expect(
+    await child.evaluate(() =>
+      JSON.stringify({ ...localStorage, ...sessionStorage }),
+    ),
+  ).not.toMatch(/Sketch 1|DEMO-001|12 mm/);
+  await expect(dialog).not.toContainText(
+    /synthetic-sketch|featureId|btType|aaaaaa…aaaa/,
+  );
+});
+
+test('Phase 5 account rotation and empty context discard prior evidence without polling', async ({
+  page,
+}) => {
+  const frame = await parentFixture(page);
+  let calls = 0;
+  let empty = false;
+  await page.route(
+    'https://forge-panel.test/api/onshape/part-studio/inspector?*',
+    async (route) => {
+      calls++;
+      const source = structuredClone(syntheticProof);
+      if (empty)
+        for (const name of ['features', 'parts', 'bodies', 'mass'] as const)
+          source[name].count = 0;
+      await route.fulfill({ json: inspectorFixture(source) });
+    },
+  );
+  await frame.getByRole('button', { name: 'View CAD context' }).click();
+  const dialog = frame.getByRole('dialog');
+  await dialog.getByRole('button', { name: 'Refresh CAD' }).click();
+  await expect(dialog.getByText('Sketch 1', { exact: true })).toBeVisible();
+  await page.route('https://forge-panel.test/api/me', (route) =>
+    route.fulfill({
+      json: {
+        ...signedIn,
+        display_name: 'Another synthetic engineer',
+        csrf_token: 'b'.repeat(64),
+      },
+    }),
+  );
+  const child = page
+    .frames()
+    .find((f) => f.url().includes('forge-panel.test/extension'))!;
+  await child.evaluate(() => window.dispatchEvent(new Event('focus')));
+  await expect(dialog.getByText('Sketch 1', { exact: true })).toHaveCount(0);
+  expect(calls).toBe(1);
+  await dialog.getByRole('button', { name: 'Refresh CAD' }).click();
+  await expect(dialog.getByText('Sketch 1', { exact: true })).toBeVisible();
+  empty = true;
+  const query = new URLSearchParams(search);
+  query.set('elementId', 'e'.repeat(24));
+  await page.locator('iframe').evaluate((node, query) => {
+    (node as HTMLIFrameElement).src =
+      `https://forge-panel.test/extension?${query}`;
+  }, query.toString());
+  await frame.getByRole('button', { name: 'View CAD context' }).click();
+  await expect(dialog.getByText('Sketch 1', { exact: true })).toHaveCount(0);
+  expect(calls).toBe(2);
+  await dialog.getByRole('button', { name: 'Refresh CAD' }).click();
+  await expect(dialog.getByText('0 features', { exact: true })).toBeVisible();
+  await expect(dialog.getByText('No parts returned.')).toBeVisible();
+  await expect(
+    dialog.getByText('No mass-property bodies returned'),
+  ).toBeVisible();
+  expect(calls).toBe(3);
+});
+
+test('Phase 5 unsupported parameters and bounded summaries stay explicit in production', async ({
+  page,
+}) => {
+  const frame = await parentFixture(page);
+  const result = inspectorFixture();
+  result.source.features.count = 103;
+  result.features.returned_count = 103;
+  result.features.omitted_count = 101;
+  result.features.completeness = 'partial';
+  const item = result.features.items[0]!;
+  item.feature_type = 'unknown';
+  item.completeness = 'partial';
+  item.suppression = 'suppressed';
+  item.parameters = [
+    {
+      label: 'Option',
+      kind: 'unsupported',
+      state: 'unsupported',
+      text: null,
+      boolean: null,
+      count: null,
+    },
+    {
+      label: 'Long expression',
+      kind: 'expression',
+      state: 'omitted',
+      text: null,
+      boolean: null,
+      count: null,
+    },
+  ];
+  await page.route(
+    'https://forge-panel.test/api/onshape/part-studio/inspector?*',
+    (route) => route.fulfill({ json: result }),
+  );
+  await frame.getByRole('button', { name: 'View CAD context' }).click();
+  const dialog = frame.getByRole('dialog');
+  await dialog.getByRole('button', { name: 'Refresh CAD' }).click();
+  await dialog.locator('summary').filter({ hasText: 'Sketch 1' }).click();
+  await expect(dialog.getByText('Unsupported parameter type')).toBeVisible();
+  await expect(dialog.getByText('Value omitted: display limit')).toBeVisible();
+  await expect(
+    dialog.getByText(/101 omitted by the display limit/),
+  ).toBeVisible();
+  await expect(
+    dialog.getByText(/Custom or unknown feature · Suppressed/),
+  ).toBeVisible();
 });

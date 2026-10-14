@@ -289,7 +289,8 @@ Use CAD Context → **Read CAD data** inside the existing workspace Part Studio.
 The response is a count/status proof, not the future inspector. Default configuration
 and end-of-list evaluation are the verified request settings. Each click can make
 four GETs; no CAD polling occurs. Read time and unverified/mismatched consistency are
-visible. Context/account/lifecycle changes clear old results.
+visible. Context/account changes and actual navigation clear old results. Ordinary
+browser visibility/focus preserves the same frame's inspection and captured time.
 
 Targeted checks:
 
@@ -341,3 +342,58 @@ choose **View CAD context → Read CAD data**. Successful mass parsing produces 
 mass structure box. If an
 unexpected failure remains, manually copy the sanitized diagnostic only; do not
 inspect or share raw provider data.
+
+## Phase 5 inspector development
+
+Use the existing HTTPS web/API services, database and OAuth2Read grant. There are
+no new dependencies, migrations, environment variables or extension settings.
+The normal CAD Context action is now **Refresh CAD** and calls only `/inspector`;
+the older `/snapshot` proof endpoint remains for regression compatibility.
+The production UI contains no provider diagnostics or opaque CAD identifiers.
+
+In the DEV-only `#/lab`, select **CAD inspector**, then choose the labeled
+synthetic state: simple, empty, many features, suppressed/unknown feature, partial
+provider failure, missing mass, FACE or EDGE. No provider request runs there.
+Use Tab and Enter/Space on disclosures, search fetched features/parts locally,
+and check 320/380/480 px widths in both themes. Synthetic screenshot evidence lives
+in ignored `.cache/phase5/`. Never add raw real CAD responses to fixtures or traces.
+
+Run `make format`, `make check`, `make test-e2e`, `make migration-check`,
+`make test-postgres` with the existing private configuration, and `make audit`.
+Targeted checks are `tests/test_cad_inspector.py`, frontend `src/cad`, and
+Playwright `--grep 'Phase 4|Phase 5'`. Frozen installs remain `npm ci` and
+`uv sync --locked`; no lockfile changes are required. Playwright owns and stops
+ports 4173/4174. Preserve the user's existing 5173/8000 and database services.
+
+Final real Phase 5 verification passed on 2026-10-14. The user authorized one
+Phase 5 commit and a normal push after the complete final repository gate.
+[PHASE_5_REVIEW.md](PHASE_5_REVIEW.md) records the completed live evidence and
+repeatable checks. Phase 6 remains unauthorized.
+
+For the live topology investigation, keep the existing development environment and
+reload Forge, then choose **View CAD context → Refresh CAD**. The normal inspector
+shows Unknown for missing/null/unverified empty topology arrays. Below it, the DEV
+**Sanitized body response structure** textbox reports only the first body's fixed
+faces/edges/vertices presence, array/missing type and length/null. Select and copy
+that textbox manually; the regular diagnostic copy button is unchanged. No report
+appears for an empty Part Studio or failed body section. No raw Network inspection
+or new permission/setting is needed. Follow the exact capture/retest steps in the
+Phase 5 review. The final sanitized capture verified empty edge/vertex arrays;
+no further live capture or geometric-data request is needed.
+
+Targeted repair checks: backend `test_body_topology.py`, `test_cad_inspector.py`,
+`test_cad_read.py`; frontend `src/cad`; Playwright `--grep 'Phase 5|production excludes'`.
+Run format/lint/typecheck/build as usual. Existing database/auth behavior and lockfiles
+are unchanged, so this repair does not require another PostgreSQL/migration gate.
+
+For browser lifecycle verification, inspect Part Studio 1 and select one FACE, then
+switch to another browser tab and return. Inspection, captured time and FACE should
+remain; focus may check `/api/me` but must not request CAD. A trusted show preserves
+active selection. Closing the actual Onshape panel destroys its iframe, so reopening
+has fresh selection/inspection and initializes once. Document/workspace/Part Studio
+navigation, logout/disconnect/revoke, malformed trusted selection and a genuine
+context mismatch still clear inspection. Targeted frontend checks include
+`src/onshape`, `src/cad`, `src/auth`; browser checks cover the Phase 5 lifecycle
+cases in `tests/e2e/extension.spec.ts` across all three engines. The topology
+diagnostic remains available and bounded. The final human retest passed for ordinary
+Chrome tab switches, FACE/EDGE/clear and real Part Studio switching; Phase 6 has not begun.

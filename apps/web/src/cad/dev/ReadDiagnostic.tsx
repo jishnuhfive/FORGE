@@ -6,6 +6,7 @@ import type { ReadProof } from '../api';
 export default function ReadDiagnostic({ result }: { result: ReadProof }) {
   const textId = useId();
   const massId = useId();
+  const bodyId = useId();
   const [notice, setNotice] = useState('');
   const [manualText, setManualText] = useState('');
   if (!import.meta.env.DEV) return null;
@@ -64,6 +65,25 @@ export default function ReadDiagnostic({ result }: { result: ReadProof }) {
             readOnly
             spellCheck={false}
             value={manualText}
+            rows={10}
+            style={{ maxHeight: '16rem', resize: 'vertical' }}
+          />
+        </>
+      )}
+      {result.bodyStructure && (
+        <>
+          <p>DEVELOPMENT ONLY · Body response structure</p>
+          <p>
+            First returned body only. Select and copy this structure report.
+            Array lengths describe the response, not verified topology totals.
+            No IDs or geometry are included.
+          </p>
+          <label htmlFor={bodyId}>Sanitized body response structure</label>
+          <Textarea
+            id={bodyId}
+            readOnly
+            spellCheck={false}
+            value={result.bodyStructure}
             rows={10}
             style={{ maxHeight: '16rem', resize: 'vertical' }}
           />

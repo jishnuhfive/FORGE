@@ -1,4 +1,4 @@
-"""One minimized authenticated GET; no raw snapshot or arbitrary proxy routes."""
+"""Two explicit projections of one authenticated read pipeline; no raw proxy."""
 
 import hmac
 import re
@@ -15,7 +15,8 @@ from forge_api.db.models import OnshapeAuthorization
 
 from .client import OnshapeReadClient, ReadError
 from .contracts import WorkspaceReference
-from .models import SnapshotProof
+from .inspector import CadInspector, inspect
+from .models import SectionState, Snapshot, SnapshotProof
 from .service import ReadGate, capture, failed_proof, proof
 
 router = APIRouter()
@@ -59,6 +60,30 @@ router = APIRouter()
 def snapshot(
     request: Request, response: Response, auth: Runtime, db: Database
 ) -> SnapshotProof:
+    result, correlation = acquire(request, response, auth, db)
+    return (
+        failed_proof(result, correlation)
+        if isinstance(result, SectionState)
+        else proof(result, correlation)
+    )
+
+
+@router.get(
+    "/api/onshape/part-studio/inspector",
+    response_model=CadInspector,
+    summary="Inspect bounded read-only workspace Part Studio evidence",
+)
+def inspector(
+    request: Request, response: Response, auth: Runtime, db: Database
+) -> CadInspector:
+    result, correlation = acquire(request, response, auth, db)
+    return inspect(result, correlation)
+
+
+def acquire(
+    request: Request, response: Response, auth: Runtime, db: Database
+) -> tuple[Snapshot | SectionState, str]:
+    """Both projections share authentication, quota gate and exactly one capture."""
     session = active_session(request, auth, db)
     if session is None:
         raise HTTPException(401, "connection_required")
@@ -102,14 +127,18 @@ def snapshot(
     try:
         with gate.enter(session.user_id):
             mass_diagnostic = None
+            body_diagnostic = None
             if auth.settings.environment == "development":
+                from .dev.body_structure import describe_body
                 from .dev.mass_structure import describe_mass
 
                 mass_diagnostic = describe_mass
+                body_diagnostic = describe_body
             client = OnshapeReadClient(
                 str(auth.settings.onshape_api_base_url),
                 transport,
                 mass_diagnostic=mass_diagnostic,
+                body_diagnostic=body_diagnostic,
             )
             result = capture(
                 auth, client, reference, session.user_id, correlation, gate
@@ -126,6 +155,8 @@ def snapshot(
                 raise ReadError("unauthorized", "connection_required")
             if auth.settings.environment == "development" and client.mass_structure:
                 response.headers["X-Forge-Mass-Structure"] = client.mass_structure
-            return proof(result, correlation)
+            if auth.settings.environment == "development" and client.body_structure:
+                response.headers["X-Forge-Body-Structure"] = client.body_structure
+            return result, correlation
     except ReadError as error:
-        return failed_proof(error.state, correlation)
+        return error.state, correlation

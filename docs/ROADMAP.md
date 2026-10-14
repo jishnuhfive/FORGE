@@ -11,7 +11,7 @@ Later hardening does not defer security for earlier live integrations.
 | 2     | Onshape OAuth: secure state, server sessions, encrypted tokens, refresh/logout/disconnect tests                |
 | 3     | Onshape extension shell: real embedding, messaging and selection security, browser/session compatibility       |
 | 4     | Onshape REST client: official APIs, response contracts, permissions, retries and rate limits                   |
-| 5     | CAD inspector: real read-only document/Part Studio/assembly evidence                                           |
+| 5     | CAD inspector: bounded read-only workspace Part Studio evidence; live verification                             |
 | 6     | Read-only AI agent: backend Responses API, strict read tools, bounded budgets, streaming                       |
 | 7     | First real CAD write: user-approved constrained operation, target/version gate, verified editable geometry     |
 | 8     | CAD tool library: high-level allowlisted operations, bounds/units/authorization, failure reconciliation        |
@@ -51,10 +51,25 @@ DEV diagnostics stay bounded and exclude provider numeric values; temporary
 validator replay is removed. The final real read now safely reports missing mass,
 and a separate empty Part Studio returns 0/0/0 without stale prior results. The
 single Phase 4 commit and normal push are explicitly authorized, conditional on
-the reviewed staged tree. Phase 5 is not authorized and has not begun. See [ONSHAPE_EXTENSION.md](ONSHAPE_EXTENSION.md) and
+the reviewed staged tree. Phase 5 is complete: final real CAD Inspector verification and the complete
+repository gate passed.
+The user authorized one scoped commit/push after the complete final gate. Phase 6
+has not begun and requires separate authorization. See [ONSHAPE_EXTENSION.md](ONSHAPE_EXTENSION.md) and
 [PHASE_4_REVIEW.md](PHASE_4_REVIEW.md).
 
 Multi-selection, assembly paths, version messaging and browser-wide session behavior
 are not established by these Part Studio samples. The camera-slider example remains
 a future evaluation scenario, not a generated design or engineering certification.
 Forge v1 targets education, makers, low-risk prototypes and student engineering.
+
+Phase 5 adds the versioned structured evidence model and human inspector using the
+existing Phase 4 acquisition. It intentionally supports workspace Part Studios only.
+Assemblies and mates remain Phase 10; no assembly permission or operation is added.
+Phase 6 is the first read-only AI consumer and remains deferred: Responses API,
+allowlisted tools, prompt-injection controls, budgets and streaming need their own
+authorization and evidence. The inspector does not implement deterministic design
+validation, certification, Reality Lock, Modify or Learn behavior.
+See [PHASE_5_REVIEW.md](PHASE_5_REVIEW.md) for the final live evidence and complete
+repository gate. Both topology semantics and ordinary browser-tab preservation are
+live verified. Real CAD context/session changes still clear evidence. Phase 6 remains
+deferred; completing Phase 5 does not authorize starting it.

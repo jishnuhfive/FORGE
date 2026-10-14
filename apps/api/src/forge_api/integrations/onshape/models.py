@@ -7,7 +7,14 @@ never serialized by the route. Missing optional provider fields remain unknown.
 from dataclasses import dataclass, field
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, JsonValue, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    JsonValue,
+    field_validator,
+    model_validator,
+)
 from pydantic_core import PydanticCustomError
 
 from .contracts import API_VERSION, SCHEMA_VERSION, WorkspaceReference
@@ -24,6 +31,22 @@ class ProviderModel(BaseModel):
 class Parameter(ProviderModel):
     parameterId: Identifier | None = None
     btType: Text | None = None
+    # Populated only by the allowlisted adapter, never from a provider-supplied
+    # field with this name. Unknown parameter classes cannot inject summaries.
+    summary: ParameterValue
+
+    @model_validator(mode="before")
+    @classmethod
+    def project(cls, value: object) -> object:
+        from .parameters import parameter_value
+
+        if not isinstance(value, dict):
+            return value
+        return {
+            "parameterId": value.get("parameterId"),
+            "btType": value.get("btType"),
+            "summary": parameter_value(value),
+        }
 
 
 class Feature(ProviderModel):
@@ -32,6 +55,7 @@ class Feature(ProviderModel):
     name: Text | None = None
     suppressed: bool | None = None
     parameters: list[Parameter] | None = Field(default=None, max_length=512)
+    namespace: Text | None = None
 
 
 class Features(ProviderModel):
@@ -110,9 +134,20 @@ class ReadModel(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True, hide_input_in_errors=True)
 
 
+class ParameterValue(ReadModel):
+    kind: Literal[
+        "boolean", "string", "enum", "expression", "query_count", "unsupported"
+    ]
+    state: Literal["available", "unavailable", "unsupported", "omitted"]
+    text: Annotated[str, Field(max_length=256)] | None = None
+    boolean: bool | None = None
+    count: int | None = Field(default=None, ge=0, le=2000)
+
+
 class ParameterSummary(ReadModel):
     parameter_id: str | None
     provider_type: str | None
+    value: ParameterValue
 
 
 class FeatureSummary(ReadModel):
@@ -121,6 +156,7 @@ class FeatureSummary(ReadModel):
     name: str | None
     suppressed: bool | None
     parameters: list[ParameterSummary] | None
+    custom_namespace: bool = False
 
 
 class FeatureSummaryList(ReadModel):

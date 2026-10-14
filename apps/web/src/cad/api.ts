@@ -2,7 +2,7 @@ import type { OnshapeClientContext } from '../onshape/model';
 
 export const sectionNames = ['features', 'parts', 'bodies', 'mass'] as const;
 export type SectionName = (typeof sectionNames)[number];
-const codes = [
+export const codes = [
   'ok',
   'connection_required',
   'read_permission_required',
@@ -41,9 +41,10 @@ export type ReadProof = {
   has_mass: boolean | null;
   // Local DEV metadata from a separate strictly validated response header.
   massStructure?: string;
+  bodyStructure?: string;
 } & Record<SectionName, Section>;
 
-function object(
+export function object(
   value: unknown,
   keys: readonly string[],
 ): Record<string, unknown> {
@@ -57,7 +58,7 @@ function object(
     throw new Error('Invalid CAD read');
   return result;
 }
-function bounded(value: unknown, min: number, max: number) {
+export function bounded(value: unknown, min: number, max: number) {
   return (
     typeof value === 'number' &&
     Number.isSafeInteger(value) &&
@@ -127,11 +128,12 @@ export class CadReadError extends Error {
     super(code);
   }
 }
-export async function readCad(
+export async function fetchCad(
   context: OnshapeClientContext,
   csrf: string,
   signal: AbortSignal,
-): Promise<ReadProof> {
+  projection: 'snapshot' | 'inspector',
+): Promise<Response> {
   if (
     context.revision.kind !== 'workspace' ||
     context.server !== 'https://cad.onshape.com' ||
@@ -144,12 +146,15 @@ export async function readCad(
     elementId: context.elementId,
     revisionKind: 'workspace',
   });
-  const response = await fetch(`/api/onshape/part-studio/snapshot?${params}`, {
-    credentials: 'same-origin',
-    cache: 'no-store',
-    signal,
-    headers: { 'X-CSRF-Token': csrf },
-  });
+  const response = await fetch(
+    `/api/onshape/part-studio/${projection}?${params}`,
+    {
+      credentials: 'same-origin',
+      cache: 'no-store',
+      signal,
+      headers: { 'X-CSRF-Token': csrf },
+    },
+  );
   if (!response.ok)
     throw new CadReadError(
       response.status === 401
@@ -160,9 +165,9 @@ export async function readCad(
             ? 'unsupported_context'
             : 'provider_unavailable',
     );
-  const text = await response.text();
-  if (text.length > 8192) throw new CadReadError('provider_unavailable');
-  const result = parseProof(JSON.parse(text));
+  return response;
+}
+export async function attachDiagnostic(response: Response, result: ReadProof) {
   if (import.meta.env.DEV) {
     const header = response.headers.get('X-Forge-Mass-Structure');
     if (header && result.mass.code === 'invalid_response') {
@@ -170,6 +175,23 @@ export async function readCad(
       const structure = parseMassStructure(header);
       if (structure) result.massStructure = structure;
     }
+    const bodyHeader = response.headers.get('X-Forge-Body-Structure');
+    if (bodyHeader && result.bodies.status === 'success') {
+      const { parseBodyStructure } = await import('./dev/bodyStructure');
+      const structure = parseBodyStructure(bodyHeader);
+      if (structure) result.bodyStructure = structure;
+    }
   }
   return result;
+}
+
+export async function readCad(
+  context: OnshapeClientContext,
+  csrf: string,
+  signal: AbortSignal,
+): Promise<ReadProof> {
+  const response = await fetchCad(context, csrf, signal, 'snapshot');
+  const text = await response.text();
+  if (text.length > 8192) throw new CadReadError('provider_unavailable');
+  return attachDiagnostic(response, parseProof(JSON.parse(text)));
 }

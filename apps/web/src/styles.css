@@ -1056,3 +1056,82 @@ ul.compact-list {
   gap: 8px;
   overflow-wrap: anywhere;
 }
+
+/* CAD evidence: native disclosures preserve keyboard and screen-reader behavior. */
+.cad-inspector,
+.inspector-section,
+.inspector-item {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.inspector-section {
+  border-top: 1px solid var(--border);
+  margin-top: 12px;
+}
+.inspector-section > summary {
+  display: flex;
+  justify-content: flex-start;
+  gap: 12px;
+}
+.cad-inspector summary {
+  padding: 12px 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.cad-inspector summary::marker {
+  color: var(--muted);
+}
+.inspector-section > summary::before {
+  content: '+';
+}
+.inspector-section[open] > summary::before {
+  content: '−';
+}
+.inspector-section > summary > span {
+  margin-left: auto;
+  font-weight: 400;
+  font-size: 12px;
+}
+.inspector-section-content {
+  padding: 0 4px 10px;
+}
+.inspector-items {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+}
+.inspector-item {
+  border-bottom: 1px solid var(--border);
+}
+.inspector-item-content {
+  padding: 0 6px 10px;
+}
+.inspector-index {
+  display: inline-block;
+  width: 1.75em;
+  font-variant-numeric: tabular-nums;
+}
+.inspector-subtitle {
+  display: block;
+  margin-top: 4px;
+  font-weight: 400;
+}
+.inspector-fields {
+  font-size: 12px;
+  margin: 8px 0;
+}
+.inspector-fields > div {
+  padding: 5px 0;
+}
+.inspector-fields dt {
+  color: var(--muted);
+}
+.inspector-fields dd {
+  margin: 3px 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.cad-inspector input {
+  width: 100%;
+  min-width: 0;
+}

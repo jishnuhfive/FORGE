@@ -124,7 +124,7 @@ describe('single secure message bridge', () => {
     h.send(data);
     expect(h.bridge.snapshot()).toBe(before);
   });
-  it('focuses on a validated show, invalidates stale selection, cleans up listeners', () => {
+  it('focuses on a validated show without resetting selection, cleans up listeners', () => {
     const h = harness();
     const notify = vi.fn();
     const unsubscribe = h.bridge.subscribe(notify);
@@ -132,7 +132,7 @@ describe('single secure message bridge', () => {
     h.send({ messageName: 'show' });
     expect(h.focus).toHaveBeenCalledTimes(2);
     expect(h.bridge.snapshot().selection).toEqual({
-      status: 'stale',
+      status: 'waiting',
       entities: [],
     });
     h.bridge.invalidate();
@@ -306,7 +306,7 @@ it('untrusted selection and clear events cannot modify a valid selection', () =>
   expect(h.bridge.snapshot()).toBe(before);
 });
 
-it('lifecycle invalidation clears references and rejects delayed selections until show', () => {
+it('navigation suspension rejects delayed selections and show cannot revive the old launch', () => {
   const h = harness();
   h.bridge.start();
   h.send(edgeSelection);
@@ -316,7 +316,55 @@ it('lifecycle invalidation clears references and rejects delayed selections unti
   h.send(faceSelection);
   expect(h.bridge.snapshot()).toBe(stale);
   h.send({ messageName: 'show' });
-  expect(h.bridge.snapshot().selection.entities).toEqual([]);
+  expect(h.bridge.snapshot()).toBe(stale);
   h.send(faceSelection);
+  expect(h.bridge.snapshot()).toBe(stale);
+  h.bridge.stop();
+  const next = harness();
+  next.bridge.start();
+  next.send(faceSelection);
+  expect(next.bridge.snapshot().selection.entities[0]?.type).toBe('face');
+});
+
+it.each([faceSelection, edgeSelection, clearedSelection])(
+  'show preserves the current verified selection and initializes only once %#',
+  (selection) => {
+    const h = harness();
+    h.bridge.start();
+    h.send(selection);
+    const before = h.bridge.snapshot();
+    h.send({ messageName: 'show' });
+    expect(h.bridge.snapshot().context).toBe(before.context);
+    expect(h.bridge.snapshot().selection).toBe(before.selection);
+    expect(h.parent.postMessage).toHaveBeenCalledTimes(1);
+  },
+);
+
+it.each(['documentId', 'workspaceId', 'elementId'])(
+  'a trusted selection with mismatched %s clears the launch and cannot revive it',
+  (field) => {
+    const h = harness();
+    h.bridge.start();
+    h.send(faceSelection);
+    h.send({ ...edgeSelection, [field]: 'e'.repeat(24) });
+    const invalid = h.bridge.snapshot();
+    expect(invalid.context).toBeNull();
+    expect(invalid.selection.entities).toEqual([]);
+    expect(invalid.status).toBe('EMBEDDED_CONTEXT_ERROR');
+    h.send({ messageName: 'show' });
+    h.send(faceSelection);
+    expect(h.bridge.snapshot()).toBe(invalid);
+  },
+);
+
+it('matching documented envelope context fields preserve the validated launch', () => {
+  const h = harness();
+  h.bridge.start();
+  h.send({
+    ...faceSelection,
+    documentId: 'a'.repeat(24),
+    workspaceId: 'b'.repeat(24),
+    elementId: 'c'.repeat(24),
+  });
   expect(h.bridge.snapshot().selection.entities[0]?.type).toBe('face');
 });

@@ -62,15 +62,36 @@ export function createBridge(host: BridgeHost) {
       diagnosticObserver?.(data);
     }
     if (data.messageName === 'show' && Object.keys(data).length === 1) {
-      active = true;
       host.focus();
-      publish({
-        ...state,
-        status: 'EMBEDDED_CONNECTED',
-        selection: { status: 'stale', entities: [] },
-      });
+      // show requests focus, not a new CAD context or a selection reset. It has
+      // no identity evidence with which to revive a genuinely suspended frame.
+      if (active) publish({ ...state, status: 'EMBEDDED_CONNECTED' });
     }
     if (data.messageName === 'SELECTION' && active) {
+      // Incoming selection envelopes need not carry context IDs. When the
+      // documented envelope fields are supplied, they must match this launch.
+      const expected = {
+        documentId: context.documentId,
+        workspaceId:
+          context.revision.kind === 'workspace'
+            ? context.revision.workspaceId
+            : undefined,
+        elementId: context.elementId,
+      };
+      if (
+        Object.entries(expected).some(
+          ([key, value]) => Object.hasOwn(data, key) && data[key] !== value,
+        )
+      ) {
+        active = false;
+        publish({
+          status: 'EMBEDDED_CONTEXT_ERROR',
+          context: null,
+          selection: { status: 'waiting', entities: [] },
+          issue: 'invalid-context',
+        });
+        return;
+      }
       const entities = parseSelection(data);
       publish({
         ...state,
@@ -124,8 +145,8 @@ export function createBridge(host: BridgeHost) {
       diagnosticObserver = undefined;
     },
     invalidate: () => {
-      // A delayed event after pagehide/visibility loss cannot revive old refs.
-      // Only a documented show or a fresh frame resumes selection acceptance.
+      // Navigation/bfcache suspension is distinct from ordinary tab visibility.
+      // A show without context IDs cannot revive it; a fresh launch is required.
       active = false;
       if (state.context)
         publish({

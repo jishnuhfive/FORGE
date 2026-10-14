@@ -5,6 +5,7 @@ import type { Me } from '../auth/api';
 import { parseLaunch } from '../onshape/context';
 import type { ClientState } from '../onshape/model';
 import { ReadCad } from './ReadCad';
+import { inspectorFixture } from './__fixtures__/inspector';
 import { syntheticProof } from './__fixtures__/proof';
 import type { ReadProof, Section } from './api';
 
@@ -29,10 +30,10 @@ const view = (state = launch, account = me) => (
   </AuthContext.Provider>
 );
 const respond = (value: unknown = syntheticProof) =>
-  new Response(JSON.stringify(value));
+  new Response(JSON.stringify(inspectorFixture(value as ReadProof)));
 const click = async () =>
   act(async () => {
-    fireEvent.click(screen.getByRole('button', { name: 'Read CAD data' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Refresh CAD' }));
   });
 afterEach(() => vi.useRealTimers());
 
@@ -64,7 +65,7 @@ it('reads only on explicit action, blocks duplicates and renders a compact summa
   expect(
     screen.getByText(/single consistent CAD version is unverified/),
   ).toBeVisible();
-  expect(screen.getByRole('button', { name: 'Read CAD data' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Refresh CAD' })).toBeDisabled();
   for (const value of [
     'a'.repeat(24),
     'b'.repeat(24),
@@ -136,7 +137,7 @@ it.each(['documentId', 'workspaceId', 'elementId', 'microversionId'] as const)(
     };
     rerender(view(changed));
     expect(screen.queryByText('2 features')).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Read CAD data' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Refresh CAD' })).toBeEnabled();
   },
 );
 
@@ -163,30 +164,63 @@ it('aborts old reads and ignores late success after context changes', async () =
   expect(screen.queryByText('2 features')).not.toBeInTheDocument();
 });
 
-it.each(['disconnect', 'account', 'lifecycle'] as const)(
-  'clears read data on %s change',
-  async (change) => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(respond()));
-    const { rerender } = render(view());
-    await click();
-    if (change === 'disconnect')
-      rerender(view(launch, { ...me, connection: 'disconnected' }));
-    else if (change === 'account')
-      rerender(view(launch, { ...me, csrf_token: 'e'.repeat(64) }));
-    else
-      rerender(
-        view({ ...launch, selection: { status: 'stale', entities: [] } }),
-      );
-    expect(screen.queryByText('2 features')).not.toBeInTheDocument();
-  },
-);
+it.each([
+  'disconnect',
+  'account',
+  'logout',
+  'lifecycle',
+  'malformed-selection',
+] as const)('clears read data on %s change', async (change) => {
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(respond()));
+  const { rerender } = render(view());
+  await click();
+  if (change === 'disconnect')
+    rerender(view(launch, { ...me, connection: 'disconnected' }));
+  else if (change === 'account')
+    rerender(view(launch, { ...me, csrf_token: 'e'.repeat(64) }));
+  else if (change === 'logout')
+    rerender(view(launch, { ...me, status: 'signed_out', csrf_token: null }));
+  else if (change === 'malformed-selection')
+    rerender(
+      view({ ...launch, selection: { status: 'unavailable', entities: [] } }),
+    );
+  else
+    rerender(view({ ...launch, selection: { status: 'stale', entities: [] } }));
+  expect(screen.queryByText('2 features')).not.toBeInTheDocument();
+});
 
-it('clears read data when the page is hidden', async () => {
+it('clears read data on genuine page navigation', async () => {
   vi.stubGlobal('fetch', vi.fn().mockResolvedValue(respond()));
   render(view());
   await click();
   act(() => window.dispatchEvent(new Event('pagehide')));
   expect(screen.queryByText('2 features')).not.toBeInTheDocument();
+});
+
+it('preserves captured evidence through same-frame visibility and blur/focus without provider reads', async () => {
+  vi.useFakeTimers();
+  const fetch = vi.fn().mockResolvedValue(respond());
+  vi.stubGlobal('fetch', fetch);
+  render(view());
+  await click();
+  const captured = document.querySelector('time')!;
+  const capturedAt = captured.dateTime;
+  const hidden = vi.spyOn(document, 'hidden', 'get');
+  act(() => {
+    hidden.mockReturnValue(true);
+    document.dispatchEvent(new Event('visibilitychange'));
+    window.dispatchEvent(new Event('blur'));
+    hidden.mockReturnValue(false);
+    document.dispatchEvent(new Event('visibilitychange'));
+    window.dispatchEvent(new Event('focus'));
+  });
+  await act(async () => vi.advanceTimersByTime(120_000));
+  expect(screen.getByText('2 features')).toBeVisible();
+  expect(document.querySelector('time')).toBe(captured);
+  expect(captured.dateTime).toBe(capturedAt);
+  expect(screen.getByText(/currentness unverified/)).toBeVisible();
+  expect(screen.queryByText(/Reopen the Forge panel/)).not.toBeInTheDocument();
+  expect(fetch).toHaveBeenCalledTimes(1);
 });
 
 it('honors Retry-After without polling', async () => {
@@ -211,9 +245,9 @@ it('honors Retry-After without polling', async () => {
   render(view());
   await click();
   await act(async () => vi.advanceTimersByTime(119000));
-  expect(screen.getByRole('button', { name: 'Read CAD data' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Refresh CAD' })).toBeDisabled();
   await act(async () => vi.advanceTimersByTime(1000));
-  expect(screen.getByRole('button', { name: 'Read CAD data' })).toBeEnabled();
+  expect(screen.getByRole('button', { name: 'Refresh CAD' })).toBeEnabled();
   expect(fetch).toHaveBeenCalledTimes(1);
 });
 
@@ -294,11 +328,13 @@ it('rejects unvalidated provider data and never renders it', async () => {
   vi.stubGlobal(
     'fetch',
     vi.fn().mockResolvedValue(
-      respond({
-        ...syntheticProof,
-        token: 'private-token',
-        raw: { feature: 'private-feature' },
-      }),
+      new Response(
+        JSON.stringify({
+          ...inspectorFixture(),
+          token: 'private-token',
+          raw: { feature: 'private-feature' },
+        }),
+      ),
     ),
   );
   render(view());
@@ -325,4 +361,33 @@ it('offers no reads without authentication or for version contexts', () => {
   expect(screen.getByText(/workspace Part Studios only/)).toBeVisible();
   expect(screen.queryByRole('button')).not.toBeInTheDocument();
   expect(fetch).not.toHaveBeenCalled();
+});
+
+it('refreshes only on another explicit click after cooldown', async () => {
+  vi.useFakeTimers();
+  const fetch = vi.fn().mockImplementation(() => Promise.resolve(respond()));
+  vi.stubGlobal('fetch', fetch);
+  render(view());
+  await click();
+  await act(async () => vi.advanceTimersByTime(5000));
+  expect(fetch).toHaveBeenCalledTimes(1);
+  await click();
+  expect(fetch).toHaveBeenCalledTimes(2);
+  expect(screen.getByText('Sketch 1')).toBeVisible();
+});
+
+it('does not install a late result after account rotation during a read', async () => {
+  let resolve!: (response: Response) => void;
+  const fetch = vi.fn(
+    () =>
+      new Promise<Response>((done) => {
+        resolve = done;
+      }),
+  );
+  vi.stubGlobal('fetch', fetch);
+  const { rerender } = render(view());
+  await click();
+  rerender(view(launch, { ...me, csrf_token: 'e'.repeat(64) }));
+  await act(async () => resolve(respond()));
+  expect(screen.queryByText('Sketch 1')).not.toBeInTheDocument();
 });

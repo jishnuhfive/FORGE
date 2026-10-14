@@ -95,3 +95,60 @@ test('local preview workflow and stale selection never authorize CAD writes', as
   await expect(page.getByLabel('Modification prompt')).toBeDisabled();
   expect(calls).toEqual([]);
 });
+
+test('Phase 5 synthetic inspector states are accessible at narrow widths', async ({
+  page,
+  browserName,
+}) => {
+  await page.setViewportSize({ width: 320, height: 950 });
+  await page.goto('http://127.0.0.1:4174/#/lab');
+  await page.getByLabel('Preview state').selectOption('CAD inspector');
+  for (const state of [
+    'Simple Part Studio',
+    'Empty Part Studio',
+    'Many features',
+    'Suppressed feature',
+    'Unknown feature',
+    'Partial provider failure',
+    'Unavailable mass',
+    'Selected FACE',
+    'Selected EDGE',
+  ]) {
+    await page.getByLabel('Inspector state').selectOption(state);
+    await expect(
+      page.getByText(
+        'Synthetic evidence only. No Onshape request or CAD change.',
+      ),
+    ).toBeVisible();
+    if (state === 'Unknown feature') {
+      await page
+        .locator('summary')
+        .filter({ hasText: 'Synthetic custom feature' })
+        .click();
+      await expect(
+        page.getByText('Type not yet interpreted by Forge.'),
+      ).toBeVisible();
+    }
+    if (state === 'Partial provider failure') {
+      await expect(page.getByText(/Onshape took too long/)).toBeVisible();
+      await expect(page.getByText('Sketch 1', { exact: true })).toBeVisible();
+    }
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+    if (browserName === 'chromium' && state === 'Simple Part Studio')
+      await page.screenshot({
+        path: '.cache/phase5/lab-320.png',
+        fullPage: true,
+      });
+  }
+});

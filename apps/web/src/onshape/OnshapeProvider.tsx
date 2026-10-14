@@ -45,22 +45,19 @@ export function OnshapeProvider({ children }: { children: ReactNode }) {
       });
     }
     bridge.start();
-    const hidden = () => {
-      if (document.hidden) bridge.invalidate();
-    };
     const restored = (event: PageTransitionEvent) => {
       if (event.persisted) bridge.invalidate();
     };
+    // Ordinary tab visibility does not replace this frame's validated launch.
+    // Actual navigation and bfcache restoration still suspend its old bridge.
     window.addEventListener('pagehide', bridge.invalidate);
     window.addEventListener('pageshow', restored);
-    document.addEventListener('visibilitychange', hidden);
     return () => {
       mounted = false;
       reset?.();
       bridge.stop();
       window.removeEventListener('pagehide', bridge.invalidate);
       window.removeEventListener('pageshow', restored);
-      document.removeEventListener('visibilitychange', hidden);
     };
   }, [bridge]);
   return (

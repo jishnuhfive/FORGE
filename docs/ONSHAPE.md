@@ -133,8 +133,8 @@ Explicit version revisions are retained but never initialized as workspaces.
 registration, bounded contract, lifecycle, browser/session limitations and live retest.
 [PHASE_3_REVIEW.md](PHASE_3_REVIEW.md) records the passing quality gate and resolved
 FACE evidence. Phase 3 is complete. Phase 4 real REST verification passed; its
-commit/push is authorized after the complete final repository gate. Phase 5
-is not started or authorized.
+commit/push is authorized after the complete final repository gate. Phase 5 implements a read-only workspace Part Studio inspector; its final real
+live verification passed on 2026-10-14.
 
 ## Phase 4 official REST contract and permission update
 
@@ -179,3 +179,61 @@ values. The user also verified a separate empty Part Studio returned 0 features,
 0 parts, 0 bodies and no mass-property bodies, clearing the earlier snapshot.
 No further diagnostic capture or live retest is currently required. Actual live
 browser/version was not supplied; cross-engine automated coverage is separate.
+
+## Phase 5 official schema review and inspector scope
+
+The public [live OpenAPI contract](https://cad.onshape.com/api/openapi) was fetched
+again on 2026-10-13. It still advertises v17, schema
+`1.222.90730-c8d74e607a47`, SHA-256
+`d93a3c77e5f4a61f69ce865e815da4fe628178bb37cb6de4d91028f2c2bdc9aa`.
+It establishes exact boolean/string/enum value fields, quantity expression strings,
+query-list entries, feature namespaces and `BTPartMetadataInfo` fields.
+The [feature guide](https://onshape-public.github.io/docs/api-adv/featureaccess/)
+and [standard library](https://cad.onshape.com/FsDoc/library.html#chamfer)
+support the narrow Sketch/Extrude/Fillet/Chamfer labels. They do not establish
+universal parameter interpretation, entity-query cardinality or assembly support.
+
+The inspector labels query-entry count only, not resolved entity count. Quantity
+expressions are not evaluated. Missing optional fields remain unknown; no default
+false, zero, empty geometry or active suppression is inferred. Provider parameters
+can include inactive options, which the UI explicitly cautions about.
+
+The four fixed GETs, query flags, default configuration, end-of-list evaluation,
+OAuth2Read permission and unverified unit policy remain unchanged. Aggregate mass
+cannot be assigned to individual parts. Topology counts derive only from nonempty
+returned arrays; unverified empty collections remain unknown. FACE/EDGE selection
+is separate from REST evidence. Assembly inspection,
+version/microversion reads, configurations, rollback-state synchronization and
+selection ownership mapping remain unsupported. No extension registration or
+permission change is needed for Phase 5. See [PHASE_5_REVIEW.md](PHASE_5_REVIEW.md)
+for exact live inspector steps; Phase 4 live success does not validate this new UI.
+
+### Phase 5 live topology investigation — 2026-10-14
+
+The current official v17 OpenAPI was fetched again with the same version/hash above.
+`BTExportModelBody-1272` makes faces/edges/vertices optional and gives no guarantee
+that an empty array is authoritative topology absence. The documented
+`includeGeometricData` default is true; its generic description and the official
+[body-details guide](https://onshape-public.github.io/docs/api-adv/partstudios/)
+do not specify which topology arrays false omits or empties. Forge's fixed false
+option, endpoint and bounds remain unchanged; no larger geometry read is justified.
+Missing/null already stayed unknown. The repaired normalizer also treats empty
+arrays as unknown instead of unconditional zero. The final sanitized live capture established present arrays with 6 face entries
+and empty edge/vertex arrays. The final UI correctly shows 6 / Unknown / Unknown.
+The user verified this behavior along with feature, part and physical inspection.
+See [PHASE_5_REVIEW.md](PHASE_5_REVIEW.md) for the completed live evidence.
+
+### Phase 5 browser lifecycle repair — 2026-10-14
+
+Rechecked current [client messaging](https://onshape-public.github.io/docs/app-dev/messages/)
+and the [right-panel sequence](https://onshape-public.github.io/docs/app-dev/messages/element-right-panel/).
+applicationInit is once per startup; panel close destroys the extension and reopening
+starts a new frame. show is a focus cue, with no new context or documented selection
+reset/replay requirement. Ordinary browser visibility/focus in the same live frame
+now preserves validated context, verified selection and captured inspector evidence.
+No new bridge message, initialization replay, automatic CAD request or polling was
+added. Exact origin/parent checks and real navigation/context/session clearing stay.
+The user verified same-frame browser-tab preservation, FACE/EDGE/clear, local
+filtering and Part Studio switching with empty 0/0/0 results. The topology repair
+and useful bounded DEV diagnostics are preserved. See the Phase 5 review for the
+final live evidence; no further capture is required for Phase 5.

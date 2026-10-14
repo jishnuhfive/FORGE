@@ -7,22 +7,24 @@ right panel. Users describe **what** a mechanism must accomplish; Forge will hel
 determine **how** it should be engineered, with approval before CAD changes and
 deterministic checks of supported constraints.
 
-**Current status: Phase 4 complete.** Real Onshape read access, safe unavailable mass
-and stale-context clearing are verified. Phase 3 is complete. The human verified real Onshape right-panel
-embedding, embedded authentication, launch context and FACE/EDGE/clear message
-structures. The strict single-entity/clear adapter matches those live captures.
-See [Phase 3 review](docs/PHASE_3_REVIEW.md). Forge has a responsive Design/Modify/Learn
-workspace, Onshape sign-in, revocable server sessions, encrypted refresh tokens,
-account controls and database migrations. The development UI lab works without an account.
+**Current status: Phase 5 complete — CAD Inspector live verified.**
+Phases 0–4 are preserved, including real OAuth, right-panel context and selection,
+and four backend read operations verified against a real Part Studio. The inspector
+now presents ordered features, supported parameter evidence, parts, bodies and
+physical-property availability from the same read pipeline.
 
-**Four backend-only, read-only Onshape REST operations are implemented. No OpenAI
-calls or CAD writes exist.** `/extension` validates launch
-context and receives narrowly validated client selection messages. Engineering
-workflows remain local drafts or labeled synthetic previews. This is not a publicly
-deployed production service. Use CAD Context → Read CAD data for the compact proof
-interaction. See [Phase 4 review](docs/PHASE_4_REVIEW.md) for the required OAuth read
-permission, verified 2/1/1 CAD counts, valid unavailable mass, and clearing when
-switching to an empty Part Studio. Phase 5 has not begun and is not authorized.
+Open **View CAD context → Refresh CAD** inside the existing workspace Part Studio.
+Read-only inspection uses the default configuration and end-of-list evaluation.
+No polling, AI calls, CAD writes or synthetic production fallback exist. Unknown
+units and consistency remain explicit; numeric mass and volume are withheld.
+The development UI lab has separate synthetic inspector states without an account.
+
+See [Phase 5 review](docs/PHASE_5_REVIEW.md) for the versioned evidence contract,
+bounds and final verification record. Real feature/parameter/part/body inspection,
+local filtering, FACE/EDGE/clear selection, ordinary browser-tab preservation and
+empty Part Studio stale clearing passed. Phase 6 remains deferred and requires
+separate authorization.
+This is not a publicly deployed production service.
 
 ## Architecture and stack
 

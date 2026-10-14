@@ -3,6 +3,7 @@ import { expect, it, vi } from 'vitest';
 import ReadDiagnostic from './ReadDiagnostic';
 import { syntheticProof } from '../__fixtures__/proof';
 import { syntheticMassStructure } from '../__fixtures__/massStructure';
+import { syntheticBodyStructure } from '../__fixtures__/bodyStructure';
 
 it('copies only sanitized status metadata on explicit action', async () => {
   const writeText = vi.fn().mockResolvedValue(undefined);
@@ -177,6 +178,7 @@ it('does not render outside development', () => {
         result={{
           ...syntheticProof,
           massStructure: JSON.stringify(syntheticMassStructure, null, 2),
+          bodyStructure: JSON.stringify(syntheticBodyStructure, null, 2),
         }}
       />,
     );
@@ -184,6 +186,20 @@ it('does not render outside development', () => {
   } finally {
     vi.unstubAllEnvs();
   }
+});
+
+it('offers the first-body structure in a labeled read-only manual capture box', () => {
+  const text = JSON.stringify(syntheticBodyStructure, null, 2);
+  render(
+    <ReadDiagnostic result={{ ...syntheticProof, bodyStructure: text }} />,
+  );
+  const textbox = screen.getByRole('textbox', {
+    name: 'Sanitized body response structure',
+  });
+  expect(textbox).toHaveValue(text);
+  expect(textbox).toHaveAttribute('readonly');
+  expect(textbox).toHaveAttribute('spellcheck', 'false');
+  expect(screen.getByText(/First returned body only/)).toBeVisible();
 });
 
 it('offers the validated mass structure for manual copying without altering the read report', async () => {

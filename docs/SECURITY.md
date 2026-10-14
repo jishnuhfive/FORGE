@@ -1,6 +1,6 @@
 # Security architecture
 
-## Implemented through Phase 4 read boundary
+## Implemented through Phase 5 read-only inspector
 
 Forge uses Onshape OAuth2 only. There are no passwords, JWT login tokens, CAD mutation tools
 or AI calls. Four backend CAD reads are allowlisted. Authentication establishes an account, not permission to change CAD.
@@ -80,7 +80,8 @@ establish object authorization. Phase 3 uses one dedicated listener with an exac
 operator-owned origin and parent-window source check. The live selection adapter
 accepts only bounded single FACE/EDGE ENTITY references or explicit empty arrays.
 Unknown fields are discarded, malformed trusted selections remove stale references,
-and lifecycle invalidation prevents delayed messages from reviving them. Selection
+and navigation suspension prevents delayed messages from reviving them. Ordinary
+browser visibility/focus does not invalidate the same validated frame. Selection
 references are memory-only and never rendered; they are not authorization. An opt-in DEV-only
 observer behind the same origin/source checks can inspect structure without accepting
 it as CAD state. It emits only fixed labels/types/capped counts; ID/name/URL values
@@ -153,7 +154,7 @@ Metadata is rejected. Existing mutation routes and CSRF policy remain unchanged.
 Responses are bounded before normalization; compressed payloads, invalid JSON,
 nonfinite values, duplicate keys and excess depth/collection sizes are rejected.
 No CAD response is persisted/cached. The final session/grant check discards data
-following in-flight logout/disconnect. Frontend reference/account/lifecycle changes
+following in-flight logout/disconnect. Frontend reference/account/navigation changes
 abort reads and clear prior summaries. Response cache policy is always no-store.
 
 Telemetry includes fixed operation/outcome, status class, duration/retry count and
@@ -199,3 +200,73 @@ observed integration behavior; source review and regression tests establish the
 read-only security boundary. No security certification or broader production
 readiness is inferred from these checks.
 See [PHASE_4_REVIEW.md](PHASE_4_REVIEW.md) for the full boundary and evidence.
+
+## Phase 5 browser data boundary
+
+The inspector intentionally exposes more private CAD metadata than the compact
+Phase 4 proof. Its explicit allowlist includes bounded display names, supported
+literal parameter values, ordinal positions, suppression, part metadata, topology
+counts and physical availability. Both APIs reuse the same authentication and
+read gate. The new endpoint accepts the same four context fields and secret CSRF
+header; no new provider operation, host, path, method, permission or retry exists.
+The final ownership check precedes either projection.
+
+Neither response includes raw provider payloads, arbitrary custom properties,
+feature/body/part IDs, source microversions, FeatureScript source, query strings,
+geometry, tokens, headers or exception bodies. Parameter labels may derive from
+bounded readable parameter names; opaque hexadecimal IDs use ordinal labels.
+Quantity expressions are literal strings only, never evaluated or used to infer
+units. Custom feature namespaces stay server-side. Unknown classes cannot inject
+summaries, even by sending fields named like the internal projection.
+
+Provider bounds are unchanged. Inspector limits add 100 features, 200 parts,
+200 bodies, 16 parameters per feature and whole-value display omission beyond
+256 UTF-8 bytes (parameter labels derive from at most 80 ASCII characters).
+Completeness and omitted counts remain explicit; missing, null or unverified empty
+topology is never zero.
+The frontend rejects unknown fields, wrong types, inconsistent counts/statuses,
+unsupported versions and responses above 2 MiB before JSON parsing.
+React escapes all display text and does not make provider URLs clickable.
+
+No inspector data is persisted, cached, sent to analytics or logged. This includes
+names, searches and parameter values. Existing logs contain fixed outcomes only;
+ingress/APM must suppress both CAD endpoint queries and bodies. DEV diagnostics
+receive the compact proof and separately validated structure headers, never raw
+provider records, and remain absent from production assets. Test/lab fixtures are
+invented and never production fallback.
+Mass/volume numbers remain withheld with `provider_native_unverified` units.
+Passing this gate is not security certification or production approval.
+
+The topology investigation adds a development-only `X-Forge-Body-Structure` header,
+at most 512 ASCII characters, after successful bounded body normalization and final
+session/grant ownership validation. It describes only the first returned body's
+faces/edges/vertices: fixed presence boolean, array/missing category and bounded
+length/null. It copies no IDs, coordinates, geometry, unknown keys, provider values,
+tokens or URLs. Empty arrays remain structure facts, not verified topology zeros.
+No header is emitted for body errors, no bodies, non-development environments or
+lost ownership. The client clears previous structure before every body read. The
+DEV browser validates exact keys, types and bounds; production ignores even an
+injected header and excludes the parser/UI. Neither structure nor CAD data is logged
+or persisted. Manual capture steps are in the Phase 5 review; no live raw capture
+is authorized or needed.
+
+The browser lifecycle repair keeps exact origin and parent-window checks, strict
+launch parsing, GET-only REST and CSRF/session ownership unchanged. Inspection keys
+use validated IDs plus revision kind, origin, microversion and session CSRF identity;
+display labels never establish sameness. Ordinary hidden/visible or blur/focus
+preserves the last capture with its original uncertainty metadata. Focus may run the
+existing session check, never a CAD read. Malformed trusted selection clears private
+inspection and opaque references; valid selection recovery does not read CAD.
+Supplied document/workspace/element fields must match the current launch or context
+is rejected. Untrusted messages are ignored so they can neither alter valid state
+nor revive an invalid one. Actual navigation/bfcache suspension still clears evidence
+and cannot be undone by a show message lacking identity. A destroyed/recreated
+panel frame has fresh state and one applicationInit. No state is persisted.
+
+Final Phase 5 human verification passed on 2026-10-14: ordered Sketch/Extrude,
+supported/caveated parameters, safe part metadata, 6 faces with unknown edges/vertices,
+missing-mass and reported-volume evidence without numeric units, FACE/EDGE/clear,
+local filtering, same-frame Chrome tab preservation, and empty Part Studio 0/0/0
+with prior evidence cleared. This verifies observed read-only behavior, not selection
+ownership, complete CAD semantics, atomic consistency or engineering certification.
+The architecture/security boundaries above and production-excluded diagnostics remain.

@@ -1,6 +1,6 @@
 # Architecture
 
-## Current implementation — Phase 4 reads live verified
+## Current implementation — Phase 5 inspector live verified
 
 One React/TypeScript/Vite web client, one FastAPI/Pydantic API and shared presentation
 primitives serve desktop browsers. Native clients are not part of Forge.
@@ -8,7 +8,8 @@ primitives serve desktop browsers. Native clients are not part of Forge.
 The Phase 1 Design/Modify/Learn shell remains, now behind an Onshape sign-in gate.
 The development UI lab is independent of authentication and remains excluded from
 production builds. Engineering workflows remain local or explicitly synthetic.
-Phase 4 adds four backend CAD REST reads and a compact proof UI. No AI or CAD
+Phase 4 established four backend CAD REST reads. Phase 5 projects their snapshot
+into a bounded CAD Inspector; the compact proof API remains available. No AI or CAD
 writes are implemented. The extension launch bridge sends
 applicationInit, handles documented show messages and normalizes bounded single
 FACE/EDGE or clear SELECTION envelopes matching the human's live sanitized captures.
@@ -124,15 +125,17 @@ The existing bundle serves `/extension` and standalone `/`. `onshape/context.ts`
 normalizes bounded launch parameters; `policy.ts` owns exact origins and Vite frame
 headers; `bridge.ts` owns message/source validation and initialization; the provider
 exposes an in-memory React store. The browser never selects a backend API host.
-CAD Context consumes safe abbreviated references even when embedded AuthGate cannot
+CAD Context consumes normalized context even when embedded AuthGate cannot
 see a session. The DEV simulator is a separate lazy component eliminated at build.
 No backend production behavior, schema, provider request or dependency changed.
 
 Document/element switches use Action URL navigation and a fresh bridge, not invented
 context-change messages. `selection.ts` validates the captured envelope and requested
 FACE/EDGE categories; it discards unknown fields and stores only an opaque reference
-and normalized type. Malformed trusted selections clear old references. Lifecycle
-invalidation suspends acceptance until show or a fresh frame. Before any future CAD API exists,
+and normalized type. Malformed trusted selections clear old references. Actual
+navigation/bfcache suspension requires a fresh frame; show cannot revive it.
+Ordinary browser visibility/focus and show preserve the current launch and selection.
+Before any future CAD API exists,
 derive the user from the session and independently authorize each object through
 that user's server-held grant. Frontend context is never proof of access.
 
@@ -178,7 +181,8 @@ consistency. Separate workspace reads never claim atomicity.
 
 GET `/api/onshape/part-studio/snapshot` requires the existing session CSRF token
 as a quota-protection header. A bounded per-user process-local gate limits duplicate
-reads and cooldowns. Context/account/lifecycle changes invalidate frontend results.
+reads and cooldowns. Context/account changes and actual navigation invalidate
+frontend results; ordinary tab visibility/focus preserves them.
 The dev-only diagnostic is lazy-loaded and absent from production assets.
 For unresolved mass normalization failures, a development-only callback produces
 bounded structure metadata in a response header after ownership is
@@ -207,3 +211,57 @@ verified all four real reads, valid unavailable mass, and clearing of the previo
 live observations; automated fixtures do not substitute for them. No broader live
 browser, configuration, geometry or atomic-snapshot claim is made.
 See [PHASE_4_REVIEW.md](PHASE_4_REVIEW.md) for contracts, limits and live verification.
+
+## Phase 5 inspector projection
+
+One explicit Refresh CAD action invokes GET `/api/onshape/part-studio/inspector`.
+The shared `acquire` function retains the exact Phase 4 session, CSRF/origin,
+reference-validation, quota gate, transport and final ownership checks. It captures
+once and projects twice: compact `source` proof plus bounded Forge evidence.
+The existing `/snapshot` endpoint retains `forge-cad-read-v1` unchanged and shares
+the same gate. The UI never fetches both endpoints for one inspection.
+
+`parameters.py` dispatches only exact reviewed provider classes; `normalize.py`
+puts their typed summaries into the existing internal feature records.
+`inspector.py` consumes normalized records only, never `ProviderDocument.raw`.
+Its `forge-cad-inspector-v1` model separates source statuses, context semantics,
+freshness, completeness, ordered features, parts, bodies and physical availability.
+The future Phase 6 consumer can use this structure without scraping React; no AI
+consumer, prompts or tools are implemented now.
+
+The frontend strictly validates the response before mounting `InspectorView`.
+Native details/summary controls, labels, local feature/part filters and wrapped
+content fit the panel. Phase 3 selection remains a separate memory-only observation:
+no feature/part/body ownership is inferred. Account/context keys remount the reader;
+actual page navigation aborts and clears it. Same-frame visibility/focus changes
+preserve capture metadata and cause no CAD reads. Nothing persists the evidence.
+Names and values are untrusted display text. Exact limits and semantics are in
+[PHASE_5_REVIEW.md](PHASE_5_REVIEW.md). Assemblies remain Phase 10.
+
+The 2026-10-14 topology repair preserves optionality and treats empty export arrays
+as unknown: the fixed `includeGeometricData=false` contract does not establish
+authoritative emptiness. Nonempty arrays produce returned-entry counts; empty,
+missing and null arrays remain null through the inspector and render Unknown.
+DEV alone supplies a first-body structure callback to the existing transport.
+After successful normalization and the final ownership check, a separate bounded
+header carries only the three fixed topology fields' presence/type/length. It
+creates no read, geometry payload, cache or persistence path. Production neither
+installs the callback nor includes its frontend parser and UI.
+
+Phase 5 browser lifecycle repair removes document-hidden handlers from both the
+provider and reader. The reader remount key explicitly includes document, revision
+kind/ID, element, provider origin, optional microversion and session CSRF identity.
+The bridge preserves verified selection on show, ignores wrong origin/window, and
+fails closed on supplied context IDs that mismatch its launch. Malformed trusted
+selection clears old inspection and selection; a valid update enables explicit
+reading again. Authentication focus checks remain `/api/me` only. They keep results
+for an unchanged session and clear them on logout, disconnect/revoke or session
+rotation. Panel iframe destruction still starts entirely fresh on reopen.
+
+Final Phase 5 human verification passed on 2026-10-14: ordered Sketch/Extrude,
+supported/caveated parameters, safe part metadata, 6 faces with unknown edges/vertices,
+missing-mass and reported-volume evidence without numeric units, FACE/EDGE/clear,
+local filtering, same-frame Chrome tab preservation, and empty Part Studio 0/0/0
+with prior evidence cleared. This verifies observed read-only behavior, not selection
+ownership, complete CAD semantics, atomic consistency or engineering certification.
+The architecture/security boundaries above and production-excluded diagnostics remain.

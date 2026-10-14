@@ -1,7 +1,7 @@
 import { Badge, Panel } from '@forge/design-system';
 import { Box, Unplug } from 'lucide-react';
 import { ReadCad } from '../cad/ReadCad';
-import { selectionLabel, revisionId } from '../onshape/model';
+import { selectionLabel } from '../onshape/model';
 import type { ClientState } from '../onshape/model';
 import type { CadContext as Context } from '../lib/types';
 
@@ -75,24 +75,31 @@ function LiveContext({ state }: { state: ClientState }) {
       </div>
     );
   }
-  const short = (id: string) => `${id.slice(0, 6)}…${id.slice(-4)}`;
   return (
     <>
       <Badge tone="accent">Onshape launch context</Badge>
       <dl className="context-list">
         <div>
           <dt>Document</dt>
-          <dd>{short(context.documentId)}</dd>
+          <dd>Current document</dd>
         </div>
         <div>
           <dt>Element</dt>
-          <dd>{short(context.elementId)}</dd>
+          <dd>
+            {context.elementType === 'assembly'
+              ? 'Assembly · inspection unsupported'
+              : 'Current element'}
+          </dd>
         </div>
         <div>
           <dt>
             {context.revision.kind === 'workspace' ? 'Workspace' : 'Version'}
           </dt>
-          <dd>{short(revisionId(context))}</dd>
+          <dd>
+            {context.revision.kind === 'workspace'
+              ? 'Current workspace'
+              : 'Inspection unsupported'}
+          </dd>
         </div>
         <div>
           <dt>Selection</dt>
@@ -102,8 +109,9 @@ function LiveContext({ state }: { state: ClientState }) {
         </div>
       </dl>
       <p className="muted small">
-        Document names are not supplied. Selection supports a single Part Studio
-        face or edge.
+        Selection evidence is separate from CAD inspection. A selected face or
+        edge does not establish its owning feature, part, dimensions or surface
+        type.
       </p>
       <ReadCad state={state} />
       {state.status === 'EMBEDDED_INITIALIZING' && (
