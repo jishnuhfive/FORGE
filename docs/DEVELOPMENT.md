@@ -89,10 +89,10 @@ setup. Settings actually read by Phase 2:
 
 Empty placeholders keep defaults. Production requires HTTPS and complete auth
 configuration; a database/key/credential failure never enables mock login. No
-SESSION_SECRET is needed for opaque server-side sessions. OpenAI remains unimplemented.
+SESSION_SECRET is needed for opaque server-side sessions. Phase 6 hosted-provider configuration is documented below.
 
 There are no `VITE_*` secrets. Never dump settings or `.env` contents into logs.
-Onshape tokens and OpenAI keys must not enter frontend source or browser storage.
+Onshape tokens and AI-provider keys must not enter frontend source or browser storage.
 
 ## PostgreSQL workflow
 
@@ -208,8 +208,7 @@ controls. Container queries also keep a narrow lab frame narrow on a wide screen
 The automated lab matrix covers every state at 320 px dark and 1280 px light.
 Additional regular workspace coverage exercises all four widths and both themes.
 
-OAuth code exists, but real OAuth requires credential verification. No OpenAI calls
-exist. Only Phase 4’s explicit CAD Context action performs live CAD reads; no CAD is modified. Sample approval and Apply actions only change local preview state.
+OAuth code exists, but real OAuth requires credential verification. Phase 6 adds explicit read-only hosted AI calls inside Onshape. CAD Context refresh and the Phase 6 inspection tool perform explicit CAD reads; no CAD is modified. Sample approval and Apply actions only change local preview state.
 Manufacturing fields use explicit mm, regardless of the saved future units
 preference. Read [UI.md](UI.md) for state ownership and fixture behavior.
 
@@ -368,7 +367,7 @@ ports 4173/4174. Preserve the user's existing 5173/8000 and database services.
 Final real Phase 5 verification passed on 2026-10-14. The user authorized one
 Phase 5 commit and a normal push after the complete final repository gate.
 [PHASE_5_REVIEW.md](PHASE_5_REVIEW.md) records the completed live evidence and
-repeatable checks. Phase 6 remains unauthorized.
+repeatable checks. Phase 6 is now separately authorized; its review records the new boundary.
 
 For the live topology investigation, keep the existing development environment and
 reload Forge, then choose **View CAD context → Refresh CAD**. The normal inspector
@@ -396,4 +395,146 @@ context mismatch still clear inspection. Targeted frontend checks include
 `src/onshape`, `src/cad`, `src/auth`; browser checks cover the Phase 5 lifecycle
 cases in `tests/e2e/extension.spec.ts` across all three engines. The topology
 diagnostic remains available and bounded. The final human retest passed for ordinary
-Chrome tab switches, FACE/EDGE/clear and real Part Studio switching; Phase 6 has not begun.
+Chrome tab switches, FACE/EDGE/clear and real Part Studio switching. Phase 6 is separately authorized below.
+
+## Phase 6 local Groq setup and tests
+
+The existing root `/Users/jishnuhiremath/Developer/FORGE/.env` is the backend settings
+source. Preserve its working OAuth/database/HTTPS configuration. Do not overwrite
+it or put keys in `apps/web`, `VITE_*`, chat, screenshots or shell history. If absent,
+copy `.env.example` once. `apps/api/.env` is ignored but is not read by Settings.
+
+Follow the official [Groq quickstart](https://console.groq.com/docs/quickstart):
+sign in to Groq Console, open [API Keys](https://console.groq.com/keys), create an API
+key, and enter it directly into the root `.env` using your local editor:
+
+```dotenv
+FORGE_AI_PROVIDER=groq
+GROQ_API_KEY=<enter locally only>
+FORGE_GROQ_MODEL=openai/gpt-oss-120b
+FORGE_GROQ_REASONING_EFFORT=low
+```
+
+No OpenAI key is required. These are all additional Phase 6 settings; preserve the
+already-working Onshape/DB/session/HTTPS settings from earlier phases. Keys are
+backend-only: one operator-hosted backend serves authorized users, never giving
+end users the operator's provider key. Invalid provider/model/effort settings fail
+validation; a missing selected key produces a safe unconfigured state.
+
+Review the Console account's Limits/Data Controls before use. The published free
+limits are 30 RPM, 1,000 RPD, 8,000 TPM, 200,000 TPD for GPT-OSS 120B, shared by the
+organization. Two requests per model-assisted read turn and token budgets constrain actual capacity.
+Free inference is not unlimited or guaranteed; account limits are authoritative.
+Remain on Free if paid Groq use is not intended. No automatic paid OpenAI fallback
+exists, even if an OpenAI key is also present. Groq data retention exceptions and
+optional administrator-enabled ZDR are described in [AI_AGENT.md](AI_AGENT.md).
+
+To select the retained optional OpenAI adapter deliberately, configure instead:
+
+```dotenv
+FORGE_AI_PROVIDER=openai
+OPENAI_API_KEY=<enter locally only>
+FORGE_OPENAI_MODEL=gpt-6.1-sol
+FORGE_OPENAI_REASONING_EFFORT=high
+```
+
+This requires an eligible API project with model access and quota/billing; no Groq
+key is required. Legacy FORGE_AI_MODEL/FORGE_AI_REASONING_EFFORT aliases configure
+OpenAI only; explicit OpenAI settings win. This is an operator choice, never a
+runtime fallback or a browser option. All `.env.example` placeholders stay empty.
+
+Stop/restart your existing API process with `make dev-api` to load settings. Keep
+the existing `make dev-web-https`, healthy PostgreSQL and Onshape OAuth2Read session.
+Reload the Forge panel in the real workspace Part Studio 1. No dependency install,
+migration, extension registration or permission change is needed. **Send prompt**
+or Cmd/Ctrl+Enter makes the external request. No initial Refresh CAD is required;
+each send acquires fresh evidence. Allow five seconds between sends. Refresh CAD
+shares the evidence cooldown, so wait and retry explicitly if necessary.
+
+Automated tests never need a key or spend API credits:
+
+```sh
+npm ci
+uv sync --project apps/api --locked
+make format
+make check
+make test-e2e
+make migration-check
+make audit
+```
+
+Run isolated PostgreSQL regressions with FORGE_TEST_DATABASE_URL as described above.
+Targeted AI backend tests:
+`uv run --project apps/api --frozen pytest apps/api/tests/test_ai.py apps/api/tests/test_groq.py`.
+Frontend: `npm run test --workspace @forge/web -- src/ai`.
+Browser: `npm run test:e2e -- --grep 'Phase 6'`. Test servers own 4173/4174;
+preserve user services at 5173/8000 and the already-running database. Synthetic
+screenshots live in ignored `.cache/phase6/`; never capture private live CAD.
+
+Local conversation is memory-only, with no content logs/analytics or persistent
+provider conversation. Groq suppresses reasoning and omits unsupported store flags;
+optional OpenAI uses `store:false`. Neither establishes zero provider retention.
+Exact live prompts, expected answers and lifecycle/no-auto-call checks are in
+[PHASE_6_REVIEW.md](PHASE_6_REVIEW.md). The user reported final real Groq
+verification passed on 2026-10-16 and authorized one Phase 6 commit and normal push
+after the complete final gate. Phase 7 remains unstarted and requires separate authorization.
+
+### Phase 6 live-response repair verification
+
+The first live inventory/grounding test passed according to the user. Repair
+verification runs focused AI tests, adjacent inspector/context regressions, static
+checks, a production build and `tests/e2e/ai.spec.ts` in all three browser engines.
+The earlier focused repair gate preceded live retesting. The final user-reported
+live results and complete post-repair repository gate are now recorded in
+PHASE_6_REVIEW. No live provider requests belong in automated tests.
+
+Restart the existing API with `make dev-api` and reload the HTTPS Forge panel to
+load the new provider-neutral final schema (`suggestion_ids`, no free discussion).
+Keep the existing Groq key, provider/model/effort, OAuth, PostgreSQL and HTTPS
+settings. Both provider adapters use the updated strict schema; no install or
+migration is needed. Retest collapsed/expanded Evidence and copied output, summary,
+parameter detail, useful next steps and selection states as recorded in
+[PHASE_6_REVIEW.md](PHASE_6_REVIEW.md).
+
+### Phase 6 selection-grounding retest
+
+Restart the API (`make dev-api`) for the strict internal `assumption_ids`/`question_ids`
+schema. Retain existing provider/OAuth/DB/HTTPS settings; no key change, dependency
+install or migration is needed. Reload Forge, keep one FACE selected and Clear
+conversation. Ask "What do you know about the face I selected?". Expect one face
+reported, owning part/body/feature and geometry/dimensions explicitly unknown,
+no ownership assumption, no area/normal/surface value and no capability follow-up.
+Repeat with one EDGE. Singleton CAD inventory cannot change these unknowns.
+Only mocked transports are used in tests; the selection tests are in
+`apps/api/tests/test_ai_selection.py`, with UI coverage in the existing AI suites.
+The user verified these FACE/EDGE results live on 2026-10-16. The complete final
+gate passes; Phase 7 remains unstarted.
+
+### Phase 6 write-request repair retest
+
+Keep the existing ignored root `.env` provider/key, OAuth, HTTPS and PostgreSQL
+settings. Restart the API terminal with `make dev-api`; leave healthy PostgreSQL
+running. For Vite development the existing `make dev-web-https` process picks up
+the unchanged production frontend; reload the Forge panel. If serving a built
+frontend, rebuild/restart that preview. No dependency install or migration is needed.
+
+Clear conversation and ask exactly "Make this model 20 mm wider.". Expect normal
+inspection progress, then "Forge cannot modify CAD in Phase 6. I can explain or
+propose how the change could be made." and an explicit unknown width-driving
+dimension. No verification error, success/edit claim or inferred parameter should
+appear. Evidence starts collapsed; expand it and verify meaningful statements,
+including unknown target evidence. Check Onshape geometry and feature history:
+Forge must not have changed anything. Respect cooldown/capacity before any explicit
+retry; no automatic provider retry or paid fallback occurs.
+This exact explicit write request now performs zero Groq/OpenAI calls: Forge uses
+the existing authorized inspection directly. After cooldown, clear conversation and
+ask "What is in this Part Studio?" to verify the normal two-round model/tool path.
+It must still give a grounded inventory with no invented mass, units or ownership.
+
+For a remaining failure, ensure the existing server environment is development
+(`ENVIRONMENT=development`), restart the API, and repeat once. Share only the terminal
+line beginning `ai_validation`, with fixed reason/stage/field/status/correlation
+and allowlisted provider error code/type/parameter;
+never share keys, raw requests, provider output, private CAD or Network captures.
+Production keeps generic errors and emits no such diagnostics. Automated focused
+checks use invented CAD and mocked Groq/OpenAI transports; they spend no credits.

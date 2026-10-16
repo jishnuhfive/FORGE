@@ -7,23 +7,33 @@ right panel. Users describe **what** a mechanism must accomplish; Forge will hel
 determine **how** it should be engineered, with approval before CAD changes and
 deterministic checks of supported constraints.
 
-**Current status: Phase 5 complete — CAD Inspector live verified.**
-Phases 0–4 are preserved, including real OAuth, right-panel context and selection,
-and four backend read operations verified against a real Part Studio. The inspector
-now presents ordered features, supported parameter evidence, parts, bodies and
-physical-property availability from the same read pipeline.
+**Current status: Phase 6 complete — real read-only Groq AI verified inside Onshape.**
+Phases 0–5 are preserved, including real OAuth, validated right-panel context and
+selection, four backend read operations and the CAD Inspector verified against a
+real Part Studio. The Design composer now offers read-only AI analysis inside
+Onshape after an explicit send. No CAD changes or engineering validation execute.
 
-Open **View CAD context → Refresh CAD** inside the existing workspace Part Studio.
-Read-only inspection uses the default configuration and end-of-list evaluation.
-No polling, AI calls, CAD writes or synthetic production fallback exist. Unknown
-units and consistency remain explicit; numeric mass and volume are withheld.
-The development UI lab has separate synthetic inspector states without an account.
+Forge uses a provider-independent backend agent with Groq / `openai/gpt-oss-120b`
+by default. OpenAI Responses / `gpt-6.1-sol` remains an explicit optional provider.
+Both use one no-argument inspection tool, bounded requests and normalized progress.
+Groq separates tool calling from strict final JSON-schema output into two rounds.
+Explicit CAD modification requests use a deterministic read-only capability path:
+the same authorized CAD inspection, zero provider calls, and no inferred edit target.
+No automatic paid-provider fallback exists; shared free capacity is limited.
+It reads fresh Phase 5 evidence for each send and preserves unknown units, missing
+mass, incomplete evidence and unknown selection ownership. Verified answer facts
+are selected from server-authored evidence statements. Optional next steps use reviewed server wording and remain explicitly unverified.
+Broad inventory answers are concise deterministic presentations of captured evidence;
+details are available separately. Conversations remain in panel memory, at most three exchanges.
 
-See [Phase 5 review](docs/PHASE_5_REVIEW.md) for the versioned evidence contract,
-bounds and final verification record. Real feature/parameter/part/body inspection,
-local filtering, FACE/EDGE/clear selection, ordinary browser-tab preservation and
-empty Part Studio stale clearing passed. Phase 6 remains deferred and requires
-separate authorization.
+AI requests disclose that prompts, recent conversation and bounded CAD evidence go
+to the operator-configured hosted AI service. Groq inference has reliability/abuse
+retention exceptions unless the operator enables its Data Controls. Optional
+OpenAI uses `store:false`. Neither configuration claims zero retention by default. No automatic AI calls, database conversation storage,
+localStorage conversation persistence or content logs exist.
+See [Phase 6 review](docs/PHASE_6_REVIEW.md) for the complete boundary, checks and
+the final user-reported live results, full quality gate and local Groq setup.
+Phase 7 remains unstarted and requires separate authorization.
 This is not a publicly deployed production service.
 
 ## Architecture and stack
@@ -45,7 +55,7 @@ reloads. Git origin is `https://github.com/jishnuhfive/FORGE.git`.
 - Playwright browsers for browser tests, installed explicitly with `make browsers`.
 
 Versions actually verified are recorded in `docs/PHASE_0_REVIEW.md` after validation.
-No OpenAI key, Onshape account, or GitHub account is required to review the UI.
+No AI-provider key, Onshape account, or GitHub account is required to review the UI.
 
 ## Quick start
 
@@ -111,8 +121,8 @@ package-lock.json        Reproducible JavaScript dependency graph
 
 `GET /health` reports process liveness only. Authentication readiness is distinct.
 The workspace displays the last verified Onshape authorization status; its Check
-connection action verifies identity, without accessing CAD. Design prompts remain
-local drafts and Learn validation remains UNVERIFIED. See [UI architecture](docs/UI.md).
+connection action verifies identity, without accessing CAD. Standalone Design prompts remain local drafts; inside Onshape, explicit sends run
+read-only AI. Learn validation remains UNVERIFIED. See [UI architecture](docs/UI.md).
 
 Provider credentials stay backend-only. Sessions, CSRF, token encryption and audit
 persistence are implemented. Real OAuth login was manually verified by the human. Browser-wide iframe compatibility, managed hosting,

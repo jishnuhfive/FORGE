@@ -1135,3 +1135,36 @@ ul.compact-list {
   width: 100%;
   min-width: 0;
 }
+/* Phase 6 uses the existing workspace, cards, badges and composer. */
+.ai-analysis,
+.ai-conversation,
+.ai-exchange {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+.ai-analysis p,
+.ai-analysis li,
+.ai-analysis summary {
+  overflow-wrap: anywhere;
+}
+.ai-analysis ul {
+  padding-inline-start: 1.25rem;
+}
+.ai-analysis li + li {
+  margin-top: 0.5rem;
+}
+.ai-evidence li {
+  display: grid;
+  gap: 0.4rem;
+}
+.ai-evidence .badge {
+  justify-self: start;
+}
+.ai-evidence-panel {
+  min-width: 0;
+}
+.ai-analysis .ai-evidence {
+  padding-inline-start: 0;
+  list-style: none;
+}

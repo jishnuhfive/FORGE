@@ -16,6 +16,8 @@ export function PromptComposer({
   onCancel,
   disabled = false,
   showSuggestions = false,
+  hint = 'Describe the function. Include constraints.',
+  cancelLabel = 'Stop preview',
 }: {
   label: string;
   placeholder: string;
@@ -25,6 +27,8 @@ export function PromptComposer({
   onCancel?: () => void;
   disabled?: boolean;
   showSuggestions?: boolean;
+  hint?: string;
+  cancelLabel?: string;
 }) {
   const [text, setText] = useState('');
   const id = useId();
@@ -72,7 +76,7 @@ export function PromptComposer({
           {busy ? (
             <Button
               onClick={onCancel}
-              aria-label="Stop preview"
+              aria-label={cancelLabel}
               disabled={!onCancel}
             >
               <Square size={13} aria-hidden="true" />
@@ -91,7 +95,7 @@ export function PromptComposer({
         </div>
       </form>
       <div id={`${id}-hint`} className="composer-hint">
-        <span>Describe the function. Include constraints.</span>
+        <span>{hint}</span>
         <kbd>⌘ / Ctrl + Enter</kbd>
       </div>
       {showSuggestions && (

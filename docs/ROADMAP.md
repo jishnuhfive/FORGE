@@ -12,7 +12,7 @@ Later hardening does not defer security for earlier live integrations.
 | 3     | Onshape extension shell: real embedding, messaging and selection security, browser/session compatibility       |
 | 4     | Onshape REST client: official APIs, response contracts, permissions, retries and rate limits                   |
 | 5     | CAD inspector: bounded read-only workspace Part Studio evidence; live verification                             |
-| 6     | Read-only AI agent: backend Responses API, strict read tools, bounded budgets, streaming                       |
+| 6     | Read-only AI agent: provider adapters, strict read tools, bounded budgets, progress streaming                  |
 | 7     | First real CAD write: user-approved constrained operation, target/version gate, verified editable geometry     |
 | 8     | CAD tool library: high-level allowlisted operations, bounds/units/authorization, failure reconciliation        |
 | 9     | Reality Lock inventory: component availability, dimensions and manufacturing capabilities                      |
@@ -53,8 +53,8 @@ and a separate empty Part Studio returns 0/0/0 without stale prior results. The
 single Phase 4 commit and normal push are explicitly authorized, conditional on
 the reviewed staged tree. Phase 5 is complete: final real CAD Inspector verification and the complete
 repository gate passed.
-The user authorized one scoped commit/push after the complete final gate. Phase 6
-has not begun and requires separate authorization. See [ONSHAPE_EXTENSION.md](ONSHAPE_EXTENSION.md) and
+At Phase 5 completion, the user authorized one scoped commit/push after the full
+gate; Phase 6 required separate authorization, subsequently granted below. See [ONSHAPE_EXTENSION.md](ONSHAPE_EXTENSION.md) and
 [PHASE_4_REVIEW.md](PHASE_4_REVIEW.md).
 
 Multi-selection, assembly paths, version messaging and browser-wide session behavior
@@ -65,11 +65,49 @@ Forge v1 targets education, makers, low-risk prototypes and student engineering.
 Phase 5 adds the versioned structured evidence model and human inspector using the
 existing Phase 4 acquisition. It intentionally supports workspace Part Studios only.
 Assemblies and mates remain Phase 10; no assembly permission or operation is added.
-Phase 6 is the first read-only AI consumer and remains deferred: Responses API,
-allowlisted tools, prompt-injection controls, budgets and streaming need their own
-authorization and evidence. The inspector does not implement deterministic design
-validation, certification, Reality Lock, Modify or Learn behavior.
-See [PHASE_5_REVIEW.md](PHASE_5_REVIEW.md) for the final live evidence and complete
-repository gate. Both topology semantics and ordinary browser-tab preservation are
-live verified. Real CAD context/session changes still clear evidence. Phase 6 remains
-deferred; completing Phase 5 does not authorize starting it.
+Phase 6 is now the first read-only AI consumer, separately authorized and verified
+as recorded below. The inspector itself does not implement deterministic validation,
+certification, Reality Lock, Modify or Learn behavior.
+See [PHASE_5_REVIEW.md](PHASE_5_REVIEW.md) for the preserved Phase 5 evidence/gate.
+Topology semantics and ordinary browser-tab preservation are live verified;
+real CAD context/session changes still clear evidence.
+
+## Phase 6 — complete, 2026-10-16
+
+The user authorized read-only AI from clean main
+`0405104f9fb2feb3611aaf534855bad0225e57bf`. The provider-neutral agent, bounded
+session-owned inspection, strict answers, ephemeral conversation, progress,
+cancellation, safe errors and adversarial regression coverage are implemented.
+Groq / `openai/gpt-oss-120b` is the default hosted provider. OpenAI Responses remains
+an explicit operator-selected option; no automatic paid fallback exists. Groq tool
+and strict-output stages are separate, and its shared free quota remains finite.
+
+The user reported final real live acceptance passed: inventory/feature order,
+parameter explanation, Evidence copying/expansion, unavailable mass, FACE/EDGE and
+clear selection, hard ownership unknowns, UNVERIFIED deterministic validation,
+explicit read-only write handling, the normal read regression, same-context Chrome
+tab preservation and real Part Studio context clearing. Passive events do not
+initiate AI analysis. These observations verify the recorded scenarios, not
+universal model quality or production readiness.
+
+The live write prompt originally returned Groq `tool_use_failed` because it forced
+inspection generation for an unavailable action. Explicit CAD modification requests
+now take a deterministic server path: the same authorized inspection, zero provider
+requests, no mutation and no invented controlling dimension. Normal read questions
+retain the bounded model/tool path. Selection ownership remains unknown regardless
+of singleton part/body/feature inventory, and model-written sidecars cannot bypass
+that boundary.
+
+The complete final repository gate and secret/privacy review passed after all
+repairs. The user authorized one Phase 6 commit and normal push to existing
+`origin/main`, conditional on a clean staged review. See
+[PHASE_6_REVIEW.md](PHASE_6_REVIEW.md) for exact counts, live evidence, architecture,
+provider retention caveats and known limitations.
+
+## Phase 7 and later — not started
+
+Phase 6 completion does not authorize Phase 7. No CAD write or OAuth write scope,
+FeatureScript execution, approval/version binding, post-write verification,
+assemblies/mates execution, Reality Lock, deterministic engineering validator,
+Modify or Learn implementation is added. Begin another phase only after a new
+explicit user authorization.

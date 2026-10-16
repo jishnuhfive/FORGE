@@ -3,7 +3,7 @@ from typing import Literal, Self
 from urllib.parse import urlsplit
 
 from cryptography.fernet import Fernet
-from pydantic import AnyHttpUrl, Field, SecretStr, model_validator
+from pydantic import AliasChoices, AnyHttpUrl, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[5]
@@ -41,6 +41,31 @@ class Settings(BaseSettings):
     session_samesite: Literal["lax", "none"] = "lax"
     session_lifetime_seconds: int = Field(default=28800, ge=300, le=86400)
     session_idle_seconds: int = Field(default=3600, ge=60, le=28800)
+    openai_api_key: SecretStr | None = Field(
+        default=None, min_length=1, max_length=4096
+    )
+    forge_ai_provider: Literal["groq", "openai"] = "groq"
+    groq_api_key: SecretStr | None = Field(default=None, min_length=1, max_length=4096)
+    forge_groq_model: Literal["openai/gpt-oss-120b"] = "openai/gpt-oss-120b"
+    forge_groq_reasoning_effort: Literal["low", "medium", "high"] = "low"
+    forge_openai_model: Literal["gpt-6.1-sol"] = Field(
+        default="gpt-6.1-sol",
+        validation_alias=AliasChoices("forge_openai_model", "forge_ai_model"),
+    )
+    forge_openai_reasoning_effort: Literal["low", "medium", "high"] = Field(
+        default="high",
+        validation_alias=AliasChoices(
+            "forge_openai_reasoning_effort", "forge_ai_reasoning_effort"
+        ),
+    )
+
+    @property
+    def ai_configured(self) -> bool:
+        return bool(
+            self.groq_api_key
+            if self.forge_ai_provider == "groq"
+            else self.openai_api_key
+        )
 
     @property
     def secure_cookies(self) -> bool:

@@ -9,6 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.responses import JSONResponse, RedirectResponse, Response
 
+from forge_api.ai.routes import router as ai_router
 from forge_api.auth.routes import router as auth_router
 from forge_api.auth.runtime import AuthRuntime
 from forge_api.core.config import Settings
@@ -89,7 +90,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 application.state.cad_transport = cad_transport
                 if config.auth_configured and engine is not None:
                     application.state.auth = AuthRuntime.create(config, engine, client)
-                yield
+                async with httpx.AsyncClient(
+                    timeout=45,
+                    follow_redirects=False,
+                    trust_env=False,
+                    limits=httpx.Limits(max_connections=8, max_keepalive_connections=4),
+                ) as ai_transport:
+                    application.state.ai_transport = ai_transport
+                    yield
         finally:
             if engine is not None:
                 engine.dispose()
@@ -97,7 +105,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     development_docs = config.environment != "production"
     application = FastAPI(
         title="Forge API",
-        version="0.4.0",
+        version="0.6.0",
         debug=False,
         lifespan=lifespan,
         docs_url="/docs" if development_docs else None,
@@ -106,11 +114,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     application.state.auth = None
     application.state.cad_gate = ReadGate()
+    application.state.ai_gate = ReadGate()
     application.state.settings = config
     application.add_middleware(SafeBoundary)
     application.include_router(health_router)
     application.include_router(auth_router)
     application.include_router(cad_router)
+    application.include_router(ai_router)
     return application
 
 

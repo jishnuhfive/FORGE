@@ -89,7 +89,7 @@ export function Shell({
                 label: 'About this foundation',
                 onSelect: () =>
                   onNotify(
-                    'Read-only CAD Inspector. AI and CAD changes are planned.',
+                    'Read-only CAD Inspector and Forge AI analysis. CAD changes are planned.',
                   ),
               },
             ]}
@@ -160,8 +160,8 @@ export function Shell({
           )}
           {children}
           <footer className="workspace-footer">
-            <span>FORGE / INSPECTOR</span>
-            <span>Read-only CAD · AI planned</span>
+            <span>FORGE / ANALYSIS</span>
+            <span>Read-only CAD & AI</span>
           </footer>
         </div>
         <aside className="context-rail" aria-label="Workspace context">

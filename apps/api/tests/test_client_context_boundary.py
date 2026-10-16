@@ -57,6 +57,8 @@ def test_only_allowlisted_auth_and_read_routes_exist(harness: Harness) -> None:
         "/api/onshape/disconnect",
         "/api/onshape/part-studio/snapshot",
         "/api/onshape/part-studio/inspector",
+        "/api/ai/ask",
     }
     assert set(paths["/api/onshape/part-studio/snapshot"]) == {"get"}
     assert set(paths["/api/onshape/part-studio/inspector"]) == {"get"}
+    assert set(paths["/api/ai/ask"]) == {"post"}

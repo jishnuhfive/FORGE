@@ -135,6 +135,7 @@ test('production excludes the development lab, fixtures and AI/CAD requests', as
       'BTMParameterBoolean-144',
       'Sanitized body response structure',
       'X-Forge-Body-Structure',
+      'Sketch 1 is first in the returned feature list.',
     ])
       expect(code).not.toContain(marker);
   }

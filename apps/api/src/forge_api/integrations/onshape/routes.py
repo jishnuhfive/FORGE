@@ -8,10 +8,13 @@ from uuid import uuid4
 import httpx2 as httpx
 from fastapi import APIRouter, HTTPException, Request, Response
 from pydantic import ValidationError
+from sqlalchemy.orm import Session as DatabaseSession
 
 from forge_api.auth.routes import Database, Runtime, active_session
+from forge_api.auth.runtime import AuthRuntime
 from forge_api.auth.security import csrf_token
 from forge_api.db.models import OnshapeAuthorization
+from forge_api.db.models import Session as ForgeSession
 
 from .client import OnshapeReadClient, ReadError
 from .contracts import WorkspaceReference
@@ -124,6 +127,23 @@ def acquire(
     response.headers["X-Forge-Request-Id"] = correlation
     gate = cast(ReadGate, request.app.state.cad_gate)
     transport = cast(httpx.Client, request.app.state.cad_transport)
+    return acquire_bound(
+        request, response, auth, db, session, reference, correlation, gate, transport
+    ), correlation
+
+
+def acquire_bound(
+    request: Request,
+    response: Response,
+    auth: AuthRuntime,
+    db: DatabaseSession,
+    session: ForgeSession,
+    reference: WorkspaceReference,
+    correlation: str,
+    gate: ReadGate,
+    transport: httpx.Client,
+) -> Snapshot | SectionState:
+    """Server-bound reuse for the inspector and AI; never exposed as a model tool."""
     try:
         with gate.enter(session.user_id):
             mass_diagnostic = None
@@ -157,6 +177,6 @@ def acquire(
                 response.headers["X-Forge-Mass-Structure"] = client.mass_structure
             if auth.settings.environment == "development" and client.body_structure:
                 response.headers["X-Forge-Body-Structure"] = client.body_structure
-            return result, correlation
+            return result
     except ReadError as error:
-        return error.state, correlation
+        return error.state

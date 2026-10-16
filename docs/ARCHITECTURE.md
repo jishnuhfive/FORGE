@@ -1,16 +1,16 @@
 # Architecture
 
-## Current implementation — Phase 5 inspector live verified
+## Current implementation — Phase 6 complete, read-only AI live verified
 
 One React/TypeScript/Vite web client, one FastAPI/Pydantic API and shared presentation
 primitives serve desktop browsers. Native clients are not part of Forge.
 
 The Phase 1 Design/Modify/Learn shell remains, now behind an Onshape sign-in gate.
 The development UI lab is independent of authentication and remains excluded from
-production builds. Engineering workflows remain local or explicitly synthetic.
+production builds. Build/validation previews remain explicitly synthetic; Phase 6
+analysis uses real backend services only after an explicit send.
 Phase 4 established four backend CAD REST reads. Phase 5 projects their snapshot
-into a bounded CAD Inspector; the compact proof API remains available. No AI or CAD
-writes are implemented. The extension launch bridge sends
+into a bounded CAD Inspector; the compact proof API remains available. Phase 6 adds read-only AI through a provider-independent interface (default Groq; optional OpenAI). CAD writes remain unimplemented. The extension launch bridge sends
 applicationInit, handles documented show messages and normalizes bounded single
 FACE/EDGE or clear SELECTION envelopes matching the human's live sanitized captures.
 
@@ -32,21 +32,22 @@ HTTP transports; no runtime setting enables mock sessions.
 | Frontend         | Narrow-panel UI, accessible controls, typed API calls, approved plan presentation                   | Authenticated local UI + DEV fixtures                   |
 | API              | Configuration, sessions, authorization, validated contracts, orchestration                          | OAuth, sessions, CSRF, liveness and read snapshots      |
 | Database         | Users linked to Onshape identity, encrypted token records, sessions, plans, inventory, audit events | Identity, grants, sessions, states and audit migrations |
-| AI layer         | Responses API, bounded agent loop, allowlisted functions, streamed user-facing status               | Documentation only                                      |
+| AI layer         | Provider adapters, bounded agent loop, allowlisted functions, streamed user-facing status           | Phase 6 backend adapter and read-only agent             |
 | Onshape layer    | Server REST adapter, OAuth, document inspection, supported feature/assembly operations              | OAuth, identity and four allowlisted CAD reads          |
 | Validation layer | Unit-aware deterministic calculations and evidence-backed results                                   | Documentation only                                      |
-| Tool layer       | High-level operations joining user permissions, approvals, schemas, adapters, verification          | Documentation only                                      |
+| Tool layer       | High-level operations joining user permissions, approvals, schemas, adapters, verification          | One Phase 6 read-only inspection tool                   |
 
 Backend `auth/` owns identity/security and `db/` owns persistence. `integrations/`
-and `validation/` reserve the future CAD/AI and deterministic validation boundaries.
-No authentication helper is exposed as a model tool.
+and `validation/` own the provider-adapter and planned deterministic validation boundaries.
+No authentication helper is exposed as a model tool. `ai/` owns Phase 6 orchestration.
 
 ## Planned flow and trust boundaries
 
 ```text
 Onshape parent frame -> origin/schema-checked browser messaging -> Forge web UI
 Forge web UI -> authenticated same-origin API -> scoped orchestration
-orchestration -> Responses API -> proposed allowlisted tool calls
+orchestration -> AiProvider -> Groq Chat (default) / OpenAI Responses (optional)
+provider tool proposal -> fixed allowlisted tool gate
 tool gate -> authorization + approved plan + validated arguments -> Onshape adapter
 Onshape adapter -> official REST API -> reinspection -> deterministic validator
 API -> minimized PostgreSQL records + sanitized audit events
@@ -265,3 +266,72 @@ local filtering, same-frame Chrome tab preservation, and empty Part Studio 0/0/0
 with prior evidence cleared. This verifies observed read-only behavior, not selection
 ownership, complete CAD semantics, atomic consistency or engineering certification.
 The architecture/security boundaries above and production-excluded diagnostics remain.
+
+## Phase 6 read-only AI boundary
+
+Design's explicit send uses authenticated same-origin POST `/api/ai/ask`. A bounded
+server agent handles read questions with two stateless provider requests around one no-argument
+`inspect_current_cad` call. The tool invokes the existing session-owned Phase 4
+capture and Phase 5 inspector; no provider operation or authorization is added.
+`acquire_bound` centralizes this reuse and final session/grant validation.
+The model receives minimized inspector evidence and normalized selection, with no
+CAD target, provider host, session/user ID, geometry or credential. A strict final
+schema selects server-owned fact statements/statuses; suggestions remain unverified.
+
+`ai/provider.py` defines the provider-neutral protocol; `ai/providers.py` selects
+exactly one adapter from server configuration. Groq Chat (`ai/groq.py`) is the
+default with `openai/gpt-oss-120b` and low effort. The retained OpenAI Responses
+adapter (`ai/adapter.py`) is optional with `gpt-6.1-sol` and high effort. The agent
+owns policy, grounding and CAD authorization; adapters own API translation and
+request-local continuation. Shared `ai/transport.py` uses existing httpx2, fixed
+endpoints, bounded responses, safe errors and no retries. No SDK, competing HTTP
+stack or database migration is required. Neither selected provider requires the
+other key, and there is no automatic fallback or browser provider selection.
+
+Groq requires two distinct stages: a single local tool request, then strict JSON
+schema without tools or streaming. Both request `include_reasoning:false`; unexpected
+reasoning is discarded. Optional OpenAI uses `store:false`, no background mode,
+and only ephemeral encrypted reasoning for continuation. Provider retention policies
+still apply. Groq's free organization quota is finite; capacity failures require
+explicit retry and never trigger a paid provider.
+
+NDJSON relays only real coarse progress and one normalized final response/error.
+No readable reasoning is forwarded or persisted. The panel stores at most three
+exchanges in memory. Exact context/account changes clear them; ordinary same-context
+browser visibility preserves them without reads. See [AI_AGENT.md](AI_AGENT.md) for
+official contracts, budgets, schemas, privacy, failure semantics and limitations,
+and [PHASE_6_REVIEW.md](PHASE_6_REVIEW.md) for the completed live Groq acceptance and final repository gate.
+
+Phase 6 live-response presentation repair: `ai/presentation.py` formats broad
+inventory answers deterministically from the existing bounded inspector. Specific
+questions retain canonical fact selection. Internal `ModelAnswer.suggestion_ids`
+selects reviewed optional next-step text; the public response contract retains
+`discussion`, assembled by Forge. No model-authored factual summary or semantic
+upgrade from activity to sketch completion is admitted through suggestions.
+Empty evidence statements fail validation. The frontend conditionally mounts
+expanded evidence, avoiding Chrome's hidden-details rich-copy list artifacts.
+The user verified the final inventory, parameter, mass, Evidence, selection,
+validation, write-capability and context-lifecycle behavior with real Groq.
+The complete repository gate also passes. No Phase 7 behavior is introduced.
+
+The selection-grounding repair closes the remaining model-authored output fields:
+`ModelAnswer.assumption_ids` and `question_ids` resolve through reviewed server
+catalogs, while public assumptions/questions remain string arrays. `ai/selection.py`
+formats category-only facts and explicit ownership/measurement unknowns without
+access to inventory counts. Selection-specific questions bypass general overview
+presentation and omit every optional sidecar. Counts of bodies/parts/features never
+become an ownership join. No new tool, provider call, CAD read, selection reference
+or frontend production contract is introduced. The user verified the repaired
+FACE and EDGE behavior live, including singleton-inventory ownership unknowns.
+
+The write-request repair routes explicit CAD modification requests through
+provider-neutral `ai/writes.py` and `resolve_write`, before any provider call.
+The same session/context-bound inspection supplies optional captured feature order;
+Forge supplies read-only capability and unknown width/controlling-dimension facts.
+This produces a validated public answer without model output or a fabricated tool
+call. Normal reads keep strict model parsing (`ai/output.py`) and fail closed on
+invalid output. Session/freshness/permission/cancellation controls apply to both.
+`ai/diagnostics.py` reports fixed, content-free metadata only in development; the
+user's live diagnostic confirmed Groq HTTP 400 `tool_use_failed` at the forced
+initial inspection stage. The browser contract is unchanged. See AI_AGENT and
+PHASE_6_REVIEW for evidence and live retest steps.

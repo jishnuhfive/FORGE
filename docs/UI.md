@@ -1,4 +1,4 @@
-# UI architecture through Phase 3 launch shell
+# UI architecture through Phase 6 read-only analysis
 
 ## Ownership
 
@@ -15,11 +15,11 @@ include a session-bound CSRF header. Provider credentials never enter this bound
 | `apps/web/src/lib`           | Typed UI records, allowlisted browser preferences, fixed public error copy                    |
 | `apps/web/src/preview`       | DEV-only UI lab and synthetic fixtures                                                        |
 
-Feature components accept typed records and callbacks. They do not perform
-network calls. Future backend adapters must validate responses at their boundary
-before supplying records; a TypeScript type alone does not validate external data.
-Business logic, engineering calculations, CAD authorization and orchestration
-remain backend responsibilities for later phases.
+Presentation views accept typed records and callbacks. Dedicated auth, CAD and AI
+client boundaries validate network responses before rendering; TypeScript types
+alone do not validate external data. Phase 6 Analysis owns local request/progress
+state and uses `ai/api.ts` for bounded normalized streaming. Business logic,
+engineering calculations, CAD authorization and AI orchestration stay backend-only.
 
 ## Design system
 
@@ -65,10 +65,11 @@ rate limit, cancellation and unexpected failure.
 
 ## Local interaction semantics
 
-- Prompt suggestions populate and focus the composer. Sending in the normal
-  workspace prepares an in-memory draft; it does not invoke AI. Enter adds a line;
+- Prompt suggestions populate and focus the composer. Sending in standalone
+  mode prepares an in-memory draft. Inside a supported authenticated Onshape
+  workspace, Phase 6 sends an explicit read-only AI request. Enter adds a line;
   Ctrl/Command+Enter submits, except during input-method composition. Busy and
-  stop states are presentation affordances for future streaming.
+  stop states control the actual foreground Phase 6 request.
 - Sending in the lab opens a fixed example brief. It does not interpret the prompt.
   Brief edits are local to that mounted view and do not rewrite the separate fixed
   sample plan. Assumptions, missing input and sample-confirmed fields are explicit.
@@ -142,3 +143,52 @@ Preview labels remain explicitly synthetic and no CAD operation is enabled.
 before selection diagnostics. It remains visible on `/extension` when context is
 invalid. Show/copy/clear controls manage a wrapped readonly sanitized metadata report;
 no ID values, raw URL or credentials are rendered. Production has no such panel.
+
+## Phase 6 analysis in the existing Design workspace
+
+A validated Phase 3 workspace launch plus a connected Forge session enables the
+composer immediately, including `EMBEDDED_INITIALIZING` while selection is waiting.
+A trusted later show/selection message is not required. No URL parsing or weakened
+origin/parent check was added. Unsupported contexts remain unavailable; selection
+is extra evidence, not a requirement to select a face or edge before asking.
+
+The existing composer retains Cmd/Ctrl+Enter, multiline Enter, composition handling,
+labels and button primitives. The AI view displays progress, escaped structured
+answers, evidence statuses, uncertainties, unverified suggestions, assumptions and
+capture time. Empty live regions are not mounted while idle, preserving the
+inspector modal's accessibility boundary. Normalized API errors require explicit
+retry; pending refs block duplicate sends and cancellation aborts fetch.
+
+Only the user's explicit send transfers the disclosed prompt, minimal recent
+conversation and bounded current CAD to the configured hosted AI service. Normal CAD workflow copy remains Forge-branded; provider quota failures show a generic capacity-unavailable state with explicit retry. No calls occur on selection,
+visibility or Refresh CAD. At most three exchanges remain in memory. Exact context
+and session keys clear old requests/conversation; ordinary same-context tab
+switching preserves them. No localStorage, PostgreSQL conversation or provider
+Conversation objects are used. Standalone local drafts and all DEV previews remain
+separate from the live agent. Modify/Learn and CAD writes remain deferred.
+See [AI_AGENT.md](AI_AGENT.md) for the server boundary and privacy caveats.
+
+### Phase 6 live-response repair
+
+The primary inventory answer is a concise server-rendered overview; raw parameter
+kinds and repetitive parameter caveats stay out of it. Detailed evidence is secondary.
+An Evidence disclosure button uses `aria-expanded` and mounts rows only when open;
+no empty hidden list markup enters Chrome's rich clipboard when copying a collapsed
+answer. Empty/whitespace evidence is rejected, with a defensive render filter; zero
+rows omit the section. Suggestions contain optional reviewed next steps, never the
+factual answer repeated as prose. Empty/identical suggestion text is omitted.
+
+"Selection unknown" is intentional on fresh launch before a verified message.
+A trusted empty SELECTION shows "No selection"; FACE/EDGE show their observed
+category only. Neither show nor lack of intentional selection proves no selection.
+No bridge semantics or security checks changed in this repair.
+
+### Phase 6 hard selection grounding
+
+A direct selected-FACE/EDGE question confirms the observed panel category, then
+shows owning part/body/feature, dimensions and selection-specific geometry as unknown.
+Selected face surface type/area/normal and edge adjacent geometry are unavailable.
+Such answers omit Assumptions, Suggestions and To explore next; they never imply
+Forge can retrieve a mapping/measurement that the current tool does not provide.
+Other optional assumptions/questions use reviewed hypothetical/request wording.
+The existing public schema and selection bridge are unchanged.

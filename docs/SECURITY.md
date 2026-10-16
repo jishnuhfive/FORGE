@@ -1,9 +1,10 @@
 # Security architecture
 
-## Implemented through Phase 5 read-only inspector
+## Implemented through Phase 6 read-only AI
 
 Forge uses Onshape OAuth2 only. There are no passwords, JWT login tokens, CAD mutation tools
-or AI calls. Four backend CAD reads are allowlisted. Authentication establishes an account, not permission to change CAD.
+or AI CAD mutation capabilities. Explicit Phase 6 requests call the configured hosted AI provider; four backend
+CAD reads are allowlisted. Authentication establishes an account, not permission to change CAD.
 
 - Strict, secret-redacted backend configuration; production requires complete auth
   configuration, PostgreSQL and HTTPS. Provider URLs are operator-owned HTTPS
@@ -270,3 +271,96 @@ local filtering, same-frame Chrome tab preservation, and empty Part Studio 0/0/0
 with prior evidence cleared. This verifies observed read-only behavior, not selection
 ownership, complete CAD semantics, atomic consistency or engineering certification.
 The architecture/security boundaries above and production-excluded diagnostics remain.
+
+## Phase 6 external AI and prompt injection
+
+Only explicit Design send transfers the disclosed prompt, up to six public prior
+messages and bounded current CAD evidence to the configured hosted AI provider. No call occurs on launch,
+selection, Refresh CAD or browser visibility. The root ignored `.env` owns the
+selected SecretStr API key and reviewed provider/model/effort; no frontend config or model argument
+can select a key, endpoint, target, user or host. The only function accepts `{}`.
+POST auth/CSRF/origin and strict bounded input precede model spend. Session/grant
+checks precede and follow the tool and final answer. Onshape independently checks
+each object through the owning grant. Existing CAD GET-only policy remains.
+
+CAD strings/history are untrusted data below the fixed agent policy. The backend
+rejects unknown tools, nonempty arguments, duplicate calls and a second tool round.
+The model selects canonical evidence IDs; Forge resolves their statements/statuses.
+It cannot create a verified fact. Optional suggestions select reviewed next-step IDs, never free-form factual
+claims; the server renders their wording. Active suppression state is never
+promoted to sketch completion/correctness. Assumptions and questions also select
+reviewed IDs; arbitrary model-authored strings are rejected. Optional hypotheses
+are clearly conditional engineering cases and cannot assert selection ownership.
+Questions request user requirements, not unsupported selected-geometry inspection. A narrow local harmful-device/
+secret filter plus model policy/refusal protects ordinary product scope; neither
+constitutes a complete semantic safety classifier. No arbitrary network/code tool
+exists, and model text never authorizes an action.
+
+The provider-neutral agent and fixed tool policy apply equally to Groq (default)
+and OpenAI (operator-selected optional). Provider/model/effort/keys are server-only;
+invalid provider selection or missing selected key fails closed. Neither provider
+requires the other's key; there is no automatic paid fallback. Provider HTTP details
+are isolated from the agent and the unchanged CAD authorization boundary.
+
+Groq Chat requests suppress reasoning with `include_reasoning:false` and omit its
+unsupported `store` flag. Its tool round is followed by strict JSON schema with no
+tools; any additional tool attempt fails closed. Per Groq's [data documentation](https://console.groq.com/docs/your-data),
+inference content is not retained by default, but reliability/abuse exceptions may
+retain it for up to 30 days or longer if legally required. Usage metadata remains.
+Admins can enable ZDR in account Data Controls; Forge does not assume it is enabled.
+Optional OpenAI Responses use `store:false`, no background mode, Conversation objects
+or stored response chains. Opaque encrypted state exists only during the single
+bounded continuation. The [OpenAI data controls policy](https://developers.openai.com/api/docs/guides/your-data),
+rechecked 2026-10-16, separately permits abuse-monitoring retention up to 30 days
+(with legal/safety exceptions) and prompt-cache state up to 24 hours.
+`store:false` does not disable those separate policies.
+Neither provider is claimed to guarantee zero retention for the configured account.
+
+No prompts/evidence/answers/reasoning enter logs, PostgreSQL, localStorage or analytics.
+Log fields are random Forge request ID, sanitized provider request ID and status
+class only; keep ingress/APM bodies disabled. Raw provider failures never reach the
+browser. Groq quota/oversized-capacity errors map to a fixed Forge capacity state,
+with bounded retry-after, no automatic retry and no provider switch.
+Size/call/token/time/admission budgets, cancellation, context clearing and explicit
+retry prevent runaway loops. A cancelled in-flight read may finish bounded GETs
+but cannot trigger another AI round or modify CAD. Full controls and residual
+limitations are in [AI_AGENT.md](AI_AGENT.md). The user reported final real Groq
+verification passed on 2026-10-16; no production readiness, certification or
+Phase 7 authorization is implied.
+
+The first user-reported Groq inventory test verified the provider/tool/grounding
+path for one real Part Studio. Final human verification subsequently covered
+all Phase 6 live acceptance cases; it does not establish universal model quality. The live
+response repair keeps the CAD inspector unchanged, uses deterministic overview
+presentation, rejects blank evidence and mounts evidence rows only when expanded
+(to avoid Chrome rich-copy empty list markup). Targeted mocked regression checks
+are recorded separately from the earlier full gate in PHASE_6_REVIEW.
+
+Selection grounding is a hard server boundary: normalized FACE/EDGE category is
+not an ownership mapping. A unique part/body/feature, recent Extrude, visible shape
+or conversation assertion cannot establish owning part/body/feature or selected
+measurements. Direct selection answers contain only server-owned category/unknown
+facts, no suggestions/assumptions/follow-ups. Canonical selected dimensions,
+surface/curve type, face area/normal and adjacent edge geometry stay unknown.
+The current tool exposes no selected-entity inspection capability. Both providers
+reject legacy free-text assumptions/questions and unknown catalog IDs. Tests
+exercise singleton inventory and malicious outputs without live inference.
+
+Explicit write-request capability responses are server-owned after the existing
+bound inspection, without any model request or generated tool call. They state that Forge performed no CAD writes
+for this request, not that the entire Onshape workspace could not have changed
+concurrently. Width/controlling parameters remain explicitly unknown. No malformed
+model result or fabricated call is accepted to enter this branch. Normal read
+requests retain strict parsing, nonempty-answer checks, unknown/duplicate-ID
+rejection and model safety refusal. The narrow local safety check precedes both
+branches; authorization, freshness, admission and cancellation remain enforced.
+
+Development-only `ai_validation` warnings contain fixed reason/provider/stage,
+safe numeric HTTP status, allowlisted field path and a random Forge correlation.
+Groq error code/type/parameter values are exact allowlisted literals only;
+unrecognized strings, error messages and `failed_generation` are excluded.
+Pydantic input/context/messages, unrecognized field names, exception text, prompts,
+CAD strings and all provider bodies remain excluded. Production suppresses these
+warnings entirely and retains generic public errors. Mocked privacy tests exercise
+invalid enum values, private extra-field names, malformed JSON and final public
+validation errors. No diagnostic grants permission, changes dispatch or retries.
