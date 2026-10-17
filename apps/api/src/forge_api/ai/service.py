@@ -7,7 +7,7 @@ from forge_api.integrations.onshape.inspector import CadInspector
 from .evidence import project, resolve, resolve_write
 from .models import AiAnswer, AiRequest
 from .policy import REFUSAL, blocked
-from .presentation import SMALLTALK_FOLLOW_UPS, smalltalk
+from .presentation import GENERAL_REPLY_NOTE, mentions_model
 from .provider import AgentTask, AiProvider
 from .writes import write_request
 
@@ -36,22 +36,6 @@ async def run_agent(
             ).model_dump(),
         }
         return
-    chat = smalltalk(request.prompt)
-    if chat is not None:
-        # No CAD read and no provider call: a fixed, server-authored reply.
-        yield {
-            "type": "result",
-            "result": AiAnswer(
-                answer=chat,
-                evidence=[],
-                uncertainties=[],
-                discussion="",
-                assumptions=[],
-                follow_up_questions=list(SMALLTALK_FOLLOW_UPS),
-                captured_at=None,
-            ).model_dump(),
-        }
-        return
     await ensure_active()
     if write_request(request.prompt):
         # Unavailable actions must not force a provider to invent a tool call.
@@ -64,10 +48,26 @@ async def run_agent(
         answer = resolve_write(request.prompt, facts, evidence)
         yield {"type": "result", "result": answer.model_dump()}
         return
-    await adapter.request_inspection(
+    chat = await adapter.request_inspection(
         AgentTask(request.prompt, tuple(request.history)), request_id=request_id
     )
     await ensure_active()
+    if chat is not None:
+        # The model judged this ordinary conversation: no CAD was read and nothing
+        # here is a verified claim, so it carries no evidence.
+        yield {
+            "type": "result",
+            "result": AiAnswer(
+                answer=chat,
+                evidence=[],
+                uncertainties=[GENERAL_REPLY_NOTE] if mentions_model(chat) else [],
+                discussion="",
+                assumptions=[],
+                follow_up_questions=[],
+                captured_at=None,
+            ).model_dump(),
+        }
+        return
     yield {"type": "progress", "stage": "inspecting"}
     evidence = await read()
     payload, facts = project(evidence, request.selection)
