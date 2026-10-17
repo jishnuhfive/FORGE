@@ -440,6 +440,15 @@ records and durable deny fences. Committed atomic claims, shared user/session/gr
 coordination and unique workspace/user fences protect multiple workers. Uncertain
 writes are never retried or automatically rolled back. Cleanup cannot remove fences.
 
+The internal development-only `cad_edits/dev_recovery.py` helper supports separately
+authorized database administration after independently established settlement.
+With writes OFF, it locks user → original session → grant → fence, verifies the
+trusted exact orphan, elapsed retention, empty operational table and unique ordered
+uncertainty audit window, then commits one exact deletion plus a fixed recovery
+audit atomically. It has no route, CLI, browser/AI authority or provider transport;
+production mode rejects it. It neither restores proposal authority nor promotes an
+uncertain result. Normal persistent-fence and reconciliation behavior is unchanged.
+
 The operation-specific `terminal-fillet-6` policy binds an explicit feature-state
 evidence mode into the baseline/digest. A nonempty state map must cover the inventory
 exactly and pass every strict status/inactive check. An exactly empty map means

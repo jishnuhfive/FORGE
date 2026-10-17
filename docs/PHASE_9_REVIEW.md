@@ -13,6 +13,69 @@ The subsequent first human-approved real write is recorded next. Gate A and Gate
 remain **UNPROVEN**. The default flag is OFF. Automated synthetic provider behavior
 does not prove real provider conformance, production readiness, or engineering safety.
 
+## Separately authorized operator recovery — 2026-10-17
+
+The human separately authorized database-only recovery after the reconstruction
+below. **Recovery is complete.** The single relevant durable fence exactly matched
+the trusted memory-held operation's user, workspace digest and proposal handle.
+Its original session still identified that user; the browser session had expired,
+so this was explicit operator administration, not renewed browser write authority.
+The connected grant matched the configured stack/company without token refresh or
+permission changes. The original WriteRecord was absent after its normal
+creation+900-second retention; no record was restored or manually purged.
+
+The fixed audit contained exactly one `write_proposal_claimed` →
+`write_dispatch_started` → `write_provider_acknowledged` → `write_uncertain`
+sequence in the preserved operation's time window, in order (one-second timestamp
+granularity). Audit events contain no operation IDs; the exact preserved reference
+and unique sequence were both required rather than inferring a match from counts
+alone. No operational WriteRecords remained, including pending/claimed proposals.
+The previously captured settled snapshots were rechecked entirely in memory:
+the same three features and complete definitions differed only in the terminal
+Fillet's intended explicit `suppressed` false→true transition. No new CAD read was
+needed or made. This does not reconstruct the lost original acknowledgement marker
+or promote the original uncertain write to verified success.
+
+The internal `cad_edits/dev_recovery.py` helper requires development mode, writes
+OFF, an exact trusted reference and an explicit operator settlement attestation.
+Under the existing transaction-scoped user advisory lock, then original-session,
+grant and fence row locks, it rechecks the unique exact fence, absent record,
+elapsed retention, empty operational table and unique ordered audit sequence.
+Deletion matches **all three** fence fields, and the same transaction records
+`write_operator_recovery` / `local_only` using existing fixed audit conventions.
+Any mismatch, multiple related candidates, retained record, ambiguous audit or
+audit-commit failure fails closed. There is no public endpoint, CLI, user button,
+generic clear-all mechanism, production recovery path or provider transport.
+Normal cleanup, claims, reconciliation, fence persistence and no-retry behavior
+are unchanged.
+
+Post-commit checks confirmed relevant fences **1 → 0**, total operational records
+**0**, executable proposals **0**, and exactly one recovery audit. No unrelated
+fence/record was deleted, no session revived and no database reset performed.
+**Onshape contact ZERO; CAD POST ZERO; CAD writes ZERO; writes OFF** in persisted
+configuration and every listening local API process. The temporary private-memory
+invocation adapter was removed; no identifiers or provider payloads were exported.
+Gate A remains **UNPROVEN** and Gate B remains **UNPROVEN**.
+
+Verification: **59 recovery regressions passed**, covering exact selection,
+unrelated-fence preservation, ambiguous candidates, every retained-state denial,
+missing/duplicate/misordered/wrong-user audit evidence, environment/write/settlement
+guards, strict private references and transactional rollback on audit failure.
+All **eight real PostgreSQL safe-edit tests passed**, including the new four-worker
+single-recovery-winner test. Full tests passed **1,673 backend** (all eleven real
+PostgreSQL cases) and **642 frontend** tests. Project type checks passed.
+Formatting, lint, production build, dependency audits, documentation links,
+whitespace and private-reference/secret checks passed. No dependency, lockfile,
+migration, environment, OAuth permission or Phase 8 behavior/review changed.
+
+The next human step is to manually reactivate the terminal Fillet in the disposable
+Part Studio or prepare a fresh isolated eligible Sketch → Extrude → Fillet target,
+with writes still OFF, and sign in to Forge again after session expiry. Then follow
+the fresh policy-6 Gate A procedure below,
+including separately human-enabling writes only for the controlled attempt,
+diagnostic probe OFF, pause zero, Cancel first, and a fresh approval exactly once.
+This recovery performed none of those CAD changes or write trials.
+
 ## First real CAD write and comprehensive verification repair — 2026-10-17
 
 **FIRST REAL CAD WRITE OCCURRED.** The human tested Cancel first and observed no
@@ -36,10 +99,12 @@ The normal 15-minute cleanup subsequently purged the database WriteRecord. The
 initial attempt to pause cleanup stopped the reloader but missed its API child;
 this was corrected by pausing both. The proposal was not manually purged, restored
 or edited. Its trusted decoded baseline remains in the memory-only investigation
-process; the durable fence remains intact. After investigation, the local API and
+process; the durable fence remained intact until the separately authorized recovery
+above. After investigation, the local API and
 reloader were restored with writes OFF and a successful health check. The private
 memory holder remains active. Do not treat a missing operational row as permission or proof
-that the provider did nothing. Deliberate operator recovery remains required.
+that the provider did nothing. Deliberate operator recovery was required and is
+recorded above.
 Retention policy, cleanup code and the no-TTL fence policy were not changed.
 
 The fixed audit contains one claim, dispatch, acknowledgement and uncertainty for
@@ -92,7 +157,7 @@ Twenty CAD GETs were used in this repair; **no CAD POST was attempted**.
 
 These results describe reconstructed immutable snapshots, not a recovered trace
 of the original post-write read. The first operation is **not** retroactively
-promoted to success and its fence is not released. Current Fillet state remains
+promoted to success; this repair did not release its fence. Current Fillet state remains
 suppressed. No unrelated definition change was found and none is normalized away.
 
 ### Confirmed verification gaps and repairs
@@ -162,12 +227,13 @@ documentation links, whitespace and secret/privacy checks passed. All mutation
 tests use synthetic transports. No dependency, lockfile, migration, OAuth
 permission, environment file or Phase 8 checker/review is changed.
 
-Before another real attempt, keep writes OFF and complete **separately authorized
+Before another real attempt, keep writes OFF. The **separately authorized
 operator recovery** of the existing exact fence under the documented user-lock /
-matching-record procedure. Establish that the original request has settled and
-record the deliberate recovery decision. Do not restore/reuse the consumed
-proposal or treat its purged row as automatic recovery. This repair does not
-perform that recovery. The retained memory-only baseline is available for review;
+matching-record procedure is now complete, as recorded above. The original request
+was established as settled and the deliberate recovery decision was audited.
+Do not restore/reuse the consumed proposal or treat its purged row as automatic
+recovery. The verification repair itself did not perform recovery.
+The retained memory-only baseline is available for review;
 do not print/export it or terminate its holder before review. The restored local
 API remains writes OFF; keep that flag OFF during recovery.
 
@@ -1080,7 +1146,8 @@ Only after establishing a safe settled state may an operator remove that **exact
 fence by matching record_id inside a transaction while holding the same user lock.
 Never restore a consumed proposal or use expiry/key rotation/database restore to
 unblock. New work requires a new proposal and fresh approval. No operator fence was
-cleared during implementation. After proposal purge there is no automated context
+cleared during initial implementation; the later separately authorized one-time
+recovery is recorded above. After proposal purge there is no automated context
 reconstruction; manual inspection is required.
 
 ## UI, accessibility and automated evidence

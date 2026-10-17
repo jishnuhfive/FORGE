@@ -16,9 +16,22 @@ from test_safe_edit import M0, bodies, config, features
 
 from forge_api.auth.security import random_token
 from forge_api.cad_edits import storage
+from forge_api.cad_edits.dev_recovery import (
+    RecoveryDenied,
+    RecoveryReference,
+    recover_orphaned_fence,
+)
 from forge_api.cad_edits.domain import Binding, EditError, Proposal, preview
-from forge_api.core.config import REPOSITORY_ROOT
-from forge_api.db.models import User, WriteFence, WriteRecord, now
+from forge_api.core.config import REPOSITORY_ROOT, Settings
+from forge_api.db.models import (
+    AuditEvent,
+    OnshapeAuthorization,
+    Session,
+    User,
+    WriteFence,
+    WriteRecord,
+    now,
+)
 from forge_api.integrations.onshape.write_evidence import project_write_evidence
 
 
@@ -50,6 +63,85 @@ def seed(engine: Engine) -> Proposal:
         )
         storage.store(db, p, "pending")
     return p
+
+
+def test_operator_recovery_has_one_postgres_winner(postgres: Engine) -> None:
+    migrate(postgres)
+    p = seed(postgres)
+    factory = sessionmaker(postgres)
+    created = now() - 1000
+    reference = RecoveryReference(
+        user=p.binding.user,
+        session=p.binding.session,
+        workspace_key=p.binding.workspace_key,
+        record_id=p.proposal_id,
+        created_at=created,
+        settled=True,
+    )
+    settings = Settings(_env_file=None, environment="development")
+    with factory.begin() as db:
+        row = db.get(WriteRecord, p.proposal_id)
+        assert row
+        row.state = "execution_uncertain"
+        row.created_at = created
+        row.purge_at = created + 900
+        db.add(
+            Session(
+                token_hash=p.binding.session,
+                user_id=p.binding.user,
+                expires_at=now() - 1,
+            )
+        )
+        db.add(
+            OnshapeAuthorization(
+                user_id=p.binding.user, stack=str(settings.onshape_api_base_url)
+            )
+        )
+        db.add(
+            WriteFence(
+                user_id=p.binding.user,
+                record_id=p.proposal_id,
+                workspace_key=p.binding.workspace_key,
+            )
+        )
+        for index, kind in enumerate(
+            (
+                "write_proposal_claimed",
+                "write_dispatch_started",
+                "write_provider_acknowledged",
+                "write_uncertain",
+            )
+        ):
+            db.add(
+                AuditEvent(
+                    user_id=p.binding.user,
+                    kind=kind,
+                    outcome="ok",
+                    created_at=created + index,
+                )
+            )
+        db.flush()
+        storage.cleanup(db)
+
+    def attempt(_: int) -> str:
+        try:
+            recover_orphaned_fence(factory, settings, reference)
+            return "recovered"
+        except RecoveryDenied:
+            return "denied"
+
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        results = list(pool.map(attempt, range(4)))
+    assert results.count("recovered") == 1
+    with factory() as db:
+        assert db.scalar(select(WriteFence)) is None
+        assert db.scalar(select(WriteRecord)) is None
+        events = list(
+            db.scalars(
+                select(AuditEvent).where(AuditEvent.kind == "write_operator_recovery")
+            )
+        )
+        assert len(events) == 1 and events[0].outcome == "local_only"
 
 
 def test_one_claim_winner_across_workers_and_fence_survives_cleanup(

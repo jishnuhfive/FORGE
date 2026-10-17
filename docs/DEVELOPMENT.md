@@ -689,10 +689,29 @@ durable audit outcomes. The internal `dev/verify.py` helper requires DEV/writes 
 uses only fixed GETs and returns closed metadata, never raw snapshots.
 
 The original uncertain row expired during investigation; the trusted decoded
-baseline remains memory-held and the fence remains intact. The local API/reloader
-were restored with writes OFF after temporary pausing; health passed. Keep the
-private baseline holder alive until operator review and do not clear fences as
-part of code verification. Follow the separately
-authorized operator recovery and fresh Gate A/B procedures in the review. For a
+baseline remains memory-held. Its durable fence was later cleared by the separately
+authorized operator recovery recorded in the runtime review, with zero Onshape
+contact and writes OFF. The local API/reloader were restored with writes OFF after
+temporary pausing; health passed. Keep the private baseline holder alive until
+operator review and do not clear fences as part of code verification.
+Follow the fresh Gate A/B procedures in the review. For a
 human write trial the read-only probe flag must be OFF; for this repair writes stay
 OFF. Phase 8 and the existing reconcile/no-retry/retention policies are unchanged.
+
+`cad_edits/dev_recovery.py` is an internal operator helper, not a CLI or HTTP route.
+Only after explicit operator authorization and independently established settlement,
+construct its strict `RecoveryReference` from trusted preserved evidence **in
+memory**, never from a guessed fence or logged/command-line identifiers. Invoke
+`recover_orphaned_fence` with the configured session factory and development Settings
+while both configured and running API writes remain OFF. It uses the existing user
+lock and session/grant/fence row locks. The original session may be expired but must
+still identify the exact owner; recovery never logs it in or refreshes any token.
+The helper requires an exact single matching orphan, elapsed 15-minute retention,
+an entirely empty operational table and a unique ordered four-event uncertainty
+audit window. Any retained record (even a tombstone/unknown state), candidate
+ambiguity or prior recovery fails closed. Audit and exact three-field deletion
+commit together. It accepts no arbitrary deletion query and has no provider client.
+Do not use it to infer upstream settlement, recover a live claim or clear multiple
+fences. New CAD work always requires a new proposal and approval. Focused coverage:
+`tests/test_safe_edit_operator_recovery.py` and the PostgreSQL recovery concurrency
+case in `tests/test_safe_edit_postgres.py`.

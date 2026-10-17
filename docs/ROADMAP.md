@@ -205,8 +205,11 @@ The first real human-approved suppression reached uncertainty, with no retry or
 success claim. The comprehensive repair retains strict comparisons, adds full
 returned Sketch evidence and fixed complete failure diagnostics under policy 6.
 The exact historical failure is not recoverable; no unobserved normalization or
-timeout relaxation is justified. Gate A awaits one fresh controlled rerun after
-deliberate operator recovery; Gate B remains UNPROVEN. The human reports Phase 10
+timeout relaxation is justified. Separately authorized development-only operator
+recovery has now removed the exact orphaned uncertainty fence under the existing
+user lock, with an atomic fixed audit, no Onshape contact and writes OFF. Normal
+fence semantics and the historical uncertain result are unchanged. Gate A awaits
+one fresh controlled rerun; Gate B remains UNPROVEN. The human reports Phase 10
 merged on main separately; that history is not integrated here. Phase 11 is
 **NOT STARTED**.
 

@@ -511,3 +511,17 @@ metadata, provider responses, private identities/markers or exception text. DEV
 fixed-code logs and a writes-OFF internal GET-only helper add no public debug
 endpoint, CAD write authority or fence-release capability. Both conformance gates
 remain UNPROVEN. Normal operational-row expiry still never releases a fence.
+
+Separately authorized operator recovery uses the internal `cad_edits/dev_recovery.py`
+helper, outside browser/AI/API authority. It requires development mode, writes OFF,
+an exact trusted private reference and an operator attestation of independently
+established settlement. Under the shared user → original session → grant → fence
+lock order, it requires one precise orphan, elapsed retention, no operational
+records and a unique ordered claim/dispatch/acknowledgement/uncertainty audit window.
+It deletes only the exact user/workspace/record match and atomically records fixed
+`write_operator_recovery` / `local_only`; audit failure rolls back deletion.
+An expired original session establishes identity only and is never revived.
+There is no public endpoint, user control, bulk clearing, provider transport or
+production-mode recovery. Normal fence semantics remain unchanged. The first
+separately authorized recovery cleared one orphan with ZERO Onshape contact and
+writes OFF; neither conformance gate was proven by that administration.
