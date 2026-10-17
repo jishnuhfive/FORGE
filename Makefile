@@ -1,8 +1,14 @@
-.PHONY: setup dev dev-web dev-api smoke test test-e2e browsers lint typecheck format build audit db-up db-down compose-check check
+.PHONY: setup dev dev-web dev-api smoke test test-e2e browsers lint typecheck format build audit db-up db-down compose-check check team-check team-check-integration
 
 setup:
 	npm ci
 	cd apps/api && uv sync --locked
+
+team-check:
+	python3 scripts/team_doctor.py
+
+team-check-integration:
+	python3 scripts/team_doctor.py --integration
 
 dev:
 	python3 scripts/dev.py

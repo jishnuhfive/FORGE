@@ -1,5 +1,8 @@
 # Development
 
+For three-person macOS/Windows onboarding, independent credentials, Git/PR workflow
+and check-only diagnostics, start with [team development](TEAM_DEVELOPMENT.md).
+
 ## Prerequisites and ownership
 
 Use Node.js 24 LTS/npm 11, Python 3.14/uv, Git, Docker with a running daemon,

@@ -87,6 +87,13 @@ No `.env` is required for the UI lab or tests. Real login needs the exact
 contains empty placeholders; never put real credentials in it. The local database uses deliberately public development defaults
 on loopback only. See [development](docs/DEVELOPMENT.md) before overriding them.
 
+## Team development
+
+Start with the [team onboarding guide](docs/TEAM_DEVELOPMENT.md) for independent
+macOS/Windows setup, private integrations, branches, PRs and coding-agent worktrees.
+`make team-check` checks local readiness; add `--integration` to the direct
+`python scripts/team_doctor.py` command to check private integration presence safely.
+
 ## Developer commands
 
 | Command                         | Purpose                                                      |
