@@ -7,6 +7,7 @@ from forge_api.integrations.onshape.inspector import CadInspector
 from .evidence import project, resolve, resolve_write
 from .models import AiAnswer, AiRequest
 from .policy import REFUSAL, blocked
+from .presentation import SMALLTALK_FOLLOW_UPS, smalltalk
 from .provider import AgentTask, AiProvider
 from .writes import write_request
 
@@ -31,6 +32,22 @@ async def run_agent(
                 discussion="",
                 assumptions=[],
                 follow_up_questions=[],
+                captured_at=None,
+            ).model_dump(),
+        }
+        return
+    chat = smalltalk(request.prompt)
+    if chat is not None:
+        # No CAD read and no provider call: a fixed, server-authored reply.
+        yield {
+            "type": "result",
+            "result": AiAnswer(
+                answer=chat,
+                evidence=[],
+                uncertainties=[],
+                discussion="",
+                assumptions=[],
+                follow_up_questions=list(SMALLTALK_FOLLOW_UPS),
                 captured_at=None,
             ).model_dump(),
         }

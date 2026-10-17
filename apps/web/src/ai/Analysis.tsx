@@ -168,6 +168,16 @@ export function AnswerContent({
       <h2 className={title ? 'response-heading' : 'sr-only'}>
         {title ?? 'Response'}
       </h2>
+      {/* A friendly lead-in for answers that report on the model. Greetings and
+          refusals carry no evidence and keep their own plain text. Presentation
+          only: it states nothing about the model. */}
+      {result.evidence.length > 0 && (
+        <p className="chat-lead">
+          {summary
+            ? 'Here’s what I can see in your Part Studio.'
+            : 'Here’s what I found.'}
+        </p>
+      )}
       {summary ? (
         <div className="model-overview">
           {summary.features.length > 0 && (
@@ -254,6 +264,12 @@ export function AnswerContent({
           </ul>
         </section>
       )}
+      {result.evidence.length > 0 &&
+        result.follow_up_questions.length === 0 && (
+          <p className="chat-lead muted small">
+            Ask me about any feature, or what to check next.
+          </p>
+        )}
       {result.follow_up_questions.length > 0 && (
         <section className="answer-guidance">
           <h3>To explore next</h3>
