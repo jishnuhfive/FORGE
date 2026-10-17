@@ -668,7 +668,7 @@ auxiliary fields and omitted guards have distinct evidence modes, never defaults
 complete top-level structural proof, explicit conflicts, mode/presence binding,
 post-write re-proof and no false defaulting. Unsupported structure or nonempty/
 stale/skewed configuration fails closed. No production query or feature-state-map
-policy changes. Old previews must be prepared again under `terminal-fillet-5`;
+policy changes. Old previews must be prepared again under `terminal-fillet-6`;
 no migration is needed. A manually created configured-control comparison is optional
 additional evidence and is never created by Forge/Codex.
 
@@ -678,3 +678,21 @@ body invariants, stale approval and post-write uncertainty/fences. No flag is
 defaulted or synthesized. Both accepted after-modes are independently re-proven at
 the new acknowledged revision. Keep writes OFF and diagnostics ON; refresh CAD
 Inspector only and collect fixed metadata, without preparing or approving a write.
+
+The first real write and full repair investigation are recorded in the runtime
+review. Safe-write reads now include full returned sketch definitions while still
+excluding geometry IDs; caps remain unchanged. `test_safe_edit_verification.py`
+covers comprehensive final checks, strict unrelated-change detection, obsolete
+policy 5, acknowledgement mismatches, full Sketch geometry and timeouts/no-retry.
+Fixed `safe_edit_verify` logs are DEV-only; failed checks/stages are also sanitized
+durable audit outcomes. The internal `dev/verify.py` helper requires DEV/writes OFF,
+uses only fixed GETs and returns closed metadata, never raw snapshots.
+
+The original uncertain row expired during investigation; the trusted decoded
+baseline remains memory-held and the fence remains intact. The local API/reloader
+were restored with writes OFF after temporary pausing; health passed. Keep the
+private baseline holder alive until operator review and do not clear fences as
+part of code verification. Follow the separately
+authorized operator recovery and fresh Gate A/B procedures in the review. For a
+human write trial the read-only probe flag must be OFF; for this repair writes stay
+OFF. Phase 8 and the existing reconcile/no-retry/retention policies are unchanged.

@@ -109,7 +109,7 @@ class SafeEditClient:
         scope = f"d/{context.documentId}/m/{microversion}/e/{context.elementId}"
         features = self._exchange(
             "GET",
-            f"/partstudios/{scope}/features?includeGeometryIds=false&noSketchGeometry=true&rollbackBarIndex=-1",
+            f"/partstudios/{scope}/features?includeGeometryIds=false&noSketchGeometry=false&rollbackBarIndex=-1",
         )
         configuration = self._exchange("GET", f"/elements/{scope}/configuration")
         bodies = self._exchange(

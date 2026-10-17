@@ -101,7 +101,7 @@ class Baseline(Closed):
 
 class Proposal(Closed):
     schema_version: Literal["forge-write-proposal-v1"] = "forge-write-proposal-v1"
-    policy_version: Literal["terminal-fillet-5"] = "terminal-fillet-5"
+    policy_version: Literal["terminal-fillet-6"] = "terminal-fillet-6"
     operation_type: Literal["suppress_terminal_fillet_v1"] = (
         "suppress_terminal_fillet_v1"
     )

@@ -440,7 +440,7 @@ records and durable deny fences. Committed atomic claims, shared user/session/gr
 coordination and unique workspace/user fences protect multiple workers. Uncertain
 writes are never retried or automatically rolled back. Cleanup cannot remove fences.
 
-The operation-specific `terminal-fillet-5` policy binds an explicit feature-state
+The operation-specific `terminal-fillet-6` policy binds an explicit feature-state
 evidence mode into the baseline/digest. A nonempty state map must cover the inventory
 exactly and pass every strict status/inactive check. An exactly empty map means
 `UNAVAILABLE_EMPTY`, never inferred OK/active; structural suppression, pinned
@@ -475,4 +475,14 @@ are persisted. Existing original-version write guards remain mandatory.
 
 Writes default OFF. OAuth2Write is not enabled in the external app by this work.
 Gate A suppression-payload behavior and Gate B provider atomic stale rejection are
-awaiting controlled human CAD-write validation. Phase 10 is NOT STARTED.
+awaiting controlled human CAD-write validation. Phase 10 is not integrated into
+this Phase 9 branch.
+
+The first human-approved suppression reached uncertainty; the full reconstruction
+is in the runtime review. Policy 6 now requests full sketch definitions for the
+safe-write path (noSketchGeometry=false, geometry IDs still excluded), binding all
+returned definition fields under unchanged transport caps. The only mutable hash
+exclusion remains the terminal suppressed flag. All eight final comparisons run
+before rejection; fixed failed checks/stages are durably audited and DEV logs are
+sanitized. No lost-ack reconciliation promotion or automatic fence release is added.
+Phase 10 on main is a separate history and is not integrated into this branch.

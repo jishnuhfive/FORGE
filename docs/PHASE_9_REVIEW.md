@@ -8,12 +8,213 @@ squashing. Phase 9A is **PREPARATION COMPLETE** at `b95e866`. Phase 10 is
 [9A specification](PHASE_9_SAFE_WRITE_SPEC.md) and
 [preparation review](PHASE_9_PREP_REVIEW.md).
 
-No real Onshape mutation, OAuth developer-app change, or real write flag activation
-was performed during implementation. Gate A and Gate B below are **NOT VALIDATED**.
-The default flag is OFF. Automated synthetic provider behavior does not prove real
-provider conformance, production readiness, or engineering safety.
+The initial implementation checkpoints below performed no real Onshape mutation.
+The subsequent first human-approved real write is recorded next. Gate A and Gate B
+remain **UNPROVEN**. The default flag is OFF. Automated synthetic provider behavior
+does not prove real provider conformance, production readiness, or engineering safety.
+
+## First real CAD write and comprehensive verification repair — 2026-10-17
+
+**FIRST REAL CAD WRITE OCCURRED.** The human tested Cancel first and observed no
+CAD change, prepared a fresh Active → Suppressed proposal for the disposable
+terminal Fillet, then approved exactly once. The human reports the same Fillet
+remained in the tree and became suppressed; rounded geometry disappeared, while
+Sketch and Extrude remained. Forge entered execution uncertainty, claimed no
+success and did not retry. Gate A was not established. Gate B has not been run.
+This repair performed **ZERO additional real CAD writes**, no unsuppression,
+no updateFeatures call, no fence release and no main merge.
+
+### Preserved evidence and its limits
+
+The original `execution_uncertain` proposal initially decoded normally under
+policy `terminal-fillet-5`, with its digest/binding intact and its exact fence
+present. The approved baseline and subsequent provider snapshots were retained
+privately in a memory-only investigation process before expiry. No raw proposal,
+CAD identity, geometry, parameter, query, URL or credential was logged or committed.
+
+The normal 15-minute cleanup subsequently purged the database WriteRecord. The
+initial attempt to pause cleanup stopped the reloader but missed its API child;
+this was corrected by pausing both. The proposal was not manually purged, restored
+or edited. Its trusted decoded baseline remains in the memory-only investigation
+process; the durable fence remains intact. After investigation, the local API and
+reloader were restored with writes OFF and a successful health check. The private
+memory holder remains active. Do not treat a missing operational row as permission or proof
+that the provider did nothing. Deliberate operator recovery remains required.
+Retention policy, cleanup code and the no-TTL fence policy were not changed.
+
+The fixed audit contains one claim, dispatch, acknowledgement and uncertainty for
+the operation. The durable `write_provider_acknowledged` event can commit only
+after the original client validates HTTP 200/JSON, no skew, exactly one returned
+target, explicit suppressed=true and a valid advanced source marker. Thus
+acknowledgement validation **passed at runtime**. The actual response and marker
+were not retained. Equality of that original acknowledgement marker to the current
+head **cannot be reconstructed offline** and is not inferred from visible CAD.
+
+The audit window from claim to uncertainty is approximately **3,000 ms**, with
+one-second timestamp granularity. Original monotonic/per-request timings were not
+retained. This does not support a 30-second deadline failure. No timeout was raised,
+removed or expanded by this repair. The historical failure is localized only to
+**after accepted acknowledgement, before verified success**; its exact original
+projection/comparison/authority/internal failure is not recoverable from durable
+evidence. A transient original read or acknowledgement/current-marker mismatch
+cannot be ruled out. No specific semantic mismatch or timeout is invented.
+
+### Complete GET-only reconstruction
+
+Three reads reconstructed the approved immutable microversion; its projected
+baseline matched the stored approved baseline **exactly**. The actual five-GET
+`evidence(context, after=True)` path read the current preserved suppressed state
+with equal heads and matching feature/configuration/body source markers. It passed
+every projection predicate. Four additional fixed GETs bracketed full
+sketch-inclusive feature reads at both approved/current immutable revisions. All
+reads retained the existing JSON, byte, structure, timeout, no-redirect and access
+bounds. An additional eight-GET final recheck confirmed the same preserved state.
+Twenty CAD GETs were used in this repair; **no CAD POST was attempted**.
+
+| Check                         | Observed result                                                                                                          |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Current revision              | Advanced from approved baseline; pinned sources and head bracketing match; original acknowledgement equality unavailable |
+| Target                        | Same identity, retained, terminal standard Fillet, explicitly suppressed=true                                            |
+| Feature inventory             | Same count, order, identities and types                                                                                  |
+| Position 1 Sketch             | Full returned definition, including sketch geometry, unchanged                                                           |
+| Position 2 Extrude            | Complete returned definition unchanged                                                                                   |
+| Position 3 Fillet             | Structural definition unchanged after excluding only intended top-level suppressed transition                            |
+| Parameters and queries        | Unchanged at every position                                                                                              |
+| Safe changed-field categories | Exactly position 3 `suppressed`; no suppression bookkeeping, node bookkeeping or unknown-field difference                |
+| Configuration                 | Explicit empty inputs/current values, pinned source, no skew                                                             |
+| Feature-state mode            | `UNAVAILABLE_EMPTY` before and after; no inferred OK/inactive                                                            |
+| Parent modes                  | `STRUCTURALLY_NOT_APPLICABLE` at all three positions before and after                                                    |
+| Configured modes              | `INDEPENDENTLY_PROVEN_UNCONFIGURED` at all three positions before and after                                              |
+| Auxiliary modes               | `NULL_UNAVAILABLE` at all three positions before and after                                                               |
+| Body                          | Exactly one SOLID, NO_ERROR, exact current pinned ID                                                                     |
+| Body revision mode            | `EXACT_PINNED_ID_FLAGS_UNAVAILABLE` before and after; flags remain omitted, never false                                  |
+| Serialization/library         | Both unchanged; equality remains mandatory                                                                               |
+
+These results describe reconstructed immutable snapshots, not a recovered trace
+of the original post-write read. The first operation is **not** retroactively
+promoted to success and its fence is not released. Current Fillet state remains
+suppressed. No unrelated definition change was found and none is normalized away.
+
+### Confirmed verification gaps and repairs
+
+The [current official v17 OpenAPI](https://cad.onshape.com/api/openapi), re-fetched
+for this pass, retains build `1.222.90730-c8d74e607a47` and SHA-256
+`d93a3c77e5f4a61f69ce865e815da4fe628178bb37cb6de4d91028f2c2bdc9aa`.
+It describes `noSketchGeometry` as selecting simple sketch information without
+geometry, default false. The old safe-write query used true, so its fingerprint
+could not prove unchanged omitted sketch content. Future safe-write evidence now
+uses **noSketchGeometry=false**, while keeping includeGeometryIds=false and every
+existing response/structure/deadline cap. Full returned Sketch definitions now
+participate in the existing raw definition fingerprint, before approval and after
+dispatch. Only hashes/modes are persisted; raw geometry remains request-local.
+Oversized or unsupported responses still reject; no limit is raised.
+
+The current schema describes serializationVersion as encoding compatibility
+metadata and libraryVersion as the Part Studio FeatureScript version, not to be
+modified. Both were unchanged live, so neither equality is relaxed. The
+[official feature guide](https://onshape-public.github.io/docs/api-adv/featureaccess/)
+still labels examples v9; it supplies no reason to discard unknown fields. The
+[immutable document model](https://onshape-public.github.io/docs/api-intro/architecture/)
+supports reconstructing the two pinned snapshots, not inventing the lost marker.
+
+`cad_edits/verification.py` evaluates **all eight original final checks** before
+deciding: serialization, library, target identity, exact acknowledged revision,
+definitions, parent modes, configured modes and total deadline. No comparison is
+short-circuited out of the diagnostic. DEV-only `safe_edit_verify` entries report
+fixed stages/checks/pass-fail. Future failures durably record fixed
+`write_verification_failed` outcomes in the existing sanitized audit table, including
+provider-ack, post-read, final-authority or internal failure stages and every failed
+final comparison. No response payload, marker value, private field name, exception
+message or arbitrary audit metadata is retained. No migration or public provider-
+debug route/header was added. Production omits the DEV log lines.
+
+`integrations/onshape/dev/verify.py` adds a DEV/writes-OFF internal GET-only
+investigation helper. It verifies the trusted reconstructed baseline, reports all
+available comparisons and fixed changed-field categories, distinguishes evidence
+availability failures from invariant failures, and can read full definitions for
+the trusted approved/current revisions. It exposes no CAD write or recovery
+authority and never calls reconcile, edits a WriteRecord or releases a fence.
+
+Policy is now **terminal-fillet-6**. Old minimizing previews, including policy 5,
+cannot execute and require fresh preparation. No new normalization was introduced:
+**only the exact target's top-level suppressed field is excluded from the
+definition hash**, while its false→true transition is checked explicitly. Every
+other captured field, including entities, constraints, parameters, queries,
+node/bookkeeping and unknown fields remains bound. No broad ignore list or mode
+equivalence relaxation was added. The original approved sourceMicroversion,
+rejectMicroversionSkew=true, fresh baseline/head checks, expiry, atomic claim,
+session/grant binding, consumed proposal, fences and no-retry policy are intact.
+
+The confirmed repairs are the missing full-Sketch proof and missing complete
+failure diagnostics. **They are not claims that either caused the first uncertainty.**
+That exact historical cause remains unknown. Gate A and Gate B remain UNPROVEN.
+
+### Verification and next controlled human procedures
+
+Verification: **69 new verifier/diagnostic regressions**, **925 focused safe-edit /
+provider / inspector tests passed** (seven PostgreSQL cases skipped in that focused
+run, then passed in the full gate). The full gate passed **1,613 backend tests**,
+including all ten real PostgreSQL cases (seven safe-edit), and **642 frontend
+tests**, plus **57 Modify/Phase 8 Playwright cases** across Chromium, Firefox and
+WebKit (33 Modify, 24 Mounting Bracket). Format, Ruff, ESLint/Prettier, TypeScript,
+strict mypy (99 files), production build, Alembic drift check, dependency audits,
+documentation links, whitespace and secret/privacy checks passed. All mutation
+tests use synthetic transports. No dependency, lockfile, migration, OAuth
+permission, environment file or Phase 8 checker/review is changed.
+
+Before another real attempt, keep writes OFF and complete **separately authorized
+operator recovery** of the existing exact fence under the documented user-lock /
+matching-record procedure. Establish that the original request has settled and
+record the deliberate recovery decision. Do not restore/reuse the consumed
+proposal or treat its purged row as automatic recovery. This repair does not
+perform that recovery. The retained memory-only baseline is available for review;
+do not print/export it or terminate its holder before review. The restored local
+API remains writes OFF; keep that flag OFF during recovery.
+
+For one fresh Gate A rerun, after that authorization/recovery:
+
+1. The human manually reactivates the disposable terminal Fillet or prepares a
+   fresh isolated disposable target; this task does neither. Confirm the supported
+   Sketch → Extrude → Fillet inventory, unconfigured end-of-list evaluation and
+   one SOLID, with no unrelated/linked work at risk.
+2. Human restarts the repaired development API with writes enabled only for the
+   controlled attempt, `FORGE_SAFE_EDIT_DIAGNOSTICS_ENABLED=false` and conformance
+   pause zero. The read-only probe flag cannot coexist with writes ON. Fixed new
+   runtime verification diagnostics still run in DEV without that probe flag.
+3. Request a fresh policy-6 preview. Cancel and inspect unchanged CAD. Request a
+   second fresh preview after cooldown; approve **once**. No stale preview reuse.
+4. Require one fixed partial POST with the original approved marker and provider
+   skew guard, followed by fresh full-definition/configuration/body evidence at
+   the exact acknowledgement revision and all eight final checks passing.
+5. Require Forge verified success and the same terminal Fillet retained/suppressed,
+   unchanged Sketch/Extrude/parameters/queries/order/types/identities, expected
+   edge-treatment removal and supported body output. Only then may the human mark
+   Gate A proven. Any uncertainty means writes OFF, retain fence, collect only
+   fixed safe diagnostics/audit outcomes and stop; never click retry/approve again.
+6. Return writes OFF after the attempt. Do not claim Gate B from local checks.
+
+Only after Gate A, perform Gate B with a newly active eligible disposable Fillet,
+fresh proposal, DEV pause 10 seconds and a separately human-enabled write flag
+(read-only probe OFF). Wait for the pause **after** the final local head check;
+the human changes CAD during the pause. Require the sole request to retain the
+original approved marker and rejectMicroversionSkew=true, require provider stale
+rejection and an unsuppressed Fillet, and require no retry. Zero POST from local
+stale rejection is insufficient. Repeat the separate other-element document race
+only after deliberate recovery/reset between cases. Any ambiguity or applied
+stale suppression leaves Gate B unproven/failed with writes OFF and fence retained.
+Return pause zero and writes OFF after validation.
+
+The human reports Phase 10 merged on main separately. Remote main was observed at
+`cb8b6c48f77f8870f46e554a0333123500e9f3a5`; local main/origin-main refs remain at the
+older Phase 8 checkpoint because no main fetch/merge was performed. This repair
+stays on the Phase 9 branch and does not claim Phase 10 code integration here.
+**Phase 11 is NOT STARTED.**
 
 ## Read-only target-discovery investigation
+
+The following sections retain earlier implementation and diagnostic checkpoints.
+Their zero-write counts describe those checkpoints; the first real human write
+and current repair status above supersede those historical status statements.
 
 Human validation subsequently reached authenticated Modify target discovery:
 OAuth2Write was added **by the human**, explicit reauthorization succeeded, and
@@ -820,8 +1021,9 @@ captured feature definitions except the intended suppression flag. A 30-second
 evidence/dispatch/verification budget prevents late verified success or a new
 dispatch after the deadline. An outstanding synchronous read can end later at its
 per-call timeout; possible mutation outcomes remain uncertain, never retried. Captured
-feature definitions exclude sketch geometry by provider query; this is **not**
-full geometry equivalence, downstream reference safety, or engineering validation.
+feature definitions originally excluded sketch geometry; policy 6 includes the full
+returned Sketch definition as described above. This still is **not** full output
+geometry equivalence, downstream reference safety, or engineering validation.
 Any unexpected bookkeeping change also fails closed pending contract review.
 
 All ambiguous post-dispatch failures, including timeout, access failure, bad

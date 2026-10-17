@@ -27,7 +27,7 @@ from forge_api.integrations.onshape.contracts import WorkspaceReference
 from forge_api.integrations.onshape.service import ReadGate
 from forge_api.integrations.onshape.write_client import SafeEditClient
 
-from . import storage
+from . import storage, verification
 from .domain import (
     Baseline,
     Binding,
@@ -257,6 +257,9 @@ def approve(
     dispatched = False
     state: State = "write_failed"
     failure: EditError | None = None
+    verification_stage: verification.Stage = "provider_ack"
+    verification_failures: tuple[verification.Failure, ...] = ()
+    development = auth.settings.environment == "development"
     try:
         provider = client(request, auth)  # Refresh precedes final authorization locks.
         baseline = provider.evidence(proposal.binding.context)
@@ -288,33 +291,38 @@ def approve(
             progress("executing")
             dispatched = True
             marker = provider.suppress_terminal_fillet(proposal)
+            verification.emit(development, "provider_ack", "validation", True)
             audit(db, "write_provider_acknowledged", user_id=user)
             row = db.get(WriteRecord, handle)
             if row is not None:
                 row.state = "verifying"
+        verification_stage = "post_read"
         progress("verifying")
         after = provider.evidence(proposal.binding.context, after=True)
-        if (
-            after.serialization != baseline.serialization
-            or after.library != baseline.library
-            or after.feature_id != baseline.feature_id
-            or after.microversion != marker
-            or after.definitions != baseline.definitions
-            or after.parent_suppression_evidence != baseline.parent_suppression_evidence
-            or after.configured_suppression_evidence
-            != baseline.configured_suppression_evidence
-            or monotonic() - started > 30
-        ):
+        verification.emit(development, "post_read", "projection", True)
+        verification_stage = "final_compare"
+        checks = verification.final_checks(
+            baseline, after, marker, monotonic() - started
+        )
+        for check, passed in checks.items():
+            verification.emit(development, "final_compare", check, passed)
+        verification_failures = verification.failures(checks)
+        if verification_failures:
             raise EditError("verification_failed")
+        verification_stage = "final_authority"
         with auth.sessions() as db:
             if (
                 authority(request, auth, db, proposal.binding.context)
                 != proposal.binding
             ):
                 raise EditError("session_expired", 401)
+        verification.emit(development, "final_authority", "authority", True)
         state = "verified_success"
     except EditError as error:
         failure = error
+        if dispatched and not verification_failures:
+            verification_failures = (verification.stage_failure(verification_stage),)
+            verification.emit(development, verification_stage, "validation", False)
         state = (
             "execution_uncertain"
             if dispatched
@@ -329,7 +337,17 @@ def approve(
         failure = EditError(
             "execution_uncertain" if dispatched else "onshape_unavailable", 503
         )
+        if dispatched:
+            verification_failures = ("verify_internal",)
+            verification.emit(development, verification_stage, "internal", False)
     with auth.sessions.begin() as db:
+        for code in verification_failures:
+            audit(
+                db,
+                "write_verification_failed",
+                verification.audit_outcome(code),
+                user_id=user,
+            )
         storage.finish(
             db,
             proposal,

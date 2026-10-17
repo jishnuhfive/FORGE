@@ -48,12 +48,14 @@ Mounting Bracket guided project and explicit deterministic **Check my step** fro
 fresh CAD evidence. Phase 9A is **PREPARATION COMPLETE**. Phase 9B implements
 `suppress_terminal_fillet_v1` behind backend `FORGE_CAD_WRITES_ENABLED` (default OFF):
 proposal → explicit approval → fresh state/version check → guarded write → fresh
-post-write verification. No live write or OAuth app permission change was performed.
+post-write verification. The first human-approved real suppression entered uncertainty;
+Forge made no success claim and did not retry. Both human gates remain UNPROVEN.
 Provider payload and atomic stale-update gates still require controlled human proof.
 See the [Phase 9 runtime review](docs/PHASE_9_REVIEW.md) for exact human instructions, the
 [Phase 8 review](docs/PHASE_8_REVIEW.md),
 [safe-write specification](docs/PHASE_9_SAFE_WRITE_SPEC.md) and
-[preparation review](docs/PHASE_9_PREP_REVIEW.md). Phase 10 is **NOT STARTED**.
+[preparation review](docs/PHASE_9_PREP_REVIEW.md). Phase 10 on main is a separate
+history, not integrated into this Phase 9 branch. Phase 11 is **NOT STARTED**.
 See [the Phase 7 review](docs/PHASE_7_REVIEW.md) for lesson architecture and human acceptance.
 This is not a publicly deployed production service.
 

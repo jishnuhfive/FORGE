@@ -176,7 +176,8 @@ Opaque candidates, explicit approval, atomic PostgreSQL claims/fences, fresh pin
 reads, original provider guard and deterministic verification implement the 9A
 boundary. Real suppression-payload and atomic stale-update gates remain mandatory
 and unvalidated. Human permission changes and disposable CAD validation occur later.
-Phase 10 is **NOT STARTED**.
+Phase 10 is not integrated into this Phase 9 branch; its separate main history is
+recorded below.
 
 The explicitly authorized terminal-suppression evidence revision supports a present
 empty v17 state map as unavailable, with no inferred feature health. Complete maps
@@ -199,6 +200,15 @@ never false; both explicit false flags remain supported. True/null/malformed/mix
 flags reject. One SOLID, supported body error state, pinned reads, head bracketing,
 approval and original provider guard remain required. Writes stay OFF, diagnostics
 ON for investigation, and Gate A/B remain UNPROVEN.
+
+The first real human-approved suppression reached uncertainty, with no retry or
+success claim. The comprehensive repair retains strict comparisons, adds full
+returned Sketch evidence and fixed complete failure diagnostics under policy 6.
+The exact historical failure is not recoverable; no unobserved normalization or
+timeout relaxation is justified. Gate A awaits one fresh controlled rerun after
+deliberate operator recovery; Gate B remains UNPROVEN. The human reports Phase 10
+merged on main separately; that history is not integrated here. Phase 11 is
+**NOT STARTED**.
 
 The prior Phase 9 Reality Lock inventory topic remains planned for later explicit
 resequencing; it is not dropped or implemented by this preparation. Mistake

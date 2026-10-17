@@ -501,3 +501,13 @@ retention, 60-second cleanup, persistent deny fences, safe audits and backup/res
 implications. No prompts, raw provider CAD payloads, tokens, hidden reasoning, history
 or analytics are added. This is not a security certification. Real suppression and
 atomic stale rejection remain hard unproven human conformance gates.
+
+The first real write entered uncertainty correctly; see the current runtime
+review for reconstructed evidence and limits. Policy 6 captures full returned
+Sketch definitions for write verification within unchanged byte/structure/time
+bounds. No additional field is normalized away. Fixed verification failure stages
+and all failed final comparisons use the existing audit table without arbitrary
+metadata, provider responses, private identities/markers or exception text. DEV
+fixed-code logs and a writes-OFF internal GET-only helper add no public debug
+endpoint, CAD write authority or fence-release capability. Both conformance gates
+remain UNPROVEN. Normal operational-row expiry still never releases a fence.
