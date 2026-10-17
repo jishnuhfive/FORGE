@@ -428,11 +428,23 @@ Phase 6 disclosure, grounding, privacy and read-only boundaries.
 Check my step uses no AI provider. A provider may in future explain already-computed results
 but may never assign or alter PASS, FAIL, WARNING or UNVERIFIED. The lesson works without Groq.
 
-## Groq first-round instruction
+## Groq first round: inspect or just chat
 
-On Groq, `openai/gpt-oss-120b` often answered advice-style questions ("What should I do next?") by
-calling a nonexistent `answer` tool in the inspection round, which Groq rejects as `tool_use_failed`
-(13 of 18 requests failed in a live check). The inspection request's system message now appends a short
-`FIRST_ROUND` instruction (call only `inspect_current_cad`; no other tool exists; write no answer yet),
-which passed 18 of 18. The answer round keeps the plain policy. There is still no automatic retry and
-no provider fallback: this only makes the first round more reliable.
+On Groq the first round lets the model decide (`tool_choice: auto`). The inspection-round system message
+appends `FIRST_ROUND`: if the message is about the user's own model, design or CAD data (including
+follow-ups and "what should I do next"), call only `inspect_current_cad` and write no answer; otherwise
+(greetings, small talk, general or conceptual questions) reply in plain text, briefly, and say nothing about
+the user's model. When unsure, inspect. The answer round keeps the plain policy and its strict schema.
+
+- **Model questions** are unchanged: one read, canonical facts selected by ID, server-rendered evidence.
+- **General chat** is model-written text with **no CAD read**, so it needs no Onshape permission, no evidence
+  and no capture time. It is bounded (1500 characters), must be plain text (a JSON-shaped reply is rejected,
+  as is text mixed with a tool call), and if it talks about the user's model anyway the answer carries the
+  server note "This is a general reply. Forge didn't read your model for it, so it isn't verified against
+  your design." The unsafe-prompt screen and the policy's safety rules still apply first.
+- The OpenAI adapter keeps its previous behavior (it always inspects); general chat is Groq-only for now.
+- There is still no automatic retry and no provider fallback.
+
+Why the instruction exists: without it `openai/gpt-oss-120b` often answered advice-style questions by
+calling a nonexistent `answer` tool, which Groq rejects as `tool_use_failed` (13 of 18 live requests). With
+it, 24 of 24 live trials routed correctly (12 model questions inspected, 12 general questions answered).

@@ -208,10 +208,7 @@ def test_first_round_instruction_is_sent_only_with_the_inspection_request(
     assert "FIRST ROUND ONLY" not in json.dumps(final_messages)
     # Everything else the first request carries is unchanged.
     assert first_messages[1:] == final_messages[1 : len(first_messages)]
-    assert first["tools"] == [TOOL] and first["tool_choice"] == {
-        "type": "function",
-        "function": {"name": "inspect_current_cad"},
-    }
+    assert first["tools"] == [TOOL] and first["tool_choice"] == "auto"
 
 
 @pytest.mark.parametrize(
