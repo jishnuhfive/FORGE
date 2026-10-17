@@ -276,7 +276,7 @@ def test_incomplete_or_ambiguous_evidence(case: str) -> None:
     if case == "no_body":
         body["bodies"] = []
     if case == "missing_boolean":
-        data["features"][-1].pop("parentSuppressed")
+        data["features"][-1].pop("suppressed")
     if case == "dynamic":
         data["features"][-1]["suppressionState"]["btType"] = (
             "BTMSuppressionStateExpression-1811"

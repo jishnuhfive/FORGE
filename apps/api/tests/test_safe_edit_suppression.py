@@ -21,8 +21,10 @@ from test_safe_edit import (
 )
 
 from forge_api.cad_edits.domain import (
+    ConfiguredSuppressionEvidence,
     EditError,
     FeatureStateEvidence,
+    ParentSuppressionEvidence,
     SuppressionAuxEvidence,
 )
 from forge_api.db.models import WriteFence
@@ -166,6 +168,18 @@ def test_null_auxiliary_never_supplies_any_missing_or_unsafe_hard_boolean(
         del feature[field]
     else:
         feature[field] = value
+    if value is MISSING and field != "suppressed":
+        baseline = project_write_evidence(REF, M0, data, config(), bodies())
+        if field == "parentSuppressed":
+            assert baseline.parent_suppression_evidence[position] is (
+                ParentSuppressionEvidence.STRUCTURALLY_NOT_APPLICABLE
+            )
+        else:
+            assert baseline.configured_suppression_evidence[position] is (
+                ConfiguredSuppressionEvidence.INDEPENDENTLY_PROVEN_UNCONFIGURED
+            )
+        assert field not in feature
+        return
     with pytest.raises(EligibilityRejected) as caught:
         project_write_evidence(REF, M0, data, config(), bodies())
     assert (
@@ -217,7 +231,7 @@ def test_missing_malformed_specialized_or_unknown_auxiliary_rejects(
         project_write_evidence(REF, M0, data, config(), bodies())
 
 
-def test_observed_missing_parent_and_configured_flags_still_reject() -> None:
+def test_observed_missing_guards_require_independent_modes_without_synthesis() -> None:
 
     data = features()
     data["featureStates"] = {}
@@ -225,10 +239,17 @@ def test_observed_missing_parent_and_configured_flags_still_reject() -> None:
         feature["suppressionState"] = None
         del feature["parentSuppressed"]
         del feature["suppressionConfigured"]
-    with pytest.raises(EligibilityRejected) as caught:
-        project_write_evidence(REF, M0, data, config(), bodies())
-    assert caught.value.diagnostic.reason == Reason.PARENT
-    assert caught.value.diagnostic.actual_type == "missing"
+    original = deepcopy(data)
+    baseline = project_write_evidence(REF, M0, data, config(), bodies())
+    assert (
+        baseline.parent_suppression_evidence
+        == (ParentSuppressionEvidence.STRUCTURALLY_NOT_APPLICABLE,) * 3
+    )
+    assert (
+        baseline.configured_suppression_evidence
+        == (ConfiguredSuppressionEvidence.INDEPENDENTLY_PROVEN_UNCONFIGURED,) * 3
+    )
+    assert data == original
 
 
 @pytest.mark.parametrize(

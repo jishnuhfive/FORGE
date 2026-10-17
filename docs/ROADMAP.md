@@ -185,10 +185,13 @@ result, original-version approval/guard and fresh verification remain required.
 This changes no phase scope or human conformance gate.
 
 The subsequent explicit auxiliary-suppression revision permits exactly null as
-unavailable evidence only when all hard suppression Booleans are explicit and safe.
+unavailable evidence only when all other suppression evidence is safe.
 Strict ordinary objects remain supported; specialized/malformed/missing states
-reject. The current live document still lacks parent/configured flags and remains
-ineligible. No feature-state policy, broader edit authority or Gate A/B change.
+reject. The next explicit revision supports omitted parent/configured flags through
+complete restricted top-level structure and the pinned independent configuration
+endpoint. These are evidence modes, not inferred false. Explicit conflicts reject;
+raw presence and modes remain approval/verification-bound. No feature-state policy,
+broader edit authority or Gate A/B change.
 
 The prior Phase 9 Reality Lock inventory topic remains planned for later explicit
 resequencing; it is not dropped or implemented by this preparation. Mistake

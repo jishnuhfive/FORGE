@@ -39,7 +39,7 @@ from forge_api.integrations.onshape.write_evidence import project_write_evidence
         (("features", 2, "namespace"), None, Reason.NAMESPACE),
         (("features", 2, "namespace"), MISSING, Reason.NAMESPACE),
         (("features", 2, "subFeatures"), MISSING, Reason.SUBFEATURES),
-        (("features", 2, "parentSuppressed"), MISSING, Reason.PARENT),
+        (("features", 2, "parentSuppressed"), None, Reason.PARENT),
         (("features", 2, "suppressionConfigured"), True, Reason.CONFIGURED_SUPPRESSION),
         (("features", 2, "returnAfterSubfeatures"), MISSING, Reason.RETURN),
         (("features", 2, "suppressionState"), MISSING, Reason.SUPPRESSION),

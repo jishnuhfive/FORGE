@@ -659,8 +659,12 @@ not whole-model health. Real write flag and both pending human gates are unchang
 
 `tests/test_safe_edit_suppression.py` covers null-unavailable versus ordinary-object
 auxiliary modes without synthesizing fields, all specialized/malformed rejections,
-explicit Boolean requirements, privacy and post-write uncertainty. The live null
-auxiliary fields are supported by policy, but absent parent/configured Booleans
-continue to reject and need separate review. No production query or feature-state
-map policy changes. Old `terminal-fillet-2` previews must be prepared again under
-the versioned auxiliary-mode policy; no migration is needed.
+explicit suppression requirements, privacy and post-write uncertainty. The live null
+auxiliary fields and omitted guards have distinct evidence modes, never defaults.
+`tests/test_safe_edit_guard_evidence.py` exercises independent configuration proof,
+complete top-level structural proof, explicit conflicts, mode/presence binding,
+post-write re-proof and no false defaulting. Unsupported structure or nonempty/
+stale/skewed configuration fails closed. No production query or feature-state-map
+policy changes. Old previews must be prepared again under `terminal-fillet-4`;
+no migration is needed. A manually created configured-control comparison is optional
+additional evidence and is never created by Forge/Codex.

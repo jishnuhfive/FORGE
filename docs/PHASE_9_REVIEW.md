@@ -209,7 +209,8 @@ states mean OK or active, provider atomic stale rejection, or whole-model health
 default. Inventory fingerprints still include the entire returned feature response
 and configuration; the proposal digest also binds this mode. The policy is now
 `terminal-fillet-2` at that checkpoint; the auxiliary-suppression revision below
-advances it to `terminal-fillet-3` without changing this feature-state policy.
+advanced it to `terminal-fillet-3`. The guard-evidence revision below advances to
+`terminal-fillet-4` without changing this feature-state policy.
 Old policy records or records missing the explicit mode cannot
 decode for execution. A mode/map change during discovery, proposal preparation or
 fresh pre-dispatch capture invalidates the old baseline even at the same marker.
@@ -219,7 +220,7 @@ Both accepted modes require a real workspace Part Studio, unconfigured configura
 complete pinned inventory, matching source and no skew, exact documented rollback
 end, 3–20 features, unique bounded IDs, only supported standard classes/types and
 namespace, a Sketch and Extrude, no subfeatures or unexpected return, explicit false
-parent/configured suppression and an accepted auxiliary suppression mode (strict
+parent/configured suppression evidence and an accepted auxiliary suppression mode (strict
 ordinary object or exactly null, as detailed below). Every explicit
 `suppressed` field must be present and false before the write; the final feature
 must be the ordinary unsuppressed Fillet. Serialization/library remain bounded.
@@ -327,13 +328,14 @@ response or private context was saved. A second probe after implementation confi
 safe_edit_reject reason=parent_suppressed position=1 field=parentSuppressed expected=false actual_type=missing actual_boolean=None
 ```
 
-The live target therefore **remains ineligible**. Both missing hard fields need a
-separate contract review; this patch does not infer either one as false. The two
+At that auxiliary-only checkpoint the live target **remained ineligible**. Both
+omissions required the separate contract review and explicit policy decision below;
+neither field is inferred false. The two
 manual probes made 18 CAD GETs total, zero CAD writes, and no permission changes.
 
-For every feature, Forge first requires explicit real Boolean `suppressed`,
-`parentSuppressed` and `suppressionConfigured`. Before writing they must all be
-false; after writing only the target's explicit `suppressed` must be true. Then:
+That checkpoint required all three feature Booleans explicitly. The current
+guard-evidence policy below replaces only the optional parent/configured prerequisites.
+`suppressed` remains explicit before and after, and the auxiliary policy remains:
 
 - Exactly null records `SuppressionAuxEvidence.NULL_UNAVAILABLE`. It contributes
   **no positive evidence** and supplies no inferred Boolean, inactivity or ordinary
@@ -347,7 +349,7 @@ false; after writing only the target's explicit `suppressed` must be true. Then:
 Per-position auxiliary modes are required in the immutable baseline, with no
 default, and bound into the proposal digest. The raw auxiliary field remains in
 both inventory and captured-definition fingerprints: no normalization or new
-ignore-list was added. Policy `terminal-fillet-3` invalidates older previews and
+ignore-list was added. That checkpoint's policy `terminal-fillet-3` invalidated older previews and
 records missing the modes; prepare fresh proposals. Feature-state COMPLETE /
 UNAVAILABLE_EMPTY classification and partial-map rejection are unchanged.
 
@@ -371,10 +373,125 @@ Configured/running writes were verified OFF and running diagnostics ON without
 printing environment contents. The live probes were reads only; no provider write
 conformance or target eligibility success is claimed.
 **ZERO real CAD writes; writes OFF; diagnostics ON; Gate A UNPROVEN; Gate B UNPROVEN.**
-The next read-only step is CAD Inspector → Refresh CAD with the same flags, copying
-only the safe coverage and rejection lines. Review the newly confirmed missing
-`parentSuppressed` and `suppressionConfigured` contract separately before changing
-those hard predicates. Do not enable writes or approve a mutation.
+The next read-only step at that checkpoint was to inspect the optional-field
+contract. The following section records the subsequent explicit decision. Writes
+stay OFF and neither human provider conformance gate has been established.
+
+### Current guard evidence: omitted values are not Boolean defaults
+
+The current [official v17 OpenAPI](https://cad.onshape.com/api/openapi) was fetched
+again before editing, with version `1.222.90730-c8d74e607a47` and SHA-256
+`d93a3c77e5f4a61f69ce865e815da4fe628178bb37cb6de4d91028f2c2bdc9aa`.
+`BTMFeature-134` exposes `parentSuppressed`, `suppressed`, `suppressionConfigured`
+and `suppressionState` without a required-property declaration. This alone does
+not make omission false. The [feature API guide](https://onshape-public.github.io/docs/api-adv/featureaccess/#json-encoding)
+mentions omitted Boolean defaults, but labels those examples v9. That rule is
+**not the sole justification** and is not implemented as provider-data defaulting.
+
+The independent v17 `getConfiguration` supports microversion-pinned reads and
+returns `BTConfigurationResponse-2019`, including configuration inputs/current
+values, source marker and skew. The current operation still requires both arrays
+explicitly empty, source equal to the feature snapshot and skew explicitly false.
+The [configuration guide](https://onshape-public.github.io/docs/api-adv/configs/)
+explains these inputs independently of any optional per-feature flag.
+
+Live metadata supplied for this revision, consistent with the preceding direct
+read-only capture, is null auxiliary state, explicit `suppressed=false`, and both
+optional guards missing at each of Sketch / Extrude / terminal Fillet. State map
+is exactly empty. The human reports the independent configuration arrays are both
+empty and the complete inventory has only the three supported types. No raw CAD
+payload, identifier or private URL is stored here.
+
+| Field                   | Explicit false   | Missing                                                                                                                                   | True, null or wrong type |
+| ----------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| `parentSuppressed`      | `EXPLICIT_FALSE` | `STRUCTURALLY_NOT_APPLICABLE`, only after the complete pinned top-level supported structure passes                                        | Reject                   |
+| `suppressionConfigured` | `EXPLICIT_FALSE` | `INDEPENDENTLY_PROVEN_UNCONFIGURED`, only after the separate pinned configuration response proves empty inputs/current values and no skew | Reject                   |
+
+Parent evidence is conditional on the entire bounded 3–20-feature inventory being
+complete and pinned, every top-level feature having the supported standard type,
+btType and namespace, exactly empty subfeatures, accepted auxiliary state, explicit
+safe suppression and the existing return/rollback checks. No unsupported folder,
+container or custom feature is skipped or accepted. All features must finish
+validation before a baseline can return. The [current feature-list help](https://cad.onshape.com/help/Content/PartStudio/features_and_parts_lists.htm)
+documents that a suppressed folder can inactivate its contents; top-level display
+alone therefore is not the proof. The complete restricted inventory and exclusion
+of unsupported/container/custom structure are essential. No current provider
+evidence was found contradicting that restricted condition. A contradictory live
+case must stop validation and be reported, not accepted through this mode.
+
+Configured evidence is conditional on the separate configuration proof above and
+accepted null/ordinary auxiliary state. Configured/expression/parent-specialized
+states still reject even when arrays are empty, as do explicit conflicting flags.
+The target remains explicitly unsuppressed before dispatch; no omitted `suppressed`
+value is accepted. Every existing body, revision, serialization/library, inventory,
+approval/session/grant, claim/fence and original provider guard remains mandatory.
+Feature-state COMPLETE / exactly-empty UNAVAILABLE_EMPTY policy is unchanged.
+
+No provider dictionary gains false flags. Missing remains absent in captured
+definitions and raw inventory/configuration fingerprints. Baseline/proposal now
+retain per-feature parent/configured evidence-mode tuples, without defaults.
+Policy `terminal-fillet-4` requires fresh previews; old policy or missing-mode
+records cannot execute. Fresh pre-dispatch comparison binds raw presence, modes,
+identity, original approved marker and the entire baseline. Post-write fresh reads
+re-prove both independent conditions and explicitly compare these modes. Target
+suppression must now be true; missing optional flags need not appear. If they do
+appear, they are checked strictly. Any true/invalid flag, unsafe configuration or
+structure fails verification and retains uncertainty/fences without retry.
+An appearing explicit false flag can pass its local check but still changes the
+raw definition/mode, so unchanged-definition verification remains conservative.
+
+Public/internal safe meaning is “No parent-suppression condition was observed in
+the supported top-level structure” and “Forge verified the Part Studio has no
+active configuration inputs.” No claim of explicit false is made for omissions,
+and normal UI exposes no raw provider details or whole-model health claim.
+
+The optional configured-control document must be created manually by the human,
+outside Forge and separate from the plain disposable target. It is not a required
+gate for this implementation under the explicit instruction. Its live comparison
+status and current verification results are recorded after checks below. Codex
+does not create or mutate any CAD document. The next human step remains a
+diagnostics-only refresh with writes OFF, diagnostics ON and only sanitized output.
+**ZERO real CAD writes; Gate A UNPROVEN; Gate B UNPROVEN.**
+
+The additional plain-model probe was completed after the human selected the
+disposable target. Existing backend OAuth authorization and a fixed GET-only CAD
+transport were used. All three optional-field observations remained as above.
+The independent configuration GET reported **0 configuration parameters, 0 current
+configuration values, source equal to the pinned feature revision, skew false**.
+Both feature-read variants were complete with matching source and unchanged head;
+state entries remained zero. Nine CAD GETs were made, with no writes or permission
+changes. The guard proof passed and the next unchanged predicate rejected:
+
+```text
+safe_edit_reject reason=body_microversion_ambiguous position=None field=ambiguous expected=false actual_type=missing actual_boolean=None
+```
+
+This reports a missing required body marker flag; it does not establish actual
+geometric ambiguity. The live target **still is not eligible** and no candidate,
+proposal, claim or CAD write was created by this probe. That body contract needs a
+separate review. No body predicate was weakened to get through this gate.
+
+No separate manually prepared configured-control target was provided during this
+implementation. The optional live A/B configured-control comparison was not run;
+configuration safety relies on the current v17 endpoint semantics, pinned empty
+response and synthetic negative/transition tests, not the old v9 omission rule.
+This optional evidence remains available for later human validation.
+
+Verification: **105 new independent-guard evidence regressions**, **684 focused
+safe-edit/provider tests**, **1,372 backend tests** including ten real PostgreSQL
+cases (seven safe-edit), **642 frontend tests**, and **57 Modify/Phase 8 browser
+cases** (33 Modify, 24 Mounting Bracket across Chromium/Firefox/WebKit) passed.
+Format, lint, TypeScript, strict mypy (95 files), build, migration check (no new
+operations), dependency audits and whitespace/local Markdown links passed.
+Security regressions exercise absence preservation and reject False defaults on
+critical guard reads. No dependencies, lockfiles, migrations, environment files,
+OAuth app permissions or Phase 8 review changed. Secret/private-CAD-context scans
+passed. The running API remained writes OFF / diagnostics ON. All mutation tests
+used synthetic transports; the live probe performed GETs only.
+
+The exact next human step is CAD Inspector → Refresh CAD with writes OFF and diagnostics ON; collect only
+the safe metadata and the body-flag rejection for its separate official-contract
+review. Gate A and Gate B remain UNPROVEN; do not approve a mutation.
 
 `eligibility.py` now defines closed fixed reasons and bounded diagnostic metadata.
 Each deterministic rejection logs `safe_edit_reject` with reason, known field,

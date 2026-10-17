@@ -9,7 +9,9 @@ from pydantic import JsonValue, ValidationError
 
 from forge_api.cad_edits.domain import (
     Baseline,
+    ConfiguredSuppressionEvidence,
     FeatureStateEvidence,
+    ParentSuppressionEvidence,
     SuppressionAuxEvidence,
     fingerprint,
 )
@@ -122,6 +124,8 @@ def project_write_evidence(
         state_evidence = FeatureStateEvidence.COMPLETE
     definitions: list[dict[str, JsonValue]] = []
     suppression_evidence: list[SuppressionAuxEvidence] = []
+    parent_evidence: list[ParentSuppressionEvidence] = []
+    configured_evidence: list[ConfiguredSuppressionEvidence] = []
     for index, feature in enumerate(features):
         target, position = index == len(features) - 1, index + 1
         kind = feature.get("featureType")
@@ -158,19 +162,14 @@ def project_write_evidence(
             feature.get("subFeatures", MISSING),
             position,
         )
-        for field, reason in (
-            ("parentSuppressed", Reason.PARENT),
-            ("suppressionConfigured", Reason.CONFIGURED_SUPPRESSION),
-            ("returnAfterSubfeatures", Reason.RETURN),
-        ):
-            require(
-                feature.get(field) is False,
-                reason,
-                cast(FieldName, field),
-                "false",
-                feature.get(field, MISSING),
-                position,
-            )
+        require(
+            feature.get("returnAfterSubfeatures") is False,
+            Reason.RETURN,
+            "returnAfterSubfeatures",
+            "false",
+            feature.get("returnAfterSubfeatures", MISSING),
+            position,
+        )
         require(
             feature.get("suppressed") is (after and target),
             Reason.SUPPRESSED,
@@ -181,8 +180,8 @@ def project_write_evidence(
         )
         auxiliary = feature.get("suppressionState", MISSING)
         if auxiliary is None:
-            # Null contributes no positive evidence. All feature Booleans above
-            # must independently be explicit and safe; MISSING is not null.
+            # Null contributes no positive evidence. Suppressed remains explicit;
+            # separate evidence below establishes the two optional guards.
             suppression_evidence.append(SuppressionAuxEvidence.NULL_UNAVAILABLE)
         else:
             suppression = obj(
@@ -213,6 +212,42 @@ def project_write_evidence(
                 position,
             )
             suppression_evidence.append(SuppressionAuxEvidence.ORDINARY_OBJECT)
+        parent = feature.get("parentSuppressed", MISSING)
+        if parent is MISSING:
+            # Not a Boolean default. Completion/pinning, top-level membership,
+            # supported types/namespaces, no subfeatures, safe auxiliary state and
+            # explicit suppression are all required before a baseline can return.
+            parent_evidence.append(
+                ParentSuppressionEvidence.STRUCTURALLY_NOT_APPLICABLE
+            )
+        else:
+            require(
+                parent is False,
+                Reason.PARENT,
+                "parentSuppressed",
+                "false",
+                parent,
+                position,
+            )
+            parent_evidence.append(ParentSuppressionEvidence.EXPLICIT_FALSE)
+        configured = feature.get("suppressionConfigured", MISSING)
+        if configured is MISSING:
+            # The independent configuration response above must explicitly be
+            # empty, unskewed and pinned to the exact feature revision. Auxiliary
+            # configured/expression states have already rejected; no field added.
+            configured_evidence.append(
+                ConfiguredSuppressionEvidence.INDEPENDENTLY_PROVEN_UNCONFIGURED
+            )
+        else:
+            require(
+                configured is False,
+                Reason.CONFIGURED_SUPPRESSION,
+                "suppressionConfigured",
+                "false",
+                configured,
+                position,
+            )
+            configured_evidence.append(ConfiguredSuppressionEvidence.EXPLICIT_FALSE)
         if state_evidence is FeatureStateEvidence.COMPLETE:
             state = obj(
                 states[cast(str, ids[index])], Reason.STATE, "featureState", position
@@ -357,4 +392,6 @@ def project_write_evidence(
         suppressed=after,
         feature_state_evidence=state_evidence,
         suppression_aux_evidence=tuple(suppression_evidence),
+        parent_suppression_evidence=tuple(parent_evidence),
+        configured_suppression_evidence=tuple(configured_evidence),
     )

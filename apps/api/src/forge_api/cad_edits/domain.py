@@ -60,6 +60,16 @@ class SuppressionAuxEvidence(StrEnum):
     ORDINARY_OBJECT = "ORDINARY_OBJECT"
 
 
+class ParentSuppressionEvidence(StrEnum):
+    EXPLICIT_FALSE = "EXPLICIT_FALSE"
+    STRUCTURALLY_NOT_APPLICABLE = "STRUCTURALLY_NOT_APPLICABLE"
+
+
+class ConfiguredSuppressionEvidence(StrEnum):
+    EXPLICIT_FALSE = "EXPLICIT_FALSE"
+    INDEPENDENTLY_PROVEN_UNCONFIGURED = "INDEPENDENTLY_PROVEN_UNCONFIGURED"
+
+
 class Baseline(Closed):
     context: WorkspaceReference
     microversion: CadId
@@ -75,11 +85,17 @@ class Baseline(Closed):
     suppression_aux_evidence: Annotated[
         tuple[SuppressionAuxEvidence, ...], Field(min_length=3, max_length=20)
     ]
+    parent_suppression_evidence: Annotated[
+        tuple[ParentSuppressionEvidence, ...], Field(min_length=3, max_length=20)
+    ]
+    configured_suppression_evidence: Annotated[
+        tuple[ConfiguredSuppressionEvidence, ...], Field(min_length=3, max_length=20)
+    ]
 
 
 class Proposal(Closed):
     schema_version: Literal["forge-write-proposal-v1"] = "forge-write-proposal-v1"
-    policy_version: Literal["terminal-fillet-3"] = "terminal-fillet-3"
+    policy_version: Literal["terminal-fillet-4"] = "terminal-fillet-4"
     operation_type: Literal["suppress_terminal_fillet_v1"] = (
         "suppress_terminal_fillet_v1"
     )

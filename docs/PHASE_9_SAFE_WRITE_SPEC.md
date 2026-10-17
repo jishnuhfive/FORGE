@@ -9,7 +9,9 @@
 > in that runtime review:
 > exactly empty means unavailable, never OK/inactive; complete maps remain strict.
 > Its mandatory ordinary auxiliary-suppression object is also superseded by the
-> explicitly authorized null-unavailable mode, with all hard Booleans still required.
+> explicitly authorized null-unavailable mode. Optional parent/configured flags now
+> use explicit independent evidence modes rather than false defaults; suppressed
+> remains an explicit hard Boolean. See the current runtime policy for exact checks.
 > All other structural/body/version and approval/write safeguards remain required.
 > Phase 9A remains PREPARATION COMPLETE; Phase 8 remains
 > COMPLETE, HUMAN VALIDATED, and MERGED. No real OAuth app change or CAD-write

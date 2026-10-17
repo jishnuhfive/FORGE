@@ -14,10 +14,14 @@ No provider query, scope, host, write authority or FeatureScript capability expa
 The same current schema makes auxiliary `suppressionState` optional but does not
 define null semantics. The live target has null at all three positions, explicit
 `suppressed=false`, and missing parent/configured suppression Booleans. Explicit
-policy permits null to supply no evidence; required hard Booleans are not inferred.
+policy permits null to supply no evidence; omitted Booleans are not inferred.
 Strict supported base objects remain allowed; configured/expression/parent and
-unknown specializations reject. The live target therefore remains ineligible
-pending a separate hard-field review. No missing-to-null/false conversion is used.
+unknown specializations reject. The subsequent explicit guard policy uses a complete
+supported top-level structure for missing parent evidence and the independent pinned
+configuration endpoint for missing configured evidence. Both arrays must be present
+and empty, with matching source and no skew; explicit conflicts still reject.
+No missing-to-null/false conversion is used. The older v9 omitted-default guidance
+is not the sole justification. Raw fields and evidence modes remain fingerprinted.
 
 ## Phase 2 verification record — 2026-10-04
 

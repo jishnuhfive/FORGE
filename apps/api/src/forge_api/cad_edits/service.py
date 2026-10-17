@@ -300,6 +300,9 @@ def approve(
             or after.feature_id != baseline.feature_id
             or after.microversion != marker
             or after.definitions != baseline.definitions
+            or after.parent_suppression_evidence != baseline.parent_suppression_evidence
+            or after.configured_suppression_evidence
+            != baseline.configured_suppression_evidence
             or monotonic() - started > 30
         ):
             raise EditError("verification_failed")

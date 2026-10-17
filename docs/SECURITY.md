@@ -473,13 +473,17 @@ Provider atomic stale rejection, one-use approval, fences and no-retry remain in
 This narrower supported-result proof does not establish whole-model feature health.
 
 Auxiliary suppression state has a separate explicit policy: exactly null contributes
-no evidence and does not veto explicit safe hard Booleans. It is never converted to
-false, inactivity or an ordinary object. Every feature still requires explicit
-suppressed/parentSuppressed/suppressionConfigured values; missing flags reject.
+no evidence and does not veto other operation-specific proof. It is never converted
+to false, inactivity or an ordinary object. Suppressed must remain explicit.
+Optional parent/configured flags are either explicit false or independently proven
+through the complete restricted top-level structure and separate pinned empty
+configuration response respectively. True/null/wrong-type values reject, and
+missing is never rewritten as false. The per-feature modes are immutable/digest-
+bound and checked again before/after dispatch. Unsafe proof changes retain fences.
 Missing auxiliary property, malformed/base-invalid, specialized configured/expression/
 parent or unknown objects reject. Modes and raw definitions remain bound; unexpected
-post-write auxiliary changes retain uncertainty/fences. The live missing parent and
-configured flags remain unresolved; no permission or broader write authority changes.
+post-write auxiliary changes retain uncertainty/fences. Omitted-field acceptance
+does not expand permission or broader write authority and asserts no model health.
 
 The review specifies exact stored fields, 120-second approval/15-minute operational
 retention, 60-second cleanup, persistent deny fences, safe audits and backup/restore
