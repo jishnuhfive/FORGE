@@ -11,7 +11,7 @@ from forge_api.integrations.onshape.client import bounded_json
 from .diagnostics import Reason
 from .models import AiError, ModelAnswer, ToolArguments
 from .output import parse_model_answer
-from .policy import POLICY
+from .policy import FIRST_ROUND, POLICY
 from .provider import AgentTask, task_messages
 from .transport import GROQ_ENDPOINT, post_json
 
@@ -100,10 +100,16 @@ class GroqProvider:
         self._started = True
         messages = task_messages(task)
         messages.insert(0, {"role": "system", "content": POLICY})
+        # Only this round's request carries the first-round instruction; the
+        # continuation below keeps the plain policy for the answer round.
+        inspection_messages = [
+            {"role": "system", "content": POLICY + FIRST_ROUND},
+            *messages[1:],
+        ]
         result = message(
             await self._request(
                 {
-                    "messages": messages,
+                    "messages": inspection_messages,
                     "tools": [TOOL],
                     "parallel_tool_calls": False,
                     "tool_choice": {
