@@ -241,7 +241,8 @@ enterprise support and multi-stack routing have not been tested or implemented.
 Protect backups, use a least-privilege database role, and apply explicit retention
 before public deployment: OAuth attempts one day; expired/revoked sessions 30 days;
 security audit events 90 days, subject to the deployment's approved requirements.
-No automated retention scheduler or account-erasure endpoint is implemented.
+No auth-record retention scheduler or account-erasure endpoint is implemented.
+Phase 9B has a separate operational proposal cleanup scheduler described below.
 Operator-assisted account deletion must remove sessions, grants, preferences and
 identity with a documented audit/backup policy. The UI does not pretend otherwise.
 
@@ -250,3 +251,24 @@ manager deployment, restore tests, monitoring and account lifecycle operations
 remain launch requirements. Ingress and APM must omit query strings, headers,
 request bodies and response bodies for auth routes. Library HTTP/access logs are
 suppressed by the app; deployment-side access logs need separate configuration.
+
+## Phase 9B authorization coordination
+
+The default-OFF [safe-edit runtime](PHASE_9_REVIEW.md) requires known OAuth2Read and
+OAuth2Write plus the current connected grant. No external app permission changed.
+Unknown scope/bitmask fails closed; refresh is not expanded consent. Human owners
+must explicitly add only write permission and reauthorize before controlled tests.
+
+PostgreSQL transaction user advisory locks coordinate callback grant replacement,
+refresh, session logout/disconnect and final CAD dispatch. Acquire advisory before
+user-row locks (including foreign-key key-share dependencies), then session/grant
+and operational locks as needed. Pending candidates/proposals are invalidated by
+generation changes, logout and disconnect. A dispatch holding the lock may finish
+before a concurrent logout; a committed logout prevents subsequent dispatch.
+The existing read-only AI/inspector/Learn authorization remains intact.
+
+The additive migration preserves existing auth tables. Ephemeral proposal records
+and persistent uncertainty fences are not account history. Operator-assisted
+account deletion must also review these records and unresolved operations; never
+remove a fence to bypass an uncertain upstream mutation. Backup restores require
+writes OFF and deliberate reconciliation before reactivation.

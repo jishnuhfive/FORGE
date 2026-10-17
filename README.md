@@ -2,12 +2,13 @@
 
 AI engineering inside Onshape.
 
-Forge is an engineering tutor and read-only CAD assistant embedded in Onshape's
-right panel. Learners perform the CAD operations while Forge helps explain what
-to do, why it matters and how to recover when stuck. Approval-bound design
-execution and deterministic checks of supported constraints remain planned.
+Forge is an engineering tutor and CAD assistant embedded in Onshape's right
+panel. Learners perform lesson CAD operations while Forge explains what to do,
+why it matters and how to recover. Deterministic lesson checks report evidence
+with explicit limits. Modify implements one explicitly approved Fillet suppression,
+disabled by default. Gate A is human-proven; full provider conformance remains pending.
 
-**Current status: Phase 7 Learning Mode foundation approved after successful real Onshape human validation.**
+**Current status: Phase 7 COMPLETE; Phase 8 COMPLETE, HUMAN VALIDATED, and MERGED; Phase 9A PREPARATION COMPLETE; Phase 9B IMPLEMENTED; Gate A PROVEN; Gate B provider-audit confirmation deferred; Phase 10 IMPLEMENTED and MERGED, human validation pending; Phase 11 NOT STARTED.**
 Phase 6.5 remains visually approved after two human-review passes.
 The product UI and canonical design system are frozen: Obsidian, Arc Blue, the
 Oblique Plane identity, restrained functional Liquid Glass and answer-first
@@ -19,16 +20,17 @@ Real read-only Groq AI was verified inside Onshape during Phase 6.
 Phases 0–5 are preserved, including real OAuth, validated right-panel context and
 selection, four backend read operations and the CAD Inspector verified against a
 real Part Studio. The Design composer now offers read-only AI analysis inside
-Onshape after an explicit send. No CAD changes or engineering validation execute.
+Onshape after an explicit send. Design remains read-only; engineering validation is not claimed.
 
 Forge uses a provider-independent backend agent with Groq / `openai/gpt-oss-120b`
 by default. OpenAI Responses / `gpt-6.1-sol` remains an explicit optional provider.
-Both use one no-argument inspection tool, bounded requests and normalized progress.
+Both expose one no-argument inspection tool, bounded requests and normalized progress.
+Groq can answer general chat without reading CAD; model-specific answers still require inspection.
 Groq separates tool calling from strict final JSON-schema output into two rounds.
-Explicit CAD modification requests use a deterministic read-only capability path:
+Explicit CAD modification requests in Design use a deterministic read-only capability path:
 the same authorized CAD inspection, zero provider calls, and no inferred edit target.
 No automatic paid-provider fallback exists; shared free capacity is limited.
-It reads fresh Phase 5 evidence for each send and preserves unknown units, missing
+When inspection is required, it reads fresh Phase 5 evidence and preserves unknown units, missing
 mass, incomplete evidence and unknown selection ownership. Verified answer facts
 are selected from server-authored evidence statements. Optional next steps use reviewed server wording and remain explicitly unverified.
 Broad inventory answers are concise deterministic presentations of captured evidence;
@@ -41,17 +43,45 @@ OpenAI uses `store:false`. Neither configuration claims zero retention by defaul
 localStorage conversation persistence or content logs exist.
 See [Phase 6 review](docs/PHASE_6_REVIEW.md) for the complete boundary, checks and
 the final user-reported live results, full quality gate and local Groq setup.
-Phase 7 adds authored learning with no provider or CAD requests. Phase 8 (implemented, awaiting human validation) adds the Mounting Bracket guided project and an explicit, deterministic **Check my step**; Phase 9 is not started.
+Phase 7 provides authored learning without provider or CAD requests. Phase 8 is
+**COMPLETE, HUMAN VALIDATED, and MERGED** into main at `81199ea`; it adds the
+Mounting Bracket guided project and explicit deterministic **Check my step** from
+fresh CAD evidence. Phase 9A is **PREPARATION COMPLETE**. Phase 9B implements
+`suppress_terminal_fillet_v1` behind backend `FORGE_CAD_WRITES_ENABLED` (default OFF):
+proposal → explicit approval → fresh state/version check → guarded write → fresh
+post-write verification. The first human-approved real suppression entered uncertainty;
+Forge made no success claim and did not retry. After deliberate operator recovery,
+a fresh approved suppression reached verified success from fresh evidence: Gate A
+is PROVEN. Gate B reached the pause; the human advanced the workspace and stale
+suppression did not apply. Provider-side rejection audit confirmation was deferred,
+so full provider conformance is not claimed. Writes returned OFF.
+See the [Phase 9 runtime review](docs/PHASE_9_REVIEW.md) for exact human instructions, the
+[Phase 8 review](docs/PHASE_8_REVIEW.md),
+[safe-write specification](docs/PHASE_9_SAFE_WRITE_SPEC.md) and
+[preparation review](docs/PHASE_9_PREP_REVIEW.md). Phase 10 was implemented and
+merged to main separately; this branch now integrates that history and its
+investigation/transfer learning. Automated validation is complete; real-Onshape
+human validation remains pending. Phase 11 is **NOT STARTED**.
 See [the Phase 7 review](docs/PHASE_7_REVIEW.md) for lesson architecture and human acceptance.
 This is not a publicly deployed production service.
 
 ## Learning Mode
 
-Choose Learn, select your CAD experience and goal, then begin **Sketch to solid**.
-Read one step at a time, open Why and vocabulary, and deliberately request a
-conceptual hint, tool-specific hint or full explanation. Mark steps done yourself;
-the completion summary reports only observed interactions, never mastery or CAD
-correctness. The lesson works without an AI provider or model.
+Choose Learn and select your CAD experience and goal. Fundamentals opens the
+**Sketch to solid** sample; the guided-project goal opens **Mounting Bracket**.
+Both offer authored instructions, Why, vocabulary and deliberate progressive hints,
+without AI provider calls. The bracket's explicit **Check my step** retrieves fresh
+CAD evidence and computes PASS / FAIL / WARNING / UNVERIFIED deterministically.
+Feature names do not determine results; the supported single-L-profile alternative
+is accepted. A later non-verified result revokes the active step's Forge verification,
+and a later verified result restores it. Learner-marked completion stays separate.
+Dimensions, units, hole placement, fit and strength are not certified.
+
+The user confirms final human validation and merge to main at
+`81199ea95df04b34e6065441cad87d60b637dcf2`. The unchanged
+[Phase 8 review](docs/PHASE_8_REVIEW.md) preserves the original implementation and
+validation observations; its provisional status wording is superseded by this
+confirmation.
 
 Learning stays in panel memory across modes/settings/history. Reset, reload, panel
 destruction, sign-out or a genuine session/connection teardown clears it. No learning
@@ -151,8 +181,10 @@ package-lock.json        Reproducible JavaScript dependency graph
 `GET /health` reports process liveness only. Authentication readiness is distinct.
 The workspace displays the last verified Onshape authorization status; its Check
 connection action verifies identity, without accessing CAD. Standalone Design prompts remain local drafts; inside Onshape, explicit sends run
-read-only AI. Learn offers a three-step Sketch to solid sample, progressive hints and vocabulary.
-Progress is learner-reported; no lesson model checking runs. See [UI architecture](docs/UI.md).
+read-only AI. Learn offers Sketch to solid and the Mounting Bracket guided project, with
+progressive hints and vocabulary.
+Learner progress and deterministic Forge verification are distinct. See
+[UI architecture](docs/UI.md).
 
 Provider credentials stay backend-only. Sessions, CSRF, token encryption and audit
 persistence are implemented. Real OAuth login was manually verified by the human. Browser-wide iframe compatibility, managed hosting,
@@ -179,7 +211,7 @@ with real account credentials. Existing Phase 0 and Phase 1 commits remain intac
 Phase 3 extension registration, exact local URLs, source-contract gap and manual
 acceptance steps: [Onshape extension](docs/ONSHAPE_EXTENSION.md).
 
-Phase 10 (merged to main before Phase 9; not yet human-validated in real Onshape) adds mistake
+Phase 10 (merged to main before Phase 9 and now integrated here; real-Onshape human validation pending) adds mistake
 investigation, prediction prompts, explainable guidance fading and an optional transfer challenge to
 the Mounting Bracket. It is read-only and session-local. See
 [PHASE_10_REVIEW.md](docs/PHASE_10_REVIEW.md).

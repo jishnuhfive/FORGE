@@ -74,4 +74,4 @@ dev-web-https:
 	npm run dev --workspace @forge/web -- --mode local-https
 
 test-postgres:
-	cd apps/api && uv run --frozen pytest tests/test_postgres.py
+	cd apps/api && uv run --frozen pytest tests/test_postgres.py tests/test_safe_edit_postgres.py

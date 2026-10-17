@@ -45,7 +45,9 @@ def test_context_ids_cannot_redirect_an_authenticated_account_action(
     assert harness.client.get("/api/me").json()["status"] == "authenticated"
 
 
-def test_only_allowlisted_auth_and_read_routes_exist(harness: Harness) -> None:
+def test_only_allowlisted_auth_read_and_single_edit_routes_exist(
+    harness: Harness,
+) -> None:
     paths = harness.client.get("/openapi.json").json()["paths"]
     assert set(paths) == {
         "/health",
@@ -59,8 +61,16 @@ def test_only_allowlisted_auth_and_read_routes_exist(harness: Harness) -> None:
         "/api/onshape/part-studio/inspector",
         "/api/ai/ask",
         "/api/learning/check-step",
+        "/api/modify/capabilities",
+        "/api/modify/targets",
+        "/api/modify/proposals",
+        "/api/modify/proposals/{handle}",
+        "/api/modify/proposals/{handle}/{action}",
     }
     assert set(paths["/api/onshape/part-studio/snapshot"]) == {"get"}
     assert set(paths["/api/onshape/part-studio/inspector"]) == {"get"}
     assert set(paths["/api/ai/ask"]) == {"post"}
     assert set(paths["/api/learning/check-step"]) == {"post"}
+
+    assert set(paths["/api/modify/proposals/{handle}/{action}"]) == {"post"}
+    assert set(paths["/api/modify/proposals/{handle}"]) == {"get"}

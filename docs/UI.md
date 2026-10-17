@@ -1,4 +1,4 @@
-# UI architecture through Phase 7 learning foundation
+# UI architecture through Phase 9B controlled safe editing
 
 ## Ownership
 
@@ -76,14 +76,13 @@ rate limit, cancellation and unexpected failure.
 - Approve and Build advances only to the sample progress view. States are selected
   manually, without simulated timed execution. The sample report is independently
   selectable even after cancellation; it is not a result of that preview run.
-- Modify uses a fixed 4 → 9 mm thickness example, explicitly independent of arbitrary
+- The DEV Modify fixture uses a fixed 4 → 9 mm thickness example, explicitly independent of arbitrary
   prompt text. Only the one-face sample permits Apply. Selection changes discard
   proposals; Apply records only a local preview acknowledgement.
 - Learn uses an authored three-step fundamentals lesson with short experience/goal
   setup, Why/vocabulary disclosures and an explicitly requested three-level hint
-  ladder. Mark step done is learner-reported progress. There is no Check my step
-  action or result badge; model checking is described as available in supported
-  guided projects. The completion summary records interactions only.
+  ladder. Mark step done is learner-reported progress. The fundamentals sample has no Check my step action; the Mounting Bracket
+  guided project now provides the explicit deterministic checker described below. The completion summary records interactions only.
 - History receives typed arrays; normal history is empty. All fixture timelines,
   operations and reports are explicitly labeled sample data.
 
@@ -91,13 +90,14 @@ Browser storage contains only versioned preferences: theme, future display units
 onboarding completion, printer name, bounded printer dimensions and material text.
 Dimension inputs use mm and accept integer values from 1 to 2000; this is input
 hygiene, not a verified manufacturing capability. Sample records retain explicit
-units. Prompts, proposals, brief edits and reading progress are never persisted.
+units. Prompts, brief edits and reading progress are never persisted in browser storage.
+Phase 9B proposals use short-lived backend operational storage described below.
 The reader reconstructs an allowlisted record and rejects invalid stored values.
 Blocked storage preserves usable session state and explains the limitation.
 
 Phase 2 established backend OAuth and account persistence. Phase 4–6 subsequently
-added real read-only CAD and explicit hosted AI requests. There are no real CAD
-approval records, engineering validations, CAD writes or persisted private model reasoning.
+added real read-only CAD and explicit hosted AI requests. Phase 9B separately adds default-OFF guarded suppression and ephemeral approval
+records. No engineering certification or private model reasoning is persisted.
 
 The gate supports checking session, signed out, authorizing, denied, invalid/expired
 state, session expired, network failure and unconfigured deployment. Account settings
@@ -167,7 +167,7 @@ visibility or Refresh CAD. At most three exchanges remain in memory. Exact conte
 and session keys clear old requests/conversation; ordinary same-context tab
 switching preserves them. No localStorage, PostgreSQL conversation or provider
 Conversation objects are used. Standalone local drafts and all DEV previews remain
-separate from the live agent. Modify execution and CAD writes remain deferred; authored learning is described below.
+separate from the live agent. The separate default-OFF Modify workflow is described below; Design stays read-only.
 See [AI_AGENT.md](AI_AGENT.md) for the server boundary and privacy caveats.
 
 ### Phase 6 live-response repair
@@ -203,11 +203,10 @@ choices remain honored. The optional allowlisted `reduceTransparency` boolean is
 local display preference only. OS reduced motion/transparency, increased contrast
 and forced colors also adapt the shared material.
 
-The shell is a single compact panel at every width: brand, one read-only state,
+The shell is a single compact panel at every width: brand, one capability state,
 context/inspector action and segmented navigation. Marketing rails, concept artwork
 and repeated analysis badges have been removed from the working workspace. Saved
-versions remain visibly distinct and do not enable analysis. Modify says it is
-planned; Learn remains an authored local lesson.
+versions remain visibly distinct and do not enable analysis. Modify implements the default-OFF safe-write workflow below; Learn remains student-operated.
 
 `GlassSurface`, `GlassDefinitions` and `ForgeMark` live in the shared design system.
 One CSS material supplies bounded blur, edge-only SVG displacement and event-driven
@@ -262,7 +261,7 @@ Forced-color mode maps semantic colors to system Canvas/CanvasText/LinkText and
 ButtonFace/ButtonText, so text and control contrast follow the user’s system palette.
 This adaptation does not change the approved normal appearance.
 
-## Phase 7 learning interaction and lifecycle
+## Phase 7 fundamentals-sample interaction and lifecycle
 
 `learning/` separates lesson definitions and their runtime validation, pure session
 transitions, selectors, provider ownership and small setup/guidance/progress views.
@@ -274,7 +273,8 @@ progress. Reload, iframe destruction and a new panel start at learner setup. Ord
 focus, visibility, selection and unchanged `/api/me` checks preserve it without reads.
 
 Experience changes introduction wording; the goal frames the same available sample.
-The guided-project choice explicitly says this sample prepares for future projects.
+The guided-project choice now opens the Phase 8 Mounting Bracket lesson described
+below; the fundamentals goal retains this sample.
 No hidden mastery adaptation is inferred. Each hint request replaces the prior level
 with stronger help; access has no delay or failure prerequisite. After the final
 reveal the same focusable control says Full explanation shown and is aria-disabled.
@@ -290,17 +290,17 @@ Explicit introduction/step/completion transitions focus the heading; entering Le
 through tab navigation preserves tab focus. Reduced motion/transparency and forced
 colors inherit the design system. Six widths are covered by browser tests.
 
-Only session observations are counted: marked steps, requested hint levels, distinct
+In the fundamentals sample, only session observations are counted: marked steps, requested hint levels, distinct
 term IDs opened, and completed steps with no hints. No percentages, grades, claims
 of mastery or verified CAD outcomes appear. Lesson state never enters preferences,
 localStorage/sessionStorage, database, analytics or logs. No AI or CAD request is
-made by any learning action. Existing auth status refresh behavior is unchanged.
+made by a fundamentals-sample action; bracket checking is explicit as described below. Existing auth status refresh behavior is unchanged.
 
 UI Lab → Learn mode adds deterministic representative states, including safe
 unavailable/invalid/load-failure recovery. Those selectors/fixtures are DEV-only.
 See [PHASE_7_REVIEW.md](PHASE_7_REVIEW.md) for verification and human review steps.
 
-## Phase 8 Check my step
+## Phase 8 Check my step — complete, human validated and merged
 
 A functional control inside the active bracket step (never on the sample lesson or the review
 step). States: idle, "Checking current model…" (single genuine request, no fake stages),
@@ -308,6 +308,39 @@ verified / not yet / can't fully verify, error and cooldown. Status is shown wit
 a word, never color alone, through the existing StatusBadge tokens. One polite status region;
 evidence is a native disclosure. Learner "Mark step done" stays separate from "Steps Forge
 verified". A failed check never reveals a hint.
+
+The Mounting Bracket guided project preserves PASS / FAIL / WARNING / UNVERIFIED
+findings from fresh CAD evidence, feature-name independence and the single-L-profile
+alternative. A later non-verified check revokes that active step's Forge verification;
+a later verified check restores it. Within Learn, the student performs all CAD edits.
+The user confirms final human validation and merge at `81199ea`; the unchanged
+[Phase 8 review](PHASE_8_REVIEW.md) preserves its earlier validation record.
+
+## Phase 9B Modify
+
+[Runtime review](PHASE_9_REVIEW.md) describes the implemented first-write workflow.
+Modify offers a bounded intent composer, fresh server inventory, separate explicit
+target selection, then an Active → Suppressed semantic preview with effect, limits,
+expiry, Cancel and **Approve change**. The quiet solid reading layer and existing
+controls remain; no new application, approval modal stack or generic Undo exists.
+The preview states that Forge found one solid-body result and an unsuppressed final
+Fillet; overall feature health is not established. A present empty provider state map
+is unavailable evidence, not inferred health/activity. Success confirms only that
+the selected Fillet is now suppressed after the required fresh verification.
+
+Checking, executing and verifying use real server progress announcements. Success
+requires fresh deterministic verification; stale, expired, disabled, permission,
+provider and uncertain outcomes have distinct text. Uncertainty offers read-only
+status/inspection and manual recovery. Context loss removes the preview. Buttons
+prevent duplicate actions; server single-use claims remain authoritative.
+The shell says Approval required only for available Modify; other modes stay Read-only.
+
+Default OFF clearly says safe CAD editing is disabled, without an executable preview.
+Known missing write consent requests permission; unknown authorization fails closed.
+Keyboard, live announcements, forced colors/reduced motion and 320px are covered in
+synthetic browser tests. Gate A is human-proven with fresh verified success.
+Gate B showed no stale suppression after the human changed CAD during the pause;
+provider-side rejection audit confirmation remains deferred. Writes returned OFF.
 
 ## Phase 10 investigation and transfer UI
 
@@ -317,3 +350,9 @@ a labeled try-next suggestion, and a "Verified after re-check" status after an e
 second hint system. Reduced and independent guidance are explained in the panel and never hide
 observations or caveats. The transfer challenge reuses the step view with its own progress and a separate
 "Restart challenge". Tested at 320, 360, 380, 400, 480 and 640 px, with keyboard, reduced motion and axe.
+
+A fresh supported PASS resolves an investigation; a later FAIL, WARNING or inability
+to verify reopens it. Predictions never alter the checker result. Restart challenge
+preserves guided lesson progress; Reset lesson clears both. Session counts and
+challenge completion carry no grades, mastery percentages or safety claim. Learn
+remains read-only and student-operated, independently of Modify availability.

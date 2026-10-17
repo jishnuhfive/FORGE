@@ -13,12 +13,14 @@ export function Shell({
   onOnboarding,
   onNotify,
   brandMark,
+  capability = 'Read-only',
 }: {
   children: ReactNode;
   context?: Context;
   onOnboarding: () => void;
   onNotify: (message: string) => void;
   brandMark?: ReactNode;
+  capability?: 'Read-only' | 'Approval required';
 }) {
   const auth = useAuth();
   const [contextOpen, setContextOpen] = useState(false);
@@ -33,7 +35,7 @@ export function Shell({
         <div className="header-actions">
           <span className="capability glass-action">
             <Eye size={12} aria-hidden="true" />
-            Read-only
+            {capability}
           </span>
           <Dropdown
             label="Workspace menu"

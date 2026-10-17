@@ -421,17 +421,111 @@ Closed bounded authored lesson validation precedes use. Content is plain React t
 not HTML, executable rules or React-node payloads. Future check metadata only names
 supported requirement shapes; it cannot execute code or report a result. Marking a
 step done explicitly records learner self-report, never CAD validation. Hints are
-reviewed local content. Learning invokes no AI endpoint, Onshape endpoint, background
+reviewed local content. The fundamentals sample invokes no AI endpoint, Onshape endpoint, background
 polling, telemetry or browser-storage operation. The existing `/api/me` lifecycle is
 unchanged. No credentials enter lesson data or presentation. OAuth scopes, CSRF,
 backend evidence and the read-only tool boundary remain unchanged. Phase 8 checking
-and every CAD write still require separate authorization and independent controls.
+now uses the separately authorized controls below; CAD writes remain future work
+requiring explicit authorization and independent controls.
 
-## Phase 8 Check my step
+## Phase 8 Check my step — complete, human validated and merged
 
 Explicit, authenticated POST with exact Origin and session-bound CSRF; strict closed request
 schema (extra fields rejected, errors never echo identifiers); 4 KiB body bound. Reuses
 `acquire_bound`, so read-permission, grant-state and session-revocation checks and the
 per-user gate apply. Only the four existing GET reads can reach Onshape; there is no write,
 FeatureScript or scope change. Status is computed server-side from evidence; unknown evidence
-is UNVERIFIED. No lesson state, history or results are stored.
+is UNVERIFIED. No lesson state, history or results are stored on the server.
+
+The Mounting Bracket checker owns PASS / FAIL / WARNING / UNVERIFIED, uses fresh
+CAD evidence and does not trust feature names or model judgment. The supported
+single-L-profile alternative and verification revocation/restoration remain intact.
+Results are memory-only in the panel, separate from learner-marked completion.
+The user confirms final validation and merge at `81199ea`; the original
+[Phase 8 review](PHASE_8_REVIEW.md) is retained unchanged, including its earlier
+provisional wording, which this confirmation supersedes.
+
+## Phase 9B safe-write controls
+
+[Runtime review and threat boundary](PHASE_9_REVIEW.md): implemented and automated
+tested, with Gate A human-proven and Gate B provider-audit confirmation deferred. Only
+`suppress_terminal_fillet_v1` is allowed. Backend flag defaults OFF. Live OAuth app
+permissions remain unchanged; known read/write consent is required before execution.
+Unknown scope/bitmask fails closed; refresh cannot imply expanded consent.
+
+Strict opaque candidates and immutable 120-second proposals bind user/session/grant,
+context/feature, baseline microversion and digest. Same-origin JSON, exact Origin or
+Referer fallback, session CSRF, bounded parsing and closed schemas protect all Modify
+actions. Browser/AI cannot provide target IDs, payloads, hosts, FeatureScript or tokens.
+PostgreSQL atomic claims and persistent fences commit before dispatch; shared user →
+session → grant locking coordinates auth lifecycle and dispatch. Stale approvals
+reject; the original provider microversion guard is mandatory. One POST only, no retry.
+Fresh deterministic verification is required for success. Post-dispatch ambiguity
+retains the fence; reconciliation is read-only and manual recovery remains deliberate.
+
+The explicitly revised terminal-suppression policy distinguishes complete exact-key
+state evidence from a present, exactly empty map. Empty means unavailable, with no
+fabricated OK status or inactive Boolean; every hard suppression/structural/body/version
+check remains mandatory. Missing, partial, extra-key or malformed maps reject.
+The accepted mode is digest-bound; a fresh pre-dispatch change invalidates approval.
+A nonempty after-map is strict, and an empty after-map never implies inactive=true.
+Provider atomic stale rejection, one-use approval, fences and no-retry remain intact.
+This narrower supported-result proof does not establish whole-model feature health.
+
+Auxiliary suppression state has a separate explicit policy: exactly null contributes
+no evidence and does not veto other operation-specific proof. It is never converted
+to false, inactivity or an ordinary object. Suppressed must remain explicit.
+Optional parent/configured flags are either explicit false or independently proven
+through the complete restricted top-level structure and separate pinned empty
+configuration response respectively. True/null/wrong-type values reject, and
+missing is never rewritten as false. The per-feature modes are immutable/digest-
+bound and checked again before/after dispatch. Unsafe proof changes retain fences.
+Missing auxiliary property, malformed/base-invalid, specialized configured/expression/
+parent or unknown objects reject. Modes and raw definitions remain bound; unexpected
+post-write auxiliary changes retain uncertainty/fences. Omitted-field acceptance
+does not expand permission or broader write authority and asserts no model health.
+
+The body marker has a required explicit evidence mode, bound to the proposal digest
+and fresh baseline. Both flags must be explicitly false (`EXPLICIT_CLEAN_FLAGS`)
+or both absent (`EXACT_PINNED_ID_FLAGS_UNAVAILABLE`). The latter requires the fixed
+client's exact microversion-pinned request, a matching explicit returned `theId`
+and successful head bracketing. It does not assert either flag is false. Missing
+ID, mismatched ID, null/true/wrong-type flags and mixed shapes reject. Exactly one
+SOLID and `NO_ERROR` remain mandatory. Post-write evidence must identify the exact
+new acknowledged microversion and re-prove an accepted mode; unsafe evidence
+retains the fence and execution uncertainty with no retry. Older policy/missing-mode
+records cannot execute. No mutation transport or OAuth permission changes.
+
+The review specifies exact stored fields, 120-second approval/15-minute operational
+retention, 60-second cleanup, persistent deny fences, safe audits and backup/restore
+implications. No prompts, raw provider CAD payloads, tokens, hidden reasoning, history
+or analytics are added. This is not a security certification. Real suppression and
+atomic stale rejection remain separately evaluated human conformance gates. Gate A
+is human-proven; Gate B showed the expected absence of stale suppression, with
+provider-side rejection audit confirmation deferred. Writes returned OFF.
+
+The first real write entered uncertainty correctly; see the current runtime
+review for reconstructed evidence and limits. Policy 6 captures full returned
+Sketch definitions for write verification within unchanged byte/structure/time
+bounds. No additional field is normalized away. Fixed verification failure stages
+and all failed final comparisons use the existing audit table without arbitrary
+metadata, provider responses, private identities/markers or exception text. DEV
+fixed-code logs and a writes-OFF internal GET-only helper add no public debug
+endpoint, CAD write authority or fence-release capability. Gate A is now human-proven;
+Gate B provider-audit confirmation remains deferred. Normal operational-row expiry
+still never releases a fence.
+
+Separately authorized operator recovery uses the internal `cad_edits/dev_recovery.py`
+helper, outside browser/AI/API authority. It requires development mode, writes OFF,
+an exact trusted private reference and an operator attestation of independently
+established settlement. Under the shared user → original session → grant → fence
+lock order, it requires one precise orphan, elapsed retention, no operational
+records and a unique ordered claim/dispatch/acknowledgement/uncertainty audit window.
+It deletes only the exact user/workspace/record match and atomically records fixed
+`write_operator_recovery` / `local_only`; audit failure rolls back deletion.
+An expired original session establishes identity only and is never revived.
+There is no public endpoint, user control, bulk clearing, provider transport or
+production-mode recovery. Normal fence semantics remain unchanged. The first
+separately authorized recovery cleared one orphan with ZERO Onshape contact and
+writes OFF; neither conformance gate was proven by that administration. The later
+Gate A proof is a separate human-approved CAD trial, not a recovery outcome.

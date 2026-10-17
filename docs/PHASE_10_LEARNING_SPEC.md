@@ -1,8 +1,8 @@
 # Phase 10 learning specification — Mistake investigation, prediction and transfer
 
 Design reference for the tutoring behavior added on top of Phase 8. Everything here is authored,
-deterministic and session-local. No AI provider is involved, no CAD write exists, and no Phase 9
-code or interface is used.
+deterministic and session-local. No AI provider is involved and Learn performs no CAD
+write or Phase 9 Modify call. The separate narrow Modify capability is independent.
 
 ## 1. Investigation model
 

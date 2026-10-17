@@ -1,6 +1,6 @@
 # Phase 10 — Mistake investigation, prediction and independent transfer learning
 
-**Status: implemented and automatically verified; merged to `main` at the team's request BEFORE Phase 9 and BEFORE real Onshape human validation.** The 22-step validation plan below has not been run. Phase 9 (first safe CAD write) is still being built on its own branch and will need to merge on top of this. Phase 11 is not started. Design reference: [PHASE_10_LEARNING_SPEC.md](PHASE_10_LEARNING_SPEC.md).
+**Status: implemented, automatically verified and merged to `main`; now integrated into `phase9/safe-cad-edit-prep`.** Phase 10 was merged before Phase 9 and before its real Onshape human validation. The 22-step Phase 10 human validation plan below has not been recorded as completed. Phase 9 Gate A is proven; Gate B provider-side rejection audit confirmation is deferred. Phase 11 is NOT STARTED. Design reference: [PHASE_10_LEARNING_SPEC.md](PHASE_10_LEARNING_SPEC.md).
 
 ## Included AI chat fixes (separate from Phase 10 itself)
 
@@ -59,7 +59,8 @@ rejected by stable step ids (a prediction or result for another step changes not
 
 Session memory only; no database, localStorage, analytics or persisted predictions. No AI call is made by
 checking, predicting, revealing or re-checking; the core flow needs no provider and the checker remains
-authoritative. No CAD write, FeatureScript, scope change or new endpoint.
+authoritative. Phase 10 adds no CAD write, FeatureScript, scope change or new endpoint. The separate
+Phase 9 Modify operation is independent and is not called by Learn.
 
 ## Verification (Windows, this machine)
 
@@ -80,6 +81,17 @@ Known pre-existing Windows items (also on clean `main`): `test_dev_key.py` (POSI
 `test_cad_read.py` (2 collection errors from an oversized test id), occasional 5 s jsdom timeouts under
 load, and Prettier reporting ~50 untouched files because of CRLF checkouts.
 
+## Integrated Phase 9 branch verification — macOS
+
+The reconciled branch passed 712 frontend tests, 1,702 backend tests including all
+11 isolated PostgreSQL cases, and all 555 Playwright cases across three browsers
+with no retries or failures. This includes all 36 investigation/transfer, 30 learning
+foundation, 24 bracket and 33 Modify browser cases. Format/lint, TypeScript, strict
+mypy, build, migration drift, Compose, dependency audits and docs/privacy checks
+passed. No live Onshape request or mutation was made by this integration.
+The historical Windows results above remain recorded; this integrated macOS run
+does not establish the still-pending 22-step real-Onshape human validation plan.
+
 ## Known limitations
 
 1. Content is authored for five Mounting Bracket cases plus four challenge cases; other lessons have none.
@@ -95,7 +107,7 @@ Files most likely to conflict on a later merge (shared, append-only edits in thi
 nil; the only shared code surface is `apps/api/src/forge_api/step_checks/` and `apps/web/src/learning/`,
 which Phase 9 should not touch. After Phase 9 merges: `git checkout phase10/mistake-transfer-learning`,
 `git fetch origin`, `git merge origin/main`, resolve conflicts intentionally (no blanket ours/theirs),
-re-run the gate and the human validation below. (Superseded: the team chose to merge Phase 10 first. Phase 9 must now merge `main` into its branch and reconcile the shared files listed above.)
+re-run the gate and the human validation below. (Historical handoff: the team merged Phase 10 first. This Phase 9 integration now reconciles those shared files and preserves both histories.)
 
 ## Human validation plan (real Onshape, disposable document)
 

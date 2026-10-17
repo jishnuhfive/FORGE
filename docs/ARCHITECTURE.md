@@ -1,6 +1,6 @@
 # Architecture
 
-## Current implementation — Phase 7 learning foundation, human acceptance passed
+## Current implementation — Phase 8 validated; Phase 9 safe Modify and Phase 10 Learn integrated
 
 One React/TypeScript/Vite web client, one FastAPI/Pydantic API and shared presentation
 primitives serve desktop browsers. Native clients are not part of Forge.
@@ -10,7 +10,7 @@ The development UI lab is independent of authentication and remains excluded fro
 production builds. Build/validation previews remain explicitly synthetic; Phase 6
 analysis uses real backend services only after an explicit send.
 Phase 4 established four backend CAD REST reads. Phase 5 projects their snapshot
-into a bounded CAD Inspector; the compact proof API remains available. Phase 6 adds read-only AI through a provider-independent interface (default Groq; optional OpenAI). CAD writes remain unimplemented. The extension launch bridge sends
+into a bounded CAD Inspector; the compact proof API remains available. Phase 6 adds read-only AI through a provider-independent interface (default Groq; optional OpenAI). The single Phase 9B guarded write is implemented but disabled by default. The extension launch bridge sends
 applicationInit, handles documented show messages and normalizes bounded single
 FACE/EDGE or clear SELECTION envelopes matching the human's live sanitized captures.
 
@@ -27,15 +27,15 @@ HTTP transports; no runtime setting enables mock sessions.
 
 ## Intended component responsibilities
 
-| Component        | Responsibility                                                                                      | Current state                                           |
-| ---------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| Frontend         | Narrow-panel UI, accessible controls, typed API calls, approved plan presentation                   | Authenticated local UI + DEV fixtures                   |
-| API              | Configuration, sessions, authorization, validated contracts, orchestration                          | OAuth, sessions, CSRF, liveness and read snapshots      |
-| Database         | Users linked to Onshape identity, encrypted token records, sessions, plans, inventory, audit events | Identity, grants, sessions, states and audit migrations |
-| AI layer         | Provider adapters, bounded agent loop, allowlisted functions, streamed user-facing status           | Phase 6 backend adapter and read-only agent             |
-| Onshape layer    | Server REST adapter, OAuth, document inspection, supported feature/assembly operations              | OAuth, identity and four allowlisted CAD reads          |
-| Validation layer | Unit-aware deterministic calculations and evidence-backed results                                   | Documentation only                                      |
-| Tool layer       | High-level operations joining user permissions, approvals, schemas, adapters, verification          | One Phase 6 read-only inspection tool                   |
+| Component        | Responsibility                                                                                      | Current state                                               |
+| ---------------- | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Frontend         | Narrow-panel UI, accessible controls, typed API calls, approved plan presentation                   | Authenticated local UI + DEV fixtures                       |
+| API              | Configuration, sessions, authorization, validated contracts, orchestration                          | OAuth, sessions, CSRF, reads, checks and guarded Modify     |
+| Database         | Users linked to Onshape identity, encrypted token records, sessions, plans, inventory, audit events | Auth, audits, ephemeral proposals and deny fences           |
+| AI layer         | Provider adapters, bounded agent loop, allowlisted functions, streamed user-facing status           | Phase 6 backend adapter and read-only agent                 |
+| Onshape layer    | Server REST adapter, OAuth, document inspection, supported feature/assembly operations              | OAuth, read client and private guarded suppression client   |
+| Validation layer | Unit-aware deterministic calculations and evidence-backed results                                   | Deterministic lesson checks; engineering validation planned |
+| Tool layer       | High-level operations joining user permissions, approvals, schemas, adapters, verification          | One Phase 6 read-only inspection tool                       |
 
 Backend `auth/` owns identity/security and `db/` owns persistence. `integrations/`
 and `validation/` own the provider-adapter and planned deterministic validation boundaries.
@@ -237,7 +237,7 @@ no feature/part/body ownership is inferred. Account/context keys remount the rea
 actual page navigation aborts and clears it. Same-frame visibility/focus changes
 preserve capture metadata and cause no CAD reads. Nothing persists the evidence.
 Names and values are untrusted display text. Exact limits and semantics are in
-[PHASE_5_REVIEW.md](PHASE_5_REVIEW.md). Assemblies remain Phase 10.
+[PHASE_5_REVIEW.md](PHASE_5_REVIEW.md). Assemblies remain unassigned future work.
 
 The 2026-10-14 topology repair preserves optionality and treats empty export arrays
 as unknown: the fixed `includeGeometricData=false` contract does not establish
@@ -398,10 +398,11 @@ vocabulary requests keep their control focus. UI Lab's state selector is DEV-onl
 The production lesson is real authored educational content, not a synthetic CAD
 result. It makes no AI/CAD calls and requires no provider key. All CAD authorization,
 business logic and future engineering evaluation remain backend responsibilities.
-No dependency, API, migration, permission or database model changed. Phase 8 may
-attach deterministic evaluation to the metadata; no evaluator exists here.
+Phase 7 introduced no dependency, API, migration, permission or database model
+change. Phase 8 now attaches the deterministic evaluator described below; the
+authored sample itself retains its no-CAD behavior.
 
-## Phase 8 step-check boundary
+## Phase 8 step-check boundary — complete, human validated and merged
 
 `POST /api/learning/check-step` accepts a lesson id, a step id and the validated workspace
 context. The server owns the requirement sets (`step_checks/bracket.py`), takes one fresh
@@ -409,6 +410,96 @@ bounded read through the existing `cad_gate` (same per-user in-flight guard and 
 the inspector and AI), projects it with `inspect()`, and evaluates pure functions. The browser
 cannot supply requirements, statuses, paths, hosts or tokens. Results hold fixed
 server-authored findings; nothing is cached or persisted.
+
+The Mounting Bracket lesson uses the existing learning engine. Deterministic
+PASS / FAIL / WARNING / UNVERIFIED findings preserve evidence limits and do not
+consult the AI. Feature names are not requirements; the supported single-L-profile
+alternative is retained. The active step's Forge verification is revoked by a later
+non-verified check and restored by a later verified check, independently of learner
+completion. Onshape access remains the existing four GETs only.
+
+Final human validation and merge at `81199ea` are confirmed by the user. Preserve
+[PHASE_8_REVIEW.md](PHASE_8_REVIEW.md) as the unchanged implementation/validation
+record; its earlier provisional status is superseded by this confirmation.
+
+## Phase 9B implemented safe-write boundary
+
+Phase 9A preparation remains complete. [The runtime review](PHASE_9_REVIEW.md)
+records the implemented architecture, proven Gate A and remaining provider-conformance
+evidence for Gate B.
+Exactly `suppress_terminal_fillet_v1` uses server-resolved inventory, opaque candidate
+handles and closed immutable 120-second proposals. The flow is intent → fresh evidence
+→ candidate → proposal → explicit approval → one-use claim → fresh state/version check
+→ guarded provider write → fresh post-write verification → verified success or
+fail-closed uncertainty.
+The original sourceMicroversion with rejectMicroversionSkew=true is mandatory;
+there is no local-check-only fallback, generic Onshape API or arbitrary FeatureScript.
+
+`cad_edits/` owns deterministic authority and same-origin CSRF-bound routes. A private
+fixed v17 write client extends the existing bounded provider boundary with pinned
+microversion reads; existing inspector, context, checker and lesson engines remain.
+AI has no execution tool. PostgreSQL `0002_safe_edit` adds ephemeral operational
+records and durable deny fences. Committed atomic claims, shared user/session/grant
+coordination and unique workspace/user fences protect multiple workers. Uncertain
+writes are never retried or automatically rolled back. Cleanup cannot remove fences.
+
+The internal development-only `cad_edits/dev_recovery.py` helper supports separately
+authorized database administration after independently established settlement.
+With writes OFF, it locks user → original session → grant → fence, verifies the
+trusted exact orphan, elapsed retention, empty operational table and unique ordered
+uncertainty audit window, then commits one exact deletion plus a fixed recovery
+audit atomically. It has no route, CLI, browser/AI authority or provider transport;
+production mode rejects it. It neither restores proposal authority nor promotes an
+uncertain result. Normal persistent-fence and reconciliation behavior is unchanged.
+
+The operation-specific `terminal-fillet-6` policy binds an explicit feature-state
+evidence mode into the baseline/digest. A nonempty state map must cover the inventory
+exactly and pass every strict status/inactive check. An exactly empty map means
+`UNAVAILABLE_EMPTY`, never inferred OK/active; structural suppression, pinned
+configuration/version, complete captured definitions and one supported solid-body
+result remain mandatory. Partial/malformed/extra maps reject. Verification uses
+fresh explicit target suppression and preserved definitions/body output, with strict
+state checks whenever the after-map is nonempty. Whole-model health is not claimed.
+Old-policy previews cannot execute and must be prepared again.
+
+Per-feature suppression auxiliary modes are also baseline/digest-bound: exactly null
+is `NULL_UNAVAILABLE`, with no inferred ordinary state or Boolean. A supported base
+object is validated as `ORDINARY_OBJECT`; missing/malformed/specialized/unknown
+states reject. Suppressed remains an explicit Boolean. Omitted parent/configured
+flags are separate evidence modes: the entire supported top-level structure must
+exclude parent suppression, and the pinned independent configuration endpoint must
+prove no active configuration inputs. Explicit true/null/wrong-type guards reject.
+Raw omissions remain fingerprinted; nothing is synthesized. Required per-feature
+modes bind baseline/digest/stale/post-write checks. Guarded write and feature-state
+map policy are unchanged; no wider CAD authority or model-health claim is added.
+
+Body revision evidence is required in the baseline/digest. `EXPLICIT_CLEAN_FLAGS`
+requires a matching returned `theId` and both marker flags explicitly false.
+`EXACT_PINNED_ID_FLAGS_UNAVAILABLE` requires both flags absent, the same explicit
+returned ID, and transport proof of a bodydetails read at `m/{same}` after equal
+head-before/head-after checks. Missing flags remain unavailable, never false.
+Mixed, null, malformed or true flags reject. Both modes require exactly one SOLID
+and `NO_ERROR`; all feature/configuration reads share the pinned revision. Fresh
+pre-dispatch mode changes invalidate approval. Verification independently re-proves
+either accepted mode at the exact new acknowledged revision; invalid evidence
+retains uncertainty/fences without retry. No raw body payload or flag defaults
+are persisted. Existing original-version write guards remain mandatory.
+
+Writes default OFF and were returned OFF after human testing. Known OAuth2Write
+consent remains mandatory; this merge changes no permission. Gate A proved one
+approved terminal-Fillet suppression and Forge verified success from fresh evidence.
+Gate B reached the pause and the human advanced the workspace; stale suppression
+did not apply. Provider-side rejection audit confirmation was deferred, so full
+provider conformance is not claimed.
+
+The first human-approved suppression reached uncertainty; the full reconstruction
+is in the runtime review. Policy 6 now requests full sketch definitions for the
+safe-write path (noSketchGeometry=false, geometry IDs still excluded), binding all
+returned definition fields under unchanged transport caps. The only mutable hash
+exclusion remains the terminal suppressed flag. All eight final comparisons run
+before rejection; fixed failed checks/stages are durably audited and DEV logs are
+sanitized. No lost-ack reconciliation promotion or automatic fence release is added.
+Phase 10's separate main history is integrated by this merge without squashing.
 
 ## Phase 10 learning extensions
 
@@ -419,3 +510,12 @@ deterministic result alone. Guidance fading (`full` / `reduced` / `independent`)
 reducer from currently resolved same-family investigations. The backend change is additive: one new step id,
 `transfer-single-profile`, in the existing `step_checks` catalog. No endpoint, table, scope or write path
 is added.
+
+Learn and Modify remain separate. Learn's flow is failed/warning check → observation
+→ learner prediction → possible explanation → try-next guidance → explicit re-check
+→ resolution/reopen → optional transfer challenge. The student makes every Learn
+CAD change. Modify performs only its one supported explicitly approved write.
+Phase 10 requires no Modify execution, write scope or write flag; its predictions
+are ungraded and its transfer counts are not mastery scores. See
+[the learning review](PHASE_10_REVIEW.md) for automated results and the pending
+real-Onshape human validation plan.

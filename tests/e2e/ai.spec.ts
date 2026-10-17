@@ -222,6 +222,7 @@ test('Phase 6 same-context tab switching preserves history; real Part Studio cha
     }),
   ).toHaveCount(2);
   expect(h.asks[1]?.history).toHaveLength(2);
+  await h.child.waitForLoadState('networkidle');
   await page.locator('iframe').evaluate(
     (node, next) => {
       (node as HTMLIFrameElement).src =
@@ -229,6 +230,10 @@ test('Phase 6 same-context tab switching preserves history; real Part Studio cha
     },
     query.replace('c'.repeat(24), 'e'.repeat(24)),
   );
+  await h.child.waitForURL(
+    (url) => url.searchParams.get('elementId') === 'e'.repeat(24),
+  );
+  await h.child.waitForLoadState('networkidle');
   await expect(h.frame.getByLabel('Design prompt')).toBeVisible();
   await expect(
     h.frame.getByRole('heading', {

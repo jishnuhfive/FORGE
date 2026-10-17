@@ -1,6 +1,7 @@
+import asyncio
 import logging
 from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 
 import httpx2 as httpx
 from fastapi import FastAPI, Request
@@ -12,6 +13,7 @@ from starlette.responses import JSONResponse, RedirectResponse, Response
 from forge_api.ai.routes import router as ai_router
 from forge_api.auth.routes import router as auth_router
 from forge_api.auth.runtime import AuthRuntime
+from forge_api.cad_edits.routes import router as edit_router
 from forge_api.core.config import Settings
 from forge_api.db.database import make_engine, verify_schema
 from forge_api.integrations.onshape.routes import router as cad_router
@@ -98,7 +100,31 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     limits=httpx.Limits(max_connections=8, max_keepalive_connections=4),
                 ) as ai_transport:
                     application.state.ai_transport = ai_transport
-                    yield
+
+                    async def purge_writes() -> None:
+                        from forge_api.cad_edits.storage import cleanup
+
+                        while True:
+                            await asyncio.sleep(60)
+                            runtime = application.state.auth
+                            if runtime is not None:
+                                try:
+
+                                    def purge(owner: AuthRuntime = runtime) -> None:
+                                        with owner.sessions.begin() as db:
+                                            cleanup(db)
+
+                                    await asyncio.to_thread(purge)
+                                except SQLAlchemyError:
+                                    pass  # Cleanup failure never releases a fence.
+
+                    cleaner = asyncio.create_task(purge_writes())
+                    try:
+                        yield
+                    finally:
+                        cleaner.cancel()
+                        with suppress(asyncio.CancelledError):
+                            await cleaner
         finally:
             if engine is not None:
                 engine.dispose()
@@ -122,6 +148,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(auth_router)
     application.include_router(cad_router)
     application.include_router(ai_router)
+    application.include_router(edit_router)
     application.include_router(step_checks_router)
     return application
 

@@ -1,5 +1,39 @@
 # Onshape integration
 
+Current Phase 9 terminal-suppression evidence policy is recorded in
+[the runtime review](PHASE_9_REVIEW.md). The current [v17 OpenAPI](https://cad.onshape.com/api/openapi)
+exposes `featureStates` without a complete-coverage guarantee; the live disposable
+three-feature target returned an empty map in both bounded sketch read modes.
+An exactly empty object is explicitly unavailable state evidence, never inferred
+OK/inactive. Nonempty maps require exact inventory coverage and strict entries;
+partial/missing/null/malformed/extra maps reject. The documented explicit feature
+`suppressed` Boolean and fixed partial suppression update govern this sole operation,
+with all existing structural, body-output, pinned-version and approval safeguards.
+No provider query, scope, host, write authority or FeatureScript capability expands.
+
+The same current schema makes auxiliary `suppressionState` optional but does not
+define null semantics. The live target has null at all three positions, explicit
+`suppressed=false`, and missing parent/configured suppression Booleans. Explicit
+policy permits null to supply no evidence; omitted Booleans are not inferred.
+Strict supported base objects remain allowed; configured/expression/parent and
+unknown specializations reject. The subsequent explicit guard policy uses a complete
+supported top-level structure for missing parent evidence and the independent pinned
+configuration endpoint for missing configured evidence. Both arrays must be present
+and empty, with matching source and no skew; explicit conflicts still reject.
+No missing-to-null/false conversion is used. The older v9 omitted-default guidance
+is not the sole justification. Raw fields and evidence modes remain fingerprinted.
+
+The current v17 `BTMicroversionId-366` schema makes `theId`, `ambiguous` and `deleted`
+optional. Forge still requires a present marker object and exact returned `theId`.
+Bodydetails supports `wvm=m`; [Onshape architecture](https://onshape-public.github.io/docs/api-intro/architecture/)
+establishes immutable document microversions. For this operation, both absent flags
+are recorded as `EXACT_PINNED_ID_FLAGS_UNAVAILABLE` only after fixed pinned transport
+and head bracketing prove the requested revision. No false values are inferred.
+Both explicit false flags give `EXPLICIT_CLEAN_FLAGS`; mixed/true/null/wrong-type
+flags reject. One SOLID and `NO_ERROR` remain required before and after mutation,
+with the after-ID equal to the new acknowledged marker. The runtime review records
+the live GET-only coverage; neither human write-conformance gate is proven.
+
 ## Phase 2 verification record — 2026-10-04
 
 Primary sources reviewed:

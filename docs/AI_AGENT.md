@@ -5,7 +5,10 @@ the user on 2026-10-16, including repaired Evidence, FACE/EDGE grounding and the
 deterministic write-capability path. The complete final repository gate passes;
 [PHASE_6_REVIEW.md](PHASE_6_REVIEW.md) records results and limits.
 The separately authorized Phase 7 authored learning foundation makes no AI calls;
-all CAD mutations remain deferred. This is design assistance, not
+the agent retains its read-only CAD boundary. Phase 8 adds deterministic read-only lesson
+checking without AI; Phase 9A preparation is complete and the separate Phase 9B Modify
+workflow is implemented behind a default-OFF backend flag. Phase 10 adds authored,
+deterministic investigations and transfer learning without AI. This is design assistance, not
 engineering certification. Codex develops Forge; Forge's runtime AI is separate.
 
 ## Groq contract reviewed — 2026-10-15; retention/quotas rechecked 2026-10-16
@@ -64,9 +67,11 @@ Real eligibility, quota and grounding must be tested with the operator's API pro
 
 ## Flow and ownership
 
-Normal read questions follow this provider-assisted path. Explicit CAD modification
-requests branch directly to the existing bound inspection and a server-owned
-capability answer; they make no provider request (details below).
+Model-specific read questions follow this provider-assisted path. General Groq
+chat can return bounded plain text before inspection, as described below.
+Explicit CAD modification requests in Design branch directly to the existing
+bound inspection and a server-owned capability answer; they make no provider
+request (details below). Modify uses its separate private server authority.
 
 ```text
 Explicit Design send (disclosed hosted-service transfer)
@@ -342,7 +347,7 @@ the first two captured features may supply context. Width/controlling parameters
 remain unknown. Suggestions, assumptions and follow-ups are empty. Progress goes
 from understanding to inspecting to preparing; no model-review stage is fabricated.
 
-Every request remains read-only, including phrasing outside this narrow routing
+Every Design AI request remains read-only, including phrasing outside this narrow routing
 rule. Unrecognized requests retain the normal bounded model/tool flow and generic
 safe errors. Its strict output, unknown/duplicate-ID, tool/protocol, incomplete and
 safety-refusal handling is unchanged. Empty model answers still fail grounding;
@@ -420,13 +425,62 @@ are deterministic authored frontend content. Learning never calls this agent or 
 provider, reads CAD automatically or uses model output to assess a learner. Its
 completion summary reports only local observed lesson interactions and learner-marked
 steps. Future optional AI teaching would require explicit design/authorization;
-Phase 8 deterministic checking is not implemented. Existing Design sends retain all
-Phase 6 disclosure, grounding, privacy and read-only boundaries.
+Phase 8 adds explicit deterministic checks to the separate Mounting Bracket lesson.
+Existing Design sends retain all Phase 6 disclosure, grounding, privacy and
+read-only boundaries.
 
-## Phase 8 deterministic checking boundary
+## Phase 8 deterministic checking boundary — complete, human validated and merged
 
-Check my step uses no AI provider. A provider may in future explain already-computed results
-but may never assign or alter PASS, FAIL, WARNING or UNVERIFIED. The lesson works without Groq.
+Check my step uses no AI provider. A provider may in future explain already-computed
+results but may never assign or alter PASS, FAIL, WARNING or UNVERIFIED. The
+Mounting Bracket lesson works without Groq. Each explicit check acquires fresh,
+authorized CAD evidence; feature names never determine a result. The second-portion
+check accepts a single extruded L-profile alternative as well as the supported
+two-extrusion route. A later non-verified result revokes the active step's Forge
+verification; a later verified result restores it. Learner completion remains
+separate. These are read-only checks, not engineering certification or write approval.
+
+The user confirms final human validation and merge to main at `81199ea`.
+[PHASE_8_REVIEW.md](PHASE_8_REVIEW.md) retains the original implementation and
+validation record unchanged; its provisional wording is superseded by that confirmation.
+
+## Phase 9B deterministic Modify authority
+
+[Runtime review](PHASE_9_REVIEW.md): `suppress_terminal_fillet_v1` is the only
+implemented write exception, default OFF. Gate A is human-proven; Gate B's expected
+stale behavior was observed, with provider-side rejection audit confirmation deferred.
+Modify recognizes supported intent with a closed deterministic grammar; no additional
+hosted AI request/tool is needed. The existing Design agent and no-argument inspection
+tool stay read-only. Unsupported requests remain refused.
+
+AI may interpret intent and explain supported plans or results. It cannot approve
+or directly execute a write; no arbitrary HTTP or raw provider tools are exposed.
+
+Deterministic server code owns inventory/target identity, immutable proposals, explicit
+human approval, session/grant/context binding, stale checks, committed claim/fence,
+provider-guarded dispatch and post-write verification. AI cannot approve, execute,
+provide IDs/tokens/hosts/paths/bodies/FeatureScript, override policy or declare success.
+Untrusted CAD names are display data. No selection ownership is inferred. Stale
+approval rejects and the original provider microversion guard is mandatory.
+
+Only deterministic operation-specific policy can accept an exactly empty
+`featureStates` map as unavailable evidence while preserving every suppression,
+body-output and version invariant. AI cannot infer OK/inactive, accept a partial
+map, relax predicates or declare model health. Complete exact-key maps retain strict
+status/inactive checks. See the current policy in the runtime review.
+
+## Phase 10 authored investigation and transfer boundary
+
+Learn remains student-operated and read-only. A supported failed/warning check can
+open an authored investigation: server observation → learner prediction → possible
+explanation → try-next guidance → explicit re-check → resolution or reopening.
+The deterministic checker alone owns status and verification revocation/restoration.
+Predictions, including “I'm not sure yet”, are ungraded and never change results.
+Guidance fading follows resolved same-family investigations in session memory.
+The independent transfer challenge reuses those controls with separate progress
+and restart; it reports supported evidence and interaction counts, never mastery
+scores or grades. AI neither authors the live investigation nor grades predictions
+or transfer. Phase 10 does not call Modify or depend on write consent.
 
 ## Groq first round: inspect or just chat
 

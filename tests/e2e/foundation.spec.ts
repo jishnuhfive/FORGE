@@ -55,9 +55,16 @@ for (const width of [320, 380, 480, 1280]) {
     await page.keyboard.press('ArrowRight');
     await expect(page.getByRole('tab', { name: 'Modify' })).toBeFocused();
     await expect(
-      page.getByRole('heading', { name: 'Refine with intention.' }),
+      page.getByRole('heading', { name: 'Modify', exact: true }),
     ).toBeVisible();
-    await expect(page.getByLabel('Modification prompt')).toBeDisabled();
+    await expect(
+      page.getByText(
+        'Safe CAD editing is disabled until this environment and your authorization permit it.',
+      ),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Approve change' }),
+    ).toHaveCount(0);
     await page.keyboard.press('ArrowRight');
     await expect(page.getByRole('tab', { name: 'Learn' })).toBeFocused();
     await page.getByRole('radio', { name: /^Beginner/ }).check();

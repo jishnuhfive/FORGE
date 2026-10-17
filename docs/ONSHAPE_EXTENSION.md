@@ -6,7 +6,9 @@ FACE/EDGE/clear sanitized structures match the strict single-entity/clear adapte
 The corrected authoritative FACE capture resolves the earlier labeling discrepancy;
 no parser or security change was required. The complete quality gate passed, and
 only targeted FACE regressions were repeated for this final evidence update.
-Phase 4 has not begun. No new REST operations, scopes, AI calls or CAD writes exist.
+That Phase 3 checkpoint added no REST operations, scopes, AI calls or CAD writes.
+Subsequent read-only phases and default-OFF Phase 9B Modify are documented below;
+[the runtime review](PHASE_9_REVIEW.md) governs current controlled-write validation.
 
 ## Source review and live contract evidence
 
@@ -402,3 +404,18 @@ selection, preserved FACE/inspection/capture time across an ordinary Chrome tab
 switch with no CAD refresh/reopen demand, and cleared old evidence on a real Part
 Studio change. This supersedes the earlier requirement to retest those repairs.
 No selection ownership or wider browser/provider compatibility claim is made.
+
+## Phase 9B controlled Modify validation
+
+The existing Action URL, redirects, context bridge and FACE/EDGE messaging remain.
+Selection does not identify feature ownership. Modify obtains fresh authorized
+server inventory and opaque candidate handles, with explicit target choice and
+approval. Only a workspace Part Studio on the standard configured stack is supported.
+The private suppression client uses pinned document microversions and a mandatory
+provider skew guard; no general REST or FeatureScript authority is exposed.
+
+Writes default OFF; external app permissions were not changed. Human owners must
+retain OAuth2ReadPII/OAuth2Read, add OAuth2Write only, and explicitly reauthorize.
+Unknown scope evidence fails closed. Follow [the runtime review](PHASE_9_REVIEW.md)
+for exact OAuth, disposable CAD, suppression-payload Gate A, atomic stale-rejection
+Gate B and screenshot instructions. Real CAD-write validation remains pending.

@@ -79,12 +79,17 @@ def snapshot(
 def inspector(
     request: Request, response: Response, auth: Runtime, db: Database
 ) -> CadInspector:
-    result, correlation = acquire(request, response, auth, db)
+    result, correlation = acquire(request, response, auth, db, diagnostic=True)
     return inspect(result, correlation)
 
 
 def acquire(
-    request: Request, response: Response, auth: Runtime, db: Database
+    request: Request,
+    response: Response,
+    auth: Runtime,
+    db: Database,
+    *,
+    diagnostic: bool = False,
 ) -> tuple[Snapshot | SectionState, str]:
     """Both projections share authentication, quota gate and exactly one capture."""
     session = active_session(request, auth, db)
@@ -128,7 +133,16 @@ def acquire(
     gate = cast(ReadGate, request.app.state.cad_gate)
     transport = cast(httpx.Client, request.app.state.cad_transport)
     return acquire_bound(
-        request, response, auth, db, session, reference, correlation, gate, transport
+        request,
+        response,
+        auth,
+        db,
+        session,
+        reference,
+        correlation,
+        gate,
+        transport,
+        diagnostic=diagnostic,
     ), correlation
 
 
@@ -142,6 +156,8 @@ def acquire_bound(
     correlation: str,
     gate: ReadGate,
     transport: httpx.Client,
+    *,
+    diagnostic: bool = False,
 ) -> Snapshot | SectionState:
     """Server-bound reuse for the inspector and AI; never exposed as a model tool."""
     try:
@@ -163,6 +179,10 @@ def acquire_bound(
             result = capture(
                 auth, client, reference, session.user_id, correlation, gate
             )
+            if diagnostic and auth.settings.forge_safe_edit_diagnostics_enabled:
+                from .dev.safe_edit import probe
+
+                probe(auth, transport, reference, session.user_id)
             # Discard an in-flight result if the owning session/grant ended.
             db.expire_all()
             current = active_session(request, auth, db)

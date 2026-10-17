@@ -57,9 +57,7 @@ describe('Forge application foundation', () => {
     render(<App />);
     const modify = screen.getByRole('tab', { name: 'Modify' });
     fireEvent.keyDown(modify, { key: 'Enter' });
-    expect(
-      screen.getByRole('heading', { name: 'Refine with intention.' }),
-    ).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Modify' })).toBeVisible();
     fireEvent.keyDown(screen.getByRole('tab', { name: 'Learn' }), {
       key: 'Enter',
     });

@@ -94,3 +94,27 @@ class AuditEvent(Base):
     kind: Mapped[str] = mapped_column(String(40))
     outcome: Mapped[str] = mapped_column(String(40))
     created_at: Mapped[int] = mapped_column(BigInteger, default=now, index=True)
+
+
+class WriteRecord(Base):
+    """Short-lived candidate/proposal authority, never a CAD snapshot/history."""
+
+    __tablename__ = "write_records"
+    id: Mapped[str] = mapped_column(String(43), primary_key=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    session_hash: Mapped[str] = mapped_column(String(64), index=True)
+    state: Mapped[str] = mapped_column(String(24))
+    digest: Mapped[str] = mapped_column(String(64))
+    payload: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[int] = mapped_column(BigInteger)
+    expires_at: Mapped[int] = mapped_column(BigInteger, index=True)
+    purge_at: Mapped[int] = mapped_column(BigInteger, index=True)
+
+
+class WriteFence(Base):
+    """Durable denial. Never expires into permission; no CAD identifiers/payload."""
+
+    __tablename__ = "write_fences"
+    workspace_key: Mapped[str] = mapped_column(String(64), primary_key=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), unique=True)
+    record_id: Mapped[str] = mapped_column(String(43), unique=True)

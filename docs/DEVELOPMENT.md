@@ -566,7 +566,8 @@ uv caches, `UV_CACHE_DIR=.cache/uv make ...` preserves frozen lockfile use.
 
 The human approved the second real Onshape visual review and authorized one
 Phase 6.5 commit/normal push after the complete final gate. The design system is
-frozen. Phase 7 has not started and requires a new prompt.
+frozen. Phase 7 had not started at that checkpoint; its subsequent implementation
+and the current Phase 8–10 status are recorded in the roadmap and reviews below.
 
 The refined lab also provides **Material comparison** (A previous/B refined/C opaque)
 and **Logo candidates**. Choose Wide standalone to compare three columns; narrow
@@ -606,3 +607,114 @@ suite exercises all six panel widths and writes synthetic images at 320/380/480/
 to ignored `.cache/phase7/`. It intercepts auth and makes no real AI/Onshape requests.
 Keep all manual Onshape screenshots/private identifiers outside Git. Full gate and
 real panel acceptance steps are in [PHASE_7_REVIEW.md](PHASE_7_REVIEW.md).
+
+## Phase 9B runtime verification and controlled handoff
+
+Phase 8 is complete, human validated and merged; Phase 9A preparation is complete.
+[Phase 9 runtime review](PHASE_9_REVIEW.md) records the implementation, provider
+research and exact human OAuth/CAD procedures. Gate A is human-proven; Gate B
+provider-side rejection audit confirmation is deferred. Phase 10 implementation is
+merged and integrated here; its real-Onshape human validation remains pending.
+
+Run `make setup` for npm ci and uv locked sync. Run format, lint, typecheck (including
+strict mypy), test, build and test-e2e. Tests use synthetic provider transports only.
+Real PostgreSQL tests require FORGE_TEST_DATABASE_URL supplied privately; run both
+`apps/api/tests/test_postgres.py` and `apps/api/tests/test_safe_edit_postgres.py`.
+Each owns/removes its random schema, never user data/volumes. Run compose-check,
+migrate, migration-check and dependency audits. Alembic `0002_safe_edit` is additive;
+startup does not create tables or migrate silently.
+
+`FORGE_CAD_WRITES_ENABLED` defaults false; `.env.example` is an empty placeholder.
+Leave the real flag OFF and developer-app permissions unchanged during development.
+Do not use real CAD mutations in tests. No frontend/AI flag override exists.
+`FORGE_CAD_WRITE_CONFORMANCE_PAUSE_SECONDS` defaults 0, accepts 0–10 only in
+development, and supports the documented human Gate B race after final head check.
+It is not a production feature. Human permission expansion, explicit new consent,
+disposable CAD only and both real conformance gates are required before activation.
+Unknown provider scope/bitmask or missing critical fields must stop validation.
+Keep private screenshots, network captures, credentials and CAD data outside Git.
+
+### Read-only safe-edit eligibility diagnostic
+
+When target discovery fails during controlled validation, keep writes OFF. The
+optional `FORGE_SAFE_EDIT_DIAGNOSTICS_ENABLED=true` is accepted only in development
+with `FORGE_CAD_WRITES_ENABLED=false`. Restart the local API with those values,
+then explicitly use CAD Inspector → Refresh CAD. The backend emits only a fixed
+rejection reason, known field/category, primitive type/Boolean and optional bounded
+position, plus fixed coverage metadata for both bounded `noSketchGeometry` read
+variants at one pinned microversion. No IDs, names, geometry or raw maps are logged.
+`safe_edit_suppression_coverage` additionally reports positions 1–3 only, fixed
+auxiliary shape/btType categories and hard-Boolean presence/type/value. Null,
+missing and false remain distinct. Both flags remain false/true respectively
+(writes OFF, diagnostics ON) for this controlled human investigation.
+`safe_edit_body_coverage` reports only returned-ID presence/match, fixed optional
+flag categories, bounded body count, body-type category and error category, after
+the pinned read passes head bracketing. It never emits the ID or raw body data.
+It performs pinned GET reads without proposals or mutations, and adds no
+public diagnostic route/header. It is not invoked by Learn or AI. See
+[the investigation record](PHASE_9_REVIEW.md) before interpreting missing fields;
+never paste private payloads or weaken eligibility from a visual CAD inspection.
+
+Current synthetic safe-edit provider fixtures exercise the observed empty v17
+state map. Complete-map tests remain strict; missing/partial/extra/invalid maps
+reject. The explicit unavailable mode is bound to proposals; old-policy previews
+must be recreated. `tests/test_safe_edit_empty_states.py` covers both modes, hard
+predicates, fresh rejection and post-write uncertainty entirely with mock providers.
+The revised policy establishes supported body output/explicit suppression only,
+not whole-model health. Real write flag and both pending human gates are unchanged.
+
+`tests/test_safe_edit_suppression.py` covers null-unavailable versus ordinary-object
+auxiliary modes without synthesizing fields, all specialized/malformed rejections,
+explicit suppression requirements, privacy and post-write uncertainty. The live null
+auxiliary fields and omitted guards have distinct evidence modes, never defaults.
+`tests/test_safe_edit_guard_evidence.py` exercises independent configuration proof,
+complete top-level structural proof, explicit conflicts, mode/presence binding,
+post-write re-proof and no false defaulting. Unsupported structure or nonempty/
+stale/skewed configuration fails closed. No production query or feature-state-map
+policy changes. Old previews must be prepared again under `terminal-fillet-6`;
+no migration is needed. A manually created configured-control comparison is optional
+additional evidence and is never created by Forge/Codex.
+
+`tests/test_safe_edit_body_evidence.py` covers explicit-clean and both-omitted marker
+modes, exact pinned-ID/transport proof, conservative mixed-shape rejection, unchanged
+body invariants, stale approval and post-write uncertainty/fences. No flag is
+defaulted or synthesized. Both accepted after-modes are independently re-proven at
+the new acknowledged revision. Keep writes OFF and diagnostics ON; refresh CAD
+Inspector only and collect fixed metadata, without preparing or approving a write.
+
+The first real write and full repair investigation are recorded in the runtime
+review. Safe-write reads now include full returned sketch definitions while still
+excluding geometry IDs; caps remain unchanged. `test_safe_edit_verification.py`
+covers comprehensive final checks, strict unrelated-change detection, obsolete
+policy 5, acknowledgement mismatches, full Sketch geometry and timeouts/no-retry.
+Fixed `safe_edit_verify` logs are DEV-only; failed checks/stages are also sanitized
+durable audit outcomes. The internal `dev/verify.py` helper requires DEV/writes OFF,
+uses only fixed GETs and returns closed metadata, never raw snapshots.
+
+The original uncertain row expired during investigation; the trusted decoded
+baseline remains memory-held. Its durable fence was later cleared by the separately
+authorized operator recovery recorded in the runtime review, with zero Onshape
+contact and writes OFF. The local API/reloader were restored with writes OFF after
+temporary pausing; health passed. Keep the private baseline holder alive until
+operator review and do not clear fences as part of code verification.
+Follow the fresh Gate A/B procedures in the review. For a
+human write trial the read-only probe flag must be OFF; for this repair writes stay
+OFF. Phase 8 and the existing reconcile/no-retry/retention policies are unchanged.
+
+`cad_edits/dev_recovery.py` is an internal operator helper, not a CLI or HTTP route.
+Only after explicit operator authorization and independently established settlement,
+construct its strict `RecoveryReference` from trusted preserved evidence **in
+memory**, never from a guessed fence or logged/command-line identifiers. Invoke
+`recover_orphaned_fence` with the configured session factory and development Settings
+while both configured and running API writes remain OFF. It uses the existing user
+lock and session/grant/fence row locks. The original session may be expired but must
+still identify the exact owner; recovery never logs it in or refreshes any token.
+The helper requires an exact single matching orphan, elapsed 15-minute retention,
+an entirely empty operational table and a unique ordered four-event uncertainty
+audit window. Any retained record (even a tombstone/unknown state), candidate
+ambiguity or prior recovery fails closed. Audit and exact three-field deletion
+commit together. It accepts no arbitrary deletion query and has no provider client.
+Do not use it to infer upstream settlement, recover a live claim or clear multiple
+fences. New CAD work always requires a new proposal and approval. Focused coverage:
+`tests/test_safe_edit_operator_recovery.py` and the PostgreSQL recovery concurrency
+case in `tests/test_safe_edit_postgres.py`.

@@ -1836,6 +1836,27 @@ ul.compact-list {
 .check-label {
   font-weight: 600;
 }
+
+.modify-feature form,
+.modification-review {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+.modify-feature textarea {
+  width: 100%;
+  min-height: 64px;
+  box-sizing: border-box;
+}
+.modify-feature p,
+.modify-feature dd,
+.modify-feature button {
+  overflow-wrap: anywhere;
+}
+.modify-state {
+  font-size: var(--font-size-section, 15px);
+}
+
 .learning-investigation {
   margin-block: var(--space-6);
   padding-top: var(--space-4);
