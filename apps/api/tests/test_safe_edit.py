@@ -51,7 +51,7 @@ def features() -> dict[str, Any]:
         )
     return {
         "isComplete": True,
-        "rollbackIndex": -1,
+        "rollbackIndex": len(items),
         "sourceMicroversion": M0,
         "serializationVersion": "1.2.4",
         "libraryVersion": 2232,

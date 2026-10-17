@@ -41,7 +41,6 @@ def project_write_evidence(
             Reason.REVISION,
             "matching_revision",
         ),
-        (data, "rollbackIndex", -1, Reason.ROLLBACK, "end_of_list"),
         (config, "configurationParameters", [], Reason.CONFIGURED, "empty_array"),
         (config, "currentConfiguration", [], Reason.CONFIGURED, "empty_array"),
         (
@@ -67,6 +66,18 @@ def project_write_evidence(
         "features",
         "three_to_twenty",
         items,
+    )
+    # Request rollbackBarIndex=-1 asks for the end; the response can report
+    # its concrete position. The OpenAPI also explicitly documents -1 as an
+    # end sentinel. Only those two end representations are safe for a complete
+    # inventory. Strict int excludes bool and numerically equal floats.
+    rollback = data.get("rollbackIndex", MISSING)
+    require(
+        type(rollback) is int and rollback in (-1, len(cast(list[JsonValue], items))),
+        Reason.ROLLBACK,
+        "rollbackIndex",
+        "end_of_list",
+        rollback,
     )
     features = [
         obj(f, Reason.FEATURE_SHAPE, "feature", i + 1)

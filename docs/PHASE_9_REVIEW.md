@@ -25,12 +25,64 @@ inspector's three active features / one solid body. The Fillet settings were ope
 and cancelled; **zero CAD writes occurred**. Gate A and Gate B remain **UNPROVEN**.
 
 The investigation keeps writes OFF; the configured settings and running local API
-were checked without exposing environment contents. No OAuth app permissions,
-mutation transport or accepted eligibility states were changed. The exact live
-first failing predicate is **pending an unambiguous read-only reproduction**;
-two distinct Onshape workspace tabs were present, and neither was the active
-Chrome tab. Do not classify the document as unsupported or invent a contract fix
-from its visible shape alone. No live private payload was saved as a fixture.
+were checked without exposing environment contents. No OAuth app permissions or
+mutation transport were changed. The initial diagnostic-only checkpoint changed
+no accepted eligibility states. The human has now supplied the first live rejection:
+
+```text
+safe_edit_reject reason=rollback_active position=None field=rollbackIndex expected=end_of_list actual_type=integer actual_boolean=None
+```
+
+This identifies the exact failing check: response `rollbackIndex == -1`. The line
+reports integer type, not the numeric value; do not claim a captured live value of
+3 or that the whole target is eligible. No private CAD payload was saved as a fixture.
+
+### Rollback response contract correction
+
+The current [official OpenAPI](https://cad.onshape.com/api/openapi), fetched again
+for this correction, retains version `1.222.90730-c8d74e607a47` and SHA-256
+`d93a3c77e5f4a61f69ce865e815da4fe628178bb37cb6de4d91028f2c2bdc9aa`.
+`getPartStudioFeatures` request `rollbackBarIndex` is an int32 with default -1,
+meaning evaluate at the list end. The separate response field
+`BTFeatureListResponse-2457.rollbackIndex` is also int32; its current description
+**explicitly allows -1 as an end-of-list sentinel**. Therefore -1 is not an
+undocumented negative value and remains accepted under that explicit contract.
+
+The current [official feature-access example](https://onshape-public.github.io/docs/api-adv/featureaccess/#get-the-list-of-features-in-a-part-studio)
+uses request `rollbackBarIndex=-1` yet returns response `rollbackIndex: 4` for
+four user features. The guide labels its examples v9; the current v17 schema still
+permits integer response indices and explicitly describes the sentinel. Together
+these sources support an exact concrete list-end index and the documented sentinel;
+they do not support arbitrary nonnegative indices. `defaultFeatures` are separate
+from the returned user `features` array and are not added to this count.
+
+Forge's old **-1-only** response check was too narrow: it rejected the officially
+illustrated concrete end position. The correction validates a complete bounded
+feature list first, then requires:
+
+```python
+type(rollback_index) is int and rollback_index in (-1, len(features))
+```
+
+The concrete accepted index is exactly the feature count (3 for three, 4 for four).
+The sole negative exception is the explicit current OpenAPI -1 sentinel. Zero,
+interior or beyond-end indices, other negatives, absent/null values, Boolean,
+string and float values reject with the same safe `rollback_active` diagnostic.
+Python Boolean subtyping cannot pass the strict integer test. Completeness and
+all configuration, suppression, feature-state, body and version checks remain.
+The request query, write transport, guard and mutation payload are unchanged.
+
+Safe-edit synthetic helpers now report the concrete feature count. Dedicated
+regressions cover both documented representations, three/four-feature inventories,
+invalid indices/types, incomplete inventory and a later namespace rejection.
+No later predicate was loosened. The correction adds 30 synthetic regressions;
+163 focused evidence/domain/diagnostic tests passed. The full backend gate passed
+1,034 tests including ten real PostgreSQL cases with no skips; 642 frontend tests,
+format, lint, TypeScript, strict mypy (91 files), production build and dependency
+audits also passed. No browser code or public error contract changed.
+**Zero real CAD writes; writes OFF; Gate A UNPROVEN; Gate B UNPROVEN.** The next
+human Inspector probe may correctly expose another predicate and must remain
+read-only.
 
 `eligibility.py` now defines closed fixed reasons and bounded diagnostic metadata.
 Each deterministic rejection logs `safe_edit_reject` with reason, known field,
@@ -86,8 +138,9 @@ passed 1,004 backend tests including ten real PostgreSQL cases with no skips, pl
 mypy (90 files), production build, whitespace/local Markdown links and dependency
 audits passed; no dependencies changed. No browser rerun was needed because no
 frontend or public response contract changed. No real write or provider conformance
-success is claimed. This is an observability fix, not a claimed live-contract
-eligibility correction; the exact observed predicate and classification remain open.
+success is claimed. Those counts describe the diagnostic-only checkpoint. The
+rollback contract correction above supersedes its formerly pending first-predicate
+classification; later predicates and both real write conformance gates remain open.
 
 ## Implemented scope and authority
 
