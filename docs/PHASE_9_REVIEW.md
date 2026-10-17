@@ -13,6 +13,82 @@ was performed during implementation. Gate A and Gate B below are **NOT VALIDATED
 The default flag is OFF. Automated synthetic provider behavior does not prove real
 provider conformance, production readiness, or engineering safety.
 
+## Read-only target-discovery investigation
+
+Human validation subsequently reached authenticated Modify target discovery:
+OAuth2Write was added **by the human**, explicit reauthorization succeeded, and
+ReadPII / Read / Write were authorized while Delete / Share / Purchase stayed off.
+The writes-disabled check and unsupported-delete refusal passed. With temporary
+human-enabled writes, discovery returned generic `unsupported_target` despite the
+disposable visible Sketch → Extrude → ordinary active terminal Fillet and the
+inspector's three active features / one solid body. The Fillet settings were opened
+and cancelled; **zero CAD writes occurred**. Gate A and Gate B remain **UNPROVEN**.
+
+The investigation keeps writes OFF; the configured settings and running local API
+were checked without exposing environment contents. No OAuth app permissions,
+mutation transport or accepted eligibility states were changed. The exact live
+first failing predicate is **pending an unambiguous read-only reproduction**;
+two distinct Onshape workspace tabs were present, and neither was the active
+Chrome tab. Do not classify the document as unsupported or invent a contract fix
+from its visible shape alone. No live private payload was saved as a fixture.
+
+`eligibility.py` now defines closed fixed reasons and bounded diagnostic metadata.
+Each deterministic rejection logs `safe_edit_reject` with reason, known field,
+expected category, primitive type, optional Boolean and feature position (1–20).
+There are no names, feature/CAD IDs, arbitrary keys, payload values, query content,
+tokens or private URLs in the diagnostic. Public error details remain unchanged:
+ordinary rejection is `unsupported_target`; duplicate identity retains the existing
+`ambiguous_target`. No diagnostic endpoint or response header was added.
+
+The optional backend `FORGE_SAFE_EDIT_DIAGNOSTICS_ENABLED` defaults false and is
+valid only in development with writes OFF. An explicit authenticated, CSRF-checked
+CAD Inspector refresh then runs the existing pinned safe-edit **read** path inside
+the existing quota gate. It logs the first rejection (or fixed eligible/read-failure
+outcome), creates no candidates/proposals/fences and never calls the mutation
+method. Snapshot, AI and Learn requests do not invoke this opt-in probe. The
+underlying `write_client.py`, guard and write payload remain untouched.
+
+Current official OpenAPI was fetched again during investigation: version
+`1.222.90730-c8d74e607a47`, SHA-256
+`d93a3c77e5f4a61f69ce865e815da4fe628178bb37cb6de4d91028f2c2bdc9aa`.
+Relevant definitions are `BTFeatureListResponse-2457`, `BTConfigurationResponse-2019`,
+`BTMFeature-134`, `BTMSuppressionState-1924`, `BTMNode-19`, `BTFeatureState-1688`
+and `GBTNodeStatusType`. [Official feature access](https://onshape-public.github.io/docs/api-adv/featureaccess/)
+describes omitted encoded defaults, but labels its examples v9; schema optionality
+alone does not prove every missing/null value is safe in the current v17 response.
+The observed failing field must be compared with its specific contract before any
+acceptance change. In particular, no blanket missing-Boolean→false rule was added.
+
+If the live probe cannot be run directly, the exact human **read-only** repeat is:
+
+1. Keep the disposable document active. Keep writes OFF. Restart only the local
+   development API using:
+
+   ```sh
+   FORGE_CAD_WRITES_ENABLED=false FORGE_SAFE_EDIT_DIAGNOSTICS_ENABLED=true make dev-api
+   ```
+
+2. Open Forge's existing **CAD Inspector** and explicitly click **Refresh CAD**.
+   Do not approve a change or enable writes. The usual inspector remains read-only.
+3. Copy only the backend terminal line beginning `safe_edit_reject reason=...`
+   (or `safe_edit_probe outcome=...`). It contains no private CAD content. Do not
+   paste other logs, URLs, cookies or provider payloads.
+4. Compare that first condition with the official contract. Leave eligibility
+   unchanged until a documented equivalent representation is established. Turn
+   the optional diagnostic flag back off afterward; writes stay OFF throughout.
+
+Synthetic tests cover exact rejection reasons, missing/null distinctions, unchanged
+fail-closed checks, log privacy, default/production guards and GET-only inspector
+probing with no operational records or public diagnostic leakage. The focused gate
+passed 133 tests (90 existing safe-edit and 43 diagnostic cases). The full gate
+passed 1,004 backend tests including ten real PostgreSQL cases with no skips, plus
+642 frontend tests including Phase 8 regressions. Format, lint, TypeScript, strict
+mypy (90 files), production build, whitespace/local Markdown links and dependency
+audits passed; no dependencies changed. No browser rerun was needed because no
+frontend or public response contract changed. No real write or provider conformance
+success is claimed. This is an observability fix, not a claimed live-contract
+eligibility correction; the exact observed predicate and classification remain open.
+
 ## Implemented scope and authority
 
 Exactly `suppress_terminal_fillet_v1`: one ordinary standard final active Fillet,

@@ -20,6 +20,7 @@ class Settings(BaseSettings):
         hide_input_in_errors=True,
     )
 
+    forge_safe_edit_diagnostics_enabled: bool = False
     forge_cad_writes_enabled: bool = False
     forge_cad_write_conformance_pause_seconds: int = Field(default=0, ge=0, le=10)
 
@@ -100,6 +101,12 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_security(self) -> Self:
+        if self.forge_safe_edit_diagnostics_enabled and (
+            self.environment != "development" or self.forge_cad_writes_enabled
+        ):
+            raise ValueError(
+                "Safe-edit diagnostics require development with writes OFF"
+            )
         if (
             self.forge_cad_write_conformance_pause_seconds
             and self.environment != "development"

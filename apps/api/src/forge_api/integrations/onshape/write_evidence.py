@@ -1,16 +1,16 @@
-"""Additional write-critical projection over existing bounded Onshape JSON.
+"""Strict write-critical projection with fixed internal rejection diagnostics.
 
-No parallel inspector/checker. Existing provider models validate body evidence;
-this projection retains only identity, revision and cryptographic comparisons.
+No eligibility defaults or public provider details. Raw evidence stays local.
 """
 
 from typing import cast
 
-from pydantic import JsonValue
+from pydantic import JsonValue, ValidationError
 
-from forge_api.cad_edits.domain import Baseline, EditError, fingerprint
+from forge_api.cad_edits.domain import Baseline, fingerprint
 
 from .contracts import WorkspaceReference
+from .eligibility import MISSING, Expected, FieldName, Reason, require
 from .models import Bodies
 
 
@@ -23,78 +23,286 @@ def project_write_evidence(
     *,
     after: bool = False,
 ) -> Baseline:
-    def obj(value: JsonValue) -> dict[str, JsonValue]:
-        if not isinstance(value, dict):
-            raise EditError("unsupported_target", 422)
-        return value
+    def obj(
+        value: object, reason: Reason, field: FieldName, position: int | None = None
+    ) -> dict[str, JsonValue]:
+        require(isinstance(value, dict), reason, field, "object", value, position)
+        return cast(dict[str, JsonValue], value)
 
-    data, config = obj(feature_data), obj(configuration)
-    if (
-        data.get("isComplete") is not True
-        or data.get("microversionSkew") is not False
-        or data.get("sourceMicroversion") != microversion
-        or data.get("rollbackIndex") != -1
-        or config.get("configurationParameters") != []
-        or config.get("currentConfiguration") != []
-        or config.get("sourceMicroversion") != microversion
-        or config.get("microversionSkew") is not False
+    data = obj(feature_data, Reason.INVENTORY_SHAPE, "inventory")
+    config = obj(configuration, Reason.CONFIGURATION_SHAPE, "configuration")
+    for container, field, expected, reason, category in (
+        (data, "isComplete", True, Reason.INCOMPLETE, "true"),
+        (data, "microversionSkew", False, Reason.SKEW, "false"),
+        (
+            data,
+            "sourceMicroversion",
+            microversion,
+            Reason.REVISION,
+            "matching_revision",
+        ),
+        (data, "rollbackIndex", -1, Reason.ROLLBACK, "end_of_list"),
+        (config, "configurationParameters", [], Reason.CONFIGURED, "empty_array"),
+        (config, "currentConfiguration", [], Reason.CONFIGURED, "empty_array"),
+        (
+            config,
+            "sourceMicroversion",
+            microversion,
+            Reason.REVISION,
+            "matching_revision",
+        ),
+        (config, "microversionSkew", False, Reason.SKEW, "false"),
     ):
-        raise EditError("unsupported_target", 422)
-    items = data.get("features")
-    if not isinstance(items, list) or not 3 <= len(items) <= 20:
-        raise EditError("unsupported_target", 422)
-    features = [obj(f) for f in items]
+        actual = container.get(field, MISSING)
+        matches = (
+            actual is expected if isinstance(expected, bool) else actual == expected
+        )
+        require(
+            matches, reason, cast(FieldName, field), cast(Expected, category), actual
+        )
+    items = data.get("features", MISSING)
+    require(
+        isinstance(items, list) and 3 <= len(items) <= 20,
+        Reason.COUNT,
+        "features",
+        "three_to_twenty",
+        items,
+    )
+    features = [
+        obj(f, Reason.FEATURE_SHAPE, "feature", i + 1)
+        for i, f in enumerate(cast(list[JsonValue], items))
+    ]
     ids = [f.get("featureId") for f in features]
-    if any(not isinstance(i, str) or not 1 <= len(i) <= 256 for i in ids):
-        raise EditError("unsupported_target", 422)
-    if len(set(cast(list[str], ids))) != len(ids):
-        raise EditError("ambiguous_target")
-    states = obj(data.get("featureStates"))
+    for position, identity in enumerate(ids, 1):
+        require(
+            isinstance(identity, str) and 1 <= len(identity) <= 256,
+            Reason.ID,
+            "featureId",
+            "bounded_identity",
+            identity,
+            position,
+        )
+    require(
+        len(set(cast(list[str], ids))) == len(ids),
+        Reason.DUPLICATE,
+        "featureId",
+        "unique_identity",
+        ids,
+    )
+    states = obj(data.get("featureStates", MISSING), Reason.STATES, "featureStates")
     definitions: list[dict[str, JsonValue]] = []
     for index, feature in enumerate(features):
-        target = index == len(features) - 1
+        target, position = index == len(features) - 1, index + 1
         kind = feature.get("featureType")
-        state = obj(states.get(cast(str, ids[index])))
-        suppression = obj(feature.get("suppressionState"))
-        if (
-            kind not in ("newSketch", "extrude", "fillet")
-            or feature.get("btType")
-            != ("BTMSketch-151" if kind == "newSketch" else "BTMFeature-134")
-            or feature.get("namespace") != ""
-            or feature.get("subFeatures") != []
-            or feature.get("parentSuppressed") is not False
-            or feature.get("suppressionConfigured") is not False
-            or feature.get("returnAfterSubfeatures") is not False
-            or suppression.get("btType") != "BTMSuppressionState-1924"
-            or suppression.get("suppressionConfigured") is not False
-            or set(suppression) - {"btType", "nodeId", "suppressionConfigured"}
-            or feature.get("suppressed") is not (after and target)
-            or state.get("featureStatus") != "OK"
-            or state.get("inactive") is not (after and target)
-            or (target and kind != "fillet")
+        state = obj(
+            states.get(cast(str, ids[index]), MISSING),
+            Reason.STATE,
+            "featureState",
+            position,
+        )
+        suppression = obj(
+            feature.get("suppressionState", MISSING),
+            Reason.SUPPRESSION,
+            "suppressionState",
+            position,
+        )
+        require(
+            kind in ("newSketch", "extrude", "fillet"),
+            Reason.TYPE,
+            "featureType",
+            "standard_feature",
+            kind,
+            position,
+        )
+        require(
+            feature.get("btType")
+            == ("BTMSketch-151" if kind == "newSketch" else "BTMFeature-134"),
+            Reason.BT_TYPE,
+            "btType",
+            "standard_bt_type",
+            feature.get("btType", MISSING),
+            position,
+        )
+        require(
+            feature.get("namespace") == "",
+            Reason.NAMESPACE,
+            "namespace",
+            "empty_namespace",
+            feature.get("namespace", MISSING),
+            position,
+        )
+        require(
+            feature.get("subFeatures") == [],
+            Reason.SUBFEATURES,
+            "subFeatures",
+            "empty_array",
+            feature.get("subFeatures", MISSING),
+            position,
+        )
+        for field, reason in (
+            ("parentSuppressed", Reason.PARENT),
+            ("suppressionConfigured", Reason.CONFIGURED_SUPPRESSION),
+            ("returnAfterSubfeatures", Reason.RETURN),
         ):
-            raise EditError("unsupported_target", 422)
-        # Preserve ALL definition fields, including queries/parameters/unknown
-        # bookkeeping. Only the target's explicit suppression flag is excluded.
+            require(
+                feature.get(field) is False,
+                reason,
+                cast(FieldName, field),
+                "false",
+                feature.get(field, MISSING),
+                position,
+            )
+        require(
+            suppression.get("btType") == "BTMSuppressionState-1924",
+            Reason.SUPPRESSION,
+            "suppressionState",
+            "ordinary_suppression",
+            suppression.get("btType", MISSING),
+            position,
+        )
+        require(
+            suppression.get("suppressionConfigured") is False,
+            Reason.CONFIGURED_SUPPRESSION,
+            "suppressionConfigured",
+            "false",
+            suppression.get("suppressionConfigured", MISSING),
+            position,
+        )
+        require(
+            not (set(suppression) - {"btType", "nodeId", "suppressionConfigured"}),
+            Reason.SUPPRESSION_FIELDS,
+            "suppressionState",
+            "known_fields",
+            suppression,
+            position,
+        )
+        require(
+            feature.get("suppressed") is (after and target),
+            Reason.SUPPRESSED,
+            "suppressed",
+            "true" if after and target else "false",
+            feature.get("suppressed", MISSING),
+            position,
+        )
+        require(
+            state.get("featureStatus") == "OK",
+            Reason.STATUS,
+            "featureStatus",
+            "OK",
+            state.get("featureStatus", MISSING),
+            position,
+        )
+        require(
+            state.get("inactive") is (after and target),
+            Reason.INACTIVE,
+            "inactive",
+            "true" if after and target else "false",
+            state.get("inactive", MISSING),
+            position,
+        )
+        require(
+            not target or kind == "fillet",
+            Reason.TERMINAL,
+            "featureType",
+            "fillet",
+            kind,
+            position,
+        )
+        # No broad ignore-list: every captured definition field remains bound.
         definition = dict(feature)
         if target:
             definition.pop("suppressed")
         definitions.append(definition)
-    if not any(f.get("featureType") == "newSketch" for f in features) or not any(
-        f.get("featureType") == "extrude" for f in features
-    ):
-        raise EditError("unsupported_target", 422)
-    bodies = Bodies.model_validate(body_data)
-    if (
-        len(bodies.bodies) != 1
-        or bodies.bodies[0].type != "SOLID"
-        or bodies.errorEnum != "NO_ERROR"
-        or bodies.microversionId is None
-        or bodies.microversionId.theId != microversion
-        or bodies.microversionId.ambiguous is not False
-        or bodies.microversionId.deleted is not False
-    ):
-        raise EditError("unsupported_target", 422)
+    require(
+        any(f.get("featureType") == "newSketch" for f in features),
+        Reason.SKETCH,
+        "features",
+        "sketch",
+        features,
+    )
+    require(
+        any(f.get("featureType") == "extrude" for f in features),
+        Reason.EXTRUDE,
+        "features",
+        "extrude",
+        features,
+    )
+    try:
+        bodies = Bodies.model_validate(body_data)
+    except ValidationError:
+        require(False, Reason.BODY_SCHEMA, "bodies", "object", body_data)
+        raise AssertionError("unreachable") from None
+    body_raw = body_data if isinstance(body_data, dict) else {}
+    micro_raw = body_raw.get("microversionId", MISSING)
+    micro_fields = micro_raw if isinstance(micro_raw, dict) else {}
+    require(
+        len(bodies.bodies) == 1,
+        Reason.BODY_COUNT,
+        "bodies",
+        "one",
+        body_raw.get("bodies", MISSING),
+    )
+    require(
+        bodies.bodies[0].type == "SOLID",
+        Reason.BODY_TYPE,
+        "bodyType",
+        "SOLID",
+        bodies.bodies[0].type,
+    )
+    require(
+        bodies.errorEnum == "NO_ERROR",
+        Reason.BODY_ERROR,
+        "errorEnum",
+        "NO_ERROR",
+        body_raw.get("errorEnum", MISSING),
+    )
+    require(
+        bodies.microversionId is not None,
+        Reason.BODY_REVISION_MISSING,
+        "microversionId",
+        "object",
+        micro_raw,
+    )
+    assert bodies.microversionId is not None
+    require(
+        bodies.microversionId.theId == microversion,
+        Reason.BODY_REVISION,
+        "microversionId",
+        "matching_revision",
+        micro_fields.get("theId", MISSING),
+    )
+    require(
+        bodies.microversionId.ambiguous is False,
+        Reason.BODY_AMBIGUOUS,
+        "ambiguous",
+        "false",
+        micro_fields.get("ambiguous", MISSING),
+    )
+    require(
+        bodies.microversionId.deleted is False,
+        Reason.BODY_DELETED,
+        "deleted",
+        "false",
+        micro_fields.get("deleted", MISSING),
+    )
+    serialization, library = (
+        data.get("serializationVersion", MISSING),
+        data.get("libraryVersion", MISSING),
+    )
+    require(
+        isinstance(serialization, str) and 1 <= len(serialization) <= 64,
+        Reason.SERIALIZATION,
+        "serializationVersion",
+        "bounded_string",
+        serialization,
+    )
+    require(
+        type(library) is int and 0 <= library <= 2147483647,
+        Reason.LIBRARY,
+        "libraryVersion",
+        "nonnegative_int32",
+        library,
+    )
     label = features[-1].get("name")
     if (
         not isinstance(label, str)
@@ -111,7 +319,7 @@ def project_write_evidence(
         position=len(features),
         definitions=fingerprint(definitions),
         fingerprint=fingerprint([feature_data, configuration]),
-        serialization=cast(str, data.get("serializationVersion")),
-        library=cast(int, data.get("libraryVersion")),
+        serialization=cast(str, serialization),
+        library=cast(int, library),
         suppressed=after,
     )
