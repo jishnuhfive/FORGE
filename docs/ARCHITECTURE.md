@@ -409,3 +409,13 @@ bounded read through the existing `cad_gate` (same per-user in-flight guard and 
 the inspector and AI), projects it with `inspect()`, and evaluates pure functions. The browser
 cannot supply requirements, statuses, paths, hosts or tokens. Results hold fixed
 server-authored findings; nothing is cached or persisted.
+
+## Phase 10 learning extensions
+
+The Phase 7/8 session reducer gains per-step `expectation` and `investigations` state and an optional
+`transfer` sub-state (separate progress for the challenge). A `check-result` action now carries the
+server's compact per-requirement findings, so investigations open, resolve and revoke from the latest
+deterministic result alone. Guidance fading (`full` / `reduced` / `independent`) is computed in the
+reducer from currently resolved same-family investigations. The backend change is additive: one new step id,
+`transfer-single-profile`, in the existing `step_checks` catalog. No endpoint, table, scope or write path
+is added.

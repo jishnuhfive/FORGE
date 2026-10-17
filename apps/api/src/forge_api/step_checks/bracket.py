@@ -136,7 +136,72 @@ def mounting_geometry(inspector: CadInspector) -> Outcome:
             "met",
             "The body has added faces beyond a plain L-shaped bracket.",
         )
-    return _out("FAIL", "missing", "The body shows no added mounting faces yet.")
+    return _out(
+        "FAIL",
+        "missing",
+        "Forge doesn't see enough added faces yet for this step's mounting check.",
+    )
+
+
+def exactly_one_extrusion(inspector: CadInspector) -> Outcome:
+    """Transfer challenge constraint: the whole shape comes from one extrusion."""
+    if trustworthy(inspector):
+        return _stale()
+    counts = count_features(inspector, "extrude")
+    if counts is None:
+        return _unverified(
+            "evidence_unavailable",
+            "Forge couldn't read the feature list, so it can't count extrusions.",
+        )
+    if counts.active >= 2:
+        return _out(
+            "FAIL",
+            "constraint_not_met",
+            f"Forge sees {counts.active} active extrusions; this challenge asks "
+            "for exactly one.",
+        )
+    if counts.possibly_active:
+        return _unverified(
+            "evidence_incomplete",
+            "Forge can't tell whether every extrusion is active, so it can't "
+            "count them.",
+        )
+    if counts.active == 1:
+        return _out("PASS", "met", "Forge sees exactly one active extrusion.")
+    if not counts.absence_provable:
+        return _unverified(
+            "evidence_incomplete",
+            "Forge read only part of the feature list, so it can't confirm an "
+            "active extrusion.",
+        )
+    if counts.suppressed:
+        return _out(
+            "FAIL", "suppressed", "A matching feature exists but is suppressed."
+        )
+    return _out("FAIL", "missing", "Forge sees no active extrusion yet.")
+
+
+def l_profile_signal(inspector: CadInspector) -> Outcome:
+    """Faces above a plain block; fillets/chamfers keep it ambiguous."""
+    if trustworthy(inspector):
+        return _stale()
+    bodies = solid_bodies(inspector)
+    if bodies is None:
+        return _unverified("evidence_unavailable", "Body evidence could not be read.")
+    if bodies.max_faces is None:
+        return _unverified("evidence_incomplete", "Face counts are not fully known.")
+    if bodies.max_faces < L_BRACKET_FACES:
+        return _out("FAIL", "missing", "Forge sees only a plain block so far.")
+    fillets = count_features(inspector, "fillet")
+    chamfers = count_features(inspector, "chamfer")
+    if (fillets.active if fillets else 0) + (chamfers.active if chamfers else 0):
+        return _out(
+            "WARNING",
+            "ambiguous_signal",
+            "The face count fits an L-shaped profile, but fillets or chamfers "
+            "can also raise it.",
+        )
+    return _out("PASS", "met", "Forge sees a body with more faces than a plain block.")
 
 
 def not_observable(what: str) -> Outcome:
@@ -205,6 +270,35 @@ STEPS: dict[str, tuple[Requirement, ...]] = {
             ("hole geometry",),
             False,
             _fixed("hole count, size or position"),
+        ),
+    ),
+    "transfer-single-profile": (
+        Requirement(
+            "transfer.sketch", "Active sketch", ("features",), True, sketch_exists
+        ),
+        Requirement(
+            "transfer.one_extrusion",
+            "Exactly one extrusion",
+            ("features",),
+            True,
+            exactly_one_extrusion,
+        ),
+        Requirement(
+            "transfer.solid_body", "Solid body", ("bodies",), True, solid_body_exists
+        ),
+        Requirement(
+            "transfer.l_profile",
+            "Added faces beyond a plain block",
+            ("features", "bodies"),
+            True,
+            l_profile_signal,
+        ),
+        Requirement(
+            "transfer.dimensions",
+            "Intended dimensions",
+            ("parameter units",),
+            False,
+            _fixed("dimensions with verified units"),
         ),
     ),
     "review": (

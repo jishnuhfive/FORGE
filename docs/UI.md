@@ -308,3 +308,12 @@ verified / not yet / can't fully verify, error and cooldown. Status is shown wit
 a word, never color alone, through the existing StatusBadge tokens. One polite status region;
 evidence is a native disclosure. Learner "Mark step done" stays separate from "Steps Forge
 verified". A failed check never reveals a hint.
+
+## Phase 10 investigation and transfer UI
+
+Below a check result, an "Investigate" section shows what Forge observed, a radio-group prediction
+(always including "I'm not sure yet", neutral feedback, never red/green), a labeled possible explanation,
+a labeled try-next suggestion, and a "Verified after re-check" status after an explicit re-check. It adds no
+second hint system. Reduced and independent guidance are explained in the panel and never hide
+observations or caveats. The transfer challenge reuses the step view with its own progress and a separate
+"Restart challenge". Tested at 320, 360, 380, 400, 480 and 640 px, with keyboard, reduced motion and axe.

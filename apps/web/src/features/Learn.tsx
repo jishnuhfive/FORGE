@@ -6,9 +6,8 @@ import { useLearning } from '../learning/context';
 import { LearningProvider } from '../learning/LearningProvider';
 import { LearnerSetup } from '../learning/Setup';
 import { experienceOptions, goalOptions } from '../learning/options';
-import { HintLadder, LessonDisclosure, Vocabulary } from '../learning/Guidance';
-import { LessonProgress } from '../learning/Progress';
-import { CheckStep } from '../learning/CheckStep';
+import { ChallengeProgress, LessonProgress } from '../learning/Progress';
+import { StepBody } from '../learning/StepBody';
 
 export function Learn({
   resource = sampleResource,
@@ -70,10 +69,13 @@ function LessonUnavailable({
 function LearnWorkspace() {
   const learning = useLearning();
   const [resetOpen, setResetOpen] = useState(false);
+  const [restartOpen, setRestartOpen] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
   const session = learning?.session;
   const screen = session
-    ? `${session.phase}:${'stepIndex' in session ? session.stepIndex : ''}`
+    ? `${session.phase}:${'stepIndex' in session ? session.stepIndex : ''}:${
+        'transfer' in session ? (session.transfer?.phase ?? '') : ''
+      }`
     : '';
   const previousScreen = useRef(screen);
   useEffect(() => {
@@ -88,13 +90,20 @@ function LearnWorkspace() {
     state.phase === 'active' ? lesson.steps[state.stepIndex] : undefined;
   const interaction =
     state.phase === 'active' ? state.interactions[state.stepIndex] : undefined;
+  const challenge = lesson.transfer;
+  const transfer = state.phase === 'completed' ? state.transfer : undefined;
+  const challengeStep =
+    challenge && transfer ? challenge.steps[transfer.stepIndex] : undefined;
+  const challengeInteraction = transfer?.interactions[transfer.stepIndex];
   const title =
     state.phase === 'setup'
       ? 'Learn with Forge'
       : state.phase === 'introduction'
         ? lesson.title
         : state.phase === 'completed'
-          ? 'Lesson complete'
+          ? challenge && transfer
+            ? challenge.title
+            : 'Lesson complete'
           : active?.title;
   return (
     <div className="feature learning-workspace">
@@ -198,36 +207,11 @@ function LearnWorkspace() {
       )}
       {state.phase === 'active' && active && interaction && (
         <>
-          <p className="learning-objective">
-            <span className="muted">Objective</span>
-            {active.objective}
-          </p>
-          <section className="learning-section">
-            <h2>What to do</h2>
-            <p>{active.instruction}</p>
-          </section>
-          <LessonDisclosure
-            title="Why this step"
-            open={interaction.whyOpen}
-            onToggle={() => dispatch({ type: 'why', stepId: active.id })}
-          >
-            <p>{active.why}</p>
-          </LessonDisclosure>
-          {active.vocabulary && (
-            <Vocabulary
-              terms={active.vocabulary}
-              interaction={interaction}
-              dispatch={dispatch}
-            />
-          )}
-          <HintLadder
+          <StepBody
             step={active}
             interaction={interaction}
             dispatch={dispatch}
           />
-          {active.check && (
-            <CheckStep key={active.id} stepId={active.id} dispatch={dispatch} />
-          )}
           <LessonProgress session={state} lesson={lesson} />
           <div className="learning-continuation">
             <p className="muted small">
@@ -262,7 +246,7 @@ function LearnWorkspace() {
           </div>
         </>
       )}
-      {state.phase === 'completed' && (
+      {state.phase === 'completed' && !transfer && (
         <>
           <p>{lesson.completionMessage}</p>
           <LessonProgress session={state} lesson={lesson} summary />
@@ -277,16 +261,117 @@ function LearnWorkspace() {
               <p>{lesson.followUpChallenge.prompt}</p>
             </section>
           )}
+          {challenge && (
+            <section className="learning-section">
+              <h2>{challenge.title}</h2>
+              <p>{challenge.summary}</p>
+              <ul>
+                {challenge.constraints.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+              <div className="learning-continuation">
+                <Button
+                  tabIndex={0}
+                  variant="primary"
+                  onClick={() => dispatch({ type: 'transfer-start' })}
+                >
+                  Start the transfer challenge
+                </Button>
+                <p className="muted small">
+                  Optional. It has its own progress, and less guidance than the
+                  guided lesson.
+                </p>
+              </div>
+            </section>
+          )}
           <p className="muted small">
             Your progress stays here until you reset or this panel session ends.
           </p>
         </>
       )}
+      {state.phase === 'completed' &&
+        challenge &&
+        transfer &&
+        challengeStep &&
+        challengeInteraction && (
+          <>
+            <section className="learning-section">
+              <h2>Constraints</h2>
+              <ul>
+                {challenge.constraints.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </section>
+            {transfer.phase === 'active' && (
+              <>
+                <StepBody
+                  step={challengeStep}
+                  interaction={challengeInteraction}
+                  dispatch={dispatch}
+                />
+                <ChallengeProgress session={state} lesson={lesson} />
+                <div className="learning-continuation">
+                  <p className="muted small">
+                    Marking the challenge done records your own progress. It is
+                    separate from what Forge verifies.
+                  </p>
+                  {challengeInteraction.completed && (
+                    <p role="status">Challenge marked done by you.</p>
+                  )}
+                  <Button
+                    tabIndex={0}
+                    variant="primary"
+                    onClick={() =>
+                      dispatch({
+                        type: challengeInteraction.completed
+                          ? 'advance'
+                          : 'mark-done',
+                        stepId: challengeStep.id,
+                      })
+                    }
+                  >
+                    {challengeInteraction.completed
+                      ? 'Finish challenge'
+                      : 'Mark challenge done'}
+                  </Button>
+                </div>
+              </>
+            )}
+            {transfer.phase === 'completed' && (
+              <>
+                <p>{challenge.completionMessage}</p>
+                <ChallengeProgress session={state} lesson={lesson} />
+                <p className="muted">
+                  This reflects what you did and what Forge could verify. Forge
+                  could not check dimensions, units, mass, fit or strength, and
+                  this is not a grade or a measure of your skill.
+                </p>
+              </>
+            )}
+            <div className="learning-continuation">
+              <Button
+                tabIndex={0}
+                variant="ghost"
+                onClick={(event) => {
+                  event.currentTarget.focus();
+                  setRestartOpen(true);
+                }}
+              >
+                Restart challenge
+              </Button>
+              <p className="muted small">
+                Your guided lesson progress is kept.
+              </p>
+            </div>
+          </>
+        )}
       <Dialog
         open={resetOpen}
         onOpenChange={setResetOpen}
         title="Reset this lesson?"
-        description="This clears your experience choice, goal, steps, hints and vocabulary history from this panel session."
+        description="This clears your experience choice, goal, steps, hints, predictions, investigations, challenge progress and vocabulary history from this panel session."
       >
         <div className="action-bar">
           <Button tabIndex={0} onClick={() => setResetOpen(false)}>
@@ -301,6 +386,28 @@ function LearnWorkspace() {
             }}
           >
             Reset lesson progress
+          </Button>
+        </div>
+      </Dialog>
+      <Dialog
+        open={restartOpen}
+        onOpenChange={setRestartOpen}
+        title="Restart the challenge?"
+        description="This clears only your challenge progress. Your guided lesson progress stays."
+      >
+        <div className="action-bar">
+          <Button tabIndex={0} onClick={() => setRestartOpen(false)}>
+            Keep going
+          </Button>
+          <Button
+            tabIndex={0}
+            variant="danger"
+            onClick={() => {
+              dispatch({ type: 'transfer-restart' });
+              setRestartOpen(false);
+            }}
+          >
+            Restart challenge
           </Button>
         </div>
       </Dialog>
