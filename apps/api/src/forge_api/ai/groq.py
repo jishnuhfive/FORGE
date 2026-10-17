@@ -11,7 +11,7 @@ from forge_api.integrations.onshape.client import bounded_json
 from .diagnostics import Reason
 from .models import AiError, ModelAnswer, ToolArguments
 from .output import parse_model_answer
-from .policy import POLICY
+from .policy import FIRST_ROUND, POLICY
 from .provider import AgentTask, task_messages
 from .transport import GROQ_ENDPOINT, post_json
 
@@ -37,7 +37,11 @@ TOOL = {
 }
 
 
-def message(value: object, *, tool: bool) -> dict[str, object]:
+MAX_CHAT_CHARS = 1500
+
+
+def message(value: object, *, tool: bool | None) -> dict[str, object]:
+    """tool=None accepts either a tool call or a plain reply (the first round)."""
     if not isinstance(value, dict):
         raise AiError("invalid_response", reason=Reason.PROVIDER_ENVELOPE_INVALID)
     choices = value.get("choices")
@@ -58,10 +62,25 @@ def message(value: object, *, tool: bool) -> dict[str, object]:
         raise AiError("invalid_response", reason=Reason.PROVIDER_ENVELOPE_INVALID)
     if result.get("refusal"):
         raise AiError("refused")
-    if finish != ("tool_calls" if tool else "stop"):
+    expected = (
+        ("tool_calls", "stop")
+        if tool is None
+        else (("tool_calls",) if tool else ("stop",))
+    )
+    if finish not in expected:
         raise AiError("invalid_response", reason=Reason.PROVIDER_ENVELOPE_INVALID)
     # Explicitly ignore any unexpected reasoning field. It is never replayed.
     return result
+
+
+def structured(text: str) -> bool:
+    """A JSON object is an attempted structured answer, never conversation."""
+    if not text.startswith("{"):
+        return False
+    try:
+        return isinstance(json.loads(text), dict)
+    except ValueError:
+        return False
 
 
 class GroqProvider:
@@ -94,33 +113,45 @@ class GroqProvider:
         # Groq Chat's store option is unsupported; do not send OpenAI-only flags.
         return await post_json(self._transport, GROQ_ENDPOINT, key, payload, request_id)
 
-    async def request_inspection(self, task: AgentTask, *, request_id: str) -> None:
+    async def request_inspection(
+        self, task: AgentTask, *, request_id: str
+    ) -> str | None:
+        """None after a validated inspect call; else the model's plain chat reply."""
         if self._started:
             raise AiError("invalid_response", reason=Reason.TOOL_LOOP_STATE_ERROR)
         self._started = True
         messages = task_messages(task)
         messages.insert(0, {"role": "system", "content": POLICY})
+        # Only this round's request carries the first-round instruction; the
+        # continuation below keeps the plain policy for the answer round.
+        inspection_messages = [
+            {"role": "system", "content": POLICY + FIRST_ROUND},
+            *messages[1:],
+        ]
         result = message(
             await self._request(
                 {
-                    "messages": messages,
+                    "messages": inspection_messages,
                     "tools": [TOOL],
                     "parallel_tool_calls": False,
-                    "tool_choice": {
-                        "type": "function",
-                        "function": {"name": "inspect_current_cad"},
-                    },
+                    # The model chooses: inspect for model questions, else reply.
+                    "tool_choice": "auto",
                     "max_completion_tokens": INSPECTION_TOKENS,
                 },
                 request_id,
             ),
-            tool=True,
+            tool=None,
         )
         calls = result.get("tool_calls")
-        if (
-            result.get("content") not in (None, "")
-            or not isinstance(calls, list)
-            or len(calls) != 1
+        if not calls:
+            # General conversation: no CAD is read. Only bounded plain text passes.
+            content = result.get("content")
+            text = content.strip() if isinstance(content, str) else ""
+            if not text or len(text) > MAX_CHAT_CHARS or structured(text):
+                raise AiError("invalid_response", reason=Reason.FINAL_CONTENT_INVALID)
+            return text
+        if result.get("content") not in (None, "") or (
+            not isinstance(calls, list) or len(calls) != 1
         ):
             raise AiError("invalid_response", reason=Reason.TOOL_CALL_SHAPE_INVALID)
         call = calls[0]
@@ -159,6 +190,7 @@ class GroqProvider:
             ],
         }
         self._continuation = messages + [validated_call]
+        return None
 
     async def answer_with_evidence(
         self, evidence: str, *, request_id: str

@@ -155,3 +155,20 @@ def overview(inspector: CadInspector) -> str:
             "Some details are only partially captured or remain unverified."
         )
     return "\n\n".join(paragraphs)
+
+
+# A general chat reply is model-written text that was NOT grounded in the user's
+# model. If it nevertheless talks about their model, say so plainly.
+_MODEL_TALK = re.compile(
+    r"\b(?:your|the user's)\s+(?:model|part studio|sketch(?:es)?|extru\w+|features?|"
+    r"bod(?:y|ies)|parts?|bracket|mass|dimensions?)\b",
+    re.IGNORECASE,
+)
+GENERAL_REPLY_NOTE = (
+    "This is a general reply. Forge didn't read your model for it, so it isn't "
+    "verified against your design."
+)
+
+
+def mentions_model(reply: str) -> bool:
+    return bool(_MODEL_TALK.search(reply))

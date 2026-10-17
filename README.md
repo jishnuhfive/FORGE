@@ -178,3 +178,8 @@ with real account credentials. Existing Phase 0 and Phase 1 commits remain intac
 
 Phase 3 extension registration, exact local URLs, source-contract gap and manual
 acceptance steps: [Onshape extension](docs/ONSHAPE_EXTENSION.md).
+
+Phase 10 (merged to main before Phase 9; not yet human-validated in real Onshape) adds mistake
+investigation, prediction prompts, explainable guidance fading and an optional transfer challenge to
+the Mounting Bracket. It is read-only and session-local. See
+[PHASE_10_REVIEW.md](docs/PHASE_10_REVIEW.md).

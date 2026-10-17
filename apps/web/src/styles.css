@@ -1836,3 +1836,34 @@ ul.compact-list {
 .check-label {
   font-weight: 600;
 }
+.learning-investigation {
+  margin-block: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+  display: grid;
+  gap: var(--space-2);
+}
+.learning-investigation h2,
+.learning-investigation h3 {
+  margin: 0;
+}
+.learning-investigation h3 {
+  font-size: var(--text-caption);
+  color: var(--muted);
+}
+.learning-investigation p {
+  margin: 0;
+}
+.learning-verified {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.chat-lead {
+  margin: 0 0 var(--space-2);
+  color: var(--text);
+}
+.chat-lead.muted {
+  margin: var(--space-3) 0 0;
+  color: var(--muted);
+}

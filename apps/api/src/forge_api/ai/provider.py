@@ -26,8 +26,11 @@ def task_messages(task: AgentTask) -> list[dict[str, object]]:
 
 
 class AiProvider(Protocol):
-    async def request_inspection(self, task: AgentTask, *, request_id: str) -> None:
-        """Return only after validating exactly inspect_current_cad({})."""
+    async def request_inspection(
+        self, task: AgentTask, *, request_id: str
+    ) -> str | None:
+        """Validate exactly inspect_current_cad({}) and return None, or return the
+        model's plain conversational reply when no inspection is needed."""
         ...
 
     async def answer_with_evidence(
