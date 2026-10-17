@@ -9,6 +9,7 @@ from pydantic import JsonValue, ValidationError
 
 from forge_api.cad_edits.domain import (
     Baseline,
+    BodyRevisionEvidence,
     ConfiguredSuppressionEvidence,
     FeatureStateEvidence,
     ParentSuppressionEvidence,
@@ -29,6 +30,7 @@ def project_write_evidence(
     body_data: JsonValue,
     *,
     after: bool = False,
+    pinned_body_microversion: str | None = None,
 ) -> Baseline:
     def obj(
         value: object, reason: Reason, field: FieldName, position: int | None = None
@@ -339,20 +341,26 @@ def project_write_evidence(
         "matching_revision",
         micro_fields.get("theId", MISSING),
     )
-    require(
-        bodies.microversionId.ambiguous is False,
-        Reason.BODY_AMBIGUOUS,
-        "ambiguous",
-        "false",
-        micro_fields.get("ambiguous", MISSING),
-    )
-    require(
-        bodies.microversionId.deleted is False,
-        Reason.BODY_DELETED,
-        "deleted",
-        "false",
-        micro_fields.get("deleted", MISSING),
-    )
+    ambiguous = micro_fields.get("ambiguous", MISSING)
+    deleted = micro_fields.get("deleted", MISSING)
+    if ambiguous is MISSING and deleted is MISSING:
+        # This is transport evidence, not a default for either optional flag.
+        # Only the fixed client supplies it after m/{same} reads and head checks.
+        require(
+            pinned_body_microversion == microversion,
+            Reason.BODY_PINNING,
+            "microversionId",
+            "matching_revision",
+            pinned_body_microversion,
+        )
+        body_revision_evidence = BodyRevisionEvidence.EXACT_PINNED_ID_FLAGS_UNAVAILABLE
+    else:
+        # Mixed false/missing, explicit null, true and malformed shapes reject.
+        require(
+            ambiguous is False, Reason.BODY_AMBIGUOUS, "ambiguous", "false", ambiguous
+        )
+        require(deleted is False, Reason.BODY_DELETED, "deleted", "false", deleted)
+        body_revision_evidence = BodyRevisionEvidence.EXPLICIT_CLEAN_FLAGS
     serialization, library = (
         data.get("serializationVersion", MISSING),
         data.get("libraryVersion", MISSING),
@@ -390,6 +398,7 @@ def project_write_evidence(
         serialization=cast(str, serialization),
         library=cast(int, library),
         suppressed=after,
+        body_revision_evidence=body_revision_evidence,
         feature_state_evidence=state_evidence,
         suppression_aux_evidence=tuple(suppression_evidence),
         parent_suppression_evidence=tuple(parent_evidence),

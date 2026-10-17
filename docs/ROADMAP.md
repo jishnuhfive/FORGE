@@ -193,6 +193,13 @@ endpoint. These are evidence modes, not inferred false. Explicit conflicts rejec
 raw presence and modes remain approval/verification-bound. No feature-state policy,
 broader edit authority or Gate A/B change.
 
+The current body policy binds exact immutable requested/returned microversion
+identity. Both optional marker flags absent means explicitly unavailable evidence,
+never false; both explicit false flags remain supported. True/null/malformed/mixed
+flags reject. One SOLID, supported body error state, pinned reads, head bracketing,
+approval and original provider guard remain required. Writes stay OFF, diagnostics
+ON for investigation, and Gate A/B remain UNPROVEN.
+
 The prior Phase 9 Reality Lock inventory topic remains planned for later explicit
 resequencing; it is not dropped or implemented by this preparation. Mistake
 investigation moves to the later learning backlog (Phase 14). Assemblies/mates

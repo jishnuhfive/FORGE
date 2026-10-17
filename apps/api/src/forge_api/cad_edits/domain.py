@@ -70,6 +70,11 @@ class ConfiguredSuppressionEvidence(StrEnum):
     INDEPENDENTLY_PROVEN_UNCONFIGURED = "INDEPENDENTLY_PROVEN_UNCONFIGURED"
 
 
+class BodyRevisionEvidence(StrEnum):
+    EXPLICIT_CLEAN_FLAGS = "EXPLICIT_CLEAN_FLAGS"
+    EXACT_PINNED_ID_FLAGS_UNAVAILABLE = "EXACT_PINNED_ID_FLAGS_UNAVAILABLE"
+
+
 class Baseline(Closed):
     context: WorkspaceReference
     microversion: CadId
@@ -81,6 +86,7 @@ class Baseline(Closed):
     serialization: Annotated[str, Field(min_length=1, max_length=64)]
     library: Annotated[int, Field(ge=0, le=2147483647)]
     suppressed: bool
+    body_revision_evidence: BodyRevisionEvidence
     feature_state_evidence: FeatureStateEvidence
     suppression_aux_evidence: Annotated[
         tuple[SuppressionAuxEvidence, ...], Field(min_length=3, max_length=20)
@@ -95,7 +101,7 @@ class Baseline(Closed):
 
 class Proposal(Closed):
     schema_version: Literal["forge-write-proposal-v1"] = "forge-write-proposal-v1"
-    policy_version: Literal["terminal-fillet-4"] = "terminal-fillet-4"
+    policy_version: Literal["terminal-fillet-5"] = "terminal-fillet-5"
     operation_type: Literal["suppress_terminal_fillet_v1"] = (
         "suppress_terminal_fillet_v1"
     )

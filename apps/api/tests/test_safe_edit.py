@@ -72,12 +72,16 @@ def config(marker: str = M0) -> dict[str, Any]:
     }
 
 
-def bodies(marker: str = M0) -> dict[str, Any]:
-    return {
+def bodies(marker: str = M0, *, explicit_flags: bool = True) -> dict[str, Any]:
+    data: dict[str, Any] = {
         "bodies": [{"id": "synthetic-body", "type": "SOLID"}],
         "microversionId": {"theId": marker, "ambiguous": False, "deleted": False},
         "errorEnum": "NO_ERROR",
     }
+    if not explicit_flags:
+        del data["microversionId"]["ambiguous"]
+        del data["microversionId"]["deleted"]
+    return data
 
 
 class Provider:
@@ -136,7 +140,8 @@ class Provider:
         if request.url.path.endswith("/configuration"):
             return httpx.Response(200, json=config(self.marker))
         if request.url.path.endswith("/bodydetails"):
-            return httpx.Response(200, json=bodies(self.marker))
+            # Observed v17 marker: exact theId, both optional flags omitted.
+            return httpx.Response(200, json=bodies(self.marker, explicit_flags=False))
         assert request.url.path.endswith("/features")
         return httpx.Response(200, json=self.data)
 

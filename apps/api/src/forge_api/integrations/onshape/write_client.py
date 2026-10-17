@@ -117,12 +117,22 @@ class SafeEditClient:
         )
         if self.head(context) != microversion:
             raise EditError("model_changed")
+        self._observe_body_evidence(bodies, microversion)
         try:
             return project_write_evidence(
-                context, microversion, features, configuration, bodies, after=after
+                context,
+                microversion,
+                features,
+                configuration,
+                bodies,
+                after=after,
+                pinned_body_microversion=microversion,
             )
         except ValueError, TypeError:
             raise EditError("unsupported_target", 422) from None
+
+    def _observe_body_evidence(self, bodies: JsonValue, microversion: str) -> None:
+        """DEV subclass hook after the bounded, pinned reads pass head bracketing."""
 
     def suppress_terminal_fillet(self, proposal: Proposal) -> str:
         if not self._enabled:

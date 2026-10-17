@@ -440,7 +440,7 @@ records and durable deny fences. Committed atomic claims, shared user/session/gr
 coordination and unique workspace/user fences protect multiple workers. Uncertain
 writes are never retried or automatically rolled back. Cleanup cannot remove fences.
 
-The operation-specific `terminal-fillet-4` policy binds an explicit feature-state
+The operation-specific `terminal-fillet-5` policy binds an explicit feature-state
 evidence mode into the baseline/digest. A nonempty state map must cover the inventory
 exactly and pass every strict status/inactive check. An exactly empty map means
 `UNAVAILABLE_EMPTY`, never inferred OK/active; structural suppression, pinned
@@ -460,6 +460,18 @@ prove no active configuration inputs. Explicit true/null/wrong-type guards rejec
 Raw omissions remain fingerprinted; nothing is synthesized. Required per-feature
 modes bind baseline/digest/stale/post-write checks. Guarded write and feature-state
 map policy are unchanged; no wider CAD authority or model-health claim is added.
+
+Body revision evidence is required in the baseline/digest. `EXPLICIT_CLEAN_FLAGS`
+requires a matching returned `theId` and both marker flags explicitly false.
+`EXACT_PINNED_ID_FLAGS_UNAVAILABLE` requires both flags absent, the same explicit
+returned ID, and transport proof of a bodydetails read at `m/{same}` after equal
+head-before/head-after checks. Missing flags remain unavailable, never false.
+Mixed, null, malformed or true flags reject. Both modes require exactly one SOLID
+and `NO_ERROR`; all feature/configuration reads share the pinned revision. Fresh
+pre-dispatch mode changes invalidate approval. Verification independently re-proves
+either accepted mode at the exact new acknowledged revision; invalid evidence
+retains uncertainty/fences without retry. No raw body payload or flag defaults
+are persisted. Existing original-version write guards remain mandatory.
 
 Writes default OFF. OAuth2Write is not enabled in the external app by this work.
 Gate A suppression-payload behavior and Gate B provider atomic stale rejection are

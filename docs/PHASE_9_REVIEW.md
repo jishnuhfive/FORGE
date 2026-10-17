@@ -209,8 +209,9 @@ states mean OK or active, provider atomic stale rejection, or whole-model health
 default. Inventory fingerprints still include the entire returned feature response
 and configuration; the proposal digest also binds this mode. The policy is now
 `terminal-fillet-2` at that checkpoint; the auxiliary-suppression revision below
-advanced it to `terminal-fillet-3`. The guard-evidence revision below advances to
-`terminal-fillet-4` without changing this feature-state policy.
+advanced it to `terminal-fillet-3`. The guard-evidence revision advanced to
+`terminal-fillet-4`; the current body revision below advances to `terminal-fillet-5`
+without changing this feature-state policy.
 Old policy records or records missing the explicit mode cannot
 decode for execution. A mode/map change during discovery, proposal preparation or
 fresh pre-dispatch capture invalidates the old baseline even at the same marker.
@@ -220,12 +221,12 @@ Both accepted modes require a real workspace Part Studio, unconfigured configura
 complete pinned inventory, matching source and no skew, exact documented rollback
 end, 3–20 features, unique bounded IDs, only supported standard classes/types and
 namespace, a Sketch and Extrude, no subfeatures or unexpected return, explicit false
-parent/configured suppression evidence and an accepted auxiliary suppression mode (strict
+or independently proven parent/configured suppression evidence and an accepted auxiliary suppression mode (strict
 ordinary object or exactly null, as detailed below). Every explicit
 `suppressed` field must be present and false before the write; the final feature
 must be the ordinary unsuppressed Fillet. Serialization/library remain bounded.
-The existing body contract requires exactly one SOLID, NO_ERROR, matching pinned
-microversion and explicitly nonambiguous/nondeleted marker. Configuration must be
+The body contract requires exactly one SOLID, NO_ERROR, matching pinned
+microversion and an accepted body-revision mode, detailed below. Configuration must be
 empty and match the same microversion. Every captured feature definition, including
 IDs/order/types and parameters, is fingerprinted; only terminal suppression is
 excluded from the before/after definition digest. The existing geometry-minimizing
@@ -430,7 +431,7 @@ Feature-state COMPLETE / exactly-empty UNAVAILABLE_EMPTY policy is unchanged.
 No provider dictionary gains false flags. Missing remains absent in captured
 definitions and raw inventory/configuration fingerprints. Baseline/proposal now
 retain per-feature parent/configured evidence-mode tuples, without defaults.
-Policy `terminal-fillet-4` requires fresh previews; old policy or missing-mode
+At that checkpoint policy `terminal-fillet-4` required fresh previews; old policy or missing-mode
 records cannot execute. Fresh pre-dispatch comparison binds raw presence, modes,
 identity, original approved marker and the entire baseline. Post-write fresh reads
 re-prove both independent conditions and explicitly compare these modes. Target
@@ -466,10 +467,10 @@ changes. The guard proof passed and the next unchanged predicate rejected:
 safe_edit_reject reason=body_microversion_ambiguous position=None field=ambiguous expected=false actual_type=missing actual_boolean=None
 ```
 
-This reports a missing required body marker flag; it does not establish actual
-geometric ambiguity. The live target **still is not eligible** and no candidate,
-proposal, claim or CAD write was created by this probe. That body contract needs a
-separate review. No body predicate was weakened to get through this gate.
+At that checkpoint this reported a missing required body marker flag; it did not
+establish actual geometric ambiguity. The live target was not eligible and no
+candidate, proposal, claim or CAD write was created by that probe. The separate
+body-contract review below supersedes that marker policy.
 
 No separate manually prepared configured-control target was provided during this
 implementation. The optional live A/B configured-control comparison was not run;
@@ -489,9 +490,117 @@ OAuth app permissions or Phase 8 review changed. Secret/private-CAD-context scan
 passed. The running API remained writes OFF / diagnostics ON. All mutation tests
 used synthetic transports; the live probe performed GETs only.
 
-The exact next human step is CAD Inspector → Refresh CAD with writes OFF and diagnostics ON; collect only
+The next human step at that checkpoint was CAD Inspector → Refresh CAD with writes OFF and diagnostics ON; collect only
 the safe metadata and the body-flag rejection for its separate official-contract
 review. Gate A and Gate B remain UNPROVEN; do not approve a mutation.
+
+### Current body revision evidence: exact immutable identity, no inferred flags
+
+The [current official OpenAPI](https://cad.onshape.com/api/openapi) was fetched
+again before changing policy. It advertises `/api/v17`, build
+`1.222.90730-c8d74e607a47`, SHA-256
+`d93a3c77e5f4a61f69ce865e815da4fe628178bb37cb6de4d91028f2c2bdc9aa`.
+`BTMicroversionId-366` declares Boolean `ambiguous`, Boolean `deleted` and string
+`theId`, with **no required-property declaration**. This does not give omitted
+flags a false value. `getPartStudioBodyDetails` accepts `wvm=m` and returns
+`BTExportModelBodiesResponse-734`, whose marker is that schema.
+[Onshape architecture](https://onshape-public.github.io/docs/api-intro/architecture/)
+establishes that document microversions cannot change; the
+[REST introduction](https://onshape-public.github.io/docs/api-intro/)
+documents the exact `m/{microversion}` reference form.
+
+Before the policy edit, the human selected the disposable target and the extended
+DEV diagnostic ran through the existing backend authorization with writes OFF and
+diagnostics ON. CAD transport was additionally guarded to GET-only fixed v17
+paths. Nine CAD GETs completed; the old policy still rejected the missing
+`ambiguous` flag. The safe body report was:
+
+```json
+{
+  "the_id": "present",
+  "the_id_matches_requested": true,
+  "ambiguous": "missing",
+  "deleted": "missing",
+  "body_count": 1,
+  "body_type": "SOLID",
+  "error_enum": "NO_ERROR"
+}
+```
+
+Both optional flags were omitted. The complete three-feature inventory, empty
+state map, null auxiliary suppression, explicit suppressed=false, omitted parent/
+configured guards and independent empty configuration proof matched the preceding
+capture. No private CAD IDs, names, URLs, raw body JSON, geometry or credentials
+were logged, persisted or copied into fixtures. The diagnostic emits only the
+fixed categories/count above after successful head bracketing, through the existing
+DEV-only inspector probe; no public endpoint or response header was added.
+
+The old body policy required both flags explicitly false and rejected their
+absence. Policy `terminal-fillet-5` now requires `Baseline.body_revision_evidence`
+without a default and accepts exactly two modes:
+
+| Mode                                | Required proof                                                                                                                                                               |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `EXPLICIT_CLEAN_FLAGS`              | Present marker object, explicit exact matching `theId`, `ambiguous is False` and `deleted is False`                                                                          |
+| `EXACT_PINNED_ID_FLAGS_UNAVAILABLE` | Present marker object, explicit exact matching `theId`, both optional flags absent, and fixed-client transport proof of `m/{same}` after equal head-before/head-after checks |
+
+Invalid evidence has no accepted mode. Missing/malformed marker or ID, mismatched
+ID, either true, explicit null, wrong type, and mixed false/missing shapes reject.
+Python integers 0/1 are not Booleans. Both absent flags remain absent; neither is
+synthesized, stored as false or described as explicitly clean. The narrower proof
+is that Onshape returned body output identifying the exact immutable revision
+Forge requested. Optional explicit flags remain additional negative evidence.
+
+The fixed client constructs feature/configuration/body paths from the same strict
+head marker using `m/{same}`, checks the head again, then supplies internal pinned
+read evidence to the projector. A matching response ID alone cannot authorize the
+unavailable-flags mode. Exactly one body, type exactly SOLID, `NO_ERROR`, strict
+body schema, complete bounded supported feature inventory, no skew, independent
+empty configuration, terminal Fillet and explicit suppression remain mandatory.
+No unrelated predicate, query, scope, approval, fence, retry or write boundary changes.
+
+The new mode is included in closed baseline/proposal JSON and its digest. Full
+fresh baseline equality rejects a mode change even at the same marker; feature/
+configuration fingerprints and captured definition digests remain unchanged.
+Older-policy or missing/invalid-mode records cannot decode for execution and need
+fresh previews. No schema migration or raw body persistence is added.
+
+Post-write verification uses the same pinned read path and requires the response
+ID to match the exact new acknowledged marker, one SOLID and `NO_ERROR`. Either
+accepted mode is independently re-proven at that new revision; it need not match
+the before-mode. All other post-write invariants remain. True/null/wrong-type/
+mixed flags, missing/mismatched IDs or invalid body output produce execution
+uncertainty, retain the fence and never retry. Synthetic tests prove this behavior;
+they do not establish real provider write conformance.
+
+The follow-up probe used the same GET-only transport with writes OFF and diagnostics
+ON. All nine CAD GETs completed, the same safe body metadata was observed, and the
+read predicates passed with `EXACT_PINNED_ID_FLAGS_UNAVAILABLE`. This establishes
+read-only target eligibility for that captured state, not either write-conformance
+gate. Across the before/after probes, **18 CAD GETs and ZERO CAD writes** occurred.
+No live candidate, proposal, claim, fence or approval was created.
+
+Verification: **172 new body/diagnostic regressions**, **807 focused safe-edit/
+provider tests passed** (seven PostgreSQL cases skipped there, then passed in the
+full gate). The full gate passed **1,544 backend tests**, including all ten real
+PostgreSQL cases (seven safe-edit), **642 frontend tests**, and **57 Modify/Phase 8
+browser cases** (33 Modify, 24 Mounting Bracket across Chromium/Firefox/WebKit).
+Coverage includes both body modes before/after, strict invalid/mixed flag and
+marker shapes, missing transport proof, unchanged body safeguards, mode/digest
+binding, stale approval, old records, post-write uncertainty/fences/no retry, safe
+diagnostic privacy and no inferred false defaults. Format, lint, TypeScript, strict
+mypy (96 files), production build, Alembic migration check (no new operations),
+dependency audits, whitespace and local Markdown link checks passed. No dependency,
+lockfile, migration, environment file or Phase 8 review changed. All mutation tests
+used synthetic provider transports. The running API remained writes OFF and
+diagnostics ON; secret/private-CAD-context checks passed.
+
+The exact next human step is to keep writes OFF and diagnostics ON, reload the
+current local Forge panel, then use **CAD Inspector → Refresh CAD** on the same
+disposable Sketch → Extrude → Fillet Part Studio. Collect only
+`safe_edit_body_coverage` and the fixed probe outcome/rejection. Do not prepare or
+approve a mutation. **ZERO real CAD writes; Gate A UNPROVEN; Gate B UNPROVEN.**
+No OAuth app permissions were changed.
 
 `eligibility.py` now defines closed fixed reasons and bounded diagnostic metadata.
 Each deterministic rejection logs `safe_edit_reject` with reason, known field,
@@ -577,9 +686,9 @@ Server eligibility requires a workspace Part Studio on the configured standard
 `https://cad.onshape.com` v17 stack, unconfigured configuration, complete 3–20-feature
 inventory, unique feature IDs, only standard `newSketch` / `extrude` / `fillet`, at
 least a Sketch and Extrude, a final Fillet, no namespace/subfeatures/parent suppression,
-explicit safe nonconfigured/parent/suppressed Booleans, an accepted auxiliary mode
+explicit safe suppression, accepted parent/configured evidence, an accepted auxiliary mode
 and rollback at the documented end. Exactly
-one SOLID body and known matching nonambiguous, nondeleted microversion are required.
+one SOLID body and matching pinned marker with an accepted body-revision mode are required.
 All features must be explicitly unsuppressed before the write. A complete state map
 adds strict OK/inactive checks; an exactly empty map records unavailable evidence
 under the operation-specific policy above. Partial/invalid maps and missing critical
@@ -731,8 +840,8 @@ run `make migrate` explicitly before starting the upgraded backend.
 
 Operational records contain random handle, user FK, hashed session, fixed state,
 digest, closed proposal JSON, timestamps. JSON contains the necessary CAD identities,
-sanitized label, microversion, explicit feature-state and per-position auxiliary
-suppression evidence modes, fingerprints
+sanitized label, microversion, explicit body-revision and feature-state modes,
+per-position auxiliary/parent/configured suppression evidence modes, fingerprints
 and versions for binding/reconciliation;
 no prompt, token, raw feature/configuration/body payload or model reasoning. Pending
 payload is cleared on cancel/expiry/invalidation/safe finish. Consumed minimal

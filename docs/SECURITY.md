@@ -485,6 +485,17 @@ parent or unknown objects reject. Modes and raw definitions remain bound; unexpe
 post-write auxiliary changes retain uncertainty/fences. Omitted-field acceptance
 does not expand permission or broader write authority and asserts no model health.
 
+The body marker has a required explicit evidence mode, bound to the proposal digest
+and fresh baseline. Both flags must be explicitly false (`EXPLICIT_CLEAN_FLAGS`)
+or both absent (`EXACT_PINNED_ID_FLAGS_UNAVAILABLE`). The latter requires the fixed
+client's exact microversion-pinned request, a matching explicit returned `theId`
+and successful head bracketing. It does not assert either flag is false. Missing
+ID, mismatched ID, null/true/wrong-type flags and mixed shapes reject. Exactly one
+SOLID and `NO_ERROR` remain mandatory. Post-write evidence must identify the exact
+new acknowledged microversion and re-prove an accepted mode; unsafe evidence
+retains the fence and execution uncertainty with no retry. Older policy/missing-mode
+records cannot execute. No mutation transport or OAuth permission changes.
+
 The review specifies exact stored fields, 120-second approval/15-minute operational
 retention, 60-second cleanup, persistent deny fences, safe audits and backup/restore
 implications. No prompts, raw provider CAD payloads, tokens, hidden reasoning, history

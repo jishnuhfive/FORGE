@@ -12,7 +12,9 @@
 > explicitly authorized null-unavailable mode. Optional parent/configured flags now
 > use explicit independent evidence modes rather than false defaults; suppressed
 > remains an explicit hard Boolean. See the current runtime policy for exact checks.
-> All other structural/body/version and approval/write safeguards remain required.
+> Body revision evidence now uses exact pinned requested/returned identity with
+> explicit-clean or both-flags-unavailable modes; omission never means false.
+> All remaining structural/body/version and approval/write safeguards are required.
 > Phase 9A remains PREPARATION COMPLETE; Phase 8 remains
 > COMPLETE, HUMAN VALIDATED, and MERGED. No real OAuth app change or CAD-write
 > validation is claimed. Phase 10 remains NOT STARTED.

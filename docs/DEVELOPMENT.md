@@ -644,6 +644,9 @@ variants at one pinned microversion. No IDs, names, geometry or raw maps are log
 auxiliary shape/btType categories and hard-Boolean presence/type/value. Null,
 missing and false remain distinct. Both flags remain false/true respectively
 (writes OFF, diagnostics ON) for this controlled human investigation.
+`safe_edit_body_coverage` reports only returned-ID presence/match, fixed optional
+flag categories, bounded body count, body-type category and error category, after
+the pinned read passes head bracketing. It never emits the ID or raw body data.
 It performs pinned GET reads without proposals or mutations, and adds no
 public diagnostic route/header. It is not invoked by Learn or AI. See
 [the investigation record](PHASE_9_REVIEW.md) before interpreting missing fields;
@@ -665,6 +668,13 @@ auxiliary fields and omitted guards have distinct evidence modes, never defaults
 complete top-level structural proof, explicit conflicts, mode/presence binding,
 post-write re-proof and no false defaulting. Unsupported structure or nonempty/
 stale/skewed configuration fails closed. No production query or feature-state-map
-policy changes. Old previews must be prepared again under `terminal-fillet-4`;
+policy changes. Old previews must be prepared again under `terminal-fillet-5`;
 no migration is needed. A manually created configured-control comparison is optional
 additional evidence and is never created by Forge/Codex.
+
+`tests/test_safe_edit_body_evidence.py` covers explicit-clean and both-omitted marker
+modes, exact pinned-ID/transport proof, conservative mixed-shape rejection, unchanged
+body invariants, stale approval and post-write uncertainty/fences. No flag is
+defaulted or synthesized. Both accepted after-modes are independently re-proven at
+the new acknowledged revision. Keep writes OFF and diagnostics ON; refresh CAD
+Inspector only and collect fixed metadata, without preparing or approving a write.

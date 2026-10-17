@@ -23,6 +23,17 @@ and empty, with matching source and no skew; explicit conflicts still reject.
 No missing-to-null/false conversion is used. The older v9 omitted-default guidance
 is not the sole justification. Raw fields and evidence modes remain fingerprinted.
 
+The current v17 `BTMicroversionId-366` schema makes `theId`, `ambiguous` and `deleted`
+optional. Forge still requires a present marker object and exact returned `theId`.
+Bodydetails supports `wvm=m`; [Onshape architecture](https://onshape-public.github.io/docs/api-intro/architecture/)
+establishes immutable document microversions. For this operation, both absent flags
+are recorded as `EXACT_PINNED_ID_FLAGS_UNAVAILABLE` only after fixed pinned transport
+and head bracketing prove the requested revision. No false values are inferred.
+Both explicit false flags give `EXPLICIT_CLEAN_FLAGS`; mixed/true/null/wrong-type
+flags reject. One SOLID and `NO_ERROR` remain required before and after mutation,
+with the after-ID equal to the new acknowledged marker. The runtime review records
+the live GET-only coverage; neither human write-conformance gate is proven.
+
 ## Phase 2 verification record — 2026-10-04
 
 Primary sources reviewed:

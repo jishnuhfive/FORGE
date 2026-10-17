@@ -47,6 +47,7 @@ class Reason(StrEnum):
     BODY_ERROR = "body_error_not_clear"
     BODY_REVISION_MISSING = "body_microversion_missing"
     BODY_REVISION = "body_microversion_mismatch"
+    BODY_PINNING = "body_pinned_read_unproven"
     BODY_AMBIGUOUS = "body_microversion_ambiguous"
     BODY_DELETED = "body_microversion_deleted"
     SERIALIZATION = "serialization_version_invalid"

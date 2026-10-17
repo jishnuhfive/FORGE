@@ -68,6 +68,74 @@ class SuppressionCoverage(BaseModel):
     positions: tuple[SuppressionPosition, ...] = Field(max_length=3)
 
 
+MarkerFlag = Literal["missing", "true", "false", "null", "wrong_type"]
+
+
+class BodyCoverage(BaseModel):
+    model_config = ConfigDict(strict=True, frozen=True, extra="forbid")
+
+    the_id: Literal["present", "missing"]
+    the_id_matches_requested: bool
+    ambiguous: MarkerFlag
+    deleted: MarkerFlag
+    body_count: int | None = Field(ge=0, le=2000)
+    body_type: Literal["SOLID", "other", "missing", "null", "wrong_type", "not_one"]
+    error_enum: Literal["NO_ERROR", "other", "missing", "null", "wrong_type"]
+
+
+def _marker_flag(value: object) -> MarkerFlag:
+    return (
+        "missing"
+        if value is MISSING
+        else "true"
+        if value is True
+        else "false"
+        if value is False
+        else "null"
+        if value is None
+        else "wrong_type"
+    )
+
+
+def body_coverage(data: JsonValue, marker: str) -> BodyCoverage:
+    """Only fixed categories, a bounded count and exact-ID equality can escape."""
+    raw = data if isinstance(data, dict) else {}
+    revision = raw.get("microversionId")
+    fields = revision if isinstance(revision, dict) else {}
+    bodies = raw.get("bodies")
+    count = len(bodies) if isinstance(bodies, list) and len(bodies) <= 2000 else None
+    body = bodies[0] if isinstance(bodies, list) and count == 1 else None
+    kind = body.get("type", MISSING) if isinstance(body, dict) else MISSING
+    error = raw.get("errorEnum", MISSING)
+    return BodyCoverage(
+        the_id="present" if "theId" in fields else "missing",
+        the_id_matches_requested=fields.get("theId", MISSING) == marker,
+        ambiguous=_marker_flag(fields.get("ambiguous", MISSING)),
+        deleted=_marker_flag(fields.get("deleted", MISSING)),
+        body_count=count,
+        body_type="not_one"
+        if count != 1
+        else "missing"
+        if kind is MISSING
+        else "null"
+        if kind is None
+        else "SOLID"
+        if kind == "SOLID"
+        else "other"
+        if isinstance(kind, str)
+        else "wrong_type",
+        error_enum="missing"
+        if error is MISSING
+        else "null"
+        if error is None
+        else "NO_ERROR"
+        if error == "NO_ERROR"
+        else "other"
+        if isinstance(error, str)
+        else "wrong_type",
+    )
+
+
 def _boolean_coverage(feature: dict[str, JsonValue], field: str) -> BooleanCoverage:
     value = feature.get(field, MISSING)
     return BooleanCoverage(
@@ -163,6 +231,12 @@ def coverage(data: JsonValue, marker: str, response_bytes: int) -> StateCoverage
 
 
 class CoverageClient(SafeEditClient):
+    def _observe_body_evidence(self, bodies: JsonValue, microversion: str) -> None:
+        logger.warning(
+            "safe_edit_body_coverage metadata=%s",
+            body_coverage(bodies, microversion).model_dump_json(),
+        )
+
     """Development-only, two fixed GET variants; no raw results leave this call."""
 
     def compare(self, context: WorkspaceReference) -> None:
