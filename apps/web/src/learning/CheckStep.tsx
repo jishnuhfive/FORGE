@@ -5,21 +5,10 @@ import { ChevronRight } from 'lucide-react';
 import { useAuth } from '../auth/context';
 import { useOnshapeContext } from '../onshape/store';
 import { CheckError, checkErrors, checkStep } from './check';
-import type { RequirementResult, Status, StepCheck } from './check';
+import type { RequirementResult, StepCheck } from './check';
+import { statusLabel, statusTone } from './checkStatus';
 import type { LearningAction } from './session';
 
-const tone = {
-  PASS: 'pass',
-  FAIL: 'fail',
-  WARNING: 'warning',
-  UNVERIFIED: 'unverified',
-} as const;
-const label: Record<Status, string> = {
-  PASS: 'Verified',
-  FAIL: 'Not yet',
-  WARNING: 'Worth a look',
-  UNVERIFIED: 'Can’t verify',
-};
 const headline = {
   verified: 'Forge verified what it can read for this step.',
   not_met: 'Forge can see something this step still needs.',
@@ -46,8 +35,8 @@ function Findings({
         {items.map((item) => (
           <li key={item.requirement_id}>
             <StatusBadge
-              status={tone[item.outcome.status]}
-              label={label[item.outcome.status]}
+              status={statusTone[item.outcome.status]}
+              label={statusLabel[item.outcome.status]}
             />
             <span>
               <span className="check-label">{item.description}</span>
@@ -106,6 +95,7 @@ export function CheckStep({
           type: 'check-result',
           stepId,
           outcome: result.outcome,
+          evidenceToken: result.evidence_token,
           findings: result.results.map((item) => ({
             requirementId: item.requirement_id,
             blocking: item.blocking,

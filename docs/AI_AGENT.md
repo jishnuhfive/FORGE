@@ -502,3 +502,12 @@ the user's model. When unsure, inspect. The answer round keeps the plain policy 
 Why the instruction exists: without it `openai/gpt-oss-120b` often answered advice-style questions by
 calling a nonexistent `answer` tool, which Groq rejects as `tool_use_failed` (13 of 18 live requests). With
 it, 24 of 24 live trials routed correctly (12 model questions inspected, 12 general questions answered).
+
+## Phase 11 Learn tutor
+
+A second, narrower agent flow for the Mounting Bracket lesson (`tutor/`), reusing the existing transport,
+settings and budgets. At most two rounds, no automatic retry or fallback. Round one may call the fixed
+`inspect_current_cad` tool only when a validated context was supplied; round two returns a strict
+`TutorModelAnswer`. The model never sets a status; `check_refs` and `fact_ids` select server-owned statements and
+invented ids are dropped. Requests to change CAD, use APIs or mark a step passed get fixed server replies with no
+model call. See [PHASE_11_TUTOR_SPEC.md](PHASE_11_TUTOR_SPEC.md).

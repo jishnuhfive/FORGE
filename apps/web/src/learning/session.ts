@@ -48,6 +48,9 @@ export interface StepInteraction {
   forgeVerified?: true;
   expectation?: string;
   investigations?: Record<string, InvestigationState>;
+  // The server-signed proof of the latest check of this step, kept in memory so
+  // Ask Forge can send it back. Opaque; never persisted.
+  evidenceToken?: string;
 }
 interface Profile {
   experience: Experience;
@@ -89,6 +92,7 @@ export type LearningAction =
       stepId: string;
       outcome: CheckOutcome;
       findings?: CheckFinding[];
+      evidenceToken?: string;
     }
   | { type: 'vocabulary'; stepId: string; termId: string }
   | { type: 'expectation'; stepId: string; choice: string }
@@ -211,11 +215,13 @@ function reduceInteraction(
 ): StepInteraction {
   let next = current;
   if (action.type === 'check-result' && step.check === 'deterministic') {
+    if (action.evidenceToken && action.evidenceToken !== current.evidenceToken)
+      next = { ...next, evidenceToken: action.evidenceToken };
     // Verified reflects the latest result only: anything else revokes it.
     if (action.outcome === 'verified' && !current.forgeVerified)
-      next = { ...current, forgeVerified: true };
+      next = { ...next, forgeVerified: true };
     else if (action.outcome !== 'verified' && current.forgeVerified) {
-      next = { ...current };
+      next = { ...next };
       delete next.forgeVerified;
     }
     if (action.findings) {

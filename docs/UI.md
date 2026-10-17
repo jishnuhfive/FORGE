@@ -356,3 +356,11 @@ to verify reopens it. Predictions never alter the checker result. Restart challe
 preserves guided lesson progress; Reset lesson clears both. Session counts and
 challenge completion carry no grades, mastery percentages or safety claim. Learn
 remains read-only and student-operated, independently of Modify availability.
+
+## Phase 11 Ask Forge
+
+A collapsed "Ask Forge" disclosure after the check result and investigation on Mounting Bracket steps and the
+transfer challenge. One question field (600 characters, Ctrl/Cmd+Enter), Stop, polite status, fixed-copy alerts that
+always say the lesson still works, and answers rendered explanation-first with server-worded "What Forge observed",
+"Still unknown", "Next thing to try" and notes. The conversation is cleared on step, document, login or lesson change.
+Tested at 320 px, light/dark, reduced motion and with axe.

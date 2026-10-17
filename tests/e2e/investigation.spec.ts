@@ -29,6 +29,7 @@ const answer = (step: string, outcome: string, results: object[]) => ({
   results,
   captured_at: '2026-01-01T12:00:00+00:00',
   consistency: 'unverified',
+  evidence_token: 'synthetic-payload.synthetic-mac',
 });
 const noExtrusion = answer('base-solid', 'not_met', [
   req(

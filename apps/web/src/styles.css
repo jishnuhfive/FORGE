@@ -1888,3 +1888,66 @@ ul.compact-list {
   margin: var(--space-3) 0 0;
   color: var(--muted);
 }
+
+.learning-tutor {
+  margin-block: var(--space-6);
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+}
+.learning-tutor > .learning-reveal {
+  display: grid;
+  gap: var(--space-3);
+  width: 100%;
+}
+.learning-tutor p {
+  margin: 0;
+}
+.tutor-exchange {
+  display: grid;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+.tutor-asked,
+.tutor-question,
+.tutor-next {
+  display: grid;
+  gap: var(--space-1);
+}
+.tutor-asked > span,
+.tutor-question > span,
+.tutor-next > span {
+  font-size: var(--text-caption);
+}
+.tutor-answer {
+  display: grid;
+  gap: var(--space-3);
+  overflow-wrap: anywhere;
+}
+.tutor-form {
+  display: grid;
+  gap: var(--space-2);
+  width: 100%;
+}
+.tutor-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 4.5rem;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+}
+.tutor-form textarea:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+}
+.tutor-error {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: start;
+}

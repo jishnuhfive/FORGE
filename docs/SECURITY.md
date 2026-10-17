@@ -529,3 +529,12 @@ production-mode recovery. Normal fence semantics remain unchanged. The first
 separately authorized recovery cleared one orphan with ZERO Onshape contact and
 writes OFF; neither conformance gate was proven by that administration. The later
 Gate A proof is a separate human-approved CAD trial, not a recovery outcome.
+
+## Phase 11 tutor
+
+Explicit authenticated POST with exact Origin and session-bound CSRF; closed ≤16 KiB schema; errors never echo the
+question. The browser cannot author check results: the tutor accepts them only through an HMAC evidence token keyed
+by the caller's session credential (forged, altered, foreign-session, wrong-step, unknown-requirement and future
+tokens are rejected; expired ones are ignored). No identifier, token, cookie, CSRF value, evidence token or learner
+prediction is sent to the provider. The only tool is read-only `inspect_current_cad`. One in-flight request per user
+plus a 30/hour in-memory cap. No persistence and no write path.
