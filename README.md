@@ -41,7 +41,12 @@ OpenAI uses `store:false`. Neither configuration claims zero retention by defaul
 localStorage conversation persistence or content logs exist.
 See [Phase 6 review](docs/PHASE_6_REVIEW.md) for the complete boundary, checks and
 the final user-reported live results, full quality gate and local Groq setup.
-Phase 7 adds authored learning with no provider or CAD requests; Phase 8 model checking is not started.
+Phase 7 adds authored learning with no provider or CAD requests. Phase 8B model
+checking is in progress on a teammate's separate branch, with human validation and
+merge pending. Phase 9A is documentation-only preparation for one future safe edit;
+the running product remains read-only. See the
+[safe-write specification](docs/PHASE_9_SAFE_WRITE_SPEC.md) and
+[preparation review](docs/PHASE_9_PREP_REVIEW.md). Phase 9B is not started.
 See [the Phase 7 review](docs/PHASE_7_REVIEW.md) for lesson architecture and human acceptance.
 This is not a publicly deployed production service.
 

@@ -606,3 +606,25 @@ suite exercises all six panel widths and writes synthetic images at 320/380/480/
 to ignored `.cache/phase7/`. It intercepts auth and makes no real AI/Onshape requests.
 Keep all manual Onshape screenshots/private identifiers outside Git. Full gate and
 real panel acceptance steps are in [PHASE_7_REVIEW.md](PHASE_7_REVIEW.md).
+
+## Phase 9A preparation and Phase 9B handoff
+
+Phase 9A is documentation only on `phase9/safe-cad-edit-prep`; leave working OAuth,
+Action URL, redirects, environment and database untouched. Phase 8B is being
+implemented elsewhere and awaits real validation/merge. Do not copy that work or
+start a second checker. The [specification](PHASE_9_SAFE_WRITE_SPEC.md) and
+[preparation review](PHASE_9_PREP_REVIEW.md) define the future one-operation scope,
+provider conformance blockers, regression ledger and exact start gates.
+
+Run frozen installs, format/lint/types/unit suites/build, Compose and read-only
+migration comparison. Run audits before committing. Documentation-only work does
+not require a complete browser rerun; focused existing browser regressions may
+check refusal, inspector and Learn. Keep existing user services running and stop
+only test-owned services. No live CAD or AI calls belong in these checks.
+
+After Phase 8B completion, human validation, final docs and merge, normally merge
+latest origin/main into this branch and review actual evidence/CSRF contracts.
+Wait for explicit Phase 9B authorization, including separate permission-change
+approval. No new table/migration, write scope/route/tool or production approval
+control belongs in 9A. Real suppression/atomic-skew tests use disposable CAD in
+9B only; no guessed payload or automatic write retry is allowed.

@@ -14,13 +14,13 @@ Later hardening does not defer security for earlier live integrations.
 | 5     | CAD inspector: bounded read-only workspace Part Studio evidence; live verification                                  |
 | 6     | Read-only AI agent: provider adapters, strict read tools, bounded budgets, progress streaming                       |
 | 7     | Learning Mode foundation: authored lesson, setup, hint ladder, vocabulary, ephemeral progress; human review: PASSED |
-| 8     | Supported lesson checking from fresh authorized CAD evidence; NOT STARTED, requires separate authorization          |
-| 9     | Reality Lock inventory: component availability, dimensions and manufacturing capabilities                           |
+| 8     | Mounting Bracket + Check My Step: teammate's Phase 8B in progress separately; human validation and merge pending    |
+| 9     | FIRST SAFE CAD EDIT: 9A preparation only; 9B NOT STARTED, blocked on Phase 8 merge and explicit authorization       |
 | 10    | Assemblies and mates: supported instances/mates verified through official APIs                                      |
 | 11    | Validation engine: deterministic PASS/WARNING/FAIL/UNVERIFIED checks and evidence                                   |
 | 12    | Full agent execution loop: understand/inspect/plan/approve/execute/reinspect/validate/revise/report                 |
 | 13    | Modify mode: selection-aware approved changes and context freshness                                                 |
-| 14    | Expanded learning experiences grounded in supported operations; future scope requires authorization                 |
+| 14    | Expanded learning and later mistake investigation; supported operations and scope require separate authorization    |
 | 15    | Camera slider flagship demo: approved design using supplied inventory and at least 400 mm travel                    |
 | 16    | Product/account/history polish: useful user-facing plans/actions/results, data deletion and account controls        |
 | 17    | Security hardening: adversarial assessment, production policy, privilege and data boundary review                   |
@@ -137,22 +137,45 @@ including lesson flow, progressive help, honest progress, navigation preservatio
 reset and narrow-panel usability. Screenshots were reviewed outside the repository
 and must not be committed. Results are recorded in
 [PHASE_7_REVIEW.md](PHASE_7_REVIEW.md). The branch is approved and ready for PR/merge;
-the agent must not merge it. Phase 8 remains not started.
+the agent must not merge it. Phase 7 subsequently merged in `9c12dfb`.
 
-## Phase 8 — NOT STARTED
+## Phase 8 — separate implementation, validation and merge pending
 
-A later explicit authorization may connect lesson requirements to fresh,
+The Phase 9A user reports Phase 8B Mounting Bracket + Check My Step is being
+implemented by a teammate on another branch. It has not been human-validated or
+merged. This checkout intentionally retains the merged Phase 7 baseline; no Phase
+8 code or guessed interfaces are copied into this branch.
+
+Phase 8 connects lesson requirements to fresh,
 session-owned, object-authorized read-only CAD evidence. Requirements may describe
 supported feature existence/activity, solid-body existence or a supported operation.
 Phase 7 only validates metadata shape; it evaluates none of these requirements.
 Phase 8 must define evidence/version binding, deterministic checker contracts,
 units/bounds where relevant, stale/partial/unsupported behavior and truthful results.
-No lesson checker or automatic CAD inspection has been started.
+No Phase 8 checker is present in this checkout; external branch implementation
+status is not inferred from the older reviews.
 
-Approval-bound CAD writes and a tool library remain separate planned work with no
-current phase authorization. They still require authentication, object authorization,
-strict schema/unit/bound validation, specific plan/version approval, sanitized logging
-and post-write verification. Remaining roadmap topics above are planned; their order
-and numbering must be confirmed before implementation. No mounting-bracket lesson,
-FeatureScript, write scope, assemblies/mates, Reality Lock or autonomous execution
-is included in this foundation.
+## Phase 9 — FIRST SAFE CAD EDIT
+
+Phase 9A is authorized **preparation only** on `phase9/safe-cad-edit-prep`.
+[The safe-write specification](PHASE_9_SAFE_WRITE_SPEC.md) selects exactly one
+future operation: suppress an active ordinary standard Fillet at the end of an
+unconfigured workspace Part Studio. It defines exact proposal/approval binding,
+provider microversion rejection, single use, verification, failure/recovery,
+privacy, threat model and automated/human gates. This is documentation, not an
+implemented CAD capability. [The preparation review](PHASE_9_PREP_REVIEW.md) records
+verification and handoff.
+
+Phase 9B remains **NOT STARTED**. It requires Phase 8B completion, real human
+validation, final committed documentation, merge to main, normal integration of
+latest origin/main into this branch and explicit human Phase 9B authorization.
+Permission changes require explicit human approval. Suppression payload and atomic
+stale-update rejection must pass disposable-Onshape conformance tests before
+runtime activation. No write scope, callable write tool, production write route,
+active approval UI, FeatureScript or real CAD change is authorized in 9A.
+
+The prior Phase 9 Reality Lock inventory topic remains planned for later explicit
+resequencing; it is not dropped or implemented by this preparation. Mistake
+investigation moves to the later learning backlog (Phase 14), not this first-write
+scope. Assemblies/mates retain Phase 10; general Modify, a CAD tool library, Reality
+Lock and autonomous workflows remain separately authorized future work.

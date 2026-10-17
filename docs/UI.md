@@ -299,3 +299,13 @@ made by any learning action. Existing auth status refresh behavior is unchanged.
 UI Lab → Learn mode adds deterministic representative states, including safe
 unavailable/invalid/load-failure recovery. Those selectors/fixtures are DEV-only.
 See [PHASE_7_REVIEW.md](PHASE_7_REVIEW.md) for verification and human review steps.
+
+## Phase 9A preview design — documentation only
+
+The future [first-write specification](PHASE_9_SAFE_WRITE_SPEC.md) defines an
+answer-first suppression preview: requested change, Active → Suppressed, confirmed
+inventory target, effect/limitations, Cancel and **Approve change**. It reuses the
+frozen solid reading layer, functional controls, single scroll region and 320px
+accessibility/focus rules. Executing, uncertain and verified outcomes have distinct
+truthful text; no automatic Undo is promised. No preview or active write approval
+is added in 9A; production Modify and existing read-only behavior remain unchanged.

@@ -400,3 +400,19 @@ result. It makes no AI/CAD calls and requires no provider key. All CAD authoriza
 business logic and future engineering evaluation remain backend responsibilities.
 No dependency, API, migration, permission or database model changed. Phase 8 may
 attach deterministic evaluation to the metadata; no evaluator exists here.
+
+## Phase 9A preparation — future architecture only
+
+[The safe-write specification](PHASE_9_SAFE_WRITE_SPEC.md) selects one future
+terminal standard Fillet suppression. It designs server-owned inventory targets,
+immutable short-lived proposals, exact session/object/document-microversion
+approval, cross-worker single consumption, provider revision rejection and fresh
+deterministic verification. Short-lived PostgreSQL operational state and safety
+fences are proposed for 9B; no schema or runtime code is added here. In particular,
+the current four-read non-atomic snapshot is insufficient for write approval.
+
+Phase 8B is external work awaiting validation/merge. Integrate its actual evidence
+contracts only after merge; do not invent another checker/evidence framework.
+Provider suppression payload and reject-on-skew update semantics require real
+disposable-document conformance gates. Phase 9B, write permissions, write routes,
+tools and active approval controls remain unimplemented and unauthorized in 9A.

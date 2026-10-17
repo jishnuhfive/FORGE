@@ -422,3 +422,17 @@ completion summary reports only local observed lesson interactions and learner-m
 steps. Future optional AI teaching would require explicit design/authorization;
 Phase 8 deterministic checking is not implemented. Existing Design sends retain all
 Phase 6 disclosure, grounding, privacy and read-only boundaries.
+
+## Phase 9A authority design — not a runtime tool
+
+[The future first-write design](PHASE_9_SAFE_WRITE_SPEC.md) permits intent
+interpretation/clarification and explanation of a server-created proposal for one
+terminal Fillet suppression. Deterministic code alone would own target identity,
+approval, freshness, execution and result status. The private executor must never
+be an AI-callable function. No generic HTTP, model-provided IDs/tokens/FeatureScript,
+model approval, success override or expired-approval reuse is permitted.
+
+Phase 9A adds no model tools, provider changes or executable proposal code.
+Current deterministic read-only write refusal and the no-argument inspection tool
+remain unchanged. Phase 8B contracts are external/unmerged; 9B must await their
+final integration and explicit authorization.

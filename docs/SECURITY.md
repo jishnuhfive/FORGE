@@ -426,3 +426,20 @@ polling, telemetry or browser-storage operation. The existing `/api/me` lifecycl
 unchanged. No credentials enter lesson data or presentation. OAuth scopes, CSRF,
 backend evidence and the read-only tool boundary remain unchanged. Phase 8 checking
 and every CAD write still require separate authorization and independent controls.
+
+## Phase 9A write threat model — planned controls only
+
+[The safe-write specification](PHASE_9_SAFE_WRITE_SPEC.md) documents threats,
+minimal future OAuth2Write permission, broad provider-scope risk, exact proposal/
+session/object/revision binding, one-time consumption, CSRF, shared execution
+fences, provider stale rejection, verification and uncertain-write recovery.
+It covers privacy/retention of temporary operational records separately from
+content-free audits; no persistent CAD history is proposed. An unresolved fence
+is a deny marker, never reusable write authority.
+
+These controls are **not implemented in Phase 9A**. Existing scopes, sessions,
+CSRF, four-GET CAD transport, AI tools/refusal, database and migrations are
+unchanged. No real Onshape writes or app-setting changes occur. Phase 9B requires
+Phase 8 validation/merge and explicit authorization; any permission expansion
+also requires explicit human approval. If provider-side atomic stale rejection
+cannot be proven, the selected mechanism must not be enabled.
