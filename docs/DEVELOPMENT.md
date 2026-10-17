@@ -607,26 +607,26 @@ to ignored `.cache/phase7/`. It intercepts auth and makes no real AI/Onshape req
 Keep all manual Onshape screenshots/private identifiers outside Git. Full gate and
 real panel acceptance steps are in [PHASE_7_REVIEW.md](PHASE_7_REVIEW.md).
 
-## Phase 9A preparation and Phase 9B handoff
+## Phase 9B runtime verification and controlled handoff
 
-Phase 9A is documentation only on `phase9/safe-cad-edit-prep`; leave working OAuth,
-Action URL, redirects, environment and database untouched. Phase 8 is now complete,
-human validated and merged to main at `81199ea`, integrated into this branch by
-merge `4f16842`. Reuse its actual checker/evidence contracts; do not start a second
-checker. Phase 9A preparation is complete; Phase 9B remains NOT STARTED.
-The [specification](PHASE_9_SAFE_WRITE_SPEC.md) and
-[preparation review](PHASE_9_PREP_REVIEW.md) define the future one-operation scope,
-provider conformance blockers, regression ledger and exact start gates.
+Phase 8 is complete, human validated and merged; Phase 9A preparation is complete.
+[Phase 9 runtime review](PHASE_9_REVIEW.md) records the implementation, provider
+research, exact human OAuth/CAD procedures and hard Gate A/B. Phase 10 is NOT STARTED.
 
-Run frozen installs, format/lint/types/unit suites/build, Compose and read-only
-migration comparison. Run audits before committing. Documentation-only work does
-not require a complete browser rerun; focused existing browser regressions may
-check refusal, inspector and Learn. Keep existing user services running and stop
-only test-owned services. No live CAD or AI calls belong in these checks.
+Run `make setup` for npm ci and uv locked sync. Run format, lint, typecheck (including
+strict mypy), test, build and test-e2e. Tests use synthetic provider transports only.
+Real PostgreSQL tests require FORGE_TEST_DATABASE_URL supplied privately; run both
+`apps/api/tests/test_postgres.py` and `apps/api/tests/test_safe_edit_postgres.py`.
+Each owns/removes its random schema, never user data/volumes. Run compose-check,
+migrate, migration-check and dependency audits. Alembic `0002_safe_edit` is additive;
+startup does not create tables or migrate silently.
 
-The Phase 8 completion/validation/main-integration gates are satisfied. Before
-future runtime work, review the actual merged evidence/checker/CSRF contracts.
-Wait for explicit Phase 9B authorization, including separate permission-change
-approval. No new table/migration, write scope/route/tool or production approval
-control belongs in 9A. Real suppression/atomic-skew tests use disposable CAD in
-9B only; no guessed payload or automatic write retry is allowed.
+`FORGE_CAD_WRITES_ENABLED` defaults false; `.env.example` is an empty placeholder.
+Leave the real flag OFF and developer-app permissions unchanged during development.
+Do not use real CAD mutations in tests. No frontend/AI flag override exists.
+`FORGE_CAD_WRITE_CONFORMANCE_PAUSE_SECONDS` defaults 0, accepts 0–10 only in
+development, and supports the documented human Gate B race after final head check.
+It is not a production feature. Human permission expansion, explicit new consent,
+disposable CAD only and both real conformance gates are required before activation.
+Unknown provider scope/bitmask or missing critical fields must stop validation.
+Keep private screenshots, network captures, credentials and CAD data outside Git.

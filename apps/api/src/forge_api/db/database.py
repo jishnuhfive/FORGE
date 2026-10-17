@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from forge_api.core.config import Settings
 
-SCHEMA_REVISION = "0001_authentication"
+SCHEMA_REVISION = "0002_safe_edit"
 
 
 def make_engine(config: Settings) -> Engine:

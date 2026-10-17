@@ -1,5 +1,13 @@
 # Phase 9A — first safe CAD edit specification
 
+> Historical Phase 9A design/preparation checkpoint. Its “9B not started” and
+> future-tense statements describe that checkpoint. Subsequent explicit Phase 9B
+> authorization produced the [runtime implementation review](PHASE_9_REVIEW.md),
+> which governs current implementation status, operational deviations and pending
+> human conformance gates. Phase 9A remains PREPARATION COMPLETE; Phase 8 remains
+> COMPLETE, HUMAN VALIDATED, and MERGED. No real OAuth app change or CAD-write
+> validation is claimed. Phase 10 remains NOT STARTED.
+
 Status: **PREPARATION COMPLETE; runtime implementation NOT STARTED.** Research date:
 2026-10-17. This is a future Phase 9B design, not an implemented capability or
 permission to change CAD. Phase 8 is now **COMPLETE, HUMAN VALIDATED, and MERGED**

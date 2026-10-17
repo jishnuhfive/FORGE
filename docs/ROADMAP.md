@@ -15,7 +15,7 @@ Later hardening does not defer security for earlier live integrations.
 | 6     | Read-only AI agent: provider adapters, strict read tools, bounded budgets, progress streaming                       |
 | 7     | Learning Mode foundation: authored lesson, setup, hint ladder, vocabulary, ephemeral progress; human review: PASSED |
 | 8     | Mounting Bracket + Check My Step: COMPLETE, HUMAN VALIDATED, MERGED at 81199ea                                      |
-| 9     | FIRST SAFE CAD EDIT: 9A PREPARATION COMPLETE; 9B NOT STARTED, awaiting explicit authorization                       |
+| 9     | FIRST SAFE CAD EDIT: 9A PREPARATION COMPLETE; 9B IMPLEMENTED, awaiting human CAD-write validation                   |
 | 10    | Assemblies and mates: supported instances/mates verified through official APIs                                      |
 | 11    | Validation engine: deterministic PASS/WARNING/FAIL/UNVERIFIED checks and evidence                                   |
 | 12    | Full agent execution loop: understand/inspect/plan/approve/execute/reinspect/validate/revise/report                 |
@@ -169,13 +169,14 @@ verification. Stale approval is rejected and the provider microversion guard is
 mandatory. No generic Onshape API authority or arbitrary FeatureScript is allowed.
 [The preparation review](PHASE_9_PREP_REVIEW.md) records the preparation gate.
 
-Phase 8's completion, human validation and merge to main are now satisfied; this
-merge integrates it into the preparation branch. **Phase 9B remains NOT STARTED**,
-waiting for explicit human authorization. OAuth2Write is not enabled. Any future
-permission expansion separately requires explicit human approval. Provider
-suppression-payload and atomic stale-update conformance gates remain mandatory
-before runtime activation. No write route, tool or active approval UI is introduced
-by preparation or this merge.
+Phase 8 is integrated. Phase 9B is **IMPLEMENTED / AUTOMATED TESTED / AWAITING
+CONTROLLED HUMAN CAD-WRITE VALIDATION**; see [the runtime review](PHASE_9_REVIEW.md).
+The backend flag defaults OFF; external OAuth2Write permission was not enabled.
+Opaque candidates, explicit approval, atomic PostgreSQL claims/fences, fresh pinned
+reads, original provider guard and deterministic verification implement the 9A
+boundary. Real suppression-payload and atomic stale-update gates remain mandatory
+and unvalidated. Human permission changes and disposable CAD validation occur later.
+Phase 10 is **NOT STARTED**.
 
 The prior Phase 9 Reality Lock inventory topic remains planned for later explicit
 resequencing; it is not dropped or implemented by this preparation. Mistake

@@ -15,6 +15,8 @@ from starlette.responses import RedirectResponse
 from forge_api.auth.provider import ProviderError
 from forge_api.auth.runtime import AuthRuntime
 from forge_api.auth.security import audit, csrf_token, digest, random_token
+from forge_api.cad_edits.storage import invalidate
+from forge_api.db.coordination import user_lock
 from forge_api.db.models import (
     OAuthState,
     OnshapeAuthorization,
@@ -97,6 +99,11 @@ def active_session(
 def require_mutation(
     request: Request, auth: AuthRuntime, db: DatabaseSession
 ) -> Session:
+    session = active_session(request, auth, db)
+    if session is None:
+        raise HTTPException(401, "session_expired")
+    user_lock(db, session.user_id)
+    db.expire_all()
     session = active_session(request, auth, db)
     if session is None:
         raise HTTPException(401, "session_expired")
@@ -226,10 +233,17 @@ def callback(request: Request, auth: Runtime, db: Database) -> Response:
         )
         .on_conflict_do_nothing(index_elements=["onshape_user_id", "stack"])
     )
+    user_id = db.scalar(
+        select(User.id).where(User.onshape_user_id == identity.id, User.stack == stack)
+    )
+    assert user_id is not None
+    # Coordinate before locking User too: inserting an operational FK acquires
+    # a key-share lock on this row, so the reverse order can deadlock a claim.
+    user_lock(db, user_id)
+    # Display metadata is a non-key update. Preserve compatibility with the
+    # key-share locks acquired by audit/operational foreign-key inserts.
     user = db.scalar(
-        select(User)
-        .where(User.onshape_user_id == identity.id, User.stack == stack)
-        .with_for_update()
+        select(User).where(User.id == user_id).with_for_update(key_share=True)
     )
     assert user is not None
     user.display_name = identity.name or "Onshape member"
@@ -253,6 +267,7 @@ def callback(request: Request, auth: Runtime, db: Database) -> Response:
         grant.granted_scope = f"onshape_bitmask:{identity.oauth2_scopes}"
     grant.company_id = auth.settings.onshape_company_id
     grant.status = "connected"
+    invalidate(db, user.id)
     grant.generation = identifier()
     grant.updated_at = grant.verified_at = now()
     grant.disconnected_at = grant.retry_after = None
@@ -320,6 +335,7 @@ def me(request: Request) -> Me:
 def logout(request: Request, auth: Runtime, db: Database) -> Response:
     session = require_mutation(request, auth, db)
     session.revoked_at = now()
+    invalidate(db, session.user_id, session.token_hash)
     audit(db, "logout", user_id=session.user_id)
     audit(db, "session_revoked", user_id=session.user_id)
     db.commit()
@@ -342,6 +358,7 @@ def disconnect(request: Request, auth: Runtime, db: Database) -> Response:
         .where(OnshapeAuthorization.user_id == session.user_id)
         .with_for_update()
     )
+    invalidate(db, session.user_id)
     if grant:
         grant.encrypted_refresh_token = None
         grant.access_expires_at = None

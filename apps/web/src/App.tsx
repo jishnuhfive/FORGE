@@ -86,6 +86,7 @@ function WorkspaceContent() {
   const route = useSyncExternalStore(subscribe, snapshot);
   const { preferences, setPreferences, storageAvailable } = usePreferences();
   const [mode, setMode] = useState<Mode>('design');
+  const [writeReady, setWriteReady] = useState(false);
   const [introRequested, setIntroRequested] = useState(false);
   const [message, setMessage] = useState('');
   const [toastOpen, setToastOpen] = useState(false);
@@ -118,6 +119,11 @@ function WorkspaceContent() {
           </Suspense>
         ) : (
           <Shell
+            capability={
+              mode === 'modify' && writeReady
+                ? 'Approval required'
+                : 'Read-only'
+            }
             context={{ kind: 'live', state: client }}
             onOnboarding={() => setIntroRequested(true)}
             onNotify={notify}
@@ -173,7 +179,7 @@ function WorkspaceContent() {
                     icon: <SlidersHorizontal size={16} aria-hidden="true" />,
                     content: (
                       <main>
-                        <Modify />
+                        <Modify onAvailabilityChange={setWriteReady} />
                       </main>
                     ),
                   },

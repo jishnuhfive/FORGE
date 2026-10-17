@@ -5,8 +5,9 @@ the user on 2026-10-16, including repaired Evidence, FACE/EDGE grounding and the
 deterministic write-capability path. The complete final repository gate passes;
 [PHASE_6_REVIEW.md](PHASE_6_REVIEW.md) records results and limits.
 The separately authorized Phase 7 authored learning foundation makes no AI calls;
-all CAD mutations remain deferred. Phase 8 now adds deterministic read-only lesson
-checking without AI; Phase 9A preparation is complete and 9B is not started. This is design assistance, not
+the agent retains its read-only CAD boundary. Phase 8 adds deterministic read-only lesson
+checking without AI; Phase 9A preparation is complete and the separate Phase 9B Modify
+workflow is implemented behind a default-OFF backend flag. This is design assistance, not
 engineering certification. Codex develops Forge; Forge's runtime AI is separate.
 
 ## Groq contract reviewed — 2026-10-15; retention/quotas rechecked 2026-10-16
@@ -440,19 +441,17 @@ The user confirms final human validation and merge to main at `81199ea`.
 [PHASE_8_REVIEW.md](PHASE_8_REVIEW.md) retains the original implementation and
 validation record unchanged; its provisional wording is superseded by that confirmation.
 
-## Phase 9A authority design — preparation complete, not a runtime tool
+## Phase 9B deterministic Modify authority
 
-[The future first-write design](PHASE_9_SAFE_WRITE_SPEC.md) permits intent
-interpretation/clarification and explanation of a server-created proposal for
-`suppress_terminal_fillet_v1`. Deterministic code alone would own target identity,
-explicit approval, fresh state/version checks, guarded execution and post-write
-verification. Stale approval must be rejected and the provider microversion guard
-is mandatory. The private executor must never be an AI-callable function. No generic
-HTTP/Onshape authority, model-provided IDs/tokens, arbitrary FeatureScript, model
-approval, success override or expired-approval reuse is permitted.
+[Runtime review](PHASE_9_REVIEW.md): `suppress_terminal_fillet_v1` is the only
+implemented write exception, default OFF and awaiting human CAD-write validation.
+Modify recognizes supported intent with a closed deterministic grammar; no additional
+hosted AI request/tool is needed. The existing Design agent and no-argument inspection
+tool stay read-only. Unsupported requests remain refused.
 
-Phase 9A adds no model tools, provider changes or executable proposal code.
-Current deterministic read-only write refusal and the no-argument inspection tool
-remain unchanged. OAuth2Write is not enabled. Phase 8 is now complete and merged;
-its actual checker/evidence contracts must be reviewed before separately authorized
-runtime work. **Phase 9B: NOT STARTED.**
+Deterministic server code owns inventory/target identity, immutable proposals, explicit
+human approval, session/grant/context binding, stale checks, committed claim/fence,
+provider-guarded dispatch and post-write verification. AI cannot approve, execute,
+provide IDs/tokens/hosts/paths/bodies/FeatureScript, override policy or declare success.
+Untrusted CAD names are display data. No selection ownership is inferred. Stale
+approval rejects and the original provider microversion guard is mandatory.

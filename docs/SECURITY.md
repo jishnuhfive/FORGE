@@ -445,21 +445,26 @@ The user confirms final validation and merge at `81199ea`; the original
 [Phase 8 review](PHASE_8_REVIEW.md) is retained unchanged, including its earlier
 provisional wording, which this confirmation supersedes.
 
-## Phase 9A preparation complete — planned write controls only
+## Phase 9B safe-write controls
 
-[The safe-write specification](PHASE_9_SAFE_WRITE_SPEC.md) retains
-`suppress_terminal_fillet_v1` and the exact proposal → explicit approval → fresh
-state/version check → guarded write → post-write verification boundary. It documents
-future OAuth2Write permission, broad provider-scope risk, exact session/object/
-revision binding, one-time consumption, CSRF, shared execution fences and uncertain-write
-recovery. Stale approval must be rejected; the provider microversion guard is
-mandatory. Generic Onshape API authority and arbitrary FeatureScript are prohibited.
-Temporary operational records remain separate from content-free audits; no persistent
-CAD history is proposed. An unresolved fence is a deny marker, never write authority.
+[Runtime review and threat boundary](PHASE_9_REVIEW.md): implemented and automated
+tested, awaiting controlled human CAD-write validation. Only
+`suppress_terminal_fillet_v1` is allowed. Backend flag defaults OFF. Live OAuth app
+permissions remain unchanged; known read/write consent is required before execution.
+Unknown scope/bitmask fails closed; refresh cannot imply expanded consent.
 
-These write controls are **not implemented**. OAuth2Write is not enabled. Existing
-sessions, CSRF, four-GET transport, AI tools/refusal, database and migrations remain
-unchanged by this preparation and documentation merge. Phase 8 is now integrated;
-**Phase 9B: NOT STARTED** and still requires explicit authorization. Permission
-expansion separately requires human approval. If provider-side atomic stale
-rejection cannot be proven, the selected write mechanism must not be enabled.
+Strict opaque candidates and immutable 120-second proposals bind user/session/grant,
+context/feature, baseline microversion and digest. Same-origin JSON, exact Origin or
+Referer fallback, session CSRF, bounded parsing and closed schemas protect all Modify
+actions. Browser/AI cannot provide target IDs, payloads, hosts, FeatureScript or tokens.
+PostgreSQL atomic claims and persistent fences commit before dispatch; shared user →
+session → grant locking coordinates auth lifecycle and dispatch. Stale approvals
+reject; the original provider microversion guard is mandatory. One POST only, no retry.
+Fresh deterministic verification is required for success. Post-dispatch ambiguity
+retains the fence; reconciliation is read-only and manual recovery remains deliberate.
+
+The review specifies exact stored fields, 120-second approval/15-minute operational
+retention, 60-second cleanup, persistent deny fences, safe audits and backup/restore
+implications. No prompts, raw provider CAD payloads, tokens, hidden reasoning, history
+or analytics are added. This is not a security certification. Real suppression and
+atomic stale rejection remain hard unproven human conformance gates.

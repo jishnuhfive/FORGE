@@ -1,4 +1,4 @@
-# UI architecture through Phase 8 validated lesson checking
+# UI architecture through Phase 9B controlled safe editing
 
 ## Ownership
 
@@ -76,7 +76,7 @@ rate limit, cancellation and unexpected failure.
 - Approve and Build advances only to the sample progress view. States are selected
   manually, without simulated timed execution. The sample report is independently
   selectable even after cancellation; it is not a result of that preview run.
-- Modify uses a fixed 4 → 9 mm thickness example, explicitly independent of arbitrary
+- The DEV Modify fixture uses a fixed 4 → 9 mm thickness example, explicitly independent of arbitrary
   prompt text. Only the one-face sample permits Apply. Selection changes discard
   proposals; Apply records only a local preview acknowledgement.
 - Learn uses an authored three-step fundamentals lesson with short experience/goal
@@ -90,13 +90,14 @@ Browser storage contains only versioned preferences: theme, future display units
 onboarding completion, printer name, bounded printer dimensions and material text.
 Dimension inputs use mm and accept integer values from 1 to 2000; this is input
 hygiene, not a verified manufacturing capability. Sample records retain explicit
-units. Prompts, proposals, brief edits and reading progress are never persisted.
+units. Prompts, brief edits and reading progress are never persisted in browser storage.
+Phase 9B proposals use short-lived backend operational storage described below.
 The reader reconstructs an allowlisted record and rejects invalid stored values.
 Blocked storage preserves usable session state and explains the limitation.
 
 Phase 2 established backend OAuth and account persistence. Phase 4–6 subsequently
-added real read-only CAD and explicit hosted AI requests. There are no real CAD
-approval records, engineering validations, CAD writes or persisted private model reasoning.
+added real read-only CAD and explicit hosted AI requests. Phase 9B separately adds default-OFF guarded suppression and ephemeral approval
+records. No engineering certification or private model reasoning is persisted.
 
 The gate supports checking session, signed out, authorizing, denied, invalid/expired
 state, session expired, network failure and unconfigured deployment. Account settings
@@ -166,7 +167,7 @@ visibility or Refresh CAD. At most three exchanges remain in memory. Exact conte
 and session keys clear old requests/conversation; ordinary same-context tab
 switching preserves them. No localStorage, PostgreSQL conversation or provider
 Conversation objects are used. Standalone local drafts and all DEV previews remain
-separate from the live agent. Modify execution and CAD writes remain deferred; authored learning is described below.
+separate from the live agent. The separate default-OFF Modify workflow is described below; Design stays read-only.
 See [AI_AGENT.md](AI_AGENT.md) for the server boundary and privacy caveats.
 
 ### Phase 6 live-response repair
@@ -202,11 +203,10 @@ choices remain honored. The optional allowlisted `reduceTransparency` boolean is
 local display preference only. OS reduced motion/transparency, increased contrast
 and forced colors also adapt the shared material.
 
-The shell is a single compact panel at every width: brand, one read-only state,
+The shell is a single compact panel at every width: brand, one capability state,
 context/inspector action and segmented navigation. Marketing rails, concept artwork
 and repeated analysis badges have been removed from the working workspace. Saved
-versions remain visibly distinct and do not enable analysis. Modify says it is
-planned; Learn remains an authored local lesson.
+versions remain visibly distinct and do not enable analysis. Modify implements the default-OFF safe-write workflow below; Learn remains student-operated.
 
 `GlassSurface`, `GlassDefinitions` and `ForgeMark` live in the shared design system.
 One CSS material supplies bounded blur, edge-only SVG displacement and event-driven
@@ -316,17 +316,22 @@ a later verified check restores it. The student still performs all CAD edits.
 The user confirms final human validation and merge at `81199ea`; the unchanged
 [Phase 8 review](PHASE_8_REVIEW.md) preserves its earlier validation record.
 
-## Phase 9A preview design — preparation complete, documentation only
+## Phase 9B Modify
 
-The future [first-write specification](PHASE_9_SAFE_WRITE_SPEC.md) defines an
-answer-first preview for `suppress_terminal_fillet_v1`: requested change,
-Active → Suppressed, confirmed inventory target, effect/limitations, Cancel and
-**Approve change**. It reuses the frozen solid reading layer, functional controls,
-single scroll region and 320px accessibility/focus rules. Explicit approval is
-followed by a fresh state/version check, guarded write and post-write verification;
-stale approval must be rejected. Executing, uncertain and verified outcomes have
-truthful distinct text; no automatic Undo is promised.
+[Runtime review](PHASE_9_REVIEW.md) describes the implemented first-write workflow.
+Modify offers a bounded intent composer, fresh server inventory, separate explicit
+target selection, then an Active → Suppressed semantic preview with effect, limits,
+expiry, Cancel and **Approve change**. The quiet solid reading layer and existing
+controls remain; no new application, approval modal stack or generic Undo exists.
 
-No preview or active write approval is added in 9A. Production Modify and the
-read-only CAD boundary remain unchanged; OAuth2Write is not enabled.
-**Phase 9B: NOT STARTED.**
+Checking, executing and verifying use real server progress announcements. Success
+requires fresh deterministic verification; stale, expired, disabled, permission,
+provider and uncertain outcomes have distinct text. Uncertainty offers read-only
+status/inspection and manual recovery. Context loss removes the preview. Buttons
+prevent duplicate actions; server single-use claims remain authoritative.
+The shell says Approval required only for available Modify; other modes stay Read-only.
+
+Default OFF clearly says safe CAD editing is disabled, without an executable preview.
+Known missing write consent requests permission; unknown authorization fails closed.
+Keyboard, live announcements, forced colors/reduced motion and 320px are covered in
+synthetic browser tests. Human real-CAD validation and Gate A/B remain pending.

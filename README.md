@@ -2,13 +2,13 @@
 
 AI engineering inside Onshape.
 
-Forge is an engineering tutor and read-only CAD assistant embedded in Onshape's
-right panel. Learners perform the CAD operations while Forge helps explain what
-to do, why it matters and how to recover when stuck. Approval-bound design
-execution remains planned. Deterministic lesson checks now report supported CAD
-evidence with explicit limits.
+Forge is an engineering tutor and CAD assistant embedded in Onshape's right
+panel. Learners perform lesson CAD operations while Forge explains what to do,
+why it matters and how to recover. Deterministic lesson checks report evidence
+with explicit limits. Modify implements one explicitly approved Fillet suppression,
+disabled by default and awaiting controlled human CAD-write validation.
 
-**Current status: Phase 8 COMPLETE, HUMAN VALIDATED, and MERGED; Phase 9A PREPARATION COMPLETE; Phase 9B NOT STARTED.**
+**Current status: Phase 8 COMPLETE, HUMAN VALIDATED, and MERGED; Phase 9A PREPARATION COMPLETE; Phase 9B IMPLEMENTED / AUTOMATED TESTED / AWAITING CONTROLLED HUMAN CAD-WRITE VALIDATION.**
 Phase 6.5 remains visually approved after two human-review passes.
 The product UI and canonical design system are frozen: Obsidian, Arc Blue, the
 Oblique Plane identity, restrained functional Liquid Glass and answer-first
@@ -20,7 +20,7 @@ Real read-only Groq AI was verified inside Onshape during Phase 6.
 Phases 0–5 are preserved, including real OAuth, validated right-panel context and
 selection, four backend read operations and the CAD Inspector verified against a
 real Part Studio. The Design composer now offers read-only AI analysis inside
-Onshape after an explicit send. No CAD changes or engineering validation execute.
+Onshape after an explicit send. Design remains read-only; engineering validation is not claimed.
 
 Forge uses a provider-independent backend agent with Groq / `openai/gpt-oss-120b`
 by default. OpenAI Responses / `gpt-6.1-sol` remains an explicit optional provider.
@@ -45,11 +45,15 @@ the final user-reported live results, full quality gate and local Groq setup.
 Phase 7 provides authored learning without provider or CAD requests. Phase 8 is
 **COMPLETE, HUMAN VALIDATED, and MERGED** into main at `81199ea`; it adds the
 Mounting Bracket guided project and explicit deterministic **Check my step** from
-fresh CAD evidence. Phase 9A is **PREPARATION COMPLETE** for one future safe edit;
-the running product remains read-only. See the
+fresh CAD evidence. Phase 9A is **PREPARATION COMPLETE**. Phase 9B implements
+`suppress_terminal_fillet_v1` behind backend `FORGE_CAD_WRITES_ENABLED` (default OFF):
+proposal → explicit approval → fresh state/version check → guarded write → fresh
+post-write verification. No live write or OAuth app permission change was performed.
+Provider payload and atomic stale-update gates still require controlled human proof.
+See the [Phase 9 runtime review](docs/PHASE_9_REVIEW.md) for exact human instructions, the
 [Phase 8 review](docs/PHASE_8_REVIEW.md),
 [safe-write specification](docs/PHASE_9_SAFE_WRITE_SPEC.md) and
-[preparation review](docs/PHASE_9_PREP_REVIEW.md). **Phase 9B: NOT STARTED.**
+[preparation review](docs/PHASE_9_PREP_REVIEW.md). Phase 10 is **NOT STARTED**.
 See [the Phase 7 review](docs/PHASE_7_REVIEW.md) for lesson architecture and human acceptance.
 This is not a publicly deployed production service.
 

@@ -1,6 +1,6 @@
 # Architecture
 
-## Current implementation — Phase 8 complete, human validated and merged
+## Current implementation — Phase 8 validated; Phase 9B awaiting human write validation
 
 One React/TypeScript/Vite web client, one FastAPI/Pydantic API and shared presentation
 primitives serve desktop browsers. Native clients are not part of Forge.
@@ -10,7 +10,7 @@ The development UI lab is independent of authentication and remains excluded fro
 production builds. Build/validation previews remain explicitly synthetic; Phase 6
 analysis uses real backend services only after an explicit send.
 Phase 4 established four backend CAD REST reads. Phase 5 projects their snapshot
-into a bounded CAD Inspector; the compact proof API remains available. Phase 6 adds read-only AI through a provider-independent interface (default Groq; optional OpenAI). CAD writes remain unimplemented. The extension launch bridge sends
+into a bounded CAD Inspector; the compact proof API remains available. Phase 6 adds read-only AI through a provider-independent interface (default Groq; optional OpenAI). The single Phase 9B guarded write is implemented but disabled by default. The extension launch bridge sends
 applicationInit, handles documented show messages and normalizes bounded single
 FACE/EDGE or clear SELECTION envelopes matching the human's live sanitized captures.
 
@@ -30,10 +30,10 @@ HTTP transports; no runtime setting enables mock sessions.
 | Component        | Responsibility                                                                                      | Current state                                               |
 | ---------------- | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
 | Frontend         | Narrow-panel UI, accessible controls, typed API calls, approved plan presentation                   | Authenticated local UI + DEV fixtures                       |
-| API              | Configuration, sessions, authorization, validated contracts, orchestration                          | OAuth, sessions, CSRF, read snapshots and step checks       |
-| Database         | Users linked to Onshape identity, encrypted token records, sessions, plans, inventory, audit events | Identity, grants, sessions, states and audit migrations     |
+| API              | Configuration, sessions, authorization, validated contracts, orchestration                          | OAuth, sessions, CSRF, reads, checks and guarded Modify     |
+| Database         | Users linked to Onshape identity, encrypted token records, sessions, plans, inventory, audit events | Auth, audits, ephemeral proposals and deny fences           |
 | AI layer         | Provider adapters, bounded agent loop, allowlisted functions, streamed user-facing status           | Phase 6 backend adapter and read-only agent                 |
-| Onshape layer    | Server REST adapter, OAuth, document inspection, supported feature/assembly operations              | OAuth, identity and four allowlisted CAD reads              |
+| Onshape layer    | Server REST adapter, OAuth, document inspection, supported feature/assembly operations              | OAuth, read client and private guarded suppression client   |
 | Validation layer | Unit-aware deterministic calculations and evidence-backed results                                   | Deterministic lesson checks; engineering validation planned |
 | Tool layer       | High-level operations joining user permissions, approvals, schemas, adapters, verification          | One Phase 6 read-only inspection tool                       |
 
@@ -422,22 +422,24 @@ Final human validation and merge at `81199ea` are confirmed by the user. Preserv
 [PHASE_8_REVIEW.md](PHASE_8_REVIEW.md) as the unchanged implementation/validation
 record; its earlier provisional status is superseded by this confirmation.
 
-## Phase 9A preparation complete — future write architecture only
+## Phase 9B implemented safe-write boundary
 
-[The safe-write specification](PHASE_9_SAFE_WRITE_SPEC.md) selects exactly
-`suppress_terminal_fillet_v1`: suppress one active ordinary standard Fillet at the
-end of an unconfigured workspace Part Studio. The flow remains proposal → explicit
+Phase 9A preparation remains complete. [The runtime review](PHASE_9_REVIEW.md)
+records the implemented architecture and mandatory pending human conformance gates.
+Exactly `suppress_terminal_fillet_v1` uses server-resolved inventory, opaque candidate
+handles and closed immutable 120-second proposals. The flow is proposal → explicit
 approval → fresh state/version check → guarded write → post-write verification.
-Server-owned inventory targets, immutable short-lived proposals, exact session/
-object/document-microversion binding, cross-worker single consumption and stale
-approval rejection remain mandatory. No generic Onshape API authority or arbitrary
-FeatureScript is allowed. The provider microversion guard is mandatory.
+The original sourceMicroversion with rejectMicroversionSkew=true is mandatory;
+there is no local-check-only fallback, generic Onshape API or arbitrary FeatureScript.
 
-Short-lived PostgreSQL operational state and safety fences are proposed for 9B;
-no write schema or runtime code is added here. The current four-read non-atomic
-snapshot and Phase 8 read-only checks are insufficient for write approval.
-Reuse the now-merged evidence/checker infrastructure where appropriate rather
-than inventing a second framework. Provider suppression payload and reject-on-skew
-update semantics still require disposable-document conformance gates.
-OAuth2Write is not enabled; write routes, tools and active approval controls remain
-unimplemented. **Phase 9B: NOT STARTED**, awaiting explicit authorization.
+`cad_edits/` owns deterministic authority and same-origin CSRF-bound routes. A private
+fixed v17 write client extends the existing bounded provider boundary with pinned
+microversion reads; existing inspector, context, checker and lesson engines remain.
+AI has no execution tool. PostgreSQL `0002_safe_edit` adds ephemeral operational
+records and durable deny fences. Committed atomic claims, shared user/session/grant
+coordination and unique workspace/user fences protect multiple workers. Uncertain
+writes are never retried or automatically rolled back. Cleanup cannot remove fences.
+
+Writes default OFF. OAuth2Write is not enabled in the external app by this work.
+Gate A suppression-payload behavior and Gate B provider atomic stale rejection are
+awaiting controlled human CAD-write validation. Phase 10 is NOT STARTED.

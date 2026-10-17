@@ -9,6 +9,8 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from forge_api.auth.provider import OnshapeProvider, ProviderError, TokenResponse
 from forge_api.auth.security import TokenCipher, audit
+from forge_api.cad_edits.storage import invalidate
+from forge_api.db.coordination import user_lock
 from forge_api.db.models import OnshapeAuthorization, User, identifier, now
 
 
@@ -55,6 +57,7 @@ class TokenManager:
         failure: ProviderError | None = None
         result = ""
         with self.sessions.begin() as db:
+            user_lock(db, user_id)
             auth = db.scalar(
                 select(OnshapeAuthorization)
                 .where(OnshapeAuthorization.user_id == user_id)
@@ -120,6 +123,7 @@ class TokenManager:
                     user_id,
                 )
                 failure = error
+            invalidate(db, user_id)
             generation = auth.generation
         # Publish cache only after committing the replacement refresh token.
         if failure:
@@ -132,6 +136,7 @@ class TokenManager:
         token = self.get_valid_onshape_access_token(user_id)
         failure: ProviderError | None = None
         with self.sessions.begin() as db:
+            user_lock(db, user_id)
             auth = db.scalar(
                 select(OnshapeAuthorization)
                 .where(OnshapeAuthorization.user_id == user_id)
@@ -169,6 +174,7 @@ class TokenManager:
                     "revoked" if error.revoked else "provider_error",
                     user_id,
                 )
+                invalidate(db, user_id)
                 failure = error
         if failure:
             self.forget(user_id)

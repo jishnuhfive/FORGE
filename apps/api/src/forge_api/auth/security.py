@@ -10,6 +10,18 @@ from forge_api.core.config import Settings
 from forge_api.db.models import AuditEvent
 
 AuditKind = Literal[
+    "write_proposal_created",
+    "write_proposal_expired",
+    "write_proposal_invalidated",
+    "write_proposal_claimed",
+    "write_proposal_cancelled",
+    "write_dispatch_started",
+    "write_provider_acknowledged",
+    "write_verified",
+    "write_failed",
+    "write_uncertain",
+    "write_rejected_stale",
+    "write_reconciliation_required",
     "login_started",
     "login_succeeded",
     "login_failed",

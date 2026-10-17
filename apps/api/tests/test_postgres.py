@@ -57,6 +57,8 @@ def test_fresh_upgrade_current_schema_and_no_schema_drift(postgres: Engine) -> N
         "oauth_states",
         "user_preferences",
         "audit_events",
+        "write_records",
+        "write_fences",
     }
     config = Config(str(REPOSITORY_ROOT / "apps/api/alembic.ini"))
     with postgres.begin() as connection:
