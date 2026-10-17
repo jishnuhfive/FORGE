@@ -15,6 +15,11 @@ import {
 } from '../../apps/web/src/onshape/__fixtures__/selection';
 import { inspectorFixture } from '../../apps/web/src/cad/__fixtures__/inspector';
 
+// Drain fixture asset requests before Playwright disposes the request context.
+test.afterEach(async ({ page }) => {
+  await page.unrouteAll({ behavior: 'wait' });
+});
+
 const query = `documentId=${'a'.repeat(24)}&workspaceOrVersion=w&workspaceOrVersionId=${'b'.repeat(24)}&elementId=${'c'.repeat(24)}&server=https://cad.onshape.com`;
 async function panel(page: Page) {
   const asks: Record<string, unknown>[] = [];

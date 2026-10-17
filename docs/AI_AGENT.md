@@ -4,7 +4,8 @@ Implementation began on 2026-10-14. Final real Groq verification was reported by
 the user on 2026-10-16, including repaired Evidence, FACE/EDGE grounding and the
 deterministic write-capability path. The complete final repository gate passes;
 [PHASE_6_REVIEW.md](PHASE_6_REVIEW.md) records results and limits.
-Phase 7 and all CAD mutations remain deferred. This is design assistance, not
+The separately authorized Phase 7 authored learning foundation makes no AI calls;
+all CAD mutations remain deferred. This is design assistance, not
 engineering certification. Codex develops Forge; Forge's runtime AI is separate.
 
 ## Groq contract reviewed — 2026-10-15; retention/quotas rechecked 2026-10-16
@@ -411,3 +412,13 @@ object-level authorization, strict schemas/units/bounds, a specific approved
 plan/document version, sanitized action logging and result verification. Preserve
 PASS/WARNING/FAIL/UNVERIFIED independently of LLM judgment. Nothing in Phase 6
 creates a write tool or grants approval for Phase 7.
+
+## Phase 7 authored teaching boundary
+
+The Sketch to solid lesson, instructions, Why text, vocabulary and three hint levels
+are deterministic authored frontend content. Learning never calls this agent or any
+provider, reads CAD automatically or uses model output to assess a learner. Its
+completion summary reports only local observed lesson interactions and learner-marked
+steps. Future optional AI teaching would require explicit design/authorization;
+Phase 8 deterministic checking is not implemented. Existing Design sends retain all
+Phase 6 disclosure, grounding, privacy and read-only boundaries.

@@ -20,7 +20,7 @@ import { DesignPlan } from '../features/DesignPlan';
 import { AgentProgress } from '../features/AgentProgress';
 import { ValidationReport } from '../features/ValidationReport';
 import { Modify } from '../features/Modify';
-import { Learn } from '../features/Learn';
+import LearningPreview from './LearningPreview';
 import { Settings } from '../features/Settings';
 import { History } from '../features/History';
 import { errors } from '../lib/errors';
@@ -156,7 +156,7 @@ export default function UiLab({
       content = <Modify preview />;
       break;
     case 'Learn mode':
-      content = <Learn />;
+      content = <LearningPreview />;
       break;
     case 'Settings':
       content = (
