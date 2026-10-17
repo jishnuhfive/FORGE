@@ -93,7 +93,9 @@ for (const width of [320, 380, 480])
       .fill('What is in this Part Studio?');
     await h.frame.getByLabel('Design prompt').press('Control+Enter');
     await expect(
-      h.frame.getByRole('heading', { name: 'Forge analysis' }),
+      h.frame.getByRole('heading', {
+        name: /^(Response|Current model|Selected face|Selected edge)$/,
+      }),
     ).toBeVisible();
     await h.frame.getByText('Evidence', { exact: true }).click();
     await expect(
@@ -120,11 +122,17 @@ for (const width of [320, 380, 480])
     expect(
       await h.child.evaluate(() => JSON.stringify(localStorage)),
     ).not.toContain('Part Studio');
-    if (width === 320)
+    if (width === 320 || width === 480) {
       await page.screenshot({
-        path: '.cache/phase6/analysis-320.png',
+        path: `.cache/phase6.5/evidence-${width}.png`,
         fullPage: true,
       });
+      await h.frame.getByRole('button', { name: 'Hide evidence' }).click();
+      await page.screenshot({
+        path: `.cache/phase6.5/workspace-${width}.png`,
+        fullPage: true,
+      });
+    }
   });
 
 test('Phase 6 selection, Refresh CAD and browser focus never initiate AI', async ({
@@ -160,7 +168,9 @@ for (const [data, selection] of [
       .fill('What do you know about my selection?');
     await h.frame.getByRole('button', { name: 'Send prompt' }).click();
     await expect(
-      h.frame.getByRole('heading', { name: 'Forge analysis' }),
+      h.frame.getByRole('heading', {
+        name: /^(Response|Current model|Selected face|Selected edge)$/,
+      }),
     ).toBeVisible();
     expect(h.asks[0]?.selection).toBe(selection);
     await expect(h.frame.locator('.composer-context')).toContainText(
@@ -181,7 +191,9 @@ test('Phase 6 same-context tab switching preserves history; real Part Studio cha
   await h.frame.getByLabel('Design prompt').fill('What is in this model?');
   await h.frame.getByRole('button', { name: 'Send prompt' }).click();
   await expect(
-    h.frame.getByRole('heading', { name: 'Forge analysis' }),
+    h.frame.getByRole('heading', {
+      name: /^(Response|Current model|Selected face|Selected edge)$/,
+    }),
   ).toBeVisible();
   const other = await context.newPage();
   await other.goto('about:blank');
@@ -189,7 +201,9 @@ test('Phase 6 same-context tab switching preserves history; real Part Studio cha
   await other.close();
   await h.send({ messageName: 'show' });
   await expect(
-    h.frame.getByRole('heading', { name: 'Forge analysis' }),
+    h.frame.getByRole('heading', {
+      name: /^(Response|Current model|Selected face|Selected edge)$/,
+    }),
   ).toBeVisible();
   expect(h.asks).toHaveLength(1);
   await expect(h.frame.getByLabel('Design prompt')).toBeEnabled({
@@ -198,7 +212,9 @@ test('Phase 6 same-context tab switching preserves history; real Part Studio cha
   await h.frame.getByLabel('Design prompt').fill('Which feature comes second?');
   await h.frame.getByRole('button', { name: 'Send prompt' }).click();
   await expect(
-    h.frame.getByRole('heading', { name: 'Forge analysis' }),
+    h.frame.getByRole('heading', {
+      name: /^(Response|Current model|Selected face|Selected edge)$/,
+    }),
   ).toHaveCount(2);
   expect(h.asks[1]?.history).toHaveLength(2);
   await page.locator('iframe').evaluate(
@@ -210,7 +226,9 @@ test('Phase 6 same-context tab switching preserves history; real Part Studio cha
   );
   await expect(h.frame.getByLabel('Design prompt')).toBeVisible();
   await expect(
-    h.frame.getByRole('heading', { name: 'Forge analysis' }),
+    h.frame.getByRole('heading', {
+      name: /^(Response|Current model|Selected face|Selected edge)$/,
+    }),
   ).toHaveCount(0);
   expect(h.asks).toHaveLength(2);
 });
@@ -265,7 +283,9 @@ test('Phase 6 prevents duplicate submits and supports cancellation', async ({
   await expect(h.frame.getByRole('alert')).toContainText('Request cancelled');
   expect(requests).toBeLessThanOrEqual(1);
   await expect(
-    h.frame.getByRole('heading', { name: 'Forge analysis' }),
+    h.frame.getByRole('heading', {
+      name: /^(Response|Current model|Selected face|Selected edge)$/,
+    }),
   ).toHaveCount(0);
 });
 
@@ -275,7 +295,9 @@ for (const change of ['session', 'logout', 'revoked'])
     await h.frame.getByLabel('Design prompt').fill('What is in this model?');
     await h.frame.getByRole('button', { name: 'Send prompt' }).click();
     await expect(
-      h.frame.getByRole('heading', { name: 'Forge analysis' }),
+      h.frame.getByRole('heading', {
+        name: /^(Response|Current model|Selected face|Selected edge)$/,
+      }),
     ).toBeVisible();
     h.changeAccount(
       change === 'logout'
@@ -286,7 +308,9 @@ for (const change of ['session', 'logout', 'revoked'])
     );
     await h.child.evaluate(() => window.dispatchEvent(new Event('focus')));
     await expect(
-      h.frame.getByRole('heading', { name: 'Forge analysis' }),
+      h.frame.getByRole('heading', {
+        name: /^(Response|Current model|Selected face|Selected edge)$/,
+      }),
     ).toHaveCount(0);
   });
 
@@ -329,7 +353,7 @@ test('Phase 6 disconnect clears the old conversation and unsupported write stays
     .getByLabel('Design prompt')
     .fill('Make this model 20 mm wider.');
   await h.frame.getByRole('button', { name: 'Send prompt' }).click();
-  await expect(h.frame.getByText(/cannot modify CAD in Phase 6/)).toBeVisible();
+  await expect(h.frame.getByText(/currently read-only/)).toBeVisible();
   await expect(h.frame.getByText(/width-driving dimension/)).toBeVisible();
   await expect(h.frame.getByText(/performed no CAD writes/)).toBeVisible();
   await expect(h.frame.getByRole('alert')).toHaveCount(0);
@@ -345,7 +369,9 @@ test('Phase 6 disconnect clears the old conversation and unsupported write stays
   h.disconnect();
   await h.child.evaluate(() => window.dispatchEvent(new Event('focus')));
   await expect(
-    h.frame.getByRole('heading', { name: 'Forge analysis' }),
+    h.frame.getByRole('heading', {
+      name: /^(Response|Current model|Selected face|Selected edge)$/,
+    }),
   ).toHaveCount(0);
 });
 
@@ -361,7 +387,9 @@ test('Phase 6 collapsed and expanded evidence copies contain no empty list rows'
     .getByLabel('Design prompt')
     .fill('What is in this Part Studio?');
   await h.frame.getByRole('button', { name: 'Send prompt' }).click();
-  const heading = h.frame.getByRole('heading', { name: 'Forge analysis' });
+  const heading = h.frame.getByRole('heading', {
+    name: /^(Response|Current model|Selected face|Selected edge)$/,
+  });
   await expect(heading).toBeVisible();
   const evidence = h.frame.getByRole('list', { name: 'Evidence' });
   await expect(
@@ -377,13 +405,13 @@ test('Phase 6 collapsed and expanded evidence copies contain no empty list rows'
   }
   const copiedRows = async () => {
     await page.bringToFront();
-    await heading.click();
+    await h.frame.locator('.ai-exchange .user-prompt').click();
     // Initialize first, so this test can never read existing user clipboard data.
     if (browserName === 'chromium')
       await page.evaluate(() =>
         navigator.clipboard.writeText('synthetic-copy-marker'),
       );
-    await heading.click();
+    await h.frame.locator('.ai-exchange .user-prompt').click();
     await h.frame.locator('.ai-exchange').evaluate((element) => {
       const range = document.createRange();
       range.selectNodeContents(element);
@@ -478,13 +506,17 @@ for (const [selection, message] of [
       );
     await h.frame.getByRole('button', { name: 'Send prompt' }).click();
     await expect(
-      h.frame.getByRole('heading', { name: 'Forge analysis' }),
+      h.frame.getByRole('heading', {
+        name: /^(Response|Current model|Selected face|Selected edge)$/,
+      }),
     ).toBeVisible();
     await expect(
-      h.frame.getByText(/Owning part, body and feature: unknown/),
+      h.frame.getByText(
+        /Owning part, body, feature, dimensions.*are currently unknown/,
+      ),
     ).toBeVisible();
     await expect(
-      h.frame.getByText(/measurements are not available in Phase 6/),
+      h.frame.getByText(/measurements aren't available yet/),
     ).toBeVisible();
     for (const name of [
       'Assumptions',

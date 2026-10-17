@@ -16,8 +16,8 @@ SELECTION_IDS = (
     "selection_capability",
 )
 SELECTION_CAPABILITY = (
-    "Forge can currently confirm only the panel's selection category; "
-    "selection-specific ownership and measurements are not available in Phase 6."
+    "Forge can confirm the selection type, but selection-specific ownership "
+    "and measurements aren't available yet."
 )
 
 
@@ -35,9 +35,9 @@ def selection_question(prompt: str) -> bool:
 def selection_facts(selection: Selection) -> list[Fact]:
     noun = selection.lower() if selection in ("FACE", "EDGE") else "geometry"
     state = (
-        f"The panel reports one {noun} selected."
+        f"One {noun} is selected."
         if selection in ("FACE", "EDGE")
-        else "The panel reports no selection."
+        else "No geometry is selected."
         if selection == "none"
         else "Current selection is unknown."
     )
@@ -84,13 +84,13 @@ def selection_answer(selection: Selection) -> str:
     state = selection_facts(selection)[0].statement
     if selection == "FACE":
         unknown = (
-            "Owning part, body and feature: unknown. Dimensions, surface type and "
-            "face-specific geometry (including area and normal direction): unknown."
+            "Owning part, body, feature, dimensions, surface type and face-specific "
+            "geometry (including area and normal direction) are currently unknown."
         )
     elif selection == "EDGE":
         unknown = (
-            "Owning part, body and feature: unknown. Dimensions, curve type, "
-            "adjacent faces and edge-specific geometry: unknown."
+            "Owning part, body, feature, dimensions, curve type, adjacent faces "
+            "and edge-specific geometry are currently unknown."
         )
     else:
         unknown = (

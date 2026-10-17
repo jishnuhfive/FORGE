@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import RefinementComparison from './RefinementComparison';
+import Phase65Preview from './Phase65Preview';
 import InspectorPreview from './InspectorPreview';
 import {
   Badge,
@@ -36,6 +38,10 @@ import {
 } from './data';
 
 const views = [
+  'Material comparison',
+  'Logo candidates',
+  'Phase 6.5 workspace',
+  'Phase 6.5 design system',
   'CAD inspector',
   'Design empty',
   'Engineering brief',
@@ -68,6 +74,9 @@ export default function UiLab({
   const [view, setView] = useState<View>('Design empty');
   const [width, setWidth] = useState('narrow');
   const [error, setError] = useState<ErrorCode>('network');
+  const [reduceMotion, setReduceMotion] = useState(false);
+  const [reduceTransparency, setReduceTransparency] = useState(false);
+  const [contrast, setContrast] = useState(false);
   const [intro, setIntro] = useState(false);
   const [message, setMessage] = useState('');
   const context: Context =
@@ -78,6 +87,16 @@ export default function UiLab({
         : sampleContext;
   let content;
   switch (view) {
+    case 'Material comparison':
+    case 'Logo candidates':
+      content = <RefinementComparison logos={view === 'Logo candidates'} />;
+      break;
+    case 'Phase 6.5 workspace':
+    case 'Phase 6.5 design system':
+      content = (
+        <Phase65Preview showcase={view === 'Phase 6.5 design system'} />
+      );
+      break;
     case 'CAD inspector':
       content = <InspectorPreview />;
       break;
@@ -294,6 +313,11 @@ export default function UiLab({
             onChange={(event) => setWidth(event.target.value)}
           >
             <option value="narrow">Narrow panel · 380 px</option>
+            <option value="320">320 px</option>
+            <option value="360">360 px</option>
+            <option value="400">400 px</option>
+            <option value="480">480 px</option>
+            <option value="600">600 px</option>
             <option value="wide">Wide standalone</option>
           </select>
         </div>
@@ -323,21 +347,57 @@ export default function UiLab({
           Preview onboarding
         </Button>
       </div>
-      <div className={`lab-frame lab-frame--${width}`}>
-        <Shell
-          context={context}
-          onOnboarding={() => setIntro(true)}
-          onNotify={setMessage}
-        >
-          <main key={view}>
-            {content}
-            {message && (
-              <p className="notice" role="status">
-                {message}
-              </p>
-            )}
-          </main>
-        </Shell>
+      <div className="lab-adaptations">
+        <label>
+          <input
+            type="checkbox"
+            checked={reduceMotion}
+            onChange={(event) => setReduceMotion(event.target.checked)}
+          />
+          Reduce motion
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={reduceTransparency}
+            onChange={(event) => setReduceTransparency(event.target.checked)}
+          />
+          Reduce transparency
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={contrast}
+            onChange={(event) => setContrast(event.target.checked)}
+          />
+          Increase contrast
+        </label>
+      </div>
+      <div
+        className={`lab-frame lab-frame--${width}`}
+        style={{ maxWidth: /^\d+$/.test(width) ? `${width}px` : undefined }}
+        data-motion={reduceMotion ? 'reduced' : undefined}
+        data-transparency={reduceTransparency ? 'reduced' : undefined}
+        data-contrast={contrast ? 'more' : undefined}
+      >
+        {view === 'Material comparison' || view === 'Logo candidates' ? (
+          <main>{content}</main>
+        ) : (
+          <Shell
+            context={context}
+            onOnboarding={() => setIntro(true)}
+            onNotify={setMessage}
+          >
+            <main key={view}>
+              {content}
+              {message && (
+                <p className="notice" role="status">
+                  {message}
+                </p>
+              )}
+            </main>
+          </Shell>
+        )}
       </div>
       <Onboarding open={intro} onClose={() => setIntro(false)} />
     </div>

@@ -36,6 +36,19 @@ for (const [width, theme] of [
         .selectOption(width === 320 ? 'narrow' : 'wide');
       await page.getByLabel('Theme', { exact: true }).selectOption(theme);
       await page.getByLabel('Preview state').selectOption(state);
+      // Audit the settled appearance, after actual finite theme/intro transitions.
+      // Intermediate interpolated colors are not the selected theme's palette.
+      await expect
+        .poll(() =>
+          page.evaluate(
+            () =>
+              document
+                .getAnimations()
+                .filter((animation) => animation.playState === 'running')
+                .length,
+          ),
+        )
+        .toBe(0);
       expect(
         (
           await new AxeBuilder({ page })

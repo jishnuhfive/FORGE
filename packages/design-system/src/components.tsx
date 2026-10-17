@@ -1,4 +1,6 @@
 import { useRef } from 'react';
+import type { CSSProperties } from 'react';
+import { GlassSurface } from './glass';
 import type {
   ButtonHTMLAttributes,
   ComponentPropsWithRef,
@@ -165,13 +167,30 @@ export function Tabs({
       onValueChange={onValueChange}
       className="tabs-root"
     >
-      <TabsPrimitive.List className="tabs-list" aria-label={label}>
-        {items.map((item) => (
-          <TabsPrimitive.Trigger className="tab" key={item.id} value={item.id}>
-            {item.icon}
-            {item.label}
-          </TabsPrimitive.Trigger>
-        ))}
+      <TabsPrimitive.List asChild aria-label={label}>
+        <GlassSurface
+          className="tabs-list"
+          style={
+            {
+              '--selected-index': Math.max(
+                0,
+                items.findIndex((item) => item.id === value),
+              ),
+            } as CSSProperties
+          }
+        >
+          <span className="tabs-indicator" aria-hidden="true" />
+          {items.map((item) => (
+            <TabsPrimitive.Trigger
+              className="tab"
+              key={item.id}
+              value={item.id}
+            >
+              {item.icon}
+              {item.label}
+            </TabsPrimitive.Trigger>
+          ))}
+        </GlassSurface>
       </TabsPrimitive.List>
       {items.map((item) => (
         <TabsPrimitive.Content
@@ -259,7 +278,7 @@ export function Dropdown({
       </DropdownPrimitive.Trigger>
       <DropdownPrimitive.Portal>
         <DropdownPrimitive.Content
-          className="dropdown"
+          className="dropdown glass"
           sideOffset={6}
           align="end"
           onCloseAutoFocus={(event) => {

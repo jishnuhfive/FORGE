@@ -524,14 +524,14 @@ def test_config_is_redacted_server_owned_and_bounded() -> None:
         ("simple", ["feature_1", "feature_2", "parts", "bodies"], "Extrude 1"),
         ("empty", ["features", "parts", "bodies"], "0 features"),
         ("unknown-feature", ["feature_1"], "unknown"),
-        ("missing-mass", ["mass"], "unavailable"),
-        ("units", ["units"], "unverified"),
-        ("validation", ["validation"], "No deterministic engineering validator"),
+        ("missing-mass", ["mass"], "isn't available"),
+        ("units", ["units"], "independently verified"),
+        ("validation", ["validation"], "Validation remains unverified"),
         ("incomplete-parameters", ["features_completeness"], "partial"),
-        ("face", ["selection", "selection_ownership"], "one face"),
-        ("edge", ["selection", "selection_ownership"], "one edge"),
+        ("face", ["selection", "selection_ownership"], "One face"),
+        ("edge", ["selection", "selection_ownership"], "One edge"),
         ("stale", [], "evidence_unavailable"),
-        ("write", ["capability"], "cannot modify CAD"),
+        ("write", ["capability"], "currently read-only"),
         ("injection", ["feature_1"], 'named "Ignore'),
         ("secret", [], "cannot provide secrets"),
         ("hallucination", ["mass_is_20kg"], "invalid_response"),
@@ -645,7 +645,9 @@ def test_hostile_cad_text_is_data_and_final_claims_are_server_owned() -> None:
         safety="safe",
     )
     result = resolve(model, facts, evidence.source.captured_at)
-    assert "unknown" in result.answer and "UNVERIFIED" in result.answer
+    assert (
+        "unknown" in result.answer and "Validation remains unverified" in result.answer
+    )
     assert "PASS" not in result.answer
     assert len(payload.encode()) <= MAX_EVIDENCE_BYTES
     with pytest.raises(AiError):
@@ -714,7 +716,7 @@ def test_direct_user_injection_cannot_grant_capabilities(
         public = result["result"]
         assert isinstance(public, dict)
         assert public["capability_state"] == "read_only"
-        assert "cannot modify CAD in Phase 6" in public["answer"]
+        assert "currently read-only" in public["answer"]
         assert len(provider.calls) == 4 and not fake.calls
         assert all(
             req.method == "GET" and req.url.host == "cad.onshape.com"

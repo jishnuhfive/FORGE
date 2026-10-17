@@ -36,7 +36,7 @@ describe('Forge application foundation', () => {
     expect(
       screen.getByRole('heading', {
         level: 1,
-        name: 'What do you want to engineer?',
+        name: 'Ask about this Part Studio',
       }),
     ).toBeVisible();
     expect(screen.getByText('Local design draft')).toBeVisible();
@@ -102,7 +102,7 @@ describe('Forge application foundation', () => {
     fireEvent.click(screen.getByRole('button', { name: /Back to workspace/ }));
     expect(
       await screen.findByRole('heading', {
-        name: 'What do you want to engineer?',
+        name: 'Ask about this Part Studio',
       }),
     ).toBeVisible();
   });
@@ -123,7 +123,7 @@ describe('Forge application foundation', () => {
     expect(screen.getByLabelText('Bed width (mm)')).toHaveValue(220);
     expect(screen.getByLabelText('Bed depth (mm)')).toHaveValue(220);
     expect(screen.getByLabelText('Build height (mm)')).toHaveValue(250);
-    expect(screen.getByLabelText('System')).toBeChecked();
+    expect(screen.getByLabelText('Dark', { exact: true })).toBeChecked();
   });
   it('handles malformed storage', () => {
     localStorage.setItem('forge.preferences.v1', '{invalid');
@@ -134,6 +134,7 @@ describe('Forge application foundation', () => {
     ready();
     render(<App />);
     route('/settings');
+    fireEvent.click(screen.getByLabelText('Light', { exact: true }));
     vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new Error('Storage unavailable');
     });
@@ -142,6 +143,17 @@ describe('Forge application foundation', () => {
     expect(
       screen.getByText(/Preferences last for this session only/),
     ).toBeVisible();
+  });
+  it('persists only the allowlisted reduced transparency preference', () => {
+    ready();
+    render(<App />);
+    route('/settings');
+    fireEvent.click(screen.getByLabelText('Reduce transparency'));
+    expect(document.documentElement.dataset.transparency).toBe('reduced');
+    expect(
+      JSON.parse(localStorage.getItem('forge.preferences.v1') ?? '{}')
+        .reduceTransparency,
+    ).toBe(true);
   });
   it('shows empty history without synthetic real project records', () => {
     ready();

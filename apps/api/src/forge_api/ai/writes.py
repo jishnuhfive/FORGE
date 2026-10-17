@@ -4,9 +4,10 @@ import re
 
 from .models import Fact
 
+READ_ONLY = "Forge is currently read-only and can't modify CAD yet."
 WRITE_LIMITATION = (
-    "Forge cannot modify CAD in Phase 6. "
-    "I can explain or propose how the change could be made."
+    READ_ONLY + " I can inspect the current model and explain or propose how "
+    "a change could be made."
 )
 NO_WRITES = "Forge performed no CAD writes for this request."
 WIDTH_UNKNOWN = (

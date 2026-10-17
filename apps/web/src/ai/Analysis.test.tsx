@@ -89,9 +89,13 @@ describe('Read-only analysis UX', () => {
       );
       fill(`What do you know about the ${kind.toLowerCase()} I selected?`);
       send();
-      await screen.findByRole('heading', { name: 'Forge analysis' });
+      await screen.findByRole('heading', {
+        name: /^(Response|Current model|Selected face|Selected edge)$/,
+      });
       expect(
-        screen.getByText(/Owning part, body and feature: unknown/),
+        screen.getByText(
+          /Owning part, body, feature, dimensions.*are currently unknown/,
+        ),
       ).toBeVisible();
       for (const name of [
         'Assumptions',
@@ -132,7 +136,11 @@ describe('Read-only analysis UX', () => {
   it('discloses transfer and sends only after explicit keyboard action', async () => {
     const fetch = fakeSuccess();
     render(tree());
-    expect(screen.getByText(/sends your prompt/)).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'Data use' }));
+    expect(screen.getByRole('dialog', { name: 'Your data' })).toHaveTextContent(
+      'configured AI service',
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Close dialog' }));
     expect(fetch).not.toHaveBeenCalled();
     fill();
     fireEvent.keyDown(screen.getByLabelText('Design prompt'), {
@@ -140,7 +148,9 @@ describe('Read-only analysis UX', () => {
       ctrlKey: true,
     });
     expect(
-      await screen.findByRole('heading', { name: 'Forge analysis' }),
+      await screen.findByRole('heading', {
+        name: /^(Response|Current model|Selected face|Selected edge)$/,
+      }),
     ).toBeVisible();
     fireEvent.click(screen.getByRole('button', { name: 'Evidence' }));
     expect(screen.getByText('unknown')).toBeVisible();
@@ -176,6 +186,9 @@ describe('Read-only analysis UX', () => {
       );
     });
     expect(screen.getByText('Inspecting current CAD…')).toBeVisible();
+    expect(
+      document.querySelector('.user-prompt[data-pending]'),
+    ).toHaveTextContent('What is in this model?');
     expect(screen.getByLabelText('Design prompt')).toBeDisabled();
     await act(async () => {
       output!.enqueue(
@@ -186,7 +199,9 @@ describe('Read-only analysis UX', () => {
       output!.close();
     });
     expect(
-      await screen.findByRole('heading', { name: 'Forge analysis' }),
+      await screen.findByRole('heading', {
+        name: /^(Response|Current model|Selected face|Selected edge)$/,
+      }),
     ).toBeVisible();
   });
   for (const [code, message] of [
@@ -253,7 +268,9 @@ describe('Read-only analysis UX', () => {
       ).toBeVisible();
       fill();
       send();
-      await screen.findByRole('heading', { name: 'Forge analysis' });
+      await screen.findByRole('heading', {
+        name: /^(Response|Current model|Selected face|Selected edge)$/,
+      });
       const body = fetch.mock.calls[0]?.[1] as RequestInit;
       expect(JSON.parse(body.body as string).selection).toBe(kind);
       expect(body.body).not.toContain('private-selection-ref');
@@ -270,7 +287,9 @@ describe('Read-only analysis UX', () => {
       const view = render(tree());
       fill();
       send();
-      await screen.findByRole('heading', { name: 'Forge analysis' });
+      await screen.findByRole('heading', {
+        name: /^(Response|Current model|Selected face|Selected edge)$/,
+      });
       let next = context;
       if (field === 'document')
         next = { ...context, documentId: 'e'.repeat(24) };
@@ -291,7 +310,9 @@ describe('Read-only analysis UX', () => {
         ),
       );
       expect(
-        screen.queryByRole('heading', { name: 'Forge analysis' }),
+        screen.queryByRole('heading', {
+          name: /^(Response|Current model|Selected face|Selected edge)$/,
+        }),
       ).not.toBeInTheDocument();
     });
   it('preserves conversation across same-context visibility and selection changes without calls', async () => {
@@ -299,7 +320,9 @@ describe('Read-only analysis UX', () => {
     const view = render(tree());
     fill();
     send();
-    await screen.findByRole('heading', { name: 'Forge analysis' });
+    await screen.findByRole('heading', {
+      name: /^(Response|Current model|Selected face|Selected edge)$/,
+    });
     fireEvent(document, new Event('visibilitychange'));
     fireEvent(window, new Event('focus'));
     view.rerender(
@@ -309,12 +332,16 @@ describe('Read-only analysis UX', () => {
       }),
     );
     expect(
-      screen.getByRole('heading', { name: 'Forge analysis' }),
+      screen.getByRole('heading', {
+        name: /^(Response|Current model|Selected face|Selected edge)$/,
+      }),
     ).toBeVisible();
     expect(fetch).toHaveBeenCalledOnce();
     fireEvent.click(screen.getByRole('button', { name: 'Clear conversation' }));
     expect(
-      screen.queryByRole('heading', { name: 'Forge analysis' }),
+      screen.queryByRole('heading', {
+        name: /^(Response|Current model|Selected face|Selected edge)$/,
+      }),
     ).not.toBeInTheDocument();
   });
   it('cancels safely and discards late responses', async () => {
@@ -340,7 +367,9 @@ describe('Read-only analysis UX', () => {
     );
     expect(cancelled).toBe(true);
     expect(
-      screen.queryByRole('heading', { name: 'Forge analysis' }),
+      screen.queryByRole('heading', {
+        name: /^(Response|Current model|Selected face|Selected edge)$/,
+      }),
     ).not.toBeInTheDocument();
   });
   it('renders the read-only write contract with unknown width and expandable evidence', async () => {
@@ -355,9 +384,7 @@ describe('Read-only analysis UX', () => {
     render(tree());
     fill('Make this model 20 mm wider.');
     send();
-    expect(
-      await screen.findByText(/cannot modify CAD in Phase 6/),
-    ).toBeVisible();
+    expect(await screen.findByText(/currently read-only/)).toBeVisible();
     expect(screen.getByText(/width-driving dimension/)).toBeVisible();
     expect(screen.getByText(/performed no CAD writes/)).toBeVisible();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
@@ -380,7 +407,7 @@ describe('Read-only analysis UX', () => {
         new Response(
           resultStream({
             ...syntheticAnswer,
-            answer: 'Forge cannot modify CAD in Phase 6.',
+            answer: "Forge is currently read-only and can't modify CAD yet.",
             discussion:
               '<script>unsafe()</script> Consider a wider mounting plate.',
             assumptions: ['Assume low static loads.'],
@@ -395,7 +422,9 @@ describe('Read-only analysis UX', () => {
     fill('Make this model 20 mm wider.');
     send();
     expect(
-      await screen.findByText('Forge cannot modify CAD in Phase 6.'),
+      await screen.findByText(
+        "Forge is currently read-only and can't modify CAD yet.",
+      ),
     ).toBeVisible();
     expect(
       screen.getByRole('heading', { name: 'Suggestions · unverified' }),
@@ -442,7 +471,9 @@ describe('Read-only analysis UX', () => {
     render(tree());
     fill();
     send();
-    await screen.findByRole('heading', { name: 'Forge analysis' });
+    await screen.findByRole('heading', {
+      name: /^(Response|Current model|Selected face|Selected edge)$/,
+    });
     expect(screen.queryByRole('button', { name: 'Evidence' })).toBeNull();
     expect(screen.queryByRole('list', { name: 'Evidence' })).toBeNull();
     expect(screen.queryByText('Suggestions · unverified')).toBeNull();
@@ -463,7 +494,9 @@ describe('Read-only analysis UX', () => {
     render(tree());
     fill();
     send();
-    await screen.findByRole('heading', { name: 'Forge analysis' });
+    await screen.findByRole('heading', {
+      name: /^(Response|Current model|Selected face|Selected edge)$/,
+    });
     expect(screen.queryByText('Suggestions · unverified')).toBeNull();
   });
 });

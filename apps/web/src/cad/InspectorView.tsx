@@ -314,8 +314,8 @@ export function InspectorView({ result }: { result: Inspector }) {
         {result.freshness === 'stale'
           ? 'Freshness: stale.'
           : 'Freshness: captured, currentness unverified.'}{' '}
-        Changes after this read are not monitored. Default configuration ·
-        end-of-list evaluation.
+        Changes after this read are not monitored. Default configuration · end
+        of the feature list.
       </p>
       <ListSection
         title="Features"
@@ -370,8 +370,8 @@ export function InspectorView({ result }: { result: Inspector }) {
                 <div>
                   <dt>Units</dt>
                   <dd>
-                    Provider-native, unverified. Numeric mass and volume are
-                    withheld.
+                    Physical units haven’t been independently verified. Numeric
+                    mass and volume aren’t supplied.
                   </dd>
                 </div>
               </dl>

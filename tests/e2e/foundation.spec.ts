@@ -36,7 +36,7 @@ for (const width of [320, 380, 480, 1280]) {
       page.getByRole('link', { name: 'Forge workspace' }),
     ).toBeVisible();
     await expect(
-      page.getByRole('heading', { name: 'What do you want to engineer?' }),
+      page.getByRole('heading', { name: 'Ask about this Part Studio' }),
     ).toBeVisible();
     await expect(
       page.getByRole('button', { name: 'Send prompt' }),
@@ -68,7 +68,8 @@ for (const width of [320, 380, 480, 1280]) {
     await expect(
       page.getByRole('heading', { name: 'Give the plate thickness' }),
     ).toBeVisible();
-    await page.getByRole('button', { name: 'Settings', exact: true }).click();
+    await page.getByRole('button', { name: 'Workspace menu' }).click();
+    await page.getByRole('menuitem', { name: 'Appearance & settings' }).click();
     await expect(
       page.getByRole('heading', { name: 'Settings', exact: true }),
     ).toBeVisible();
@@ -117,7 +118,7 @@ test('production excludes the development lab, fixtures and AI/CAD requests', as
   ).toBeVisible();
   await page.getByRole('button', { name: 'Skip introduction' }).click();
   await expect(
-    page.getByRole('heading', { name: 'What do you want to engineer?' }),
+    page.getByRole('heading', { name: 'Ask about this Part Studio' }),
   ).toBeVisible();
   await expect(
     page.getByRole('link', { name: /development preview|UI development lab/ }),
@@ -129,6 +130,14 @@ test('production excludes the development lab, fixtures and AI/CAD requests', as
     const code = await asset.text();
     for (const marker of [
       'Synthetic preview part',
+      'Open joint',
+      'Stepped billet',
+      'Three planes, one identity',
+      'Development-only sanitized diagnostics',
+      'forge:open-developer-tools',
+      'Synthetic Phase 6.5 review.',
+      'Phase 6.5 design system',
+      'Bright backdrop stress test',
       'Synthetic custom feature',
       'forge-rest-diagnostic-v1',
       'forge-selection-structure-v1',
@@ -163,13 +172,16 @@ test('dialog traps keyboard focus, closes with Escape and restores the opener', 
   await expect(menu).toBeFocused();
 });
 
-test('system theme follows OS preference and reduced motion disables skeleton animation', async ({
+test('explicit system theme follows OS preference and reduced motion disables skeleton animation', async ({
   page,
 }) => {
   await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' });
   await page.goto('/');
   await page.getByRole('button', { name: 'Skip introduction' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await page.getByRole('button', { name: 'Workspace menu' }).click();
+  await page.getByRole('menuitem', { name: 'Appearance & settings' }).click();
+  await page.getByLabel('System', { exact: true }).check();
   await page.emulateMedia({ colorScheme: 'light' });
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await page.goto('http://127.0.0.1:4174/#/lab');
@@ -186,7 +198,8 @@ for (const theme of ['light', 'dark']) {
   test(`workspace accessibility in ${theme} mode`, async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: 'Skip introduction' }).click();
-    await page.getByRole('button', { name: 'Settings', exact: true }).click();
+    await page.getByRole('button', { name: 'Workspace menu' }).click();
+    await page.getByRole('menuitem', { name: 'Appearance & settings' }).click();
     await page
       .getByLabel(theme === 'dark' ? 'Dark' : 'Light', { exact: true })
       .check();

@@ -17,7 +17,7 @@ export function Settings({
   return (
     <div className="feature settings-feature">
       <div className="section-kicker">
-        <span>WORKSPACE PREFERENCES</span>
+        <span>Workspace preferences</span>
         <Badge>Local settings</Badge>
       </div>
       <div className="feature-heading">
@@ -43,8 +43,8 @@ export function Settings({
           </div>
         </fieldset>
         <p className="muted small">
-          Local display preference for future live data. Development fixtures
-          retain their explicit units.
+          Display preference only. This does not verify or change the model’s
+          units.
         </p>
         <fieldset>
           <legend>Theme</legend>
@@ -63,9 +63,22 @@ export function Settings({
             ))}
           </div>
         </fieldset>
+        <label className="settings-row">
+          <span>Reduce transparency</span>
+          <input
+            type="checkbox"
+            checked={preferences.reduceTransparency === true}
+            onChange={(event) =>
+              onChange({
+                ...preferences,
+                reduceTransparency: event.target.checked,
+              })
+            }
+          />
+        </label>
         <div className="settings-row">
           <span>AI preferences</span>
-          <Badge>Not implemented</Badge>
+          <Badge>Unavailable</Badge>
         </div>
       </Panel>
       <Panel title="Manufacturing profile">
@@ -149,9 +162,12 @@ export function Settings({
       <Panel title="Privacy">
         <p>
           Only interface preferences and onboarding completion are stored
-          locally. Prompts and sample edits stay in memory. Account
+          locally. This conversation stays in the panel’s memory. Account
           authentication communicates with Onshape through the Forge server. No
-          engineering prompts are sent to a service.
+          engineering prompts are sent without an explicit send. When you send,
+          Forge transfers your prompt, recent conversation and bounded CAD
+          evidence to the configured AI service. Provider retention policies
+          apply.
         </p>
         <p className="muted small">
           Sign out ends this session. Disconnect removes stored Onshape tokens.

@@ -538,3 +538,54 @@ and allowlisted provider error code/type/parameter;
 never share keys, raw requests, provider output, private CAD or Network captures.
 Production keeps generic errors and emits no such diagnostics. Automated focused
 checks use invented CAD and mocked Groq/OpenAI transports; they spend no credits.
+
+## Phase 6.5 visual review
+
+See [FORGE_DESIGN_SYSTEM.md](FORGE_DESIGN_SYSTEM.md) for tokens/material rules and
+[PHASE_6_5_REFINEMENT_REVIEW.md](PHASE_6_5_REFINEMENT_REVIEW.md) for current verification
+and real Onshape review (the first human review was not approved).
+Keep the existing HTTPS Vite process, API, private configuration and PostgreSQL.
+No dependency, migration, credential or OAuth registration change is needed.
+
+Open `https://localhost:5173/#/lab` on the existing trusted local HTTPS development
+origin. Choose **Phase 6.5 workspace** or **Phase 6.5 design system** under Preview
+state. Choose Layout, Workspace state and the three accessibility adaptations.
+All data is synthetic. On the real panel, DEV launch/selection reports are now
+behind **Workspace menu → Developer**. Signed-out DEV embeds retain a **Developer**
+recovery action. Production excludes both.
+
+Screenshots/performance summaries are ignored under `.cache/phase6.5/`. Never capture
+private CAD in automated screenshots or traces. `tests/e2e/design.spec.ts` adds the
+six-width visual/accessibility gate, state matrix and synthetic timing sample.
+`make test-e2e` owns/stops ports 4173/4174. Do not stop the user's 5173/8000 services.
+A temporary QA server may use 4175 and must be stopped after review. For sandboxed
+uv caches, `UV_CACHE_DIR=.cache/uv make ...` preserves frozen lockfile use.
+
+The human approved the second real Onshape visual review and authorized one
+Phase 6.5 commit/normal push after the complete final gate. The design system is
+frozen. Phase 7 has not started and requires a new prompt.
+
+The refined lab also provides **Material comparison** (A previous/B refined/C opaque)
+and **Logo candidates**. Choose Wide standalone to compare three columns; narrow
+layouts stack them. Internal candidates are excluded from the production bundle.
+`tests/e2e/refinement.spec.ts` captures these comparisons and production iframe
+first-open/FACE/EDGE/overview/evidence at 320/380/480px, plus reduced effects.
+Screenshots and final logs are ignored in `.cache/phase6.5-refinement/`.
+
+## Phase 6.5 final freeze gate
+
+Phase 6.5 is visually approved after two human-review passes. Follow the frozen
+[design system](FORGE_DESIGN_SYSTEM.md) and [final review](PHASE_6_5_FINAL_REVIEW.md).
+Final copy has no user-facing roadmap phases or provider/schema internals. Backend
+edits are deliberately limited to canonical response wording; policy, transports,
+requests, authorization, grounding, unknown statuses and write refusal are unchanged.
+
+Run `make format`, `make check`, all three complete browser projects, `make audit`
+and `make migration-check`. For real PostgreSQL tests, use the existing safe opt-in
+URL workflow above; UUID schemas are isolated and application data is preserved.
+Never print the URL or private settings. Do not reset volumes or migrate the real
+application merely to make a drift check pass. Final synthetic images/logs belong
+under ignored `.cache/phase6.5-final/`; manual CAD captures are never tracked.
+`tests/e2e/freeze.spec.ts` adds 320/360/380/400/480/640px Settings/privacy/keyboard
+checks and production forced-color fallback verification. Existing browser tests
+cover first-open, overview, selection, evidence, reduced effects and lifecycle.

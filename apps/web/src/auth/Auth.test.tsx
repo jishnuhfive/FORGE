@@ -69,7 +69,12 @@ it('loads the authenticated workspace and account settings', async () => {
   );
   render(<App />);
   expect(await screen.findByLabelText('Design prompt')).toBeVisible();
-  fireEvent.click(screen.getByRole('button', { name: 'Settings' }));
+  fireEvent.keyDown(screen.getByRole('button', { name: 'Workspace menu' }), {
+    key: 'ArrowDown',
+  });
+  fireEvent.click(
+    await screen.findByRole('menuitem', { name: 'Appearance & settings' }),
+  );
   expect(await screen.findByText('Onshape account')).toBeVisible();
   expect(screen.getByText('Connected')).toBeVisible();
   expect(screen.getByRole('button', { name: 'Sign out' })).toBeEnabled();

@@ -21,21 +21,22 @@ from .selection import (
     selection_facts,
     selection_question,
 )
-from .writes import write_facts
+from .writes import READ_ONLY, write_facts
 
 MAX_EVIDENCE_BYTES = 65536
-CAPABILITY = "Forge can analyze and propose designs, but cannot modify CAD in Phase 6."
+CAPABILITY = READ_ONLY
 VALIDATION = (
-    "No deterministic engineering validator exists yet; validation is UNVERIFIED."
+    "Forge hasn't run deterministic engineering validation on this design. "
+    "Validation remains unverified."
 )
 FRESHNESS = (
-    "Evidence was read for this request using the default configuration and end of "
-    "the feature list. Currentness and consistency across separate reads "
-    "are unverified."
+    "Forge inspected the default configuration at the end of the feature list. "
+    "Data comes from separate reads; currentness and snapshot consistency "
+    "remain unverified."
 )
 UNITS = (
-    "Physical units are provider-native and unverified; "
-    "exact mass and volume are not supplied."
+    "Physical units haven't been independently verified. "
+    "Exact mass and volume aren't supplied."
 )
 
 
@@ -96,10 +97,11 @@ def project(
         fact(
             "mass",
             (
-                "Mass is unavailable; material or density may be missing. "
+                "Mass isn't available because material or density information "
+                "may be missing. "
                 "No exact mass can be verified."
                 if physical.mass == "unavailable"
-                else f"Aggregate mass availability is {physical.mass}; "
+                else f"Mass information is {physical.mass}; "
                 "no exact numeric mass is supplied."
             ),
             "unknown" if physical.mass == "unavailable" else "unverified",
@@ -108,8 +110,8 @@ def project(
     facts.append(
         fact(
             "volume",
-            f"Aggregate volume availability is {physical.volume}; "
-            "numeric volume and units are unverified.",
+            f"Volume information is {physical.volume}; "
+            "numeric volume and units remain unverified.",
             "unverified",
         )
     )

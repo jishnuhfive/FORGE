@@ -3,7 +3,7 @@ import type { Preferences } from './types';
 
 const key = 'forge.preferences.v1';
 const defaults: Preferences = {
-  theme: 'system',
+  theme: 'dark',
   units: 'metric',
   onboarded: false,
   printer: 'FDM printer',
@@ -22,7 +22,11 @@ function readPreferences(): Preferences {
         ? v
         : fallback;
     return {
-      theme: p.theme === 'light' || p.theme === 'dark' ? p.theme : 'system',
+      theme:
+        p.theme === 'light' || p.theme === 'dark' || p.theme === 'system'
+          ? p.theme
+          : 'dark',
+      reduceTransparency: p.reduceTransparency === true,
       units: p.units === 'imperial' ? 'imperial' : 'metric',
       onboarded: p.onboarded === true,
       printer:
@@ -64,8 +68,10 @@ export function usePreferences() {
           : preferences.theme;
     };
     apply();
+    document.documentElement.dataset.transparency =
+      preferences.reduceTransparency ? 'reduced' : 'auto';
     media.addEventListener('change', apply);
     return () => media.removeEventListener('change', apply);
-  }, [preferences.theme]);
+  }, [preferences.theme, preferences.reduceTransparency]);
   return { preferences, setPreferences: updatePreferences, storageAvailable };
 }

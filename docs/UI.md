@@ -1,4 +1,4 @@
-# UI architecture through Phase 6 read-only analysis
+# UI architecture through Phase 6.5 presentation
 
 ## Ownership
 
@@ -26,7 +26,7 @@ engineering calculations, CAD authorization and AI orchestration stay backend-on
 Import primitives from `@forge/design-system` and tokens/component styles from
 `@forge/design-system/styles.css`. Tokens cover surfaces, borders, text, accent,
 PASS/success, WARNING, FAIL/error, UNVERIFIED, spacing, radius, shadow and fonts.
-Light and dark palettes use the same semantic variables. System theme follows
+Dark is the new-user default; light and dark palettes share semantic variables. Explicit System theme follows
 `prefers-color-scheme`, including changes during a session. Reduced motion disables
 loading animation. System fonts require no external font requests.
 
@@ -37,7 +37,7 @@ navigation, dialogs, focus trapping, menus, tooltips and notifications. Statuses
 combine a symbol, explicit text and color; UNVERIFIED has its own treatment.
 
 The shell uses container queries: narrow panels show a compact header, mode tabs
-and one content column; wide views add workspace navigation and a context rail.
+and one content column; wider views retain a centered reading column.
 CAD context can be opened from the header at any width. Forms and action bars wrap.
 The rail-carriage SVG is a labeled concept illustration, not generated CAD.
 
@@ -93,9 +93,9 @@ units. Prompts, proposals, brief edits and reading progress are never persisted.
 The reader reconstructs an allowlisted record and rejects invalid stored values.
 Blocked storage preserves usable session state and explains the limitation.
 
-Phase 2 adds real backend OAuth and account persistence; real-provider verification
-awaits credentials. No OpenAI calls or CAD reads/writes exist. There are no real CAD
-approval records, engineering validations or private model reasoning.
+Phase 2 established backend OAuth and account persistence. Phase 4–6 subsequently
+added real read-only CAD and explicit hosted AI requests. There are no real CAD
+approval records, engineering validations, CAD writes or persisted private model reasoning.
 
 The gate supports checking session, signed out, authorizing, denied, invalid/expired
 state, session expired, network failure and unconfigured deployment. Account settings
@@ -192,3 +192,70 @@ Such answers omit Assumptions, Suggestions and To explore next; they never imply
 Forge can retrieve a mapping/measurement that the current tool does not provide.
 Other optional assumptions/questions use reviewed hypothetical/request wording.
 The existing public schema and selection bridge are unchanged.
+
+## Phase 6.5 presentation
+
+The canonical visual specification is [FORGE_DESIGN_SYSTEM.md](FORGE_DESIGN_SYSTEM.md).
+Dark is the default for new/invalid preferences; existing explicit System/Light/Dark
+choices remain honored. The optional allowlisted `reduceTransparency` boolean is
+local display preference only. OS reduced motion/transparency, increased contrast
+and forced colors also adapt the shared material.
+
+The shell is a single compact panel at every width: brand, one read-only state,
+context/inspector action and segmented navigation. Marketing rails, concept artwork
+and repeated analysis badges have been removed from the working workspace. Saved
+versions remain visibly distinct and do not enable analysis. Modify says it is
+planned; Learn remains an authored local lesson.
+
+`GlassSurface`, `GlassDefinitions` and `ForgeMark` live in the shared design system.
+One CSS material supplies bounded blur, edge-only SVG displacement and event-driven
+illumination. Real DOM text is unaffected. There is no graphics dependency, shader,
+parent viewport access or permanent animation. Backdrop SVG support is progressive;
+unsupported engines retain the complete baseline material.
+
+`AnswerContent` is a pure presentation view shared by real analysis and the DEV lab.
+Uncertainties precede a collapsed Evidence control. Equal evidence statuses share a
+single heading; original statements and safe escaped text remain intact. Evidence
+rows mount on expansion and disappear on collapse. Captured time stays inside the
+disclosure. No response schema, API request, provider, grounding or lifecycle code
+was changed. The sticky composer reserves a real progress line, retains keyboard/
+IME behavior and uses one send/stop footprint. Material backing separates it from
+scrolled evidence. Data-transfer detail is available beside the point of send.
+
+`#/lab` adds Phase 6.5 workspace and design-system states, manual status selection,
+320/360/400/480/600px layouts and simulated motion/transparency/contrast adaptations.
+Those previews never call AI/Onshape. Existing synthetic workflows remain available.
+Launch/selection diagnostics are behind Workspace menu → Developer (a dialog);
+a signed-out development embed has a Developer recovery action. Modules remain
+production-excluded and observer semantics are unchanged.
+
+Second-review refinement details are in [PHASE_6_5_REFINEMENT_REVIEW.md](PHASE_6_5_REFINEMENT_REVIEW.md).
+`ai/presentation.ts` is an exact display grammar over the existing Answer evidence,
+not a network/schema or grounding change. Compatible small canonical overviews
+become a feature sequence and count line. Any unmatched qualification, unknown
+inventory count or ambiguous evidence keeps prose. The exact full answer remains
+inside expanded Evidence; additional paragraphs stay visible. Names remain escaped
+DOM text. Evidence statuses, mass caveats and selection ownership are unchanged.
+
+A single workspace scroller contains the mode control and content; the shell header
+sits outside it. Flex sizing anchors the conversation composer near the bottom.
+The first-use composition stays compact near the top. Prompt input grows 44–144px;
+its form-width observer queues one fit per change and cancels on cleanup. Data use
+is an info action in the composer toolbar; Privacy is in the workspace menu.
+Material comparison and Logo candidates are separate DEV-only UI Lab views.
+
+## Approved freeze
+
+Phase 6.5 was visually approved after two human-review passes. Preserve the accepted
+layout, logo, material strength, typography, spacing, composer and navigation.
+Normal product copy uses timeless capability/selection/uncertainty language;
+internal phase/adapter/schema language belongs only to development records and
+DEV diagnostics. Actual quoted CAD text remains untrusted data, never rewritten as
+product policy. Settings micro-polish reuses existing controls/tokens; the context
+strip and 420ms intro remain unchanged. The forced-color/opaque filter declarations
+use prefixed-first/unprefixed-last order to survive the production CSS optimizer.
+See [the final review](PHASE_6_5_FINAL_REVIEW.md).
+
+Forced-color mode maps semantic colors to system Canvas/CanvasText/LinkText and
+ButtonFace/ButtonText, so text and control contrast follow the user’s system palette.
+This adaptation does not change the approved normal appearance.

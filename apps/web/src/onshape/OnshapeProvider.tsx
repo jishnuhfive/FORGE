@@ -9,11 +9,8 @@ import type { ReactNode } from 'react';
 import { createBridge } from './bridge';
 import { OnshapeContext } from './store';
 
-const SelectionDiagnostic = import.meta.env.DEV
-  ? lazy(() => import('./dev/SelectionDiagnostic'))
-  : null;
-const LaunchDiagnostic = import.meta.env.DEV
-  ? lazy(() => import('./dev/LaunchDiagnostic'))
+const DeveloperTools = import.meta.env.DEV
+  ? lazy(() => import('./dev/DeveloperTools'))
   : null;
 
 export function OnshapeProvider({ children }: { children: ReactNode }) {
@@ -63,14 +60,9 @@ export function OnshapeProvider({ children }: { children: ReactNode }) {
   return (
     <OnshapeContext.Provider value={state}>
       {children}
-      {LaunchDiagnostic && (
+      {DeveloperTools && (
         <Suspense fallback={null}>
-          <LaunchDiagnostic />
-        </Suspense>
-      )}
-      {SelectionDiagnostic && (
-        <Suspense fallback={null}>
-          <SelectionDiagnostic />
+          <DeveloperTools />
         </Suspense>
       )}
     </OnshapeContext.Provider>

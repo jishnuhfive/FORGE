@@ -104,6 +104,19 @@ repairs. The user authorized one Phase 6 commit and normal push to existing
 [PHASE_6_REVIEW.md](PHASE_6_REVIEW.md) for exact counts, live evidence, architecture,
 provider retention caveats and known limitations.
 
+## Phase 6.5 — complete, visually approved, design system frozen
+
+Phase 6.5 was visually approved after two human-review passes in real Onshape.
+The accepted Obsidian/Arc Blue/Oblique Plane direction, functional Liquid Glass,
+compact navigation/composer and answer-first hierarchy are frozen in
+[FORGE_DESIGN_SYSTEM.md](FORGE_DESIGN_SYSTEM.md). Final work is limited to timeless
+product copy, Settings micro-polish, accessibility fallback repair, full verification
+and one authorized commit/normal push. No CAD writes, OAuth write scope, provider or
+grounding redesign, or Phase 7 work is included. Server-owned response text changed
+only to express the same capability and unknowns without internal roadmap language.
+See [PHASE_6_5_FINAL_REVIEW.md](PHASE_6_5_FINAL_REVIEW.md) for the final gate and scope.
+The earlier review records preserve the two-pass history.
+
 ## Phase 7 and later — not started
 
 Phase 6 completion does not authorize Phase 7. No CAD write or OAuth write scope,

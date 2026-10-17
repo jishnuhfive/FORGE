@@ -1,0 +1,193 @@
+.glass-definitions {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.glass {
+  position: relative;
+  isolation: isolate;
+  border-radius: var(--radius-lg);
+  background: rgb(var(--glass-tint) / var(--glass-opacity));
+  box-shadow:
+    0 8px 24px rgb(0 0 0 / 14%),
+    inset 0 1px 0 var(--glass-edge),
+    inset 0 -1px 0 rgb(255 255 255 / 4%);
+  transition:
+    box-shadow var(--motion-hover) var(--ease),
+    background var(--motion-hover) var(--ease);
+}
+.glass::before,
+.glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.glass::before {
+  background:
+    radial-gradient(
+      ellipse at var(--light-x, 80%) var(--light-y, -30%),
+      var(--glass-interior),
+      transparent 75%
+    ),
+    linear-gradient(
+      160deg,
+      var(--glass-fill),
+      transparent 42%,
+      var(--glass-bottom)
+    );
+  -webkit-backdrop-filter: blur(var(--glass-blur))
+    saturate(var(--glass-saturation));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+}
+.glass::after {
+  padding: var(--glass-edge-width);
+  background:
+    radial-gradient(
+      ellipse at var(--light-x, 18%) var(--light-y, 0%),
+      var(--glass-specular),
+      transparent 66%
+    ),
+    linear-gradient(
+      130deg,
+      var(--glass-edge),
+      transparent 26%,
+      transparent 68%,
+      rgb(200 220 247 / 12%)
+    );
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+}
+@supports (backdrop-filter: url('#forge-glass-refraction')) {
+  .glass::after {
+    backdrop-filter: url('#forge-glass-refraction');
+  }
+}
+.glass:focus-within {
+  --light-x: 50%;
+  --light-y: 0%;
+}
+.glass:active {
+  --glass-specular: rgb(255 255 255 / 40%);
+}
+/* Small related controls share the material vocabulary without nested backdrop filters. */
+.glass-action {
+  border: 1px solid var(--glass-edge);
+  background:
+    linear-gradient(150deg, var(--glass-interior), transparent 60%),
+    var(--panel);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 7%);
+}
+.glass-action:hover:not(:disabled) {
+  background:
+    linear-gradient(130deg, var(--glass-interior), transparent),
+    var(--surface-hover);
+}
+.material-bed {
+  position: relative;
+  isolation: isolate;
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(ellipse at 88% 0%, rgb(220 233 250 / 9%), transparent 65%),
+    linear-gradient(
+      118deg,
+      transparent 44%,
+      rgb(235 243 255 / 4%) 48%,
+      transparent 54%
+    ),
+    var(--surface);
+}
+[data-transparency='reduced'] .glass,
+[data-contrast='more'] .glass {
+  --glass-opacity: 1;
+  --glass-fill: transparent;
+  --glass-interior: transparent;
+  --glass-edge: var(--border-strong);
+}
+[data-transparency='reduced'] .glass::before,
+[data-transparency='reduced'] .glass::after,
+[data-contrast='more'] .glass::before,
+[data-contrast='more'] .glass::after {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: none;
+}
+@media (prefers-reduced-transparency: reduce),
+  (prefers-contrast: more),
+  (forced-colors: active) {
+  .glass {
+    background: var(--panel);
+    box-shadow: inset 0 0 0 1px var(--border-strong);
+  }
+  .glass::before,
+  .glass::after {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .glass::after {
+    backdrop-filter: none;
+  }
+}
+[data-motion='reduced'] *,
+[data-motion='reduced'] *::before,
+[data-motion='reduced'] *::after {
+  transition: none !important;
+  animation: none !important;
+}
+@media (prefers-contrast: more) {
+  :root {
+    --muted: var(--text);
+    --tertiary: var(--text);
+    --border: var(--border-strong);
+  }
+}
+@media (forced-colors: active) {
+  :root,
+  [data-theme] {
+    --background: Canvas;
+    --surface: Canvas;
+    --panel: Canvas;
+    --surface-hover: Canvas;
+    --text: CanvasText;
+    --muted: CanvasText;
+    --tertiary: CanvasText;
+    --accent: LinkText;
+    --accent-hover: LinkText;
+    --accent-soft: Canvas;
+    --on-accent: Canvas;
+    --border: ButtonText;
+    --border-strong: ButtonText;
+    --success: CanvasText;
+    --warning: CanvasText;
+    --error: CanvasText;
+    --unverified: CanvasText;
+    --success-soft: Canvas;
+    --warning-soft: Canvas;
+    --error-soft: Canvas;
+    --unverified-soft: Canvas;
+    --glass-action-fill: ButtonFace;
+    --glass-action-text: ButtonText;
+  }
+  .glass {
+    background: Canvas;
+    border: 1px solid ButtonText;
+  }
+  :focus-visible {
+    outline-color: Highlight;
+  }
+}
+
+[data-contrast='more'] {
+  --muted: var(--text);
+  --tertiary: var(--text);
+  --border: var(--border-strong);
+}

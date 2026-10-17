@@ -84,7 +84,7 @@ def test_inventory_is_concise_grounded_and_does_not_upgrade_active() -> None:
     assert "parameter_1_1" not in [f.id for f in result.evidence]
     assert all(f.statement.strip() for f in result.evidence)
     assert result.discussion == ""
-    assert any("exact mass" in item for item in result.uncertainties)
+    assert any("exact mass" in item.lower() for item in result.uncertainties)
     assert any("validation" in item for item in result.uncertainties)
     assert (
         json.loads(payload)["cad_evidence"]["features"]["items"][0]["completeness"]

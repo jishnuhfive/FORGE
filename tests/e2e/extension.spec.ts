@@ -445,7 +445,7 @@ test('workspace-style launch reaches the Design composer and initializes once', 
   await page.setViewportSize({ width: 380, height: 950 });
   const frame = await parentFixture(page, query);
   await expect(
-    frame.getByText('Onshape workspace context', { exact: true }),
+    frame.getByText('Current workspace', { exact: true }),
   ).toBeVisible();
   await expect(frame.getByText('No CAD context', { exact: true })).toHaveCount(
     0,
@@ -481,7 +481,7 @@ test('explicit version context is displayed without a workspace initialization',
     search.replace('workspaceOrVersion=w', 'workspaceOrVersion=v'),
   );
   await expect(
-    frame.getByText('Onshape version context · messaging unverified', {
+    frame.getByText('Saved version', {
       exact: true,
     }),
   ).toBeVisible();
@@ -677,6 +677,7 @@ test('DEV diagnostic captures only sanitized trusted-parent structure and is usa
     4174,
   );
   const frame = page.frameLocator('iframe[title="Forge extension"]');
+  await frame.getByRole('button', { name: 'Developer', exact: true }).click();
   const panel = frame.getByRole('region', {
     name: 'Development selection diagnostic',
   });
@@ -849,6 +850,15 @@ for (const authenticated of [true, false]) {
         frame.getByText(/Your Forge session is unavailable/),
       ).toBeVisible();
     }
+    if (authenticated) {
+      await frame.getByRole('button', { name: 'Workspace menu' }).click();
+      await frame
+        .getByRole('menuitem', { name: 'Developer', exact: true })
+        .click();
+    } else
+      await frame
+        .getByRole('button', { name: 'Developer', exact: true })
+        .click();
     const panel = frame.getByRole('region', {
       name: 'Development launch diagnostic',
     });
@@ -934,7 +944,7 @@ test('captured metadata shape normalizes, initializes once and keeps diagnostics
     4174,
   );
   await expect(
-    frame.getByText('Onshape workspace context', { exact: true }),
+    frame.getByText('Current workspace', { exact: true }),
   ).toBeVisible();
   await frame.getByRole('button', { name: 'View CAD context' }).click();
   await expect(
@@ -944,6 +954,8 @@ test('captured metadata shape normalizes, initializes once and keeps diagnostics
     frame.getByRole('dialog').getByText('Workspace', { exact: true }),
   ).toBeVisible();
   await page.keyboard.press('Escape');
+  await frame.getByRole('button', { name: 'Workspace menu' }).click();
+  await frame.getByRole('menuitem', { name: 'Developer', exact: true }).click();
   await frame
     .getByRole('button', { name: 'Show sanitized launch diagnostic' })
     .click();
@@ -980,7 +992,7 @@ for (const key of ['documentId', 'workspaceId', 'elementId']) {
     await page.setViewportSize({ width: 380, height: 950 });
     const frame = await parentFixture(page, capturedLaunchQuery.slice(1));
     await expect(
-      frame.getByText('Onshape workspace context', { exact: true }),
+      frame.getByText('Current workspace', { exact: true }),
     ).toBeVisible();
     await frame.getByRole('button', { name: 'View CAD context' }).click();
     const dialog = frame.getByRole('dialog');
@@ -1079,7 +1091,9 @@ for (const key of ['documentId', 'workspaceId', 'elementId']) {
           `https://forge-panel.test/extension?${query}`;
       }, query.toString());
     await frame.getByRole('button', { name: 'View CAD context' }).click();
-    await expect(dialog.getByText('Current document')).toBeVisible();
+    await expect(
+      dialog.getByText('Current document', { exact: true }),
+    ).toBeVisible();
     await expect(
       dialog.getByText('Waiting for selection context'),
     ).toBeVisible();
@@ -1537,7 +1551,7 @@ test('Phase 5 ordered inspector details, keyboard, filtering, selection and part
     .filter({ hasText: 'Physical properties' })
     .click();
   await expect(
-    dialog.getByText(/Numeric mass and volume are withheld/),
+    dialog.getByText(/Numeric mass and volume aren’t supplied/),
   ).toBeVisible();
   for (const [selection, label] of [
     [faceSelection, '1 face selected'],

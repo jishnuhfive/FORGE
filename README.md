@@ -7,7 +7,14 @@ right panel. Users describe **what** a mechanism must accomplish; Forge will hel
 determine **how** it should be engineered, with approval before CAD changes and
 deterministic checks of supported constraints.
 
-**Current status: Phase 6 complete — real read-only Groq AI verified inside Onshape.**
+**Current status: Phase 6.5 complete — visually approved after two human-review passes.**
+The product UI and canonical design system are frozen: Obsidian, Arc Blue, the
+Oblique Plane identity, restrained functional Liquid Glass and answer-first
+reading. Final product copy uses timeless capability and uncertainty language.
+See [the final review](docs/PHASE_6_5_FINAL_REVIEW.md) and
+[the approved design system](docs/FORGE_DESIGN_SYSTEM.md).
+
+Real read-only Groq AI was verified inside Onshape during Phase 6.
 Phases 0–5 are preserved, including real OAuth, validated right-panel context and
 selection, four backend read operations and the CAD Inspector verified against a
 real Part Studio. The Design composer now offers read-only AI analysis inside
@@ -40,7 +47,8 @@ This is not a publicly deployed production service.
 
 One React + TypeScript + Vite web application will serve desktop browsers on
 macOS and Windows. Tailwind CSS, Radix accessible primitives, and Lucide provide
-the presentation foundation. Motion is limited to loading skeletons and respects reduced-motion preferences.
+the presentation foundation. Motion is restrained, event-driven and respects reduced-motion preferences;
+there is no idle decorative animation.
 
 FastAPI + Pydantic owns server boundaries; SQLAlchemy and psycopg are installed
 with Alembic for PostgreSQL authentication persistence. uv manages Python. npm workspaces manage the web and shared design
@@ -67,7 +75,7 @@ cd /Users/jishnuhiremath/Developer/FORGE && make dev-web
 
 Open <http://127.0.0.1:5173>. The development-only UI lab is
 <http://127.0.0.1:5173/#/lab>. Account settings after sign-in: <http://127.0.0.1:5173/#/settings>.
-Projects/activity: <http://127.0.0.1:5173/#/history>. Ctrl+C stops the server.
+The reserved history route is <http://127.0.0.1:5173/#/history>. Ctrl+C stops the server.
 
 For a fresh checkout, run `make setup` first. `make dev` still starts both native
 web and API servers. Optional PostgreSQL starts with `make db-up` and stops with

@@ -64,6 +64,7 @@ export type ErrorCode =
   | 'unexpected';
 export interface Preferences {
   theme: Theme;
+  reduceTransparency?: boolean;
   units: 'metric' | 'imperial';
   onboarded: boolean;
   printer: string;

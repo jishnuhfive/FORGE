@@ -28,12 +28,13 @@ export const syntheticAnswer: Answer = {
     },
     {
       id: 'mass',
-      statement: 'Mass is unavailable; material or density may be missing.',
+      statement:
+        "Mass isn't available because material or density information may be missing.",
       status: 'unknown',
     },
   ],
   uncertainties: [
-    'Physical units are unverified. No deterministic validation has run.',
+    'Physical units haven’t been independently verified. Forge hasn’t run deterministic engineering validation on this design.',
   ],
   discussion: '',
   assumptions: [],
@@ -53,12 +54,12 @@ export function resultStream(result = syntheticAnswer) {
 export const syntheticWriteAnswer: Answer = {
   ...syntheticAnswer,
   answer:
-    'Forge cannot modify CAD in Phase 6. I can explain or propose how the change could be made.\n\nForge performed no CAD writes for this request.\n\nThe captured evidence does not identify a verified width-driving dimension, so I cannot safely identify which parameter to edit.',
+    "Forge is currently read-only and can't modify CAD yet. I can inspect the current model and explain or propose how a change could be made.\n\nForge performed no CAD writes for this request.\n\nThe captured evidence does not identify a verified width-driving dimension, so I cannot safely identify which parameter to edit.",
   evidence: [
     {
       id: 'write_capability',
       statement:
-        'Forge cannot modify CAD in Phase 6. I can explain or propose how the change could be made.',
+        "Forge is currently read-only and can't modify CAD yet. I can inspect the current model and explain or propose how a change could be made.",
       status: 'verified',
     },
     {
@@ -79,11 +80,11 @@ export function syntheticSelectionAnswer(kind: 'FACE' | 'EDGE'): Answer {
   const noun = kind.toLowerCase();
   return {
     ...syntheticAnswer,
-    answer: `The panel reports one ${noun} selected.\n\nOwning part, body and feature: unknown. Dimensions and selection-specific geometry: unknown.\n\nSelection-specific ownership and measurements are not available in Phase 6.`,
+    answer: `One ${noun} is selected.\n\nOwning part, body, feature, dimensions and selection-specific geometry are currently unknown.\n\nForge can confirm the selection type, but selection-specific ownership and measurements aren't available yet.`,
     evidence: [
       {
         id: 'selection',
-        statement: `The panel reports one ${noun} selected.`,
+        statement: `One ${noun} is selected.`,
         status: 'verified',
       },
       {
@@ -115,3 +116,54 @@ export function syntheticSelectionAnswer(kind: 'FACE' | 'EDGE'): Answer {
     follow_up_questions: [],
   };
 }
+
+// Exact current server-owned statement grammar, using invented CAD only.
+export const syntheticOverview: Answer = {
+  ...syntheticAnswer,
+  evidence: [
+    {
+      id: 'features',
+      status: 'verified',
+      statement: 'The captured Part Studio contains 2 features.',
+    },
+    {
+      id: 'feature_1',
+      status: 'verified',
+      statement:
+        'The first captured feature is named "Sketch 1" (sketch; active).',
+    },
+    {
+      id: 'feature_2',
+      status: 'verified',
+      statement:
+        'The second captured feature is named "Extrude 1" (extrude; active).',
+    },
+    {
+      id: 'parts',
+      status: 'verified',
+      statement: 'The captured Part Studio contains 1 part.',
+    },
+    {
+      id: 'part_1',
+      status: 'verified',
+      statement: 'Part 1: name "Part 1", reported body type "SOLID".',
+    },
+    {
+      id: 'bodies',
+      status: 'verified',
+      statement: 'The captured Part Studio contains 1 body.',
+    },
+    {
+      id: 'body_1',
+      status: 'verified',
+      statement:
+        'Body 1: reported type "SOLID"; returned topology counts — face: 6, edge: unknown, vertex: unknown.',
+    },
+    {
+      id: 'mass',
+      status: 'unknown',
+      statement:
+        "Mass isn't available because material or density information may be missing. No exact mass can be verified.",
+    },
+  ],
+};

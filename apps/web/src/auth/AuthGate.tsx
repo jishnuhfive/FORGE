@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import { Button, Skeleton } from '@forge/design-system';
+import { Button, ForgeMark, Skeleton } from '@forge/design-system';
 import { ArrowUpRight, ShieldCheck } from 'lucide-react';
 import { loadMe } from './api';
 import type { Me } from './api';
 import { useOnshapeContext } from '../onshape/store';
 import { CadContext } from '../components/CadContext';
 import { AuthContext } from './context';
+import { openDeveloperTools } from '../onshape/developerAccess';
 import { usePreferences } from '../lib/preferences';
 
 const notices: Record<string, string> = {
@@ -101,9 +102,10 @@ export function AuthGate({ children }: { children: ReactNode }) {
     <main className="auth-page">
       <div className="auth-card">
         <a className="wordmark" href="/" aria-label="Forge home">
+          <ForgeMark />
           <span>FORGE</span>
         </a>
-        <span className="eyebrow">YOUR ENGINEERING WORKSPACE</span>
+        <span className="eyebrow">Your engineering workspace</span>
         <h1>
           Engineering intelligence
           <br />
@@ -200,6 +202,11 @@ export function AuthGate({ children }: { children: ReactNode }) {
           If sign-in is blocked inside Onshape, use a separate tab. Embedded
           sessions may require third-party cookies.
         </p>
+        {import.meta.env.DEV && embedded && (
+          <Button variant="ghost" onClick={openDeveloperTools}>
+            Developer
+          </Button>
+        )}
         {import.meta.env.DEV && (
           <a className="text-link" href="#/lab">
             Open development UI lab

@@ -335,3 +335,40 @@ invalid output. Session/freshness/permission/cancellation controls apply to both
 user's live diagnostic confirmed Groq HTTP 400 `tool_use_failed` at the forced
 initial inspection stage. The browser contract is unchanged. See AI_AGENT and
 PHASE_6_REVIEW for evidence and live retest steps.
+
+## Phase 6.5 material and presentation boundary
+
+The shared design-system package now owns semantic visual tokens, an original SVG
+identity and one progressively enhanced web glass material. Its SVG map and CSS
+filter operate only inside Forge. Pointer illumination schedules at most one frame
+at a time during interaction and cancels on leave, unmount or document hiding.
+No cross-origin parent capture, graphics framework, font request, new network path,
+backend change, dependency or migration was introduced.
+
+Analysis request/lifecycle code is retained. A pure `AnswerContent` view groups
+evidence by existing status and presents uncertainty before optional evidence.
+Expanded rows still mount conditionally. The lab imports the same presentation
+with synthetic fixtures; production tree shaking excludes the lab and fixtures.
+Local preferences gain only a strict boolean for reduced transparency, with dark
+as the new default and explicit prior themes retained. See the canonical
+[design system](FORGE_DESIGN_SYSTEM.md) and [review](PHASE_6_5_REVIEW.md).
+
+The second visual-review pass adds a conservative frontend display formatter over
+server-owned evidence statement grammar. It only condenses exact compatible
+inventory prose; it performs no engineering calculations, ownership joins or
+requests. Ambiguous/missing/unknown/suppressed facts keep original prose. The full
+original answer mounts inside Evidence for condensed overviews. Response schemas,
+API, provider and deterministic grounding remain unchanged. The diagnostic dialog
+uses a DEV-only external view store (retaining an early open request) and local event from Workspace menu → Developer; production removes
+its import and menu action. UI Lab owns three internal logo candidates and A/B/C
+material comparison; only the chosen oblique-plane identity ships in public assets.
+See [the second-review record](PHASE_6_5_REFINEMENT_REVIEW.md).
+
+Phase 6.5 was visually approved after two human-review passes. The approved design
+language is frozen; future authorized work must reuse it. The final pass changes
+only server-owned product text (capability, selection, freshness, units, mass and
+validation), Settings consistency and the CSS fallback declaration order needed to
+survive minification. Evidence IDs/statuses, response schemas, provider/tool routing,
+OAuth, sessions, parent validation, CAD reads and deterministic refusal remain
+unchanged. The compact overview formatter recognizes the finalized mass wording;
+it still falls back conservatively. See [the final record](PHASE_6_5_FINAL_REVIEW.md).

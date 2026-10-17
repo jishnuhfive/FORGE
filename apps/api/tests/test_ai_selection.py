@@ -48,8 +48,8 @@ def test_unique_inventory_cannot_establish_selection_ownership(
         inspector=inspector,
         selection=selection,
     )
-    assert f"one {selection.lower()} selected" in result.answer
-    assert "Owning part, body and feature: unknown" in result.answer
+    assert f"One {selection.lower()} is selected" in result.answer
+    assert "Owning part, body, feature, dimensions" in result.answer
     assert result.assumptions == result.follow_up_questions == []
     assert result.discussion == ""
     assert [f.id for f in result.evidence] == list(SELECTION_IDS)
@@ -57,7 +57,7 @@ def test_unique_inventory_cannot_establish_selection_ownership(
     assert by_id["selection"].status == "verified"
     for key in SELECTION_IDS[1:-1]:
         assert by_id[key].status == "unknown" and "unknown" in by_id[key].statement
-    assert "not available in Phase 6" in result.answer
+    assert "measurements aren't available yet" in result.answer
     public = json.dumps(result.model_dump())
     for claim in ("belongs", "Body 1", "Part 1", "Extrude 1", "only body", "only part"):
         assert claim not in public
@@ -80,7 +80,7 @@ def test_selection_facts_are_category_only_and_have_no_geometry_values(
     if selection == "EDGE":
         assert "Adjacent faces" in facts["selection_geometry"].statement
     if selection == "none":
-        assert facts["selection"].statement == "The panel reports no selection."
+        assert facts["selection"].statement == "No geometry is selected."
     if selection == "unknown":
         assert facts["selection"].status == "unknown"
 
@@ -126,7 +126,7 @@ def test_provider_route_does_not_upgrade_selection_or_offer_unsupported_tools(
     assert result["assumptions"] == result["follow_up_questions"] == []
     assert result["discussion"] == ""
     assert "owning body is unknown" in json.dumps(result)
-    assert "not available in Phase 6" in json.dumps(result)
+    assert "measurements aren't available yet" in json.dumps(result)
     assert "Part 1" not in json.dumps(result) and "Extrude 1" not in json.dumps(result)
     assert len(fake.calls if provider == "groq" else old.calls) == 2
     assert len(cad.calls) == 4  # The same bounded read, no selection/area API added.
@@ -218,6 +218,6 @@ def test_contradictory_prompt_does_not_change_verified_selection_category() -> N
         inspector=inspector,
         selection="EDGE",
     )
-    assert "one edge selected" in result.answer
-    assert "one face selected" not in result.answer
+    assert "One edge is selected" in result.answer
+    assert "One face is selected" not in result.answer
     assert "Part 1" not in json.dumps(result.model_dump())

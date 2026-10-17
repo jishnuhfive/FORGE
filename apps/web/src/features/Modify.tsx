@@ -46,13 +46,13 @@ export function Modify({ preview = false }: { preview?: boolean }) {
     <div className="feature">
       <div className="section-kicker">
         <span>MODIFY WORKSPACE</span>
-        <Badge>{preview ? 'Mock selection' : 'Integration planned'}</Badge>
+        <Badge>{preview ? 'Mock selection' : 'Planned'}</Badge>
       </div>
       <div className="feature-heading">
         <h1>Refine with intention.</h1>
         <p>
-          Choose a part of your design, describe the change, and review its
-          impact before applying.
+          CAD changes are planned. For now, ask Design to explain how you could
+          approach a change; Forge cannot apply it.
         </p>
       </div>
       {preview && (

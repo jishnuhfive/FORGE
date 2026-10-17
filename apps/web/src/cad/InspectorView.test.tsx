@@ -100,7 +100,7 @@ it('shows partial physical evidence and missing topology without fabricating a z
   expect(screen.getByText('Unknown')).toBeVisible();
   open('Physical properties');
   expect(
-    screen.getByText(/Numeric mass and volume are withheld/),
+    screen.getByText(/Numeric mass and volume aren’t supplied/),
   ).toBeVisible();
 });
 

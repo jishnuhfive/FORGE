@@ -50,7 +50,8 @@ test('sign in, account verification, disconnect, reconnect, and logout', async (
   await page.getByRole('button', { name: 'Skip introduction' }).click();
   await expect(page.getByLabel('Design prompt')).toBeVisible();
   await expect(page).toHaveURL('http://127.0.0.1:4173/');
-  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Workspace menu' }).click();
+  await page.getByRole('menuitem', { name: 'Appearance & settings' }).click();
   await page.getByRole('button', { name: 'Check connection' }).click();
   await expect(
     page.getByText('Onshape verified your connection.'),
@@ -61,7 +62,8 @@ test('sign in, account verification, disconnect, reconnect, and logout', async (
   await expect(page.getByText('Reconnect required')).toBeVisible();
   await page.getByRole('link', { name: 'Reconnect Onshape' }).click();
   await page.getByRole('link', { name: 'Authorize Forge test' }).click();
-  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Workspace menu' }).click();
+  await page.getByRole('menuitem', { name: 'Appearance & settings' }).click();
   await page.getByRole('button', { name: 'Sign out' }).click();
   await expect(
     page.getByRole('link', { name: 'Continue with Onshape' }),

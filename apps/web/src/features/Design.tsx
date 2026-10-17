@@ -1,10 +1,9 @@
-import { Badge, Button, Card } from '@forge/design-system';
-import { ArrowRight, PencilRuler } from 'lucide-react';
+import { Badge, Button, Card, ForgeMark } from '@forge/design-system';
+import { ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../auth/context';
 import { Analysis } from '../ai/Analysis';
 import { PromptComposer } from '../components/PromptComposer';
-import { MechanismDrawing } from '../components/MechanismDrawing';
 import { useOnshapeContext } from '../onshape/store';
 import { revisionId } from '../onshape/model';
 
@@ -51,22 +50,7 @@ export function Design({
               : 'unknown';
     return (
       <div className="feature design-feature">
-        <div className="section-kicker">
-          <span>
-            <PencilRuler size={14} aria-hidden="true" />
-            DESIGN WORKSPACE
-          </span>
-          <Badge>Read-only AI</Badge>
-        </div>
-        <div className="feature-heading">
-          <span className="eyebrow">Understand your current design</span>
-          <h1>What do you want to engineer?</h1>
-          <p>
-            Ask Forge about this Part Studio, inspect the evidence, or explore a
-            design approach. CAD changes are unavailable.
-          </p>
-        </div>
-        <p className="small muted">{contextLabel}</p>
+        <h1 className="sr-only">Design workspace</h1>
         {available && context && auth.me.csrf_token ? (
           <Analysis
             key={[
@@ -93,27 +77,16 @@ export function Design({
   }
   return (
     <div className="feature design-feature">
-      <div className="section-kicker">
-        <span>
-          <PencilRuler size={14} aria-hidden="true" />
-          DESIGN WORKSPACE
-        </span>
-        <Badge>{preview ? 'Mock preview' : 'Local design draft'}</Badge>
-      </div>
       <div className="design-intro">
-        <MechanismDrawing />
-        <span className="eyebrow">From function to form</span>
-        <h1>What do you want to engineer?</h1>
-        <p>
-          Describe what your mechanism needs to accomplish. Forge will turn
-          functional requirements into an engineering plan and editable Onshape
-          CAD when live integration is available.
-        </p>
+        <ForgeMark />
+        <h1>Ask about this Part Studio</h1>
+        <p>Understand the model. Explore an approach.</p>
+        <Badge>{preview ? 'Mock preview' : 'Local design draft'}</Badge>
       </div>
       <PromptComposer
         context={preview ? 'Mock context · 1 face' : contextLabel}
         label="Design prompt"
-        placeholder="A camera slider with 400 mm travel, carrying a 0.30 kg camera…"
+        placeholder="Ask an engineering question…"
         onSubmit={(text) => {
           setDraft(text);
           onSubmit?.(text);
@@ -136,26 +109,6 @@ export function Design({
           <Button onClick={() => setDraft('')}>Dismiss draft</Button>
         </Card>
       )}
-      <div className="workflow-overview">
-        <span className="eyebrow">An engineering workflow you can review</span>
-        <ol>
-          <li>
-            <span>01</span>
-            <strong>Define</strong>
-            <p>Capture requirements</p>
-          </li>
-          <li>
-            <span>02</span>
-            <strong>Review</strong>
-            <p>Approve a clear plan</p>
-          </li>
-          <li>
-            <span>03</span>
-            <strong>Validate</strong>
-            <p>See the evidence</p>
-          </li>
-        </ol>
-      </div>
       {import.meta.env.DEV && !preview && (
         <a className="text-link preview-entry" href="#/lab">
           Explore the development preview

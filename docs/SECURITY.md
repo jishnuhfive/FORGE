@@ -364,3 +364,45 @@ CAD strings and all provider bodies remain excluded. Production suppresses these
 warnings entirely and retains generic public errors. Mocked privacy tests exercise
 invalid enum values, private extra-field names, malformed JSON and final public
 validation errors. No diagnostic grants permission, changes dispatch or retries.
+
+## Phase 6.5 visual material controls
+
+Presentation-only work retains the Phase 0–6 authorization, grounding, provider,
+privacy and CAD read boundaries. SVG/filter decoration sees Forge-owned rendering
+only. It neither captures nor inspects the cross-origin Onshape viewport. No canvas
+text, external material code, renderer package or remote font is introduced.
+Status groups reuse validated response statuses; visual styling never upgrades
+unknown/unverified facts to verified or implies engineering validation.
+
+The transparency preference is reconstructed from `p.reduceTransparency === true`;
+no arbitrary CSS, query parameter or stored object is applied. Existing explicit
+system/light/dark themes survive. Launch/selection development diagnostics remain
+DEV-only lazy imports behind Workspace menu → Developer (or a signed-out DEV
+recovery action), then explicit diagnostic enable/show controls.
+Screenshots/traces use synthetic data only. The privacy explanation at the composer
+still discloses explicit transfer to the configured hosted service and distinguishes
+local memory from provider retention. No permission or OAuth scope changes.
+
+The refinement's compact inventory is formatting only. Unique evidence IDs,
+verified canonical count/feature/part/body statements and matching canonical answer
+paragraphs are required; failures keep prose. Unknown is never zero and selected
+FACE/EDGE is never joined to an inventory body. Unmatched extra paragraphs remain
+visible, and the exact original answer is available on evidence expansion. Quoted
+names remain React text. Exact repeated uncertainty strings can collapse on demand;
+new strings remain visible. The Data use action and menu Privacy retain transfer,
+in-memory conversation and provider-retention disclosures, also stated in onboarding.
+The local Developer view store/event opens only a development view and grants no backend access.
+
+The final approved freeze includes intentional backend **copy-only** edits to
+canonical capability/selection/uncertainty statements. No routing, permissions,
+transport, model policy, schemas, fact IDs/statuses or engineering logic changes.
+Product text no longer exposes internal phases/provider terminology. Selection
+ownership remains unknown; units/currentness/snapshot consistency stay unverified;
+missing mass is never zero. Refusal continues to inspect authorized CAD with zero
+provider requests and zero CAD writes. Production forced-color/reduced-transparency
+filter overrides are ordered to remain intact after CSS minification. Private
+configuration and manual CAD review captures stay ignored and outside the commit.
+
+Forced-color mode maps semantic colors to system Canvas/CanvasText/LinkText and
+ButtonFace/ButtonText, so text and control contrast follow the user’s system palette.
+This adaptation does not change the approved normal appearance.
