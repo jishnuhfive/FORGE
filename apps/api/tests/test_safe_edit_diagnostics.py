@@ -42,7 +42,7 @@ from forge_api.integrations.onshape.write_evidence import project_write_evidence
         (("features", 2, "parentSuppressed"), MISSING, Reason.PARENT),
         (("features", 2, "suppressionConfigured"), True, Reason.CONFIGURED_SUPPRESSION),
         (("features", 2, "returnAfterSubfeatures"), MISSING, Reason.RETURN),
-        (("features", 2, "suppressionState"), None, Reason.SUPPRESSION),
+        (("features", 2, "suppressionState"), MISSING, Reason.SUPPRESSION),
         (
             ("features", 2, "suppressionState", "btType"),
             "BTMSuppressionStateExpression-1811",

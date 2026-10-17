@@ -11,6 +11,14 @@ partial/missing/null/malformed/extra maps reject. The documented explicit featur
 with all existing structural, body-output, pinned-version and approval safeguards.
 No provider query, scope, host, write authority or FeatureScript capability expands.
 
+The same current schema makes auxiliary `suppressionState` optional but does not
+define null semantics. The live target has null at all three positions, explicit
+`suppressed=false`, and missing parent/configured suppression Booleans. Explicit
+policy permits null to supply no evidence; required hard Booleans are not inferred.
+Strict supported base objects remain allowed; configured/expression/parent and
+unknown specializations reject. The live target therefore remains ineligible
+pending a separate hard-field review. No missing-to-null/false conversion is used.
+
 ## Phase 2 verification record — 2026-10-04
 
 Primary sources reviewed:

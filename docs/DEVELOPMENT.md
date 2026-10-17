@@ -640,6 +640,10 @@ then explicitly use CAD Inspector → Refresh CAD. The backend emits only a fixe
 rejection reason, known field/category, primitive type/Boolean and optional bounded
 position, plus fixed coverage metadata for both bounded `noSketchGeometry` read
 variants at one pinned microversion. No IDs, names, geometry or raw maps are logged.
+`safe_edit_suppression_coverage` additionally reports positions 1–3 only, fixed
+auxiliary shape/btType categories and hard-Boolean presence/type/value. Null,
+missing and false remain distinct. Both flags remain false/true respectively
+(writes OFF, diagnostics ON) for this controlled human investigation.
 It performs pinned GET reads without proposals or mutations, and adds no
 public diagnostic route/header. It is not invoked by Learn or AI. See
 [the investigation record](PHASE_9_REVIEW.md) before interpreting missing fields;
@@ -652,3 +656,11 @@ must be recreated. `tests/test_safe_edit_empty_states.py` covers both modes, har
 predicates, fresh rejection and post-write uncertainty entirely with mock providers.
 The revised policy establishes supported body output/explicit suppression only,
 not whole-model health. Real write flag and both pending human gates are unchanged.
+
+`tests/test_safe_edit_suppression.py` covers null-unavailable versus ordinary-object
+auxiliary modes without synthesizing fields, all specialized/malformed rejections,
+explicit Boolean requirements, privacy and post-write uncertainty. The live null
+auxiliary fields are supported by policy, but absent parent/configured Booleans
+continue to reject and need separate review. No production query or feature-state
+map policy changes. Old `terminal-fillet-2` previews must be prepared again under
+the versioned auxiliary-mode policy; no migration is needed.

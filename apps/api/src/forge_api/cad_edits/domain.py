@@ -55,6 +55,11 @@ class FeatureStateEvidence(StrEnum):
     UNAVAILABLE_EMPTY = "UNAVAILABLE_EMPTY"
 
 
+class SuppressionAuxEvidence(StrEnum):
+    NULL_UNAVAILABLE = "NULL_UNAVAILABLE"
+    ORDINARY_OBJECT = "ORDINARY_OBJECT"
+
+
 class Baseline(Closed):
     context: WorkspaceReference
     microversion: CadId
@@ -67,11 +72,14 @@ class Baseline(Closed):
     library: Annotated[int, Field(ge=0, le=2147483647)]
     suppressed: bool
     feature_state_evidence: FeatureStateEvidence
+    suppression_aux_evidence: Annotated[
+        tuple[SuppressionAuxEvidence, ...], Field(min_length=3, max_length=20)
+    ]
 
 
 class Proposal(Closed):
     schema_version: Literal["forge-write-proposal-v1"] = "forge-write-proposal-v1"
-    policy_version: Literal["terminal-fillet-2"] = "terminal-fillet-2"
+    policy_version: Literal["terminal-fillet-3"] = "terminal-fillet-3"
     operation_type: Literal["suppress_terminal_fillet_v1"] = (
         "suppress_terminal_fillet_v1"
     )

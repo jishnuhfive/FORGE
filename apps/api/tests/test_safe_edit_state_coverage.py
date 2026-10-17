@@ -129,7 +129,11 @@ def test_comparison_fixed_pinned_gets_byte_counts_and_private_log_boundary(
         caplog.at_level(logging.WARNING),
     ):
         CoverageClient(settings, transport, "private-synthetic-token").compare(REF)
-    reports = [json.loads(r.message.split("metadata=")[1]) for r in caplog.records]
+    reports = [
+        json.loads(r.message.split("metadata=")[1])
+        for r in caplog.records
+        if r.message.startswith("safe_edit_state_coverage ")
+    ]
     assert len(reports) == 2
     assert [r["response_bytes"] for r in reports] == sizes
     assert reports[0]["positions"][0]["state_present"] is False

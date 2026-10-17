@@ -10,7 +10,12 @@ from forge_api.auth.provider import ProviderError
 from forge_api.auth.runtime import AuthRuntime
 from forge_api.cad_edits.domain import EditError
 from forge_api.integrations.onshape.contracts import WorkspaceReference
-from forge_api.integrations.onshape.eligibility import EligibilityRejected
+from forge_api.integrations.onshape.eligibility import (
+    MISSING,
+    EligibilityRejected,
+    Primitive,
+    primitive,
+)
 from forge_api.integrations.onshape.service import read_permission
 from forge_api.integrations.onshape.write_client import SafeEditClient
 
@@ -35,6 +40,85 @@ class StateCoverage(BaseModel):
     unmatched_state_count: int = Field(ge=0)
     source_matches: bool
     response_bytes: int = Field(ge=0, le=2 * 1024 * 1024)
+
+
+class BooleanCoverage(BaseModel):
+    model_config = ConfigDict(strict=True, frozen=True, extra="forbid")
+
+    present: bool
+    actual_type: Primitive
+    value: bool | None
+
+
+class SuppressionPosition(BaseModel):
+    model_config = ConfigDict(strict=True, frozen=True, extra="forbid")
+
+    position: int = Field(ge=1, le=3)
+    category: Literal["sketch", "extrude", "fillet", "unsupported"]
+    shape: Literal["null", "object", "missing", "other"]
+    bt_type: Literal["ordinary", "configured", "expression", "parent", "unknown"] | None
+    suppressed: BooleanCoverage
+    suppression_configured: BooleanCoverage
+    parent_suppressed: BooleanCoverage
+
+
+class SuppressionCoverage(BaseModel):
+    model_config = ConfigDict(strict=True, frozen=True, extra="forbid")
+
+    positions: tuple[SuppressionPosition, ...] = Field(max_length=3)
+
+
+def _boolean_coverage(feature: dict[str, JsonValue], field: str) -> BooleanCoverage:
+    value = feature.get(field, MISSING)
+    return BooleanCoverage(
+        present=field in feature,
+        actual_type=primitive(value),
+        value=value if isinstance(value, bool) else None,
+    )
+
+
+def suppression_coverage(data: JsonValue, report: StateCoverage) -> SuppressionCoverage:
+    if not isinstance(data, dict) or not isinstance(data.get("features"), list):
+        raise EditError("invalid_provider_response", 503)
+    items = data["features"]
+    assert isinstance(items, list)
+    positions: list[SuppressionPosition] = []
+    for item, summary in zip(items[:3], report.positions[:3], strict=True):
+        if not isinstance(item, dict):
+            raise EditError("invalid_provider_response", 503)
+        raw = item.get("suppressionState", MISSING)
+        bt_type = raw.get("btType") if isinstance(raw, dict) else None
+
+        positions.append(
+            SuppressionPosition(
+                position=summary.position,
+                category=summary.category,
+                shape="missing"
+                if raw is MISSING
+                else "null"
+                if raw is None
+                else "object"
+                if isinstance(raw, dict)
+                else "other",
+                bt_type=(
+                    "ordinary"
+                    if bt_type == "BTMSuppressionState-1924"
+                    else "configured"
+                    if bt_type == "BTMSuppressionStateConfigured-2598"
+                    else "expression"
+                    if bt_type == "BTMSuppressionStateExpression-1811"
+                    else "parent"
+                    if bt_type == "BTMSuppressionStateParentSuppressed-5404"
+                    else "unknown"
+                )
+                if isinstance(raw, dict)
+                else None,
+                suppressed=_boolean_coverage(item, "suppressed"),
+                suppression_configured=_boolean_coverage(item, "suppressionConfigured"),
+                parent_suppressed=_boolean_coverage(item, "parentSuppressed"),
+            )
+        )
+    return SuppressionCoverage(positions=tuple(positions))
 
 
 def coverage(data: JsonValue, marker: str, response_bytes: int) -> StateCoverage:
@@ -84,21 +168,27 @@ class CoverageClient(SafeEditClient):
     def compare(self, context: WorkspaceReference) -> None:
         marker = self.head(context)
         scope = f"d/{context.documentId}/m/{marker}/e/{context.elementId}"
-        reports: list[tuple[str, StateCoverage]] = []
+        reports: list[tuple[str, StateCoverage, SuppressionCoverage]] = []
         for mode in ("true", "false"):
             data, size = self._exchange_measured(
                 "GET",
                 f"/partstudios/{scope}/features?includeGeometryIds=false&noSketchGeometry={mode}&rollbackBarIndex=-1",
             )
-            reports.append((mode, coverage(data, marker, size)))
+            report = coverage(data, marker, size)
+            reports.append((mode, report, suppression_coverage(data, report)))
             del data
         if self.head(context) != marker:
             raise EditError("model_changed")
-        for mode, report in reports:
+        for mode, report, suppression in reports:
             logger.warning(
                 "safe_edit_state_coverage noSketchGeometry=%s metadata=%s",
                 mode,
                 report.model_dump_json(),
+            )
+            logger.warning(
+                "safe_edit_suppression_coverage noSketchGeometry=%s metadata=%s",
+                mode,
+                suppression.model_dump_json(),
             )
 
 

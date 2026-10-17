@@ -8,6 +8,8 @@
 > is superseded by the explicitly authorized terminal-suppression evidence policy
 > in that runtime review:
 > exactly empty means unavailable, never OK/inactive; complete maps remain strict.
+> Its mandatory ordinary auxiliary-suppression object is also superseded by the
+> explicitly authorized null-unavailable mode, with all hard Booleans still required.
 > All other structural/body/version and approval/write safeguards remain required.
 > Phase 9A remains PREPARATION COMPLETE; Phase 8 remains
 > COMPLETE, HUMAN VALIDATED, and MERGED. No real OAuth app change or CAD-write

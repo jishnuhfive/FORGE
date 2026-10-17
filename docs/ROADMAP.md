@@ -184,6 +184,12 @@ remain strict; partial/invalid maps reject. Structural suppression, one solid-bo
 result, original-version approval/guard and fresh verification remain required.
 This changes no phase scope or human conformance gate.
 
+The subsequent explicit auxiliary-suppression revision permits exactly null as
+unavailable evidence only when all hard suppression Booleans are explicit and safe.
+Strict ordinary objects remain supported; specialized/malformed/missing states
+reject. The current live document still lacks parent/configured flags and remains
+ineligible. No feature-state policy, broader edit authority or Gate A/B change.
+
 The prior Phase 9 Reality Lock inventory topic remains planned for later explicit
 resequencing; it is not dropped or implemented by this preparation. Mistake
 investigation moves to the later learning backlog (Phase 14). Assemblies/mates

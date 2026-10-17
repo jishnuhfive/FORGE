@@ -465,12 +465,21 @@ retains the fence; reconciliation is read-only and manual recovery remains delib
 
 The explicitly revised terminal-suppression policy distinguishes complete exact-key
 state evidence from a present, exactly empty map. Empty means unavailable, with no
-fabricated OK status or inactive Boolean; every suppression/structural/body/version
+fabricated OK status or inactive Boolean; every hard suppression/structural/body/version
 check remains mandatory. Missing, partial, extra-key or malformed maps reject.
 The accepted mode is digest-bound; a fresh pre-dispatch change invalidates approval.
 A nonempty after-map is strict, and an empty after-map never implies inactive=true.
 Provider atomic stale rejection, one-use approval, fences and no-retry remain intact.
 This narrower supported-result proof does not establish whole-model feature health.
+
+Auxiliary suppression state has a separate explicit policy: exactly null contributes
+no evidence and does not veto explicit safe hard Booleans. It is never converted to
+false, inactivity or an ordinary object. Every feature still requires explicit
+suppressed/parentSuppressed/suppressionConfigured values; missing flags reject.
+Missing auxiliary property, malformed/base-invalid, specialized configured/expression/
+parent or unknown objects reject. Modes and raw definitions remain bound; unexpected
+post-write auxiliary changes retain uncertainty/fences. The live missing parent and
+configured flags remain unresolved; no permission or broader write authority changes.
 
 The review specifies exact stored fields, 120-second approval/15-minute operational
 retention, 60-second cleanup, persistent deny fences, safe audits and backup/restore

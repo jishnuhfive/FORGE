@@ -7,7 +7,12 @@ from typing import cast
 
 from pydantic import JsonValue, ValidationError
 
-from forge_api.cad_edits.domain import Baseline, FeatureStateEvidence, fingerprint
+from forge_api.cad_edits.domain import (
+    Baseline,
+    FeatureStateEvidence,
+    SuppressionAuxEvidence,
+    fingerprint,
+)
 
 from .contracts import WorkspaceReference
 from .eligibility import MISSING, Expected, FieldName, Reason, require
@@ -116,15 +121,10 @@ def project_write_evidence(
         )
         state_evidence = FeatureStateEvidence.COMPLETE
     definitions: list[dict[str, JsonValue]] = []
+    suppression_evidence: list[SuppressionAuxEvidence] = []
     for index, feature in enumerate(features):
         target, position = index == len(features) - 1, index + 1
         kind = feature.get("featureType")
-        suppression = obj(
-            feature.get("suppressionState", MISSING),
-            Reason.SUPPRESSION,
-            "suppressionState",
-            position,
-        )
         require(
             kind in ("newSketch", "extrude", "fillet"),
             Reason.TYPE,
@@ -172,30 +172,6 @@ def project_write_evidence(
                 position,
             )
         require(
-            suppression.get("btType") == "BTMSuppressionState-1924",
-            Reason.SUPPRESSION,
-            "suppressionState",
-            "ordinary_suppression",
-            suppression.get("btType", MISSING),
-            position,
-        )
-        require(
-            suppression.get("suppressionConfigured") is False,
-            Reason.CONFIGURED_SUPPRESSION,
-            "suppressionConfigured",
-            "false",
-            suppression.get("suppressionConfigured", MISSING),
-            position,
-        )
-        require(
-            not (set(suppression) - {"btType", "nodeId", "suppressionConfigured"}),
-            Reason.SUPPRESSION_FIELDS,
-            "suppressionState",
-            "known_fields",
-            suppression,
-            position,
-        )
-        require(
             feature.get("suppressed") is (after and target),
             Reason.SUPPRESSED,
             "suppressed",
@@ -203,6 +179,40 @@ def project_write_evidence(
             feature.get("suppressed", MISSING),
             position,
         )
+        auxiliary = feature.get("suppressionState", MISSING)
+        if auxiliary is None:
+            # Null contributes no positive evidence. All feature Booleans above
+            # must independently be explicit and safe; MISSING is not null.
+            suppression_evidence.append(SuppressionAuxEvidence.NULL_UNAVAILABLE)
+        else:
+            suppression = obj(
+                auxiliary, Reason.SUPPRESSION, "suppressionState", position
+            )
+            require(
+                suppression.get("btType") == "BTMSuppressionState-1924",
+                Reason.SUPPRESSION,
+                "suppressionState",
+                "ordinary_suppression",
+                suppression.get("btType", MISSING),
+                position,
+            )
+            require(
+                suppression.get("suppressionConfigured") is False,
+                Reason.CONFIGURED_SUPPRESSION,
+                "suppressionConfigured",
+                "false",
+                suppression.get("suppressionConfigured", MISSING),
+                position,
+            )
+            require(
+                not (set(suppression) - {"btType", "nodeId", "suppressionConfigured"}),
+                Reason.SUPPRESSION_FIELDS,
+                "suppressionState",
+                "known_fields",
+                suppression,
+                position,
+            )
+            suppression_evidence.append(SuppressionAuxEvidence.ORDINARY_OBJECT)
         if state_evidence is FeatureStateEvidence.COMPLETE:
             state = obj(
                 states[cast(str, ids[index])], Reason.STATE, "featureState", position
@@ -346,4 +356,5 @@ def project_write_evidence(
         library=cast(int, library),
         suppressed=after,
         feature_state_evidence=state_evidence,
+        suppression_aux_evidence=tuple(suppression_evidence),
     )

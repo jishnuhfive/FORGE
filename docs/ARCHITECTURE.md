@@ -440,7 +440,7 @@ records and durable deny fences. Committed atomic claims, shared user/session/gr
 coordination and unique workspace/user fences protect multiple workers. Uncertain
 writes are never retried or automatically rolled back. Cleanup cannot remove fences.
 
-The operation-specific `terminal-fillet-2` policy binds an explicit feature-state
+The operation-specific `terminal-fillet-3` policy binds an explicit feature-state
 evidence mode into the baseline/digest. A nonempty state map must cover the inventory
 exactly and pass every strict status/inactive check. An exactly empty map means
 `UNAVAILABLE_EMPTY`, never inferred OK/active; structural suppression, pinned
@@ -449,6 +449,14 @@ result remain mandatory. Partial/malformed/extra maps reject. Verification uses
 fresh explicit target suppression and preserved definitions/body output, with strict
 state checks whenever the after-map is nonempty. Whole-model health is not claimed.
 Old-policy previews cannot execute and must be prepared again.
+
+Per-feature suppression auxiliary modes are also baseline/digest-bound: exactly null
+is `NULL_UNAVAILABLE`, with no inferred ordinary state or Boolean. A supported base
+object is validated as `ORDINARY_OBJECT`; missing/malformed/specialized/unknown
+states reject. Explicit suppressed, parentSuppressed and suppressionConfigured
+Booleans remain hard requirements. Raw auxiliary definitions stay fingerprinted.
+The live target's missing parent/configured flags still reject; no later predicate
+was loosened. Feature-state-map policy, guarded write and verification are unchanged.
 
 Writes default OFF. OAuth2Write is not enabled in the external app by this work.
 Gate A suppression-payload behavior and Gate B provider atomic stale rejection are
