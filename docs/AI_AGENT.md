@@ -7,7 +7,8 @@ deterministic write-capability path. The complete final repository gate passes;
 The separately authorized Phase 7 authored learning foundation makes no AI calls;
 the agent retains its read-only CAD boundary. Phase 8 adds deterministic read-only lesson
 checking without AI; Phase 9A preparation is complete and the separate Phase 9B Modify
-workflow is implemented behind a default-OFF backend flag. This is design assistance, not
+workflow is implemented behind a default-OFF backend flag. Phase 10 adds authored,
+deterministic investigations and transfer learning without AI. This is design assistance, not
 engineering certification. Codex develops Forge; Forge's runtime AI is separate.
 
 ## Groq contract reviewed — 2026-10-15; retention/quotas rechecked 2026-10-16
@@ -66,9 +67,11 @@ Real eligibility, quota and grounding must be tested with the operator's API pro
 
 ## Flow and ownership
 
-Normal read questions follow this provider-assisted path. Explicit CAD modification
-requests branch directly to the existing bound inspection and a server-owned
-capability answer; they make no provider request (details below).
+Model-specific read questions follow this provider-assisted path. General Groq
+chat can return bounded plain text before inspection, as described below.
+Explicit CAD modification requests in Design branch directly to the existing
+bound inspection and a server-owned capability answer; they make no provider
+request (details below). Modify uses its separate private server authority.
 
 ```text
 Explicit Design send (disclosed hosted-service transfer)
@@ -344,7 +347,7 @@ the first two captured features may supply context. Width/controlling parameters
 remain unknown. Suggestions, assumptions and follow-ups are empty. Progress goes
 from understanding to inspecting to preparing; no model-review stage is fabricated.
 
-Every request remains read-only, including phrasing outside this narrow routing
+Every Design AI request remains read-only, including phrasing outside this narrow routing
 rule. Unrecognized requests retain the normal bounded model/tool flow and generic
 safe errors. Its strict output, unknown/duplicate-ID, tool/protocol, incomplete and
 safety-refusal handling is unchanged. Empty model answers still fail grounding;
@@ -444,10 +447,14 @@ validation record unchanged; its provisional wording is superseded by that confi
 ## Phase 9B deterministic Modify authority
 
 [Runtime review](PHASE_9_REVIEW.md): `suppress_terminal_fillet_v1` is the only
-implemented write exception, default OFF and awaiting human CAD-write validation.
+implemented write exception, default OFF. Gate A is human-proven; Gate B's expected
+stale behavior was observed, with provider-side rejection audit confirmation deferred.
 Modify recognizes supported intent with a closed deterministic grammar; no additional
 hosted AI request/tool is needed. The existing Design agent and no-argument inspection
 tool stay read-only. Unsupported requests remain refused.
+
+AI may interpret intent and explain supported plans or results. It cannot approve
+or directly execute a write; no arbitrary HTTP or raw provider tools are exposed.
 
 Deterministic server code owns inventory/target identity, immutable proposals, explicit
 human approval, session/grant/context binding, stale checks, committed claim/fence,
@@ -461,3 +468,37 @@ Only deterministic operation-specific policy can accept an exactly empty
 body-output and version invariant. AI cannot infer OK/inactive, accept a partial
 map, relax predicates or declare model health. Complete exact-key maps retain strict
 status/inactive checks. See the current policy in the runtime review.
+
+## Phase 10 authored investigation and transfer boundary
+
+Learn remains student-operated and read-only. A supported failed/warning check can
+open an authored investigation: server observation → learner prediction → possible
+explanation → try-next guidance → explicit re-check → resolution or reopening.
+The deterministic checker alone owns status and verification revocation/restoration.
+Predictions, including “I'm not sure yet”, are ungraded and never change results.
+Guidance fading follows resolved same-family investigations in session memory.
+The independent transfer challenge reuses those controls with separate progress
+and restart; it reports supported evidence and interaction counts, never mastery
+scores or grades. AI neither authors the live investigation nor grades predictions
+or transfer. Phase 10 does not call Modify or depend on write consent.
+
+## Groq first round: inspect or just chat
+
+On Groq the first round lets the model decide (`tool_choice: auto`). The inspection-round system message
+appends `FIRST_ROUND`: if the message is about the user's own model, design or CAD data (including
+follow-ups and "what should I do next"), call only `inspect_current_cad` and write no answer; otherwise
+(greetings, small talk, general or conceptual questions) reply in plain text, briefly, and say nothing about
+the user's model. When unsure, inspect. The answer round keeps the plain policy and its strict schema.
+
+- **Model questions** are unchanged: one read, canonical facts selected by ID, server-rendered evidence.
+- **General chat** is model-written text with **no CAD read**, so it needs no Onshape permission, no evidence
+  and no capture time. It is bounded (1500 characters), must be plain text (a JSON-shaped reply is rejected,
+  as is text mixed with a tool call), and if it talks about the user's model anyway the answer carries the
+  server note "This is a general reply. Forge didn't read your model for it, so it isn't verified against
+  your design." The unsafe-prompt screen and the policy's safety rules still apply first.
+- The OpenAI adapter keeps its previous behavior (it always inspects); general chat is Groq-only for now.
+- There is still no automatic retry and no provider fallback.
+
+Why the instruction exists: without it `openai/gpt-oss-120b` often answered advice-style questions by
+calling a nonexistent `answer` tool, which Groq rejects as `tool_use_failed` (13 of 18 live requests). With
+it, 24 of 24 live trials routed correctly (12 model questions inspected, 12 general questions answered).

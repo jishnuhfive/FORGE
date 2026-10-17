@@ -312,7 +312,7 @@ verified". A failed check never reveals a hint.
 The Mounting Bracket guided project preserves PASS / FAIL / WARNING / UNVERIFIED
 findings from fresh CAD evidence, feature-name independence and the single-L-profile
 alternative. A later non-verified check revokes that active step's Forge verification;
-a later verified check restores it. The student still performs all CAD edits.
+a later verified check restores it. Within Learn, the student performs all CAD edits.
 The user confirms final human validation and merge at `81199ea`; the unchanged
 [Phase 8 review](PHASE_8_REVIEW.md) preserves its earlier validation record.
 
@@ -338,4 +338,21 @@ The shell says Approval required only for available Modify; other modes stay Rea
 Default OFF clearly says safe CAD editing is disabled, without an executable preview.
 Known missing write consent requests permission; unknown authorization fails closed.
 Keyboard, live announcements, forced colors/reduced motion and 320px are covered in
-synthetic browser tests. Human real-CAD validation and Gate A/B remain pending.
+synthetic browser tests. Gate A is human-proven with fresh verified success.
+Gate B showed no stale suppression after the human changed CAD during the pause;
+provider-side rejection audit confirmation remains deferred. Writes returned OFF.
+
+## Phase 10 investigation and transfer UI
+
+Below a check result, an "Investigate" section shows what Forge observed, a radio-group prediction
+(always including "I'm not sure yet", neutral feedback, never red/green), a labeled possible explanation,
+a labeled try-next suggestion, and a "Verified after re-check" status after an explicit re-check. It adds no
+second hint system. Reduced and independent guidance are explained in the panel and never hide
+observations or caveats. The transfer challenge reuses the step view with its own progress and a separate
+"Restart challenge". Tested at 320, 360, 380, 400, 480 and 640 px, with keyboard, reduced motion and axe.
+
+A fresh supported PASS resolves an investigation; a later FAIL, WARNING or inability
+to verify reopens it. Predictions never alter the checker result. Restart challenge
+preserves guided lesson progress; Reset lesson clears both. Session counts and
+challenge completion carry no grades, mastery percentages or safety claim. Learn
+remains read-only and student-operated, independently of Modify availability.

@@ -448,7 +448,7 @@ provisional wording, which this confirmation supersedes.
 ## Phase 9B safe-write controls
 
 [Runtime review and threat boundary](PHASE_9_REVIEW.md): implemented and automated
-tested, awaiting controlled human CAD-write validation. Only
+tested, with Gate A human-proven and Gate B provider-audit confirmation deferred. Only
 `suppress_terminal_fillet_v1` is allowed. Backend flag defaults OFF. Live OAuth app
 permissions remain unchanged; known read/write consent is required before execution.
 Unknown scope/bitmask fails closed; refresh cannot imply expanded consent.
@@ -500,7 +500,9 @@ The review specifies exact stored fields, 120-second approval/15-minute operatio
 retention, 60-second cleanup, persistent deny fences, safe audits and backup/restore
 implications. No prompts, raw provider CAD payloads, tokens, hidden reasoning, history
 or analytics are added. This is not a security certification. Real suppression and
-atomic stale rejection remain hard unproven human conformance gates.
+atomic stale rejection remain separately evaluated human conformance gates. Gate A
+is human-proven; Gate B showed the expected absence of stale suppression, with
+provider-side rejection audit confirmation deferred. Writes returned OFF.
 
 The first real write entered uncertainty correctly; see the current runtime
 review for reconstructed evidence and limits. Policy 6 captures full returned
@@ -509,8 +511,9 @@ bounds. No additional field is normalized away. Fixed verification failure stage
 and all failed final comparisons use the existing audit table without arbitrary
 metadata, provider responses, private identities/markers or exception text. DEV
 fixed-code logs and a writes-OFF internal GET-only helper add no public debug
-endpoint, CAD write authority or fence-release capability. Both conformance gates
-remain UNPROVEN. Normal operational-row expiry still never releases a fence.
+endpoint, CAD write authority or fence-release capability. Gate A is now human-proven;
+Gate B provider-audit confirmation remains deferred. Normal operational-row expiry
+still never releases a fence.
 
 Separately authorized operator recovery uses the internal `cad_edits/dev_recovery.py`
 helper, outside browser/AI/API authority. It requires development mode, writes OFF,
@@ -524,4 +527,5 @@ An expired original session establishes identity only and is never revived.
 There is no public endpoint, user control, bulk clearing, provider transport or
 production-mode recovery. Normal fence semantics remain unchanged. The first
 separately authorized recovery cleared one orphan with ZERO Onshape contact and
-writes OFF; neither conformance gate was proven by that administration.
+writes OFF; neither conformance gate was proven by that administration. The later
+Gate A proof is a separate human-approved CAD trial, not a recovery outcome.

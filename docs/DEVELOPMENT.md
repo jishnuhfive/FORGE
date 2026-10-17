@@ -566,7 +566,8 @@ uv caches, `UV_CACHE_DIR=.cache/uv make ...` preserves frozen lockfile use.
 
 The human approved the second real Onshape visual review and authorized one
 Phase 6.5 commit/normal push after the complete final gate. The design system is
-frozen. Phase 7 has not started and requires a new prompt.
+frozen. Phase 7 had not started at that checkpoint; its subsequent implementation
+and the current Phase 8–10 status are recorded in the roadmap and reviews below.
 
 The refined lab also provides **Material comparison** (A previous/B refined/C opaque)
 and **Logo candidates**. Choose Wide standalone to compare three columns; narrow
@@ -611,7 +612,9 @@ real panel acceptance steps are in [PHASE_7_REVIEW.md](PHASE_7_REVIEW.md).
 
 Phase 8 is complete, human validated and merged; Phase 9A preparation is complete.
 [Phase 9 runtime review](PHASE_9_REVIEW.md) records the implementation, provider
-research, exact human OAuth/CAD procedures and hard Gate A/B. Phase 10 is NOT STARTED.
+research and exact human OAuth/CAD procedures. Gate A is human-proven; Gate B
+provider-side rejection audit confirmation is deferred. Phase 10 implementation is
+merged and integrated here; its real-Onshape human validation remains pending.
 
 Run `make setup` for npm ci and uv locked sync. Run format, lint, typecheck (including
 strict mypy), test, build and test-e2e. Tests use synthetic provider transports only.

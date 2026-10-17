@@ -1,6 +1,6 @@
 # Architecture
 
-## Current implementation — Phase 8 validated; Phase 9B awaiting human write validation
+## Current implementation — Phase 8 validated; Phase 9 safe Modify and Phase 10 Learn integrated
 
 One React/TypeScript/Vite web client, one FastAPI/Pydantic API and shared presentation
 primitives serve desktop browsers. Native clients are not part of Forge.
@@ -237,7 +237,7 @@ no feature/part/body ownership is inferred. Account/context keys remount the rea
 actual page navigation aborts and clears it. Same-frame visibility/focus changes
 preserve capture metadata and cause no CAD reads. Nothing persists the evidence.
 Names and values are untrusted display text. Exact limits and semantics are in
-[PHASE_5_REVIEW.md](PHASE_5_REVIEW.md). Assemblies remain Phase 10.
+[PHASE_5_REVIEW.md](PHASE_5_REVIEW.md). Assemblies remain unassigned future work.
 
 The 2026-10-14 topology repair preserves optionality and treats empty export arrays
 as unknown: the fixed `includeGeometricData=false` contract does not establish
@@ -425,10 +425,13 @@ record; its earlier provisional status is superseded by this confirmation.
 ## Phase 9B implemented safe-write boundary
 
 Phase 9A preparation remains complete. [The runtime review](PHASE_9_REVIEW.md)
-records the implemented architecture and mandatory pending human conformance gates.
+records the implemented architecture, proven Gate A and remaining provider-conformance
+evidence for Gate B.
 Exactly `suppress_terminal_fillet_v1` uses server-resolved inventory, opaque candidate
-handles and closed immutable 120-second proposals. The flow is proposal → explicit
-approval → fresh state/version check → guarded write → post-write verification.
+handles and closed immutable 120-second proposals. The flow is intent → fresh evidence
+→ candidate → proposal → explicit approval → one-use claim → fresh state/version check
+→ guarded provider write → fresh post-write verification → verified success or
+fail-closed uncertainty.
 The original sourceMicroversion with rejectMicroversionSkew=true is mandatory;
 there is no local-check-only fallback, generic Onshape API or arbitrary FeatureScript.
 
@@ -482,10 +485,12 @@ either accepted mode at the exact new acknowledged revision; invalid evidence
 retains uncertainty/fences without retry. No raw body payload or flag defaults
 are persisted. Existing original-version write guards remain mandatory.
 
-Writes default OFF. OAuth2Write is not enabled in the external app by this work.
-Gate A suppression-payload behavior and Gate B provider atomic stale rejection are
-awaiting controlled human CAD-write validation. Phase 10 is not integrated into
-this Phase 9 branch.
+Writes default OFF and were returned OFF after human testing. Known OAuth2Write
+consent remains mandatory; this merge changes no permission. Gate A proved one
+approved terminal-Fillet suppression and Forge verified success from fresh evidence.
+Gate B reached the pause and the human advanced the workspace; stale suppression
+did not apply. Provider-side rejection audit confirmation was deferred, so full
+provider conformance is not claimed.
 
 The first human-approved suppression reached uncertainty; the full reconstruction
 is in the runtime review. Policy 6 now requests full sketch definitions for the
@@ -494,4 +499,23 @@ returned definition fields under unchanged transport caps. The only mutable hash
 exclusion remains the terminal suppressed flag. All eight final comparisons run
 before rejection; fixed failed checks/stages are durably audited and DEV logs are
 sanitized. No lost-ack reconciliation promotion or automatic fence release is added.
-Phase 10 on main is a separate history and is not integrated into this branch.
+Phase 10's separate main history is integrated by this merge without squashing.
+
+## Phase 10 learning extensions
+
+The Phase 7/8 session reducer gains per-step `expectation` and `investigations` state and an optional
+`transfer` sub-state (separate progress for the challenge). A `check-result` action now carries the
+server's compact per-requirement findings, so investigations open, resolve and revoke from the latest
+deterministic result alone. Guidance fading (`full` / `reduced` / `independent`) is computed in the
+reducer from currently resolved same-family investigations. The backend change is additive: one new step id,
+`transfer-single-profile`, in the existing `step_checks` catalog. No endpoint, table, scope or write path
+is added.
+
+Learn and Modify remain separate. Learn's flow is failed/warning check → observation
+→ learner prediction → possible explanation → try-next guidance → explicit re-check
+→ resolution/reopen → optional transfer challenge. The student makes every Learn
+CAD change. Modify performs only its one supported explicitly approved write.
+Phase 10 requires no Modify execution, write scope or write flag; its predictions
+are ungraded and its transfer counts are not mastery scores. See
+[the learning review](PHASE_10_REVIEW.md) for automated results and the pending
+real-Onshape human validation plan.

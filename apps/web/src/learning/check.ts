@@ -15,6 +15,7 @@ const reasons = [
   'evidence_stale',
   'not_observable',
   'ambiguous_signal',
+  'constraint_not_met',
 ] as const;
 
 export interface RequirementResult {

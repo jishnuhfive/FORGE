@@ -4,33 +4,29 @@ Advance only with explicit phase authorization. Security, tests, deterministic
 verification, documentation, and maintainability are requirements of every phase.
 Later hardening does not defer security for earlier live integrations.
 
-| Phase | Scope and completion gate                                                                                           |
-| ----- | ------------------------------------------------------------------------------------------------------------------- |
-| 0     | Repository foundation: reproducible scaffold, docs, tools, tests, database health, local Git                        |
-| 1     | UI foundation: narrow-panel accessible layout and presentation system; no fake integrations                         |
-| 2     | Onshape OAuth: secure state, server sessions, encrypted tokens, refresh/logout/disconnect tests                     |
-| 3     | Onshape extension shell: real embedding, messaging and selection security, browser/session compatibility            |
-| 4     | Onshape REST client: official APIs, response contracts, permissions, retries and rate limits                        |
-| 5     | CAD inspector: bounded read-only workspace Part Studio evidence; live verification                                  |
-| 6     | Read-only AI agent: provider adapters, strict read tools, bounded budgets, progress streaming                       |
-| 7     | Learning Mode foundation: authored lesson, setup, hint ladder, vocabulary, ephemeral progress; human review: PASSED |
-| 8     | Mounting Bracket + Check My Step: COMPLETE, HUMAN VALIDATED, MERGED at 81199ea                                      |
-| 9     | FIRST SAFE CAD EDIT: 9A PREPARATION COMPLETE; 9B IMPLEMENTED, awaiting human CAD-write validation                   |
-| 10    | Assemblies and mates: supported instances/mates verified through official APIs                                      |
-| 11    | Validation engine: deterministic PASS/WARNING/FAIL/UNVERIFIED checks and evidence                                   |
-| 12    | Full agent execution loop: understand/inspect/plan/approve/execute/reinspect/validate/revise/report                 |
-| 13    | Modify mode: selection-aware approved changes and context freshness                                                 |
-| 14    | Expanded learning and later mistake investigation; supported operations and scope require separate authorization    |
-| 15    | Camera slider flagship demo: approved design using supplied inventory and at least 400 mm travel                    |
-| 16    | Product/account/history polish: useful user-facing plans/actions/results, data deletion and account controls        |
-| 17    | Security hardening: adversarial assessment, production policy, privilege and data boundary review                   |
-| 18    | Reliability/evaluation suite: provider failure, limits, regressions, manufacturing and write-safety evaluation      |
-| 19    | Production deployment: HTTPS, managed secrets/database, images, migrations, backups, observability                  |
-| 20    | Onshape App Store preparation: current official launch checklist and review requirements                            |
+| Phase          | Actual scope and status                                                                                                                                                        |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 0–5            | Foundations, UI, OAuth, extension, REST and Inspector: complete; preserved review records below                                                                                |
+| 6              | Read-only AI: complete and human validated                                                                                                                                     |
+| 6.5            | Design system: approved and frozen                                                                                                                                             |
+| 7              | Learning Mode foundation: COMPLETE and merged                                                                                                                                  |
+| 8              | Mounting Bracket + Check my step: COMPLETE, HUMAN VALIDATED, MERGED at 81199ea                                                                                                 |
+| 9A             | First safe CAD edit architecture/preparation: PREPARATION COMPLETE                                                                                                             |
+| 9B             | Narrow terminal-Fillet suppression: IMPLEMENTED and automated tested                                                                                                           |
+| 9 human Gate A | PROVEN: approved real suppression and Forge verified success from fresh evidence                                                                                               |
+| 9 human Gate B | Expected stale-write behavior observed; provider-side rejection audit confirmation deferred; full provider conformance not proven                                              |
+| 10             | Investigation, prediction, fading guidance and transfer: IMPLEMENTED, automated validation complete, merged to main and integrated here; real-Onshape human validation pending |
+| 11             | NOT STARTED; no new phase scope is authorized by this integration                                                                                                              |
+
+The original numbering is superseded by this actual sequence. Unassigned future
+backlog remains: assemblies/mates, broader deterministic engineering validation,
+full agent execution, general selection-aware Modify, tool/inventory Reality Lock,
+expanded learning, the camera-slider evaluation, account/history polish, security
+and reliability hardening, production deployment and App Store preparation.
+These topics require separate authorization and have no current phase assignment.
 
 Phase 0 is preserved in commit `2b68754`. Phase 1 implements the accessible UI
-foundation, local preferences and development-only synthetic previews. Live
-functionality described by later phases remains planned. Phase 2 now implements Onshape OAuth, identity persistence, encrypted refresh tokens,
+foundation, local preferences and development-only synthetic previews. Subsequent implemented capabilities are recorded below. Phase 2 now implements Onshape OAuth, identity persistence, encrypted refresh tokens,
 revocable sessions, CSRF and account UI. Automated verification is recorded in
 [PHASE_2_REVIEW.md](PHASE_2_REVIEW.md); real OAuth requires human credential setup.
 Phase 1 remains preserved in `31f545a`; Phase 2 is `676414f`. The human reports real
@@ -64,7 +60,7 @@ Forge v1 targets education, makers, low-risk prototypes and student engineering.
 
 Phase 5 adds the versioned structured evidence model and human inspector using the
 existing Phase 4 acquisition. It intentionally supports workspace Part Studios only.
-Assemblies and mates remain Phase 10; no assembly permission or operation is added.
+Assemblies and mates remain unassigned future work; no assembly permission or operation is added.
 Phase 6 is now the first read-only AI consumer, separately authorized and verified
 as recorded below. The inspector itself does not implement deterministic validation,
 certification, Reality Lock, Modify or Learn behavior.
@@ -169,15 +165,18 @@ verification. Stale approval is rejected and the provider microversion guard is
 mandatory. No generic Onshape API authority or arbitrary FeatureScript is allowed.
 [The preparation review](PHASE_9_PREP_REVIEW.md) records the preparation gate.
 
-Phase 8 is integrated. Phase 9B is **IMPLEMENTED / AUTOMATED TESTED / AWAITING
-CONTROLLED HUMAN CAD-WRITE VALIDATION**; see [the runtime review](PHASE_9_REVIEW.md).
-The backend flag defaults OFF; external OAuth2Write permission was not enabled.
-Opaque candidates, explicit approval, atomic PostgreSQL claims/fences, fresh pinned
-reads, original provider guard and deterministic verification implement the 9A
-boundary. Real suppression-payload and atomic stale-update gates remain mandatory
-and unvalidated. Human permission changes and disposable CAD validation occur later.
-Phase 10 is not integrated into this Phase 9 branch; its separate main history is
-recorded below.
+Phase 8 is integrated. Phase 9B is **IMPLEMENTED / AUTOMATED TESTED**; see
+[the runtime review](PHASE_9_REVIEW.md). Opaque candidates, explicit approval,
+atomic PostgreSQL claims/fences, fresh full-definition evidence, the original
+provider microversion guard and deterministic verification implement the 9A
+boundary. Known OAuth2Write consent remains required; no generic write authority
+exists. The backend flag defaults OFF and writes returned OFF after testing.
+
+**Gate A: PROVEN.** The human-approved real terminal-Fillet suppression succeeded
+and Forge reached verified success from fresh evidence. **Gate B: expected
+stale-write behavior observed.** The human advanced the workspace during the
+conformance pause and stale suppression did not apply. Provider-side rejection
+audit confirmation was deferred; full provider conformance is not yet proven.
 
 The explicitly authorized terminal-suppression evidence revision supports a present
 empty v17 state map as unavailable, with no inferred feature health. Complete maps
@@ -198,8 +197,8 @@ The current body policy binds exact immutable requested/returned microversion
 identity. Both optional marker flags absent means explicitly unavailable evidence,
 never false; both explicit false flags remain supported. True/null/malformed/mixed
 flags reject. One SOLID, supported body error state, pinned reads, head bracketing,
-approval and original provider guard remain required. Writes stay OFF, diagnostics
-ON for investigation, and Gate A/B remain UNPROVEN.
+approval and original provider guard remain required. The evidence modes do not
+relax approval, execution or verification. Writes remain OFF after human testing.
 
 The first real human-approved suppression reached uncertainty, with no retry or
 success claim. The comprehensive repair retains strict comparisons, adds full
@@ -208,13 +207,24 @@ The exact historical failure is not recoverable; no unobserved normalization or
 timeout relaxation is justified. Separately authorized development-only operator
 recovery has now removed the exact orphaned uncertainty fence under the existing
 user lock, with an atomic fixed audit, no Onshape contact and writes OFF. Normal
-fence semantics and the historical uncertain result are unchanged. Gate A awaits
-one fresh controlled rerun; Gate B remains UNPROVEN. The human reports Phase 10
-merged on main separately; that history is not integrated here. Phase 11 is
-**NOT STARTED**.
+fence semantics and the historical uncertain result are unchanged. The subsequent
+fresh Gate A rerun is proven; Gate B still lacks provider-side rejection audit
+confirmation. Phase 10 main history is now integrated here without squashing.
 
-The prior Phase 9 Reality Lock inventory topic remains planned for later explicit
-resequencing; it is not dropped or implemented by this preparation. Mistake
-investigation moves to the later learning backlog (Phase 14). Assemblies/mates
-retain Phase 10; general Modify, a CAD tool library, Reality Lock and autonomous
-workflows remain separately authorized future work.
+The earlier Reality Lock/inventory and assemblies/mates topics remain unassigned
+future work. Mistake investigation is implemented in the actual Phase 10 below;
+obsolete phase numbers do not authorize broader Modify or autonomous workflows.
+
+## Phase 10 — Mistake investigation + independent transfer learning (merged, not yet human-validated)
+
+Implemented on `phase10/mistake-transfer-learning`, branched from main after Phase 8, in parallel with
+Phase 9 (first safe CAD write, a separate branch). Phase 10 is read-only, authored and session-local, with no
+AI in the core flow. It was merged to `main` at the team's request before Phase 9 and before real Onshape
+validation; this merge integrates it into the Phase 9 branch. See [PHASE_10_REVIEW.md](PHASE_10_REVIEW.md) and
+[PHASE_10_LEARNING_SPEC.md](PHASE_10_LEARNING_SPEC.md). Automated validation is
+complete; the real-Onshape human plan is not yet recorded as complete. Phase 10
+Learn remains independent of Modify and requires no write consent.
+
+## Phase 11 — NOT STARTED
+
+No Phase 11 implementation is included or authorized by this merge.

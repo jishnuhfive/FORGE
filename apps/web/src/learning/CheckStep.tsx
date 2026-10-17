@@ -102,7 +102,18 @@ export function CheckStep({
       // Only the server's latest deterministic outcome sets Forge verification;
       // request errors say nothing about the model, so they change nothing.
       if (result.step_id === stepId)
-        dispatch({ type: 'check-result', stepId, outcome: result.outcome });
+        dispatch({
+          type: 'check-result',
+          stepId,
+          outcome: result.outcome,
+          findings: result.results.map((item) => ({
+            requirementId: item.requirement_id,
+            blocking: item.blocking,
+            status: item.outcome.status,
+            reason: item.outcome.reason,
+            finding: item.outcome.finding,
+          })),
+        });
       setState({ phase: 'done', result });
     } catch (cause) {
       if (current.signal.aborted) return;

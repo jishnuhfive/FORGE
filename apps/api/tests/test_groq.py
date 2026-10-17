@@ -6,6 +6,7 @@ import logging
 from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass, field
+from typing import cast
 
 import httpx2 as httpx
 import pytest
@@ -23,6 +24,7 @@ from forge_api.ai.groq import (
     GroqProvider,
 )
 from forge_api.ai.models import AiError, AiRequest, ModelAnswer
+from forge_api.ai.policy import FIRST_ROUND, POLICY
 from forge_api.ai.provider import AgentTask
 from forge_api.ai.providers import create_provider
 from forge_api.ai.service import run_agent
@@ -182,6 +184,31 @@ def test_groq_two_rounds_strict_final_privacy_and_no_paid_fallback(
         "synthetic-access",
     ):
         assert private not in caplog.text
+
+
+def test_first_round_instruction_is_sent_only_with_the_inspection_request(
+    harness: Harness,
+) -> None:
+    """Live finding: without it gpt-oss often calls a nonexistent "answer" tool."""
+    harness.login()
+    provider, fake = CadProvider(), FakeGroq()
+    with transport(harness, provider), groq_transport(harness, fake):
+        result = events(harness)
+    assert result[-1]["type"] == "result"
+    first, final = fake.calls
+    first_messages = cast(list[dict[str, object]], first["messages"])
+    final_messages = cast(list[dict[str, object]], final["messages"])
+    first_system = first_messages[0]
+    final_system = final_messages[0]
+    assert first_system["role"] == "system" and final_system["role"] == "system"
+    assert first_system["content"] == POLICY + FIRST_ROUND
+    assert "never call a tool named answer" in first_system["content"].lower()
+    # The answer round must not tell the model to write no answer.
+    assert final_system["content"] == POLICY
+    assert "FIRST ROUND ONLY" not in json.dumps(final_messages)
+    # Everything else the first request carries is unchanged.
+    assert first_messages[1:] == final_messages[1 : len(first_messages)]
+    assert first["tools"] == [TOOL] and first["tool_choice"] == "auto"
 
 
 @pytest.mark.parametrize(

@@ -149,7 +149,9 @@ class ResponsesAdapter:
         self._call_id: str | None = None
         self._started = False
 
-    async def request_inspection(self, task: AgentTask, *, request_id: str) -> None:
+    async def request_inspection(
+        self, task: AgentTask, *, request_id: str
+    ) -> str | None:
         if self._started:
             raise AiError("invalid_response", reason=Reason.TOOL_LOOP_STATE_ERROR)
         self._started = True
@@ -159,6 +161,7 @@ class ResponsesAdapter:
             raise AiError("invalid_response")
         self._continuation = items + step.replay
         self._call_id = step.call_id
+        return None
 
     async def answer_with_evidence(
         self, evidence: str, *, request_id: str

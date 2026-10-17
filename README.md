@@ -6,9 +6,9 @@ Forge is an engineering tutor and CAD assistant embedded in Onshape's right
 panel. Learners perform lesson CAD operations while Forge explains what to do,
 why it matters and how to recover. Deterministic lesson checks report evidence
 with explicit limits. Modify implements one explicitly approved Fillet suppression,
-disabled by default and awaiting controlled human CAD-write validation.
+disabled by default. Gate A is human-proven; full provider conformance remains pending.
 
-**Current status: Phase 8 COMPLETE, HUMAN VALIDATED, and MERGED; Phase 9A PREPARATION COMPLETE; Phase 9B IMPLEMENTED / AUTOMATED TESTED / AWAITING CONTROLLED HUMAN CAD-WRITE VALIDATION.**
+**Current status: Phase 7 COMPLETE; Phase 8 COMPLETE, HUMAN VALIDATED, and MERGED; Phase 9A PREPARATION COMPLETE; Phase 9B IMPLEMENTED; Gate A PROVEN; Gate B provider-audit confirmation deferred; Phase 10 IMPLEMENTED and MERGED, human validation pending; Phase 11 NOT STARTED.**
 Phase 6.5 remains visually approved after two human-review passes.
 The product UI and canonical design system are frozen: Obsidian, Arc Blue, the
 Oblique Plane identity, restrained functional Liquid Glass and answer-first
@@ -24,12 +24,13 @@ Onshape after an explicit send. Design remains read-only; engineering validation
 
 Forge uses a provider-independent backend agent with Groq / `openai/gpt-oss-120b`
 by default. OpenAI Responses / `gpt-6.1-sol` remains an explicit optional provider.
-Both use one no-argument inspection tool, bounded requests and normalized progress.
+Both expose one no-argument inspection tool, bounded requests and normalized progress.
+Groq can answer general chat without reading CAD; model-specific answers still require inspection.
 Groq separates tool calling from strict final JSON-schema output into two rounds.
-Explicit CAD modification requests use a deterministic read-only capability path:
+Explicit CAD modification requests in Design use a deterministic read-only capability path:
 the same authorized CAD inspection, zero provider calls, and no inferred edit target.
 No automatic paid-provider fallback exists; shared free capacity is limited.
-It reads fresh Phase 5 evidence for each send and preserves unknown units, missing
+When inspection is required, it reads fresh Phase 5 evidence and preserves unknown units, missing
 mass, incomplete evidence and unknown selection ownership. Verified answer facts
 are selected from server-authored evidence statements. Optional next steps use reviewed server wording and remain explicitly unverified.
 Broad inventory answers are concise deterministic presentations of captured evidence;
@@ -49,13 +50,18 @@ fresh CAD evidence. Phase 9A is **PREPARATION COMPLETE**. Phase 9B implements
 `suppress_terminal_fillet_v1` behind backend `FORGE_CAD_WRITES_ENABLED` (default OFF):
 proposal → explicit approval → fresh state/version check → guarded write → fresh
 post-write verification. The first human-approved real suppression entered uncertainty;
-Forge made no success claim and did not retry. Both human gates remain UNPROVEN.
-Provider payload and atomic stale-update gates still require controlled human proof.
+Forge made no success claim and did not retry. After deliberate operator recovery,
+a fresh approved suppression reached verified success from fresh evidence: Gate A
+is PROVEN. Gate B reached the pause; the human advanced the workspace and stale
+suppression did not apply. Provider-side rejection audit confirmation was deferred,
+so full provider conformance is not claimed. Writes returned OFF.
 See the [Phase 9 runtime review](docs/PHASE_9_REVIEW.md) for exact human instructions, the
 [Phase 8 review](docs/PHASE_8_REVIEW.md),
 [safe-write specification](docs/PHASE_9_SAFE_WRITE_SPEC.md) and
-[preparation review](docs/PHASE_9_PREP_REVIEW.md). Phase 10 on main is a separate
-history, not integrated into this Phase 9 branch. Phase 11 is **NOT STARTED**.
+[preparation review](docs/PHASE_9_PREP_REVIEW.md). Phase 10 was implemented and
+merged to main separately; this branch now integrates that history and its
+investigation/transfer learning. Automated validation is complete; real-Onshape
+human validation remains pending. Phase 11 is **NOT STARTED**.
 See [the Phase 7 review](docs/PHASE_7_REVIEW.md) for lesson architecture and human acceptance.
 This is not a publicly deployed production service.
 
@@ -204,3 +210,8 @@ with real account credentials. Existing Phase 0 and Phase 1 commits remain intac
 
 Phase 3 extension registration, exact local URLs, source-contract gap and manual
 acceptance steps: [Onshape extension](docs/ONSHAPE_EXTENSION.md).
+
+Phase 10 (merged to main before Phase 9 and now integrated here; real-Onshape human validation pending) adds mistake
+investigation, prediction prompts, explainable guidance fading and an optional transfer challenge to
+the Mounting Bracket. It is read-only and session-local. See
+[PHASE_10_REVIEW.md](docs/PHASE_10_REVIEW.md).

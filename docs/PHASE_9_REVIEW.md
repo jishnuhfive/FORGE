@@ -1,17 +1,61 @@
 # Phase 9B first safe CAD edit review
 
-Status: **IMPLEMENTED / AUTOMATED TESTED / AWAITING CONTROLLED HUMAN CAD-WRITE VALIDATION**.
+Status: **IMPLEMENTED / AUTOMATED TESTED / GATE A HUMAN-PROVEN / GATE B PROVIDER-AUDIT CONFIRMATION DEFERRED**.
 Phase 8 is **COMPLETE, HUMAN VALIDATED, and MERGED** at
 `81199ea95df04b34e6065441cad87d60b637dcf2`, integrated by `4f168423` without
-squashing. Phase 9A is **PREPARATION COMPLETE** at `b95e866`. Phase 10 is
-**NOT STARTED**. This review describes runtime work authorized after the historical
+squashing. Phase 9A is **PREPARATION COMPLETE** at `b95e866`. Phase 10 implementation
+is merged to main and integrated into this branch; its real-Onshape human
+validation remains pending. Phase 11 is **NOT STARTED**. This review describes runtime work authorized after the historical
 [9A specification](PHASE_9_SAFE_WRITE_SPEC.md) and
 [preparation review](PHASE_9_PREP_REVIEW.md).
 
 The initial implementation checkpoints below performed no real Onshape mutation.
-The subsequent first human-approved real write is recorded next. Gate A and Gate B
-remain **UNPROVEN**. The default flag is OFF. Automated synthetic provider behavior
-does not prove real provider conformance, production readiness, or engineering safety.
+The subsequent uncertain write, recovery and later successful human rerun are
+recorded below. The latest human-validation note supersedes the then-current gate
+statuses in the historical investigation sections, which remain unchanged.
+The default flag is OFF. Automated synthetic provider behavior does not prove
+real provider conformance, production readiness, or engineering safety.
+
+## Final human-validation update after operator recovery
+
+The human confirms that operator recovery completed safely. On the fresh Gate A
+rerun, one real explicitly approved terminal-Fillet suppression succeeded. Forge
+reported **verified success from fresh evidence**; the terminal Fillet remained in
+the tree and the intended rounded edge disappeared. **Gate A = PROVEN.** This is
+the narrow supported operation, not general CAD editing or engineering certification.
+
+For Gate B, the conformance pause was reached and the human advanced the workspace
+during it. The stale Fillet suppression did not apply, as expected. Provider-side
+rejection audit confirmation was deferred. **Gate B's expected behavior was observed,
+but full provider conformance is not proven.** This note does not infer whether the
+absent audit confirmation would establish provider rejection or another safe outcome.
+
+Writes were returned **OFF** after testing. This integration performs no CAD write,
+unsuppression, OAuth permission change or further recovery. Phase 10 Learn remains
+student-operated/read-only and independent of Modify. Phase 11 is NOT STARTED.
+
+## Phase 9 / Phase 10 merge regression gate
+
+The intentional merge retains both Modify and authored Learn/investigation/transfer
+functionality. The five conflict files were reconciled without wholesale side
+selection. CSS parsing confirms every parent rule/declaration is retained with no
+identical duplicate introduced; frozen design-system files are unchanged.
+Auto-merged application code matches incoming main, while Phase 9 write/recovery
+boundaries and the Phase 8 review remain unchanged.
+
+The integrated macOS gate passed **712 frontend tests**, **1,702 backend tests**
+(including all **11 isolated PostgreSQL cases**) and **555 Playwright cases** across
+Chromium, Firefox and WebKit, with no retries or failures. Browser coverage includes
+**33 Modify**, **24 Phase 8 bracket**, **30 learning foundation**, **36 Phase 10
+investigation/transfer** and **21 frozen-design** cases, alongside shared UI tests.
+Narrow layouts, dark/light, reduced motion, forced colors, keyboard and accessibility
+checks passed. Formatting, Ruff, ESLint/Prettier, TypeScript, strict mypy, production
+build, Alembic drift, Compose, dependency audits, local documentation links,
+whitespace and secret/privacy checks passed.
+
+No dependency, lockfile, migration, OAuth permission or environment changed. This
+merge performed no real CAD request/write and kept writes OFF. Automated tests do
+not supply the deferred Gate B provider audit or Phase 10 real-Onshape human proof.
 
 ## Separately authorized operator recovery — 2026-10-17
 
