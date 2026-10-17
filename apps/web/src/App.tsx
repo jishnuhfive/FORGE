@@ -17,6 +17,9 @@ import { Settings } from './features/Settings';
 import { History } from './features/History';
 import { usePreferences } from './lib/preferences';
 import { AuthGate } from './auth/AuthGate';
+import { useAuth } from './auth/context';
+import { LearningProvider } from './learning/LearningProvider';
+import { sampleResource } from './learning/catalog';
 import { OnshapeProvider } from './onshape/OnshapeProvider';
 import { useOnshapeContext } from './onshape/store';
 import type { Mode } from './lib/types';
@@ -57,6 +60,20 @@ export function App() {
 }
 
 export function Workspace() {
+  const auth = useAuth();
+  // Identity rotation/disconnect tears down ephemeral learning; ordinary /api/me
+  // refreshes with the same session and connection preserve it.
+  const owner = `${auth?.me.csrf_token ?? 'local'}:${auth?.me.connection ?? 'local'}`;
+  return sampleResource.status === 'ready' ? (
+    <LearningProvider owner={owner} lesson={sampleResource.lesson}>
+      <WorkspaceContent />
+    </LearningProvider>
+  ) : (
+    <WorkspaceContent />
+  );
+}
+
+function WorkspaceContent() {
   const client = useOnshapeContext();
   const route = useSyncExternalStore(subscribe, snapshot);
   const { preferences, setPreferences, storageAvailable } = usePreferences();

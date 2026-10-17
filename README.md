@@ -2,12 +2,13 @@
 
 AI engineering inside Onshape.
 
-Forge is a planned mechanical engineering and CAD agent embedded in Onshape's
-right panel. Users describe **what** a mechanism must accomplish; Forge will help
-determine **how** it should be engineered, with approval before CAD changes and
-deterministic checks of supported constraints.
+Forge is an engineering tutor and read-only CAD assistant embedded in Onshape's
+right panel. Learners perform the CAD operations while Forge helps explain what
+to do, why it matters and how to recover when stuck. Approval-bound design
+execution and deterministic checks of supported constraints remain planned.
 
-**Current status: Phase 6.5 complete — visually approved after two human-review passes.**
+**Current status: Phase 7 Learning Mode foundation implemented; human validation pending.**
+Phase 6.5 remains visually approved after two human-review passes.
 The product UI and canonical design system are frozen: Obsidian, Arc Blue, the
 Oblique Plane identity, restrained functional Liquid Glass and answer-first
 reading. Final product copy uses timeless capability and uncertainty language.
@@ -40,8 +41,21 @@ OpenAI uses `store:false`. Neither configuration claims zero retention by defaul
 localStorage conversation persistence or content logs exist.
 See [Phase 6 review](docs/PHASE_6_REVIEW.md) for the complete boundary, checks and
 the final user-reported live results, full quality gate and local Groq setup.
-Phase 7 remains unstarted and requires separate authorization.
+Phase 7 adds authored learning with no provider or CAD requests; Phase 8 model checking is not started.
+See [the Phase 7 review](docs/PHASE_7_REVIEW.md) for lesson architecture and human acceptance.
 This is not a publicly deployed production service.
+
+## Learning Mode
+
+Choose Learn, select your CAD experience and goal, then begin **Sketch to solid**.
+Read one step at a time, open Why and vocabulary, and deliberately request a
+conceptual hint, tool-specific hint or full explanation. Mark steps done yourself;
+the completion summary reports only observed interactions, never mastery or CAD
+correctness. The lesson works without an AI provider or model.
+
+Learning stays in panel memory across modes/settings/history. Reset, reload, panel
+destruction, sign-out or a genuine session/connection teardown clears it. No learning
+records, analytics, browser-storage entries or database tables are added.
 
 ## Architecture and stack
 
@@ -137,7 +151,8 @@ package-lock.json        Reproducible JavaScript dependency graph
 `GET /health` reports process liveness only. Authentication readiness is distinct.
 The workspace displays the last verified Onshape authorization status; its Check
 connection action verifies identity, without accessing CAD. Standalone Design prompts remain local drafts; inside Onshape, explicit sends run
-read-only AI. Learn validation remains UNVERIFIED. See [UI architecture](docs/UI.md).
+read-only AI. Learn offers a three-step Sketch to solid sample, progressive hints and vocabulary.
+Progress is learner-reported; no lesson model checking runs. See [UI architecture](docs/UI.md).
 
 Provider credentials stay backend-only. Sessions, CSRF, token encryption and audit
 persistence are implemented. Real OAuth login was manually verified by the human. Browser-wide iframe compatibility, managed hosting,

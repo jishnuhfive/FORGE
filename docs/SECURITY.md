@@ -406,3 +406,23 @@ configuration and manual CAD review captures stay ignored and outside the commit
 Forced-color mode maps semantic colors to system Canvas/CanvasText/LinkText and
 ButtonFace/ButtonText, so text and control contrast follow the user’s system palette.
 This adaptation does not change the approved normal appearance.
+
+## Phase 7 learning privacy and authority
+
+Learner experience, selected goal, step markers, hint levels and opened term IDs
+exist only in the current authenticated panel's React session. No learning records,
+analytics, mastery scores, accounts, storage entries or database tables are added.
+Ordinary navigation preserves the state; reset, reload, panel destruction, logout,
+expiry, session rotation and connection teardown clear it. Same-session status
+refreshes and ordinary visibility preserve it. The sample contains no CAD references
+and does not bind learning progress to a model.
+
+Closed bounded authored lesson validation precedes use. Content is plain React text,
+not HTML, executable rules or React-node payloads. Future check metadata only names
+supported requirement shapes; it cannot execute code or report a result. Marking a
+step done explicitly records learner self-report, never CAD validation. Hints are
+reviewed local content. Learning invokes no AI endpoint, Onshape endpoint, background
+polling, telemetry or browser-storage operation. The existing `/api/me` lifecycle is
+unchanged. No credentials enter lesson data or presentation. OAuth scopes, CSRF,
+backend evidence and the read-only tool boundary remain unchanged. Phase 8 checking
+and every CAD write still require separate authorization and independent controls.
