@@ -638,7 +638,17 @@ optional `FORGE_SAFE_EDIT_DIAGNOSTICS_ENABLED=true` is accepted only in developm
 with `FORGE_CAD_WRITES_ENABLED=false`. Restart the local API with those values,
 then explicitly use CAD Inspector → Refresh CAD. The backend emits only a fixed
 rejection reason, known field/category, primitive type/Boolean and optional bounded
-position. It performs pinned GET reads without proposals or mutations, and adds no
+position, plus fixed coverage metadata for both bounded `noSketchGeometry` read
+variants at one pinned microversion. No IDs, names, geometry or raw maps are logged.
+It performs pinned GET reads without proposals or mutations, and adds no
 public diagnostic route/header. It is not invoked by Learn or AI. See
 [the investigation record](PHASE_9_REVIEW.md) before interpreting missing fields;
 never paste private payloads or weaken eligibility from a visual CAD inspection.
+
+Current synthetic safe-edit provider fixtures exercise the observed empty v17
+state map. Complete-map tests remain strict; missing/partial/extra/invalid maps
+reject. The explicit unavailable mode is bound to proposals; old-policy previews
+must be recreated. `tests/test_safe_edit_empty_states.py` covers both modes, hard
+predicates, fresh rejection and post-write uncertainty entirely with mock providers.
+The revised policy establishes supported body output/explicit suppression only,
+not whole-model health. Real write flag and both pending human gates are unchanged.

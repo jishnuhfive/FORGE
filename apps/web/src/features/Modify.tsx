@@ -269,6 +269,10 @@ function ModifyFlow({
             remains in the feature tree.
           </p>
           <p className="muted">
+            Forge found one solid-body result and an unsuppressed final Fillet.
+            Overall feature health is not established.
+          </p>
+          <p className="muted">
             Suppressing geometry can affect dependent models. Geometry and
             engineering suitability are not validated.
           </p>

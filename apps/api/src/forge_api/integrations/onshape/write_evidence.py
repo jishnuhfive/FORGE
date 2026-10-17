@@ -7,7 +7,7 @@ from typing import cast
 
 from pydantic import JsonValue, ValidationError
 
-from forge_api.cad_edits.domain import Baseline, fingerprint
+from forge_api.cad_edits.domain import Baseline, FeatureStateEvidence, fingerprint
 
 from .contracts import WorkspaceReference
 from .eligibility import MISSING, Expected, FieldName, Reason, require
@@ -101,16 +101,24 @@ def project_write_evidence(
         ids,
     )
     states = obj(data.get("featureStates", MISSING), Reason.STATES, "featureStates")
+    # An exactly empty object is an explicit unavailable-evidence mode for this
+    # sole operation. It supplies no synthetic OK status or inactive Boolean.
+    # Any nonempty map must cover the inventory exactly, with no unexplained keys.
+    if len(states) == 0:
+        state_evidence = FeatureStateEvidence.UNAVAILABLE_EMPTY
+    else:
+        require(
+            set(states) == set(cast(list[str], ids)),
+            Reason.STATE_COVERAGE,
+            "featureStates",
+            "exact_feature_coverage",
+            states,
+        )
+        state_evidence = FeatureStateEvidence.COMPLETE
     definitions: list[dict[str, JsonValue]] = []
     for index, feature in enumerate(features):
         target, position = index == len(features) - 1, index + 1
         kind = feature.get("featureType")
-        state = obj(
-            states.get(cast(str, ids[index]), MISSING),
-            Reason.STATE,
-            "featureState",
-            position,
-        )
         suppression = obj(
             feature.get("suppressionState", MISSING),
             Reason.SUPPRESSION,
@@ -195,22 +203,26 @@ def project_write_evidence(
             feature.get("suppressed", MISSING),
             position,
         )
-        require(
-            state.get("featureStatus") == "OK",
-            Reason.STATUS,
-            "featureStatus",
-            "OK",
-            state.get("featureStatus", MISSING),
-            position,
-        )
-        require(
-            state.get("inactive") is (after and target),
-            Reason.INACTIVE,
-            "inactive",
-            "true" if after and target else "false",
-            state.get("inactive", MISSING),
-            position,
-        )
+        if state_evidence is FeatureStateEvidence.COMPLETE:
+            state = obj(
+                states[cast(str, ids[index])], Reason.STATE, "featureState", position
+            )
+            require(
+                state.get("featureStatus") == "OK",
+                Reason.STATUS,
+                "featureStatus",
+                "OK",
+                state.get("featureStatus", MISSING),
+                position,
+            )
+            require(
+                state.get("inactive") is (after and target),
+                Reason.INACTIVE,
+                "inactive",
+                "true" if after and target else "false",
+                state.get("inactive", MISSING),
+                position,
+            )
         require(
             not target or kind == "fillet",
             Reason.TERMINAL,
@@ -333,4 +345,5 @@ def project_write_evidence(
         serialization=cast(str, serialization),
         library=cast(int, library),
         suppressed=after,
+        feature_state_evidence=state_evidence,
     )

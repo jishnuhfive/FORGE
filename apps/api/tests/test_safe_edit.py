@@ -83,6 +83,8 @@ def bodies(marker: str = M0) -> dict[str, Any]:
 class Provider:
     def __init__(self) -> None:
         self.data = features()
+        # Current observed v17 contract case; populated-map unit tests remain.
+        self.data["featureStates"] = {}
         self.marker = M0
         self.calls: list[httpx.Request] = []
         self.mode = "success"
@@ -116,7 +118,8 @@ class Provider:
             self.data["sourceMicroversion"] = M1
             if self.mode != "mismatch":
                 self.data["features"][-1]["suppressed"] = True
-                self.data["featureStates"]["synthetic-feature-2"]["inactive"] = True
+                if self.data["featureStates"]:
+                    self.data["featureStates"]["synthetic-feature-2"]["inactive"] = True
             return httpx.Response(
                 200,
                 json={

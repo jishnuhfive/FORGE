@@ -24,6 +24,7 @@ class Reason(StrEnum):
     ID = "feature_identity_invalid"
     DUPLICATE = "duplicate_feature_id"
     STATES = "feature_states_invalid"
+    STATE_COVERAGE = "feature_state_coverage_invalid"
     STATE = "feature_state_missing_or_invalid"
     TYPE = "unsupported_feature_type"
     BT_TYPE = "unexpected_bt_type"
@@ -96,6 +97,7 @@ Expected = Literal[
     "three_to_twenty",
     "bounded_identity",
     "unique_identity",
+    "exact_feature_coverage",
     "standard_feature",
     "standard_bt_type",
     "empty_namespace",

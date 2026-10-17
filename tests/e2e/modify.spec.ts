@@ -116,6 +116,9 @@ async function preview(page: Page, mode = 'success') {
     .getByRole('button', { name: 'Prepare change for Fillet fixture' })
     .click();
   await expect(f.getByText('Active → Suppressed')).toBeVisible();
+  await expect(
+    f.getByText(/Overall feature health is not established\./),
+  ).toBeVisible();
   return fixture;
 }
 test('Phase 9 supported request and explicit target preview cancel has zero dispatch', async ({

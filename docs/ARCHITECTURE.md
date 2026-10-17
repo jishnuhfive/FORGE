@@ -440,6 +440,16 @@ records and durable deny fences. Committed atomic claims, shared user/session/gr
 coordination and unique workspace/user fences protect multiple workers. Uncertain
 writes are never retried or automatically rolled back. Cleanup cannot remove fences.
 
+The operation-specific `terminal-fillet-2` policy binds an explicit feature-state
+evidence mode into the baseline/digest. A nonempty state map must cover the inventory
+exactly and pass every strict status/inactive check. An exactly empty map means
+`UNAVAILABLE_EMPTY`, never inferred OK/active; structural suppression, pinned
+configuration/version, complete captured definitions and one supported solid-body
+result remain mandatory. Partial/malformed/extra maps reject. Verification uses
+fresh explicit target suppression and preserved definitions/body output, with strict
+state checks whenever the after-map is nonempty. Whole-model health is not claimed.
+Old-policy previews cannot execute and must be prepared again.
+
 Writes default OFF. OAuth2Write is not enabled in the external app by this work.
 Gate A suppression-payload behavior and Gate B provider atomic stale rejection are
 awaiting controlled human CAD-write validation. Phase 10 is NOT STARTED.

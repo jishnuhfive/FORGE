@@ -455,3 +455,9 @@ provider-guarded dispatch and post-write verification. AI cannot approve, execut
 provide IDs/tokens/hosts/paths/bodies/FeatureScript, override policy or declare success.
 Untrusted CAD names are display data. No selection ownership is inferred. Stale
 approval rejects and the original provider microversion guard is mandatory.
+
+Only deterministic operation-specific policy can accept an exactly empty
+`featureStates` map as unavailable evidence while preserving every suppression,
+body-output and version invariant. AI cannot infer OK/inactive, accept a partial
+map, relax predicates or declare model health. Complete exact-key maps retain strict
+status/inactive checks. See the current policy in the runtime review.

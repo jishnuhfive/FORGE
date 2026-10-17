@@ -3,6 +3,7 @@
 import hashlib
 import json
 import re
+from enum import StrEnum
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -49,6 +50,11 @@ class Binding(Closed):
     workspace_key: Digest
 
 
+class FeatureStateEvidence(StrEnum):
+    COMPLETE = "COMPLETE"
+    UNAVAILABLE_EMPTY = "UNAVAILABLE_EMPTY"
+
+
 class Baseline(Closed):
     context: WorkspaceReference
     microversion: CadId
@@ -60,11 +66,12 @@ class Baseline(Closed):
     serialization: Annotated[str, Field(min_length=1, max_length=64)]
     library: Annotated[int, Field(ge=0, le=2147483647)]
     suppressed: bool
+    feature_state_evidence: FeatureStateEvidence
 
 
 class Proposal(Closed):
     schema_version: Literal["forge-write-proposal-v1"] = "forge-write-proposal-v1"
-    policy_version: Literal["terminal-fillet-1"] = "terminal-fillet-1"
+    policy_version: Literal["terminal-fillet-2"] = "terminal-fillet-2"
     operation_type: Literal["suppress_terminal_fillet_v1"] = (
         "suppress_terminal_fillet_v1"
     )

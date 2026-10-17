@@ -1,5 +1,16 @@
 # Onshape integration
 
+Current Phase 9 terminal-suppression evidence policy is recorded in
+[the runtime review](PHASE_9_REVIEW.md). The current [v17 OpenAPI](https://cad.onshape.com/api/openapi)
+exposes `featureStates` without a complete-coverage guarantee; the live disposable
+three-feature target returned an empty map in both bounded sketch read modes.
+An exactly empty object is explicitly unavailable state evidence, never inferred
+OK/inactive. Nonempty maps require exact inventory coverage and strict entries;
+partial/missing/null/malformed/extra maps reject. The documented explicit feature
+`suppressed` Boolean and fixed partial suppression update govern this sole operation,
+with all existing structural, body-output, pinned-version and approval safeguards.
+No provider query, scope, host, write authority or FeatureScript capability expands.
+
 ## Phase 2 verification record — 2026-10-04
 
 Primary sources reviewed:

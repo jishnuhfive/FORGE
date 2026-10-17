@@ -178,6 +178,12 @@ boundary. Real suppression-payload and atomic stale-update gates remain mandator
 and unvalidated. Human permission changes and disposable CAD validation occur later.
 Phase 10 is **NOT STARTED**.
 
+The explicitly authorized terminal-suppression evidence revision supports a present
+empty v17 state map as unavailable, with no inferred feature health. Complete maps
+remain strict; partial/invalid maps reject. Structural suppression, one solid-body
+result, original-version approval/guard and fresh verification remain required.
+This changes no phase scope or human conformance gate.
+
 The prior Phase 9 Reality Lock inventory topic remains planned for later explicit
 resequencing; it is not dropped or implemented by this preparation. Mistake
 investigation moves to the later learning backlog (Phase 14). Assemblies/mates

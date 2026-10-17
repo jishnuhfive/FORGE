@@ -463,6 +463,15 @@ reject; the original provider microversion guard is mandatory. One POST only, no
 Fresh deterministic verification is required for success. Post-dispatch ambiguity
 retains the fence; reconciliation is read-only and manual recovery remains deliberate.
 
+The explicitly revised terminal-suppression policy distinguishes complete exact-key
+state evidence from a present, exactly empty map. Empty means unavailable, with no
+fabricated OK status or inactive Boolean; every suppression/structural/body/version
+check remains mandatory. Missing, partial, extra-key or malformed maps reject.
+The accepted mode is digest-bound; a fresh pre-dispatch change invalidates approval.
+A nonempty after-map is strict, and an empty after-map never implies inactive=true.
+Provider atomic stale rejection, one-use approval, fences and no-retry remain intact.
+This narrower supported-result proof does not establish whole-model feature health.
+
 The review specifies exact stored fields, 120-second approval/15-minute operational
 retention, 60-second cleanup, persistent deny fences, safe audits and backup/restore
 implications. No prompts, raw provider CAD payloads, tokens, hidden reasoning, history

@@ -25,6 +25,11 @@ class SafeEditClient:
     def _exchange(
         self, method: str, path: str, body: dict[str, object] | None = None
     ) -> JsonValue:
+        return self._exchange_measured(method, path, body)[0]
+
+    def _exchange_measured(
+        self, method: str, path: str, body: dict[str, object] | None = None
+    ) -> tuple[JsonValue, int]:
         content = (
             json.dumps(body, allow_nan=False).encode() if body is not None else None
         )
@@ -81,7 +86,7 @@ class SafeEditClient:
                     payload.extend(chunk)
                     if len(payload) > MAX_BYTES or monotonic() >= self._deadline:
                         raise EditError("invalid_provider_response", 503)
-                return bounded_json(bytes(payload))
+                return bounded_json(bytes(payload)), len(payload)
         except httpx.HTTPError, ValueError, RecursionError:
             raise EditError("onshape_unavailable", 503) from None
 

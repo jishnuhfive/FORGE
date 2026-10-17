@@ -84,6 +84,201 @@ audits also passed. No browser code or public error contract changed.
 human Inspector probe may correctly expose another predicate and must remain
 read-only.
 
+### Feature-state coverage investigation
+
+The next human read-only probe passed the corrected rollback predicate and rejected
+at feature position 1:
+
+```text
+safe_edit_reject reason=feature_state_missing_or_invalid position=1 field=featureState expected=object actual_type=missing actual_boolean=None
+```
+
+The human's disposable inventory is Sketch → Extrude → Fillet, all visibly active,
+with one solid body. This rejection proves an object-shaped top-level state map
+and no exact match for position 1. It does not establish coverage at positions 2/3,
+state validity, or eligibility of the full stack.
+
+The [current official OpenAPI](https://cad.onshape.com/api/openapi) was rechecked;
+its current server is `/api/v17`, version `1.222.90730-c8d74e607a47`, SHA-256
+`d93a3c77e5f4a61f69ce865e815da4fe628178bb37cb6de4d91028f2c2bdc9aa`.
+`BTFeatureListResponse-2457.featureStates` maps keys to `BTFeatureState-1688`.
+That state schema exposes `featureStatus` and Boolean `inactive`; neither field's
+optionality establishes safe meaning for a missing entry. The feature-list query
+supports immutable microversions and describes `noSketchGeometry` as controlling
+simple sketch information without geometry. It does not document an exception
+for Sketch state coverage. The [official feature guide](https://onshape-public.github.io/docs/api-adv/featureaccess/)
+includes a Sketch state but explicitly labels its examples v9. Its omitted-default
+discussion cannot establish that missing states mean OK or active in v17.
+
+No documented individual-feature GET returning `BTFeatureState` was found in the
+current public OpenAPI. The Part Studio feature-ID path offers POST/DELETE only;
+neither is used. The existing list GET accepts a `featureId` query filter, but still
+returns the same list-response state map, with no stronger completeness or missing
+state guarantee. No supplemental provider endpoint or FeatureScript was added.
+
+The opt-in development probe now compares `noSketchGeometry=true` then `false`,
+both with `includeGeometryIds=false&rollbackBarIndex=-1`, using one server-resolved
+microversion and checking the workspace head afterward. Only closed sanitized
+metadata escapes: completeness Boolean/null, feature/state counts, position,
+allowlisted category, exact-key-presence Boolean, unmatched-state count, source
+microversion equality Boolean and exact response byte count. A match means key
+presence only, including if its value is invalid. It never establishes state OK.
+
+Both reads reuse the fixed host, v17 transport, no redirects, identity encoding,
+2 MiB per-response cap, bounded JSON structure, per-call timeouts and shared
+30-second deadline. The `false` comparison temporarily receives sketch geometry
+in backend memory within these bounds; raw maps, definitions, geometry, identifiers
+and tokens are neither logged nor persisted. Only minimized reports survive each
+comparison read. At this investigation checkpoint the write-critical read mode,
+definition fingerprints and before/after verification were unchanged. The then-current
+policy required an actual state object, explicit OK status and explicit expected
+inactive Boolean for every feature. The explicitly authorized revision below
+supersedes that completeness prerequisite; no missing state is interpreted as OK.
+
+The human selected the disposable target in Chrome. An explicitly authorized
+backend probe used the sole matching existing connected OAuth grant; no app scope
+or permissions were changed. The initial attempt required a non-idle local web
+session and stopped before any CAD request. The completed manual read used the
+existing OAuth connection independently of that idle browser session. Private
+context stayed in process memory. A GET-only transport hook rejected any other
+CAD method before network dispatch. The completed probe made nine CAD GETs,
+including the comparison and unchanged evidence projection; no mutation occurred.
+
+| Sanitized observation                      | `noSketchGeometry=true` | `noSketchGeometry=false` |
+| ------------------------------------------ | ----------------------- | ------------------------ |
+| `isComplete`                               | true                    | true                     |
+| Returned features                          | 3                       | 3                        |
+| State entries                              | 0                       | 0                        |
+| Position 1 / sketch / exact state match    | false                   | false                    |
+| Position 2 / extrude / exact state match   | false                   | false                    |
+| Position 3 / fillet / exact state match    | false                   | false                    |
+| Unmatched state entries                    | 0                       | 0                        |
+| Source equals the same pinned microversion | true                    | true                     |
+| Exact response bytes                       | 50,263                  | 67,158                   |
+
+The workspace head remained unchanged across both reads. The subsequent unchanged
+evidence projection reproduced the position-1 missing-state rejection. This is an
+**empty map for the entire stack**, not an isolated Sketch key mismatch. For this
+snapshot, `noSketchGeometry=false` did not restore any state, so changing that
+production query would add geometry exposure and response size without fixing the
+evidence gap. No raw provider response, key or private identifier was persisted.
+
+Root cause at the rejection boundary is established: the provider returned zero
+state entries for three features. The cause of that provider behavior remains
+unresolved. Current public v17 schema/guide review found no authoritative statement
+that an omitted state establishes both OK and active, and no individual-state GET
+with stronger documented evidence. This observation alone proves neither a Forge
+defect nor a provider defect, intentional API variation or a document problem.
+That observation did not justify changing a query or inferring missing states.
+The investigation checkpoint left its instrumentation, tests and review uncommitted.
+The subsequent explicit operation-specific decision below authorizes the current
+policy correction and inclusion of that investigation work in its scoped commit.
+
+Twenty-eight new synthetic cases cover complete coverage, each missing position,
+unmatched extras that cannot substitute for missing matches, invalid state objects,
+missing status/inactive, error status, inactive upstream features, exact pinned GET
+variants/byte counts, privacy, response caps, redirects and head changes. The full
+gate passed **1,062 backend tests**, including all ten real PostgreSQL cases (seven
+safe-edit cases), and **642 frontend tests** including Phase 8 regressions. Format,
+lint, TypeScript, strict mypy (92 files), production build, dependency audits and
+whitespace/local Markdown links passed. No frontend/public contract changed.
+
+The initial recommendation was to seek clarification of the omitted states. The
+human instead explicitly authorized the narrower suppression-specific policy below.
+No provider health/default interpretation was established by that decision.
+**ZERO real CAD writes; writes OFF; Gate A UNPROVEN; Gate B UNPROVEN.**
+
+### Current policy: explicit unavailable feature-state evidence
+
+The current [v17 OpenAPI](https://cad.onshape.com/api/openapi) was fetched again for
+this revision with the same version and SHA-256 above. `featureStates` is a property
+of `BTFeatureListResponse-2457`, with no required complete-coverage constraint.
+`BTMFeature-134.suppressed` explicitly means skipping regeneration when true.
+`updateFeatures` describes updating supplied top-level fields and optional feature
+suppression attributes. These contracts and the live empty map support the human's
+explicitly revised **single-operation** evidence policy; they do not prove missing
+states mean OK or active, provider atomic stale rejection, or whole-model health.
+
+| Evidence classification | Behavior                                                                                                                                                                                                                             |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `COMPLETE`              | Nonempty map with exactly the unique inventory IDs, no extras. Every value must be an object, status exactly OK and inactive explicitly false before dispatch; after suppression only the target must have inactive explicitly true. |
+| `UNAVAILABLE_EMPTY`     | The field is present and exactly `{}`. State evidence is unavailable. Do not synthesize status/inactive or reject solely on this map; require every structural and model-output invariant below.                                     |
+| Invalid evidence        | Missing/null/array/nonobject map, partial/wrong/extra coverage, duplicate JSON keys, invalid entry objects or missing/invalid status/inactive reject. No invalid mode can become a baseline or proposal.                             |
+
+`Baseline.feature_state_evidence` records one of the two accepted modes with no
+default. Inventory fingerprints still include the entire returned feature response
+and configuration; the proposal digest also binds this mode. The policy is now
+`terminal-fillet-2`. Old policy records or records missing the explicit mode cannot
+decode for execution. A mode/map change during discovery, proposal preparation or
+fresh pre-dispatch capture invalidates the old baseline even at the same marker.
+No migration or new authority is introduced; old previews must be prepared again.
+
+Both accepted modes require a real workspace Part Studio, unconfigured configuration,
+complete pinned inventory, matching source and no skew, exact documented rollback
+end, 3–20 features, unique bounded IDs, only supported standard classes/types and
+namespace, a Sketch and Extrude, no subfeatures or unexpected return, explicit false
+parent/configured suppression and ordinary known suppression state. Every explicit
+`suppressed` field must be present and false before the write; the final feature
+must be the ordinary unsuppressed Fillet. Serialization/library remain bounded.
+The existing body contract requires exactly one SOLID, NO_ERROR, matching pinned
+microversion and explicitly nonambiguous/nondeleted marker. Configuration must be
+empty and match the same microversion. Every captured feature definition, including
+IDs/order/types and parameters, is fingerprinted; only terminal suppression is
+excluded from the before/after definition digest. The existing geometry-minimizing
+query is unchanged. This proves a supported solid-body result and explicit terminal
+suppression state; **it does not establish whole-model feature health**.
+
+Approval still requires a server-resolved opaque candidate, exact digest, 120-second
+expiry, explicit human **Approve change**, user/session/grant/context binding,
+committed one-use claim and workspace fence. Fresh evidence must match the approved
+inventory, target, mode, suppression, configuration and original microversion.
+Final locked authorization/head checks precede the sole fixed one-feature POST with
+the **original approved** marker, `rejectMicroversionSkew=true` and
+`updateSuppressionAttributes=true`. No name/parameter body, arbitrary HTTP,
+FeatureScript, AI/browser authority, retry or newer-baseline substitution is added.
+
+Verification requires an advanced acknowledgement microversion, fresh pinned
+reads, the same terminal target now explicitly `suppressed=true`, all upstream
+features explicitly unsuppressed, unchanged captured definitions/identity/order/
+types, acceptable unchanged serialization/library, unconfigured evidence and one
+matching supported SOLID with the existing body safeguards. A complete after-map
+is validated strictly; an exactly empty after-map remains unavailable and does not
+imply `inactive=true`. Either accepted after-mode is permitted independently of
+the before-mode, since suppression necessarily advances the approved snapshot.
+Partial/invalid after-evidence remains uncertain, retains the fence and never
+retries. Success remains “Change verified. Forge confirmed that the selected
+Fillet is now suppressed.” The preview explains the solid-body/suppression evidence
+and that overall feature health is not established. No engineering PASS is claimed.
+
+The current observed-v17 synthetic provider and PostgreSQL proposal fixtures use
+`featureStates={}`. Populated-map projection/security cases and all four before/
+after mode combinations remain covered. Regression cases prove missing fields
+cannot turn into OK/false; incomplete/extra maps reject, duplicate JSON keys reject,
+all structural/body/version predicates still reject independently in empty mode,
+fresh changes prevent dispatch, and post-write changes retain uncertainty/fences.
+The prior coverage diagnostic is preserved with its privacy and GET-only limits.
+
+The revision adds 77 dedicated empty-mode/policy regressions, alongside the 28
+coverage cases from the preceding investigation. **451 focused evidence/provider
+tests passed; 1,139 full backend tests passed**, including all ten real PostgreSQL
+cases (seven safe-edit). **642 frontend tests and all 519 Playwright cases passed**
+across Chromium, Firefox and WebKit, including 33 Modify and 24 Mounting Bracket
+cases. Format, lint, TypeScript, strict mypy (93 files), production build, Alembic
+check (no new operations), dependency audits, local Markdown links and whitespace
+checks passed. The synthetic 320px proposal was visually reviewed. No dependency,
+lockfile, migration, environment file or Phase 8 review changed. Secret/private-CAD
+context checks passed. Configured settings and the running API write flag were
+independently checked as OFF without exposing environment contents. No real CAD
+request was needed for this revision; all mutation tests use synthetic transports.
+
+**ZERO real CAD writes; writes OFF; Gate A UNPROVEN; Gate B UNPROVEN.** The next human read-only
+step is to restart the local API with writes OFF and the opt-in diagnostic enabled,
+then use CAD Inspector → Refresh CAD on the disposable Sketch → Extrude → Fillet.
+Capture only the safe coverage/rejection or eligible outcome. A later rejection
+requires its own exact contract review; it is not permission to relax another
+predicate. Gate A and Gate B still require separate controlled human validation
+before operational enablement. No CAD mutation is performed by Codex.
+
 `eligibility.py` now defines closed fixed reasons and bounded diagnostic metadata.
 Each deterministic rejection logs `safe_edit_reject` with reason, known field,
 expected category, primitive type, optional Boolean and feature position (1–20).
@@ -98,7 +293,9 @@ CAD Inspector refresh then runs the existing pinned safe-edit **read** path insi
 the existing quota gate. It logs the first rejection (or fixed eligible/read-failure
 outcome), creates no candidates/proposals/fences and never calls the mutation
 method. Snapshot, AI and Learn requests do not invoke this opt-in probe. The
-underlying `write_client.py`, guard and write payload remain untouched.
+initial diagnostic checkpoint left `write_client.py` untouched. The subsequent
+coverage investigation only factors its existing bounded exchange to also return
+an internal byte count; the guard, transport bounds and write payload are unchanged.
 
 Current official OpenAPI was fetched again during investigation: version
 `1.222.90730-c8d74e607a47`, SHA-256
@@ -122,9 +319,10 @@ If the live probe cannot be run directly, the exact human **read-only** repeat i
 
 2. Open Forge's existing **CAD Inspector** and explicitly click **Refresh CAD**.
    Do not approve a change or enable writes. The usual inspector remains read-only.
-3. Copy only the backend terminal line beginning `safe_edit_reject reason=...`
-   (or `safe_edit_probe outcome=...`). It contains no private CAD content. Do not
-   paste other logs, URLs, cookies or provider payloads.
+3. Copy only the two `safe_edit_state_coverage noSketchGeometry=...` lines and
+   the `safe_edit_reject reason=...` line (or `safe_edit_probe outcome=...`).
+   They contain no private CAD content. Do not paste other logs, URLs, cookies
+   or provider payloads.
 4. Compare that first condition with the official contract. Leave eligibility
    unchanged until a documented equivalent representation is established. Turn
    the optional diagnostic flag back off afterward; writes stay OFF throughout.
@@ -163,10 +361,13 @@ Server eligibility requires a workspace Part Studio on the configured standard
 `https://cad.onshape.com` v17 stack, unconfigured configuration, complete 3–20-feature
 inventory, unique feature IDs, only standard `newSketch` / `extrude` / `fillet`, at
 least a Sketch and Extrude, a final Fillet, no namespace/subfeatures/parent suppression,
-known ordinary nonconfigured suppression, no rollback and known OK states. Exactly
+known ordinary nonconfigured suppression and rollback at the documented end. Exactly
 one SOLID body and known matching nonambiguous, nondeleted microversion are required.
-All other features must be active. Unknown or missing critical evidence rejects the
-target; no Boolean defaults are inferred. Duplicate identities reject as ambiguous.
+All features must be explicitly unsuppressed before the write. A complete state map
+adds strict OK/inactive checks; an exactly empty map records unavailable evidence
+under the operation-specific policy above. Partial/invalid maps and missing critical
+structural evidence reject; no Boolean defaults are inferred. Duplicate identities
+reject as ambiguous.
 The narrow final-feature policy permits at most one eligible candidate. Even this
 candidate requires a separate explicit human choice; name, ordinal and selection
 do not authorize it. Unsupported earlier Fillets are not offered as alternatives.
@@ -186,7 +387,8 @@ Rechecked 2026-10-17 from official sources:
   suppression attributes, sourceMicroversion, rejectMicroversionSkew,
   serializationVersion and libraryVersion. Current microversion and pinned
   feature/configuration/body endpoints were inspected, including suppression and
-  feature-state schemas. No critical discrepancy from 9A was found.
+  feature-state schemas. The initial 9A reconciliation was later revised for the
+  live empty-map behavior under the explicit current policy above.
 - [Feature access](https://onshape-public.github.io/docs/api-adv/featureaccess/):
   feature definitions, IDs and serialization considerations.
 - [Architecture](https://onshape-public.github.io/docs/api-intro/architecture/):
@@ -199,8 +401,9 @@ Rechecked 2026-10-17 from official sources:
 
 The shared `rejectMicroversionSkew` description refers to feature addition. Schema
 presence alone does **not** establish atomic rejection for updates. Ordinary
-suppression field presence/defaults, inactive state after suppression, response
-marker semantics, and unchanged definition behavior remain Gate A/B questions.
+suppression field presence/defaults, response marker semantics, and unchanged
+definition behavior remain Gate A/B questions. Nonempty state evidence must still
+meet strict inactive/status checks; empty-map verification makes no such claim.
 If real evidence omits required fields, stop and review the official contract;
 do not guess defaults or weaken policy to make a test succeed.
 
@@ -284,7 +487,8 @@ head → features/configuration/body at `m/{mid}` → head. Any mismatch rejects
 
 HTTP acknowledgement is not success. Acknowledgement must identify the target,
 explicit suppression and a newer marker without skew. Fresh post-write evidence
-must establish the intended same target now suppressed/inactive, supported state,
+must establish the intended same target now explicitly suppressed (and the strict
+inactive/status checks when state evidence is complete), supported body output,
 exact acknowledgement marker, unchanged serialization/library versions and all
 captured feature definitions except the intended suppression flag. A 30-second
 evidence/dispatch/verification budget prevents late verified success or a new
@@ -310,7 +514,8 @@ run `make migrate` explicitly before starting the upgraded backend.
 
 Operational records contain random handle, user FK, hashed session, fixed state,
 digest, closed proposal JSON, timestamps. JSON contains the necessary CAD identities,
-sanitized label, microversion, fingerprints and versions for binding/reconciliation;
+sanitized label, microversion, explicit feature-state evidence mode, fingerprints
+and versions for binding/reconciliation;
 no prompt, token, raw feature/configuration/body payload or model reasoning. Pending
 payload is cleared on cancel/expiry/invalidation/safe finish. Consumed minimal
 records remain tombstones until creation+15 minutes. Uncertain proposal binding may

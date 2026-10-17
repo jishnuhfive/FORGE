@@ -323,6 +323,10 @@ Modify offers a bounded intent composer, fresh server inventory, separate explic
 target selection, then an Active → Suppressed semantic preview with effect, limits,
 expiry, Cancel and **Approve change**. The quiet solid reading layer and existing
 controls remain; no new application, approval modal stack or generic Undo exists.
+The preview states that Forge found one solid-body result and an unsuppressed final
+Fillet; overall feature health is not established. A present empty provider state map
+is unavailable evidence, not inferred health/activity. Success confirms only that
+the selected Fillet is now suppressed after the required fresh verification.
 
 Checking, executing and verifying use real server progress announcements. Success
 requires fresh deterministic verification; stale, expired, disabled, permission,

@@ -4,7 +4,12 @@
 > future-tense statements describe that checkpoint. Subsequent explicit Phase 9B
 > authorization produced the [runtime implementation review](PHASE_9_REVIEW.md),
 > which governs current implementation status, operational deviations and pending
-> human conformance gates. Phase 9A remains PREPARATION COMPLETE; Phase 8 remains
+> human conformance gates. The historical mandatory-complete-state-map prerequisite
+> is superseded by the explicitly authorized terminal-suppression evidence policy
+> in that runtime review:
+> exactly empty means unavailable, never OK/inactive; complete maps remain strict.
+> All other structural/body/version and approval/write safeguards remain required.
+> Phase 9A remains PREPARATION COMPLETE; Phase 8 remains
 > COMPLETE, HUMAN VALIDATED, and MERGED. No real OAuth app change or CAD-write
 > validation is claimed. Phase 10 remains NOT STARTED.
 

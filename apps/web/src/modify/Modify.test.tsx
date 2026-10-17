@@ -129,6 +129,9 @@ describe('safe Modify', () => {
   it('requires a separate human target choice then cancel makes zero writes', async () => {
     await preview();
     expect(screen.getByText('Active → Suppressed')).toBeVisible();
+    expect(
+      screen.getByText(/Overall feature health is not established\./),
+    ).toBeVisible();
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(
       await screen.findByText('Proposal cancelled. Forge made no CAD change.'),

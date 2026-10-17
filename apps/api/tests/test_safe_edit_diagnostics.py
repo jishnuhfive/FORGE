@@ -228,7 +228,8 @@ def test_opt_in_inspector_probe_writes_off_get_only_and_generic_response(
                 params=REF.model_dump(),
                 headers=harness.headers(),
             )
-    assert response.status_code == 200 and len(calls) == 9
+    assert response.status_code == 200 and len(calls) == 13
+    assert caplog.text.count("safe_edit_state_coverage noSketchGeometry=") == 2
     assert "reason=unexpected_namespace position=3" in caplog.text
     assert "actual_type=null" in caplog.text
     assert "unexpected_namespace" not in response.text

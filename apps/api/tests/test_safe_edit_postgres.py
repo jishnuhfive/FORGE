@@ -39,10 +39,12 @@ def seed(engine: Engine) -> Proposal:
             context=REF,
             workspace_key="1" * 64,
         )
+        data = features()
+        data["featureStates"] = {}
         p = Proposal(
             proposal_id=random_token(),
             binding=binding,
-            baseline=project_write_evidence(REF, M0, features(), config(), bodies()),
+            baseline=project_write_evidence(REF, M0, data, config(), bodies()),
             created_at=now(),
             expires_at=now() + 120,
         )
