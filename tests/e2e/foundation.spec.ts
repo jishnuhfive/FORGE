@@ -60,13 +60,21 @@ for (const width of [320, 380, 480, 1280]) {
     await expect(page.getByLabel('Modification prompt')).toBeDisabled();
     await page.keyboard.press('ArrowRight');
     await expect(page.getByRole('tab', { name: 'Learn' })).toBeFocused();
-    await page.getByRole('button', { name: 'Check my work' }).click();
-    await expect(page.getByRole('main').getByRole('status')).toContainText(
-      'UNVERIFIED',
-    );
-    await page.getByRole('button', { name: 'Next step' }).click();
+    await page.getByRole('radio', { name: /^Beginner/ }).check();
+    await page
+      .getByRole('radio', { name: 'Learn CAD fundamentals', exact: true })
+      .check();
+    await page.getByRole('button', { name: 'Review sample lesson' }).click();
+    await page.getByRole('button', { name: 'Begin lesson' }).click();
     await expect(
-      page.getByRole('heading', { name: 'Give the plate thickness' }),
+      page.getByText(/Forge isn’t checking the model/),
+    ).toBeVisible();
+    await page
+      .getByRole('button', { name: 'Mark step done', exact: true })
+      .click();
+    await page.getByRole('button', { name: 'Next step', exact: true }).click();
+    await expect(
+      page.getByRole('heading', { name: 'Turn the profile into depth' }),
     ).toBeVisible();
     await page.getByRole('button', { name: 'Workspace menu' }).click();
     await page.getByRole('menuitem', { name: 'Appearance & settings' }).click();

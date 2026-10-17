@@ -1,4 +1,4 @@
-# UI architecture through Phase 6.5 presentation
+# UI architecture through Phase 7 learning foundation
 
 ## Ownership
 
@@ -79,9 +79,11 @@ rate limit, cancellation and unexpected failure.
 - Modify uses a fixed 4 → 9 mm thickness example, explicitly independent of arbitrary
   prompt text. Only the one-face sample permits Apply. Selection changes discard
   proposals; Apply records only a local preview acknowledgement.
-- Learn is an authored four-step reading preview. Show me and Explain why display
-  local text. Check my work returns UNVERIFIED because no CAD inspection exists.
-  Completing the lesson marks reading complete, not CAD work complete.
+- Learn uses an authored three-step fundamentals lesson with short experience/goal
+  setup, Why/vocabulary disclosures and an explicitly requested three-level hint
+  ladder. Mark step done is learner-reported progress. There is no Check my step
+  action or result badge; model checking is described as available in supported
+  guided projects. The completion summary records interactions only.
 - History receives typed arrays; normal history is empty. All fixture timelines,
   operations and reports are explicitly labeled sample data.
 
@@ -165,7 +167,7 @@ visibility or Refresh CAD. At most three exchanges remain in memory. Exact conte
 and session keys clear old requests/conversation; ordinary same-context tab
 switching preserves them. No localStorage, PostgreSQL conversation or provider
 Conversation objects are used. Standalone local drafts and all DEV previews remain
-separate from the live agent. Modify/Learn and CAD writes remain deferred.
+separate from the live agent. Modify execution and CAD writes remain deferred; authored learning is described below.
 See [AI_AGENT.md](AI_AGENT.md) for the server boundary and privacy caveats.
 
 ### Phase 6 live-response repair
@@ -259,3 +261,41 @@ See [the final review](PHASE_6_5_FINAL_REVIEW.md).
 Forced-color mode maps semantic colors to system Canvas/CanvasText/LinkText and
 ButtonFace/ButtonText, so text and control contrast follow the user’s system palette.
 This adaptation does not change the approved normal appearance.
+
+## Phase 7 learning interaction and lifecycle
+
+`learning/` separates lesson definitions and their runtime validation, pure session
+transitions, selectors, provider ownership and small setup/guidance/progress views.
+The provider sits above Radix tab content and settings/history hash routes, so
+ordinary navigation does not destroy the lesson. Changing session CSRF identity or
+connection status clears only learning state; account confirmation UI survives.
+Logout/expiry unmounts it. Reset explicitly confirms removal of the profile and all
+progress. Reload, iframe destruction and a new panel start at learner setup. Ordinary
+focus, visibility, selection and unchanged `/api/me` checks preserve it without reads.
+
+Experience changes introduction wording; the goal frames the same available sample.
+The guided-project choice explicitly says this sample prepares for future projects.
+No hidden mastery adaptation is inferred. Each hint request replaces the prior level
+with stronger help; access has no delay or failure prerequisite. After the final
+reveal the same focusable control says Full explanation shown and is aria-disabled.
+Why and vocabulary mount on request and keep predictable button focus/aria-expanded.
+Opening the same term again does not increase the unique-term count. Hints cannot
+be requested after a step is marked done. All three steps are required.
+
+The active step has a semantic title, objective, instruction, optional Why and
+vocabulary, help, quiet progress, and a continuation area. Reading stays on the
+solid layer; controls reuse frozen functional glass styling and tokens. Native
+radio groups, named progress and a live hint region support assistive technology.
+Explicit introduction/step/completion transitions focus the heading; entering Learn
+through tab navigation preserves tab focus. Reduced motion/transparency and forced
+colors inherit the design system. Six widths are covered by browser tests.
+
+Only session observations are counted: marked steps, requested hint levels, distinct
+term IDs opened, and completed steps with no hints. No percentages, grades, claims
+of mastery or verified CAD outcomes appear. Lesson state never enters preferences,
+localStorage/sessionStorage, database, analytics or logs. No AI or CAD request is
+made by any learning action. Existing auth status refresh behavior is unchanged.
+
+UI Lab → Learn mode adds deterministic representative states, including safe
+unavailable/invalid/load-failure recovery. Those selectors/fixtures are DEV-only.
+See [PHASE_7_REVIEW.md](PHASE_7_REVIEW.md) for verification and human review steps.

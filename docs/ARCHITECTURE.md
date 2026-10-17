@@ -1,6 +1,6 @@
 # Architecture
 
-## Current implementation — Phase 6 complete, read-only AI live verified
+## Current implementation — Phase 7 learning foundation, human acceptance passed
 
 One React/TypeScript/Vite web client, one FastAPI/Pydantic API and shared presentation
 primitives serve desktop browsers. Native clients are not part of Forge.
@@ -372,3 +372,31 @@ survive minification. Evidence IDs/statuses, response schemas, provider/tool rou
 OAuth, sessions, parent validation, CAD reads and deterministic refusal remain
 unchanged. The compact overview formatter recognizes the finalized mass wording;
 it still falls back conservatively. See [the final record](PHASE_6_5_FINAL_REVIEW.md).
+
+## Phase 7 learning boundary
+
+`learning/lesson.ts` defines closed, bounded, serializable authored lesson, step,
+vocabulary and future requirement metadata. `sample.ts` supplies one three-step
+Sketch to solid lesson; `catalog.ts` validates before presentation and distinguishes
+empty/unavailable/invalid/load-failure states. No React nodes or external requests
+belong in lesson content. The local catalog is synchronous; there is no network
+loading service or provider fallback.
+
+`learning/session.ts` is a pure reducer with setup, introduction, active and completed
+states. Stable step IDs guard delayed events; learner marking precedes advancement.
+Hint level and vocabulary observations are monotonic until reset. Selectors derive
+counts rather than letting views mutate counters. `LearningProvider` owns the
+in-memory session above mode tabs and hash subpages. It resets learning on session
+CSRF identity/connection changes without remounting unrelated account UI. Sign-out
+unmounts the authenticated workspace. Same-session status refreshes preserve learning.
+No lesson state is tied to CAD identity because the sample consumes no CAD evidence;
+actual iframe/page reload or destruction starts fresh.
+
+`features/Learn.tsx` composes setup, introduction, current step, disclosures, hints,
+progress and completion. Focus follows explicit flow transitions, while hint and
+vocabulary requests keep their control focus. UI Lab's state selector is DEV-only.
+The production lesson is real authored educational content, not a synthetic CAD
+result. It makes no AI/CAD calls and requires no provider key. All CAD authorization,
+business logic and future engineering evaluation remain backend responsibilities.
+No dependency, API, migration, permission or database model changed. Phase 8 may
+attach deterministic evaluation to the metadata; no evaluator exists here.

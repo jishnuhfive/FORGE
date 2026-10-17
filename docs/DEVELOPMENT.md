@@ -592,3 +592,17 @@ under ignored `.cache/phase6.5-final/`; manual CAD captures are never tracked.
 `tests/e2e/freeze.spec.ts` adds 320/360/380/400/480/640px Settings/privacy/keyboard
 checks and production forced-color fallback verification. Existing browser tests
 cover first-open, overview, selection, evidence, reduced effects and lifecycle.
+
+## Phase 7 learning review
+
+No dependencies, migration, environment variables or provider keys are required.
+Use UI Lab → Learn mode → Learning preview state for representative authored states.
+The real authenticated Learn tab uses the same views and keeps its session across
+Design/Modify/settings/history navigation. Reload intentionally clears learning.
+
+Focused checks: `npm run test --workspace @forge/web -- src/learning` and
+`npm run test:e2e -- tests/e2e/learning.spec.ts` after a production build. The browser
+suite exercises all six panel widths and writes synthetic images at 320/380/480/640px
+to ignored `.cache/phase7/`. It intercepts auth and makes no real AI/Onshape requests.
+Keep all manual Onshape screenshots/private identifiers outside Git. Full gate and
+real panel acceptance steps are in [PHASE_7_REVIEW.md](PHASE_7_REVIEW.md).

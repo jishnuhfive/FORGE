@@ -1,174 +1,298 @@
-import { Badge, Button, Card, Panel, StatusBadge } from '@forge/design-system';
-import { ArrowRight, BookOpen, Check, Eye, Lightbulb } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { Button, Dialog, ErrorState } from '@forge/design-system';
+import { sampleResource } from '../learning/catalog';
+import type { LessonResource } from '../learning/catalog';
+import { useLearning } from '../learning/context';
+import { LearningProvider } from '../learning/LearningProvider';
+import { LearnerSetup } from '../learning/Setup';
+import { experienceOptions, goalOptions } from '../learning/options';
+import { HintLadder, LessonDisclosure, Vocabulary } from '../learning/Guidance';
+import { LessonProgress } from '../learning/Progress';
 
-const lesson = [
-  {
-    title: 'Create the base sketch',
-    instruction:
-      'On the Top plane, sketch a centered rectangle for the mounting plate. Constrain it to the origin and add width and depth dimensions.',
-    why: 'The sketch defines the primary mounting plate geometry and keeps the design parametric.',
-    concept: 'Design intent',
-    explanation:
-      'Dimensions and constraints encode why geometry has its shape. A centered sketch preserves symmetry as the plate size changes.',
-    action: 'Create and fully constrain one rectangular sketch.',
-    hint: 'In Onshape: select Top → Sketch → Center point rectangle. Place its center at the origin, then add two dimensions.',
-  },
-  {
-    title: 'Give the plate thickness',
-    instruction:
-      'Extrude the closed sketch into a solid mounting plate. Use a named thickness parameter rather than an unexplained fixed value.',
-    why: 'A clear thickness parameter makes later manufacturing adjustments predictable.',
-    concept: 'Parametric modeling',
-    explanation:
-      'A parameter is a deliberate control of the model. Naming it makes design changes easier to review.',
-    action: 'Create one solid extrusion from the base sketch.',
-    hint: 'Select the closed sketch region → Extrude → Solid. Set the depth to the plate thickness you intend to evaluate.',
-  },
-  {
-    title: 'Locate the mounting holes',
-    instruction:
-      'Add a centered hole pattern. Confirm the hole spacing and sizes against the motor manufacturer’s drawing.',
-    why: 'An accurately constrained pattern aligns the motor and limits avoidable assembly errors.',
-    concept: 'Interface geometry',
-    explanation:
-      'Mating geometry must be based on verified component specifications. A motor family name alone is insufficient evidence.',
-    action: 'Sketch and dimension a mounting-hole pattern.',
-    hint: 'Create a sketch on the plate face. Use construction geometry for symmetry, then dimension the hole centers from a verified drawing.',
-  },
-  {
-    title: 'Review the design',
-    instruction:
-      'Inspect dimensions, printer fit and the hardware interfaces. Record any check that lacks evidence as UNVERIFIED.',
-    why: 'A model that looks plausible can still violate a requirement.',
-    concept: 'Evidence-based validation',
-    explanation:
-      'Separate measured geometry from assumptions. Each result needs inputs, units and evidence before it can support a PASS.',
-    action: 'Review the model and list unresolved checks.',
-    hint: 'Measure the plate envelope and hole positions. Compare them to the manufacturing profile and motor drawing.',
-  },
-];
-export function Learn() {
-  const [step, setStep] = useState(0);
-  const [show, setShow] = useState(false);
-  const [explain, setExplain] = useState(false);
-  const [check, setCheck] = useState(false);
-  const [finished, setFinished] = useState(false);
-  const current = lesson[step] ?? lesson[0];
-  if (!current) return null;
+export function Learn({
+  resource = sampleResource,
+}: {
+  resource?: LessonResource;
+}) {
+  const learning = useLearning();
+  if (resource.status !== 'ready')
+    return <LessonUnavailable status={resource.status} />;
+  if (!learning)
+    return (
+      <LearningProvider lesson={resource.lesson}>
+        <LearnWorkspace />
+      </LearningProvider>
+    );
+  return <LearnWorkspace />;
+}
+function LessonUnavailable({
+  status,
+}: {
+  status: Exclude<LessonResource['status'], 'ready'>;
+}) {
+  const messages = {
+    empty: [
+      'Choose a lesson',
+      'No lesson is selected. The sample lesson introduces sketches, extrusion and solid bodies.',
+    ],
+    unavailable: [
+      'Lesson unavailable',
+      'This lesson is not available here. You can open the CAD fundamentals sample.',
+    ],
+    'load-error': [
+      'The lesson couldn’t open',
+      'Try opening the sample lesson again. Your model has not been changed.',
+    ],
+    invalid: [
+      'This lesson needs an update',
+      'Its content could not be opened safely. Try the available sample lesson.',
+    ],
+  } as const;
+  const [retry, setRetry] = useState(false);
+  if (retry && sampleResource.status === 'ready')
+    return (
+      <LearningProvider lesson={sampleResource.lesson}>
+        <Learn />
+      </LearningProvider>
+    );
   return (
-    <div className="feature">
-      <div className="section-kicker">
-        <span>LEARN WORKSPACE</span>
-        <Badge>Local lesson</Badge>
-      </div>
-      <div className="feature-heading">
-        <span className="eyebrow">CAD / FOUNDATIONS</span>
-        <h1>NEMA 17 Motor Mount</h1>
-        <p>
-          Build understanding alongside your model, one deliberate step at a
-          time.
-        </p>
-      </div>
-      <div className="lesson-progress">
-        <BookOpen size={16} aria-hidden="true" />
+    <div className="feature learning-workspace">
+      <h1>Learn</h1>
+      <ErrorState title={messages[status][0]} description={messages[status][1]}>
+        <Button tabIndex={0} onClick={() => setRetry(true)}>
+          Open sample lesson
+        </Button>
+      </ErrorState>
+    </div>
+  );
+}
+function LearnWorkspace() {
+  const learning = useLearning();
+  const [resetOpen, setResetOpen] = useState(false);
+  const heading = useRef<HTMLHeadingElement>(null);
+  const session = learning?.session;
+  const screen = session
+    ? `${session.phase}:${'stepIndex' in session ? session.stepIndex : ''}`
+    : '';
+  const previousScreen = useRef(screen);
+  useEffect(() => {
+    // Only explicit flow transitions move focus; tab remounts and hint reveals do not.
+    if (previousScreen.current !== screen) heading.current?.focus();
+    previousScreen.current = screen;
+  }, [screen]);
+  if (!learning) return null;
+  const { lesson, session: state, dispatch } = learning;
+  const active =
+    state.phase === 'active' ? lesson.steps[state.stepIndex] : undefined;
+  const interaction =
+    state.phase === 'active' ? state.interactions[state.stepIndex] : undefined;
+  const title =
+    state.phase === 'setup'
+      ? 'Learn with Forge'
+      : state.phase === 'introduction'
+        ? lesson.title
+        : state.phase === 'completed'
+          ? 'Lesson complete'
+          : active?.title;
+  return (
+    <div className="feature learning-workspace">
+      <div className="learning-context">
         <span>
-          Reading progress · Step {step + 1} of {lesson.length}
+          {state.phase === 'setup' ? 'Learning workspace' : lesson.title}
         </span>
-        <span className="mono muted">
-          {Math.round(((step + 1) / lesson.length) * 100)}%
-        </span>
+        <Button
+          tabIndex={0}
+          variant="ghost"
+          onClick={(event) => {
+            event.currentTarget.focus();
+            setResetOpen(true);
+          }}
+          disabled={state.phase === 'setup' && !state.experience && !state.goal}
+        >
+          Reset lesson
+        </Button>
       </div>
-      <progress
-        aria-label="Lesson reading progress"
-        max={lesson.length}
-        value={step + 1}
-      />
-      <Card className="lesson-card">
-        <span className="eyebrow">STEP 0{step + 1}</span>
-        <h2>{current.title}</h2>
-        <p>{current.instruction}</p>
-        <div className="lesson-why">
-          <Lightbulb size={18} aria-hidden="true" />
-          <div>
-            <h3>Why this matters</h3>
-            <p>{current.why}</p>
+      {active && (
+        <p className="muted small">
+          Step {'stepIndex' in state ? state.stepIndex + 1 : 1} of{' '}
+          {lesson.steps.length}
+        </p>
+      )}
+      <h1 ref={heading} tabIndex={-1} className="learning-title">
+        {title}
+      </h1>
+      {state.phase === 'setup' && (
+        <LearnerSetup
+          experience={state.experience}
+          goal={state.goal}
+          dispatch={dispatch}
+        />
+      )}
+      {state.phase === 'introduction' && (
+        <>
+          <p>{lesson.summary}</p>
+          <p className="muted">
+            {state.profile.experience === 'beginner'
+              ? 'Take your time. Open unfamiliar terms and request help whenever you want.'
+              : state.profile.experience === 'some-experience'
+                ? 'Connect familiar tools to the reasons for choosing them. Help is available at every step.'
+                : 'Focus on the reasoning behind each operation. Vocabulary and practical guidance are available when useful.'}
+          </p>
+          <p className="muted small">
+            Your goal:{' '}
+            {
+              goalOptions.find((option) => option.id === state.profile.goal)
+                ?.title
+            }
+            .{' '}
+            {state.profile.goal === 'guided-project'
+              ? 'This short fundamentals sample prepares you for future guided projects.'
+              : 'Start with this short fundamentals sample.'}
+          </p>
+          <section className="learning-section">
+            <h2>What you’ll explore</h2>
+            <ul>
+              {lesson.learningObjectives.map((objective) => (
+                <li key={objective}>{objective}</li>
+              ))}
+            </ul>
+          </section>
+          <section className="learning-section">
+            <h2>Before you begin</h2>
+            {lesson.prerequisites.map((item) => (
+              <p key={item} className="muted">
+                {item}
+              </p>
+            ))}
+          </section>
+          <p className="muted small">
+            {lesson.steps.length} steps ·{' '}
+            {
+              experienceOptions.find(
+                (option) => option.id === state.profile.experience,
+              )?.title
+            }{' '}
+            · Progress marked by you
+          </p>
+          <div className="learning-continuation">
+            <Button
+              tabIndex={0}
+              variant="primary"
+              onClick={() => dispatch({ type: 'start' })}
+            >
+              Begin lesson
+            </Button>
+            <Button
+              tabIndex={0}
+              variant="ghost"
+              onClick={() => dispatch({ type: 'edit-setup' })}
+            >
+              Change setup
+            </Button>
           </div>
-        </div>
-        <div className="chip-list">
-          <Badge>{current.concept}</Badge>
-        </div>
-      </Card>
-      <Panel title="Expected CAD action">
-        <p>{current.action}</p>
-      </Panel>
-      <div className="action-bar">
-        <Button onClick={() => setShow(!show)} aria-expanded={show}>
-          <Eye size={14} aria-hidden="true" />
-          Show me
-        </Button>
-        <Button onClick={() => setExplain(!explain)} aria-expanded={explain}>
-          Explain why
-        </Button>
-        <Button onClick={() => setCheck(true)}>
-          <Check size={14} aria-hidden="true" />
-          Check my work
-        </Button>
-      </div>
-      {show && (
-        <Panel title="Action guide">
-          <p>{current.hint}</p>
-        </Panel>
+        </>
       )}
-      {explain && (
-        <Panel title={current.concept}>
-          <p>{current.explanation}</p>
-        </Panel>
+      {state.phase === 'active' && active && interaction && (
+        <>
+          <p className="learning-objective">
+            <span className="muted">Objective</span>
+            {active.objective}
+          </p>
+          <section className="learning-section">
+            <h2>What to do</h2>
+            <p>{active.instruction}</p>
+          </section>
+          <LessonDisclosure
+            title="Why this step"
+            open={interaction.whyOpen}
+            onToggle={() => dispatch({ type: 'why', stepId: active.id })}
+          >
+            <p>{active.why}</p>
+          </LessonDisclosure>
+          {active.vocabulary && (
+            <Vocabulary
+              terms={active.vocabulary}
+              interaction={interaction}
+              dispatch={dispatch}
+            />
+          )}
+          <HintLadder
+            step={active}
+            interaction={interaction}
+            dispatch={dispatch}
+          />
+          <LessonProgress session={state} lesson={lesson} />
+          <div className="learning-continuation">
+            <p className="muted small">
+              Forge isn’t checking the model in this sample lesson. Marking a
+              step done records your own progress.
+            </p>
+            {interaction.completed && (
+              <p role="status">Step marked done by you.</p>
+            )}
+            <Button
+              tabIndex={0}
+              variant="primary"
+              onClick={() =>
+                dispatch({
+                  type: interaction.completed ? 'advance' : 'mark-done',
+                  stepId: active.id,
+                })
+              }
+            >
+              {interaction.completed
+                ? state.stepIndex === lesson.steps.length - 1
+                  ? 'View completion summary'
+                  : 'Next step'
+                : 'Mark step done'}
+            </Button>
+            <p className="muted small">
+              Model checking becomes available in supported guided projects.
+            </p>
+          </div>
+        </>
       )}
-      {check && (
-        <div className="notice" role="status">
-          <StatusBadge status="unverified" />
-          <p>No CAD inspection is available. Your work has not been checked.</p>
-        </div>
+      {state.phase === 'completed' && (
+        <>
+          <p>{lesson.completionMessage}</p>
+          <LessonProgress session={state} lesson={lesson} summary />
+          <p className="muted">
+            This summary reflects your lesson interactions and steps you marked
+            done. Forge did not inspect or check your CAD model.
+          </p>
+          {lesson.followUpChallenge && (
+            <section className="learning-section">
+              <h2>{lesson.followUpChallenge.title}</h2>
+              <p>{lesson.followUpChallenge.prompt}</p>
+            </section>
+          )}
+          <p className="muted small">
+            Your progress stays here until you reset or this panel session ends.
+          </p>
+        </>
       )}
-      <div className="action-bar lesson-next">
-        {step > 0 && (
+      <Dialog
+        open={resetOpen}
+        onOpenChange={setResetOpen}
+        title="Reset this lesson?"
+        description="This clears your experience choice, goal, steps, hints and vocabulary history from this panel session."
+      >
+        <div className="action-bar">
+          <Button tabIndex={0} onClick={() => setResetOpen(false)}>
+            Keep learning
+          </Button>
           <Button
+            tabIndex={0}
+            variant="danger"
             onClick={() => {
-              setStep(step - 1);
-              setShow(false);
-              setExplain(false);
-              setCheck(false);
-              setFinished(false);
+              dispatch({ type: 'reset' });
+              setResetOpen(false);
             }}
           >
-            Previous step
+            Reset lesson progress
           </Button>
-        )}
-        <Button
-          variant="primary"
-          disabled={finished}
-          onClick={() => {
-            if (step < lesson.length - 1) setStep(step + 1);
-            else setFinished(true);
-            setShow(false);
-            setExplain(false);
-            setCheck(false);
-          }}
-        >
-          {step === lesson.length - 1 ? 'Finish reading' : 'Next step'}
-          <ArrowRight size={14} aria-hidden="true" />
-        </Button>
-      </div>
-      {finished && (
-        <p className="notice" role="status">
-          Lesson reading complete. CAD work remains unverified.
-        </p>
-      )}
-      <p className="local-notice">
-        Authored lesson preview. No AI tutoring, CAD actions or automatic work
-        checks run.
-      </p>
+        </div>
+      </Dialog>
     </div>
   );
 }

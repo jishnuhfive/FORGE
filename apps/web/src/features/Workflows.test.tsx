@@ -7,7 +7,6 @@ import { DesignPlan } from './DesignPlan';
 import { AgentProgress } from './AgentProgress';
 import { ValidationReport } from './ValidationReport';
 import { Modify } from './Modify';
-import { Learn } from './Learn';
 import { Settings } from './Settings';
 import { History } from './History';
 import { errors } from '../lib/errors';
@@ -258,35 +257,6 @@ describe('Modify selections', () => {
 });
 
 describe('Learn and history', () => {
-  it('explains design intent, shows guidance and marks checks UNVERIFIED', () => {
-    render(<Learn />);
-    fireEvent.click(screen.getByRole('button', { name: 'Show me' }));
-    expect(screen.getByRole('heading', { name: 'Action guide' })).toBeVisible();
-    fireEvent.click(screen.getByRole('button', { name: 'Explain why' }));
-    expect(
-      screen.getByText(/Dimensions and constraints encode why/),
-    ).toBeVisible();
-    fireEvent.click(screen.getByRole('button', { name: 'Check my work' }));
-    expect(screen.getByRole('status')).toHaveTextContent('UNVERIFIED');
-    fireEvent.click(screen.getByRole('button', { name: 'Next step' }));
-    expect(
-      screen.getByRole('heading', { name: 'Give the plate thickness' }),
-    ).toBeVisible();
-    expect(screen.queryByRole('status')).not.toBeInTheDocument();
-  });
-  it('progresses through the lesson without claiming CAD completion', () => {
-    render(<Learn />);
-    for (let i = 0; i < 3; i++)
-      fireEvent.click(screen.getByRole('button', { name: 'Next step' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Finish reading' }));
-    expect(screen.getByRole('status')).toHaveTextContent(
-      'CAD work remains unverified',
-    );
-    fireEvent.click(screen.getByRole('button', { name: 'Previous step' }));
-    expect(
-      screen.getByRole('heading', { name: 'Locate the mounting holes' }),
-    ).toBeVisible();
-  });
   it('shows all mock history categories with usable tabs', () => {
     render(<History entries={sampleHistory} />, { wrapper });
     expect(

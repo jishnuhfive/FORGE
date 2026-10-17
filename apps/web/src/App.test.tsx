@@ -64,7 +64,7 @@ describe('Forge application foundation', () => {
       key: 'Enter',
     });
     expect(
-      screen.getByRole('heading', { name: 'NEMA 17 Motor Mount' }),
+      screen.getByRole('heading', { name: 'Learn with Forge' }),
     ).toBeVisible();
     fireEvent.keyDown(screen.getByRole('tab', { name: 'Design' }), {
       key: 'Enter',
