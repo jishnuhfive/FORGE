@@ -249,3 +249,34 @@ def test_results_are_immutable_and_exclude_provider_references() -> None:
     with pytest.raises(ValueError):
         result.outcome = "not_met"  # type: ignore[misc]
     assert "request_id" not in result.model_dump_json()
+
+
+# Wording ----------------------------------------------------------------------
+
+
+def test_requirement_descriptions_are_labels_not_claims() -> None:
+    claim_words = {"is", "are", "exists", "has", "have", "reported", "placed"}
+    for reqs in STEPS.values():
+        for r in reqs:
+            words = r.description.lower().replace(",", "").split()
+            assert not claim_words & set(words), r.description
+            assert not r.description.endswith("."), r.description
+            assert len(words) <= 6, r.description
+
+
+def test_findings_read_naturally_when_the_feature_list_is_unreadable() -> None:
+    ins = inspector([], [], features_status="unavailable")
+    finding = check_step("base-sketch", ins).results[0].outcome.finding
+    assert finding == (
+        "Forge couldn't read the feature list, so it can't tell whether "
+        "there is an active sketch."
+    )
+
+
+def test_pass_finding_pluralizes() -> None:
+    one = check_step("base-sketch", inspector([feat(1, "sketch")], []))
+    two = check_step(
+        "base-sketch", inspector([feat(1, "sketch"), feat(2, "sketch")], [])
+    )
+    assert one.results[0].outcome.finding == "Forge sees an active sketch."
+    assert two.results[0].outcome.finding == "Forge sees 2 active sketches."

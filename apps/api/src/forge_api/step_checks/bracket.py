@@ -39,17 +39,26 @@ def _feature_needed(
     counts = count_features(inspector, kind)  # type: ignore[arg-type]
     if counts is None:
         return _unverified(
-            "evidence_unavailable", f"The feature list could not be read, so {noun}."
+            "evidence_unavailable",
+            f"Forge couldn't read the feature list, so it can't tell whether "
+            f"there is an active {noun}.",
         )
     if counts.active >= minimum:
-        return _out("PASS", "met", f"Forge sees {counts.active} active {noun}.")
+        seen = (
+            f"an active {noun}"
+            if counts.active == 1
+            else f"{counts.active} active {noun}{'es' if noun.endswith('ch') else 's'}"
+        )
+        return _out("PASS", "met", f"Forge sees {seen}.")
     if counts.active + counts.possibly_active >= minimum:
         return _unverified(
-            "evidence_incomplete", f"Forge cannot tell whether {noun} is active."
+            "evidence_incomplete", f"Forge can't tell whether the {noun} is active."
         )
     if not counts.absence_provable:
         return _unverified(
-            "evidence_incomplete", f"The feature list is incomplete; {noun} not proven."
+            "evidence_incomplete",
+            f"Forge read only part of the feature list, so it can't confirm an "
+            f"active {noun}.",
         )
     if counts.suppressed:
         return _out(
@@ -143,11 +152,11 @@ def _fixed(what: str):  # type: ignore[no-untyped-def]
 STEPS: dict[str, tuple[Requirement, ...]] = {
     "base-sketch": (
         Requirement(
-            "sketch.exists", "A sketch exists", ("features",), True, sketch_exists
+            "sketch.exists", "Active sketch", ("features",), True, sketch_exists
         ),
         Requirement(
             "sketch.profile",
-            "The sketch is a closed, dimensioned profile",
+            "Closed, dimensioned profile",
             ("sketch geometry",),
             False,
             _fixed("sketch geometry, constraints or dimensions"),
@@ -155,14 +164,12 @@ STEPS: dict[str, tuple[Requirement, ...]] = {
     ),
     "base-solid": (
         Requirement(
-            "extrude.exists", "An extrusion exists", ("features",), True, extrude_exists
+            "extrude.exists", "Active extrusion", ("features",), True, extrude_exists
         ),
-        Requirement(
-            "body.solid", "A solid body exists", ("bodies",), True, solid_body_exists
-        ),
+        Requirement("body.solid", "Solid body", ("bodies",), True, solid_body_exists),
         Requirement(
             "extrude.depth",
-            "The thickness is as intended",
+            "Intended thickness",
             ("parameter units",),
             False,
             _fixed("a trustworthy thickness value with verified units"),
@@ -171,14 +178,14 @@ STEPS: dict[str, tuple[Requirement, ...]] = {
     "second-portion": (
         Requirement(
             "bracket.second_portion",
-            "The bracket has a second portion",
+            "Second portion of the bracket",
             ("features", "bodies"),
             True,
             second_portion,
         ),
         Requirement(
             "bracket.dimensions",
-            "The leg is the intended size",
+            "Intended leg size",
             ("parameter units",),
             False,
             _fixed("dimensions with verified units"),
@@ -187,14 +194,14 @@ STEPS: dict[str, tuple[Requirement, ...]] = {
     "mounting-holes": (
         Requirement(
             "bracket.mounting_faces",
-            "Mounting features add geometry",
+            "Added mounting geometry",
             ("bodies",),
             True,
             mounting_geometry,
         ),
         Requirement(
             "holes.placement",
-            "Two holes are placed and sized correctly",
+            "Mounting-hole placement and size",
             ("hole geometry",),
             False,
             _fixed("hole count, size or position"),
@@ -203,7 +210,7 @@ STEPS: dict[str, tuple[Requirement, ...]] = {
     "review": (
         Requirement(
             "review.mass",
-            "Mass is reported",
+            "Mass",
             ("physical",),
             False,
             _fixed("mass or material"),

@@ -2,6 +2,7 @@ import { isExperience, isLearningGoal } from './lesson';
 import type { Experience, LearningGoal, Lesson } from './lesson';
 
 export type HintLevel = 0 | 1 | 2 | 3;
+export type CheckOutcome = 'verified' | 'not_met' | 'unverified';
 export interface StepInteraction {
   stepId: string;
   hintLevel: HintLevel;
@@ -9,7 +10,8 @@ export interface StepInteraction {
   whyOpen: boolean;
   vocabularyVisible: string[];
   completed: boolean;
-  // Set only by a backend deterministic check that returned `verified`.
+  // True only while the latest deterministic server check of this step was
+  // `verified`; any later non-verified result removes it.
   forgeVerified?: true;
 }
 interface Profile {
@@ -30,7 +32,9 @@ export type LearningAction =
   | { type: 'goal'; value: LearningGoal }
   | { type: 'review' | 'start' | 'reset' | 'edit-setup' }
   | { type: 'hint'; stepId: string; level: Exclude<HintLevel, 0> }
-  | { type: 'why' | 'mark-done' | 'advance' | 'check-verified'; stepId: string }
+  | { type: 'why' | 'mark-done' | 'advance'; stepId: string }
+  // The latest accepted deterministic server outcome for the active step.
+  | { type: 'check-result'; stepId: string; outcome: CheckOutcome }
   | { type: 'vocabulary'; stepId: string; termId: string };
 export const initialSession = (): LearningSession => ({
   phase: 'setup',
@@ -88,12 +92,15 @@ export function reduceSession(
       : state;
   }
   let next = current;
-  if (
-    action.type === 'check-verified' &&
-    step.check === 'deterministic' &&
-    !current.forgeVerified
-  )
-    next = { ...current, forgeVerified: true };
+  if (action.type === 'check-result' && step.check === 'deterministic') {
+    // Verified reflects the latest result only: anything else revokes it.
+    if (action.outcome === 'verified' && !current.forgeVerified)
+      next = { ...current, forgeVerified: true };
+    else if (action.outcome !== 'verified' && current.forgeVerified) {
+      next = { ...current };
+      delete next.forgeVerified;
+    }
+  }
   if (
     action.type === 'hint' &&
     [1, 2, 3].includes(action.level) &&

@@ -1822,3 +1822,17 @@ ul.compact-list {
   justify-items: start;
   overflow-wrap: anywhere;
 }
+/* Primary action on the design-system accent; never layered with .glass-action,
+   whose panel fill would sit under the primary's dark on-accent label. */
+.button.check-action[aria-disabled='true'],
+.button.check-action[aria-disabled='true']:hover,
+.button.check-action[aria-disabled='true']:active {
+  background: var(--surface-hover);
+  color: var(--muted);
+  border-color: var(--border);
+  cursor: not-allowed;
+  transform: none;
+}
+.check-label {
+  font-weight: 600;
+}

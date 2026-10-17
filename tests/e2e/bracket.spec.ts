@@ -249,3 +249,43 @@ test('keyboard operation, 320px layout, reduced motion and accessibility', async
     ).violations,
   ).toEqual([]);
 });
+
+// WCAG contrast of the control's label against its own fill, measured in the
+// browser from computed styles, so a layered-material regression is caught.
+const contrast = async (button: import('@playwright/test').Locator) =>
+  button.evaluate(async (el) => {
+    // Measure the settled colors, not a hover/state transition in progress.
+    await Promise.all(el.getAnimations().map((a) => a.finished));
+    const parse = (value: string) =>
+      (value.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+    const lum = ([r, g, b]: number[]) => {
+      const f = (c: number) => {
+        const s = c / 255;
+        return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+      };
+      return 0.2126 * f(r!) + 0.7152 * f(g!) + 0.0722 * f(b!);
+    };
+    const style = getComputedStyle(el);
+    const a = lum(parse(style.color));
+    const b = lum(parse(style.backgroundColor));
+    return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+  });
+
+for (const scheme of ['dark', 'light'] as const)
+  test(`Check my step is legible when enabled and when cooling down (${scheme})`, async ({
+    page,
+  }) => {
+    await page.emulateMedia({ colorScheme: scheme });
+    const { frame } = await open(page, [
+      {
+        status: 429,
+        json: { detail: 'rate_limited', retry_after_seconds: 20 },
+      },
+    ]);
+    const enabled = frame.getByRole('button', { name: 'Check my step' });
+    expect(await contrast(enabled)).toBeGreaterThanOrEqual(4.5);
+    await enabled.click();
+    const cooling = frame.getByRole('button', { name: 'Check again' });
+    await expect(cooling).toHaveAttribute('aria-disabled', 'true');
+    expect(await contrast(cooling)).toBeGreaterThanOrEqual(4.5);
+  });

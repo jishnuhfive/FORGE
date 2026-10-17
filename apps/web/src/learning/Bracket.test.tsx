@@ -335,27 +335,92 @@ describe('Forge verification state', () => {
     { type: 'review' },
     { type: 'start' },
   ];
+  const result = (
+    stepId: string,
+    outcome: 'verified' | 'not_met' | 'unverified',
+  ): LearningAction => ({ type: 'check-result', stepId, outcome });
+  const verified = (actions: LearningAction[]) =>
+    sessionProgress(run([...started, ...actions]), mountingBracket)
+      .forgeVerified;
   it('records a verified checkable step without marking it done', () => {
-    const state = run([
-      ...started,
-      { type: 'check-verified', stepId: 'base-sketch' },
-    ]);
-    const progress = sessionProgress(state, mountingBracket);
-    expect(progress).toMatchObject({
+    const state = run([...started, result('base-sketch', 'verified')]);
+    expect(sessionProgress(state, mountingBracket)).toMatchObject({
       forgeVerified: 1,
       checkable: 4,
       completed: 0,
     });
   });
-  it('ignores stale, unknown and non-checkable step ids and duplicates', () => {
+  it.each(['unverified', 'not_met'] as const)(
+    'a later %s result on the same step revokes verification',
+    (later) => {
+      expect(
+        verified([
+          result('base-sketch', 'verified'),
+          result('base-sketch', later),
+        ]),
+      ).toBe(0);
+    },
+  );
+  it('a later verified result restores verification', () => {
+    expect(
+      verified([
+        result('base-sketch', 'verified'),
+        result('base-sketch', 'unverified'),
+        result('base-sketch', 'verified'),
+      ]),
+    ).toBe(1);
+  });
+  it('a repeated identical result is a no-op (same state object)', () => {
+    const once = run([...started, result('base-sketch', 'verified')]);
+    expect(
+      reduceSession(mountingBracket, once, result('base-sketch', 'verified')),
+    ).toBe(once);
+    const none = run([...started, result('base-sketch', 'not_met')]);
+    expect(
+      reduceSession(mountingBracket, none, result('base-sketch', 'unverified')),
+    ).toBe(none);
+  });
+  it('ignores stale, unknown and non-checkable step ids', () => {
     const state = run([
       ...started,
-      { type: 'check-verified', stepId: 'mounting-holes' },
-      { type: 'check-verified', stepId: 'nonsense' },
-      { type: 'check-verified', stepId: 'base-sketch' },
-      { type: 'check-verified', stepId: 'base-sketch' },
+      result('mounting-holes', 'verified'),
+      result('nonsense', 'verified'),
     ]);
-    expect(sessionProgress(state, mountingBracket).forgeVerified).toBe(1);
+    expect(sessionProgress(state, mountingBracket).forgeVerified).toBe(0);
+  });
+  it('a late result for another step cannot revoke or grant verification', () => {
+    const first = run([...started, result('base-sketch', 'verified')]);
+    expect(
+      reduceSession(mountingBracket, first, result('base-solid', 'not_met')),
+    ).toBe(first);
+    const moved = run([
+      ...started,
+      result('base-sketch', 'verified'),
+      { type: 'mark-done', stepId: 'base-sketch' },
+      { type: 'advance', stepId: 'base-sketch' },
+    ]);
+    expect(
+      reduceSession(
+        mountingBracket,
+        moved,
+        result('base-sketch', 'unverified'),
+      ),
+    ).toBe(moved);
+    expect(sessionProgress(moved, mountingBracket).forgeVerified).toBe(1);
+  });
+  it('revocation leaves completion and hints untouched', () => {
+    const state = run([
+      ...started,
+      { type: 'hint', stepId: 'base-sketch', level: 1 },
+      result('base-sketch', 'verified'),
+      { type: 'mark-done', stepId: 'base-sketch' },
+      result('base-sketch', 'unverified'),
+    ]);
+    expect(sessionProgress(state, mountingBracket)).toMatchObject({
+      forgeVerified: 0,
+      completed: 1,
+      hints: 1,
+    });
   });
   it('never verifies from learner completion alone', () => {
     const state = run([
@@ -402,5 +467,114 @@ describe('lesson selection in the workspace', () => {
     expect(
       screen.queryByRole('button', { name: /Check my step/ }),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('verification follows the latest check in the panel', () => {
+  const pass = response('verified', [
+    requirement('sketch.exists', 'PASS', 'met'),
+  ]);
+  const warn = response('unverified', [
+    requirement('sketch.exists', 'WARNING', 'ambiguous_signal'),
+  ]);
+  it('PASS then WARNING revokes the count; a later PASS restores it', async () => {
+    fetcher
+      .mockReturnValueOnce(reply(pass))
+      .mockReturnValueOnce(reply(warn))
+      .mockReturnValueOnce(reply(pass));
+    open();
+    fireEvent.click(check());
+    await screen.findByText(/Forge verified what it can read/);
+    expect(screen.getByText('1 of 4')).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'Check again' }));
+    await screen.findByText(/can’t fully verify/);
+    expect(screen.getByText('0 of 4')).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'Check again' }));
+    await screen.findByText(/Forge verified what it can read/);
+    expect(screen.getByText('1 of 4')).toBeVisible();
+  });
+  it('a request error after a PASS does not change Forge verification', async () => {
+    fetcher
+      .mockReturnValueOnce(reply(pass))
+      .mockReturnValueOnce(reply({ detail: 'x' }, 500));
+    open();
+    fireEvent.click(check());
+    await screen.findByText(/Forge verified what it can read/);
+    fireEvent.click(screen.getByRole('button', { name: 'Check again' }));
+    await screen.findByText(/couldn’t read your model right now/);
+    expect(screen.getByText('1 of 4')).toBeVisible();
+  });
+  it('a response naming a different step is ignored', async () => {
+    fetcher.mockReturnValue(reply({ ...pass, step_id: 'base-solid' }));
+    open();
+    fireEvent.click(check());
+    await screen.findByText(/Forge verified what it can read/);
+    expect(screen.getByText('0 of 4')).toBeVisible();
+  });
+});
+
+describe('result wording and control styling', () => {
+  it('shows a label, then what Forge observed, never a bare claim', async () => {
+    fetcher.mockReturnValue(
+      reply(
+        response('not_met', [
+          {
+            ...requirement('extrude.exists', 'FAIL', 'missing'),
+            description: 'Active extrusion',
+            outcome: {
+              status: 'FAIL',
+              reason: 'missing',
+              finding: 'Forge sees no active extrude feature yet.',
+            },
+          },
+          {
+            ...requirement(
+              'extrude.depth',
+              'UNVERIFIED',
+              'not_observable',
+              false,
+            ),
+            description: 'Intended thickness',
+            outcome: {
+              status: 'UNVERIFIED',
+              reason: 'not_observable',
+              finding:
+                'Forge’s current evidence cannot read a trustworthy thickness value.',
+            },
+          },
+        ]),
+      ),
+    );
+    open();
+    fireEvent.click(check());
+    const item = (await screen.findByText('Active extrusion')).closest('li')!;
+    expect(item).toHaveTextContent(
+      'Active extrusion — Forge sees no active extrude feature yet.',
+    );
+    expect(
+      screen.getByText('Intended thickness').closest('li'),
+    ).toHaveTextContent(
+      'Intended thickness — Forge’s current evidence cannot read',
+    );
+  });
+  it('the check control is a plain primary button, never layered with glass', () => {
+    open();
+    const button = check();
+    expect(button).toHaveClass('button--primary', 'check-action');
+    expect(button).not.toHaveClass('glass-action');
+    expect(button).toHaveAttribute('aria-disabled', 'false');
+  });
+  it('a cooldown control is semantically disabled but still labelled', async () => {
+    fetcher.mockReturnValue(
+      reply({ detail: 'rate_limited', retry_after_seconds: 30 }, 429),
+    );
+    open();
+    fireEvent.click(check());
+    await screen.findByText(/can check again shortly/);
+    const again = screen.getByRole('button', { name: 'Check again' });
+    expect(again).toHaveAttribute('aria-disabled', 'true');
+    expect(again).toHaveTextContent('Check again');
+    fireEvent.click(again);
+    expect(fetcher).toHaveBeenCalledTimes(1);
   });
 });

@@ -1,8 +1,7 @@
 # Phase 8 — Mounting Bracket guided project + Check my step
 
-**Status: implemented and automatically verified; awaiting human validation in a real Onshape
-Part Studio.** Branch `phase8/bracket-check-step`, built on Phase 7 (merge `9c12dfb`). Phase 9 is
-not started. Nothing here was checked against live Onshape or live Groq.
+**Status: real Onshape validation round 1 completed; three findings fixed in code and awaiting a short re-validation pass (see below). Not finally approved.** Branch `phase8/bracket-check-step`, built on Phase 7 (merge `9c12dfb`). Phase 9 is
+not started. Automated checks use mocked evidence; live results are the human's, recorded below.
 
 ## What was built
 
@@ -86,25 +85,75 @@ prismatic geometry and **must be confirmed on a real Part Studio**.
 
 ## Verification
 
-| Check                       | Result                                                                                                                            |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| New backend tests           | 44 (21 checker, 23 endpoint), all pass                                                                                            |
-| Backend suite               | pass except the two Windows-only items above                                                                                      |
-| Ruff, strict mypy           | pass                                                                                                                              |
-| ESLint (`--max-warnings 0`) | pass                                                                                                                              |
-| TypeScript typecheck        | pass                                                                                                                              |
-| Frontend tests              | 612 total (26 new); all pass except the pre-existing Auth UI-lab test                                                             |
-| Playwright (new)            | 6 scenarios x 3 engines = 18 pass                                                                                                 |
-| Playwright (full suite)     | 476 of 480 passed on a 4-worker run; the 4 timeouts (older ai/extension/preview specs, Firefox/WebKit) all pass when re-run alone |
-| Not run                     | `compose-check`, `audit` (no dependency or infrastructure change); real Onshape; manual screenshots                               |
+| Check                       | Result                                                                                                                                          |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Phase 8 backend tests       | 47 (24 checker, 23 endpoint), all pass                                                                                                          |
+| Backend suite               | 726 passed; only the two Windows-only items below fail                                                                                          |
+| Ruff, strict mypy           | pass                                                                                                                                            |
+| ESLint (`--max-warnings 0`) | pass                                                                                                                                            |
+| TypeScript typecheck        | pass                                                                                                                                            |
+| Frontend tests              | 624 passed (92 in `src/learning`, 38 new since the first Phase 8 commit)                                                                        |
+| Playwright, Phase 8 specs   | 8 scenarios x 3 engines = 24 pass, including measured label contrast >= 4.5:1 (dark and light, enabled and cooling down)                        |
+| Playwright, full suite      | 482 of 486 passed on a 4-worker run; the 4 failures were Firefox timeouts in older specs (Phase 5/7 and preview) and all pass when re-run alone |
+| Not run                     | `compose-check`, `audit` (no dependency or infrastructure change); screenshots                                                                  |
 
-## Human validation (to do)
+## Real Onshape validation round 1 (provisional)
 
-Use a disposable document. In Onshape: Learn → Beginner → _Complete a guided project_ → Begin.
-Build step 1, press **Check my step** (expect PASS), then deliberately skip an extrude on step 2
-(expect FAIL, no hint revealed), fix it and re-check (PASS), try the single L-profile approach on
-step 3, and observe UNVERIFIED lines. Confirm the face-count thresholds hold. Keep screenshots out
-of the repository.
+**Status: real Onshape validation completed; three findings fixed in code and awaiting a short
+re-validation pass. Phase 8 is not finally approved.** Round 1 was run by the human in a
+disposable Part Studio on macOS, in the real right-panel extension against local Forge. No
+screenshots, document/workspace/element identifiers or private URLs are recorded here.
+
+| Area                         | Result                                                                                                                                                               |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Introduction                 | Mounting Bracket introduction opened correctly.                                                                                                                      |
+| Step 1 sketch                | One active sketch gave PASS; profile geometry and dimensions stayed UNVERIFIED.                                                                                      |
+| Step 2 deliberate failure    | Sketch only, no extrusion or solid body: FAIL / "Not yet"; no hint was revealed.                                                                                     |
+| Fresh evidence               | After creating the extrusion, **Check again** (no reload) changed FAIL to PASS; thickness and units stayed UNVERIFIED.                                               |
+| Step 3 two-extrusion path    | Base plus added wall, one joined body: verified.                                                                                                                     |
+| Step 4 face threshold        | Two through holes met the existing >= 10 face threshold; only added geometry was verified, hole count/size/position UNVERIFIED.                                      |
+| Feature renaming             | Custom names (Base, wall, hole, ...) still passed: name independence confirmed live.                                                                                 |
+| Completion                   | 5/5 steps done, 4/4 checkable verified, 0 hints; the summary warned that dimensions, units, mass, fit and strength were not verified and made no whole-design claim. |
+| Single-L-profile alternative | One closed L sketch, one extrusion, one solid body passed Step 3 via the face-count route.                                                                           |
+| Fillet WARNING               | An active fillet changed Step 3 to "Forge can't fully verify this step yet" with the authored "Worth a look" explanation.                                            |
+| ~320 px layout               | Mode tabs, inspector row, result text wrapping, evidence disclosure and progress stayed usable; no obvious horizontal scroll.                                        |
+| No Onshape context           | Standalone extension page showed "Open this lesson inside a Part Studio in Onshape to check it."; no crash, IDs or fake result.                                      |
+
+### Findings and fixes (awaiting re-validation)
+
+1. **Check button contrast.** "Check my step" / "Check again" were nearly unreadable in the dark
+   panel. Cause: `.glass-action` (panel fill) was layered on `Button variant="primary"`, so the
+   primary's dark `--on-accent` label sat on a dark panel. Fix: the control is now a plain primary
+   button (design-system accent and `--on-accent`) with a `check-action` class that only styles the
+   busy/cooldown state (`--surface-hover` fill, `--muted` label, `not-allowed`, no opacity so the
+   label stays readable). A second defect surfaced while testing the fix: `aria-disabled` is not
+   `:disabled`, so the primary hover fill still applied under the greyed label (1.29:1 after a
+   click); hover/active are now overridden for the disabled state. Playwright measures computed
+   label/fill contrast (>= 4.5:1) enabled and cooling down, dark and light, in three engines.
+   Focus ring and forced-colors behavior are inherited unchanged from the design system.
+2. **Requirement wording.** Descriptions were declarative ("An extrusion exists. Forge sees no
+   active extrude feature yet."). They are now short labels (Active sketch, Closed, dimensioned
+   profile, Active extrusion, Solid body, Intended thickness, Second portion of the bracket, Intended
+   leg size, Added mounting geometry, Mounting-hole placement and size, Mass, Fit, strength and
+   manufacturability) rendered as "Label — what Forge observed". A backend test rejects claim words
+   and sentence-style labels. Findings were also made grammatical ("an active sketch", "2 active
+   sketches", unreadable-list wording). No evidence rule or status semantics changed.
+3. **Stale Forge-verified progress.** `forgeVerified` was only ever set, so a later WARNING left
+   "3 of 4". The session now has one action, `check-result { stepId, outcome }`. For the active,
+   checkable step whose id matches: `verified` sets `forgeVerified`, `not_met` or `unverified`
+   (including a blocking WARNING) clears it, and a later `verified` sets it again. Identical
+   repeats return the same state object. Results for another step, unknown ids, non-checkable
+   steps and non-active phases are ignored. Request, auth, cooldown and context errors dispatch
+   nothing, so they never change a CAD finding. A response whose `step_id` differs from the active
+   step is not dispatched. Learner completion and hints are untouched.
+
+### Re-validation checklist
+
+1. Dark Onshape panel: **Check my step** and, after a result, **Check again** are clearly legible,
+   including while cooling down after a click.
+2. A failing or unsupported row reads as "Label — observation" with no contradictory claim.
+3. Verify Step 3 (3 of 4), add a fillet and check again: Step 3 becomes "can't fully verify" and
+   "Steps Forge verified" drops; remove the fillet and re-check: it returns.
 
 ## Phase 9
 

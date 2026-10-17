@@ -50,7 +50,9 @@ function Findings({
               label={label[item.outcome.status]}
             />
             <span>
-              {item.description}. {item.outcome.finding}
+              <span className="check-label">{item.description}</span>
+              {' — '}
+              {item.outcome.finding}
             </span>
           </li>
         ))}
@@ -97,9 +99,10 @@ export function CheckStep({
         current.signal,
       );
       if (current.signal.aborted) return;
-      // Only the server's deterministic outcome can mark a step Forge-verified.
-      if (result.outcome === 'verified' && result.step_id === stepId)
-        dispatch({ type: 'check-verified', stepId });
+      // Only the server's latest deterministic outcome sets Forge verification;
+      // request errors say nothing about the model, so they change nothing.
+      if (result.step_id === stepId)
+        dispatch({ type: 'check-result', stepId, outcome: result.outcome });
       setState({ phase: 'done', result });
     } catch (cause) {
       if (current.signal.aborted) return;
@@ -129,7 +132,7 @@ export function CheckStep({
       <Button
         tabIndex={0}
         variant="primary"
-        className="glass-action"
+        className="check-action"
         aria-disabled={busy}
         onClick={() => void run()}
       >
