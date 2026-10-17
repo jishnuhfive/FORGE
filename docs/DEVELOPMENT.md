@@ -610,9 +610,11 @@ real panel acceptance steps are in [PHASE_7_REVIEW.md](PHASE_7_REVIEW.md).
 ## Phase 9A preparation and Phase 9B handoff
 
 Phase 9A is documentation only on `phase9/safe-cad-edit-prep`; leave working OAuth,
-Action URL, redirects, environment and database untouched. Phase 8B is being
-implemented elsewhere and awaits real validation/merge. Do not copy that work or
-start a second checker. The [specification](PHASE_9_SAFE_WRITE_SPEC.md) and
+Action URL, redirects, environment and database untouched. Phase 8 is now complete,
+human validated and merged to main at `81199ea`, integrated into this branch by
+merge `4f16842`. Reuse its actual checker/evidence contracts; do not start a second
+checker. Phase 9A preparation is complete; Phase 9B remains NOT STARTED.
+The [specification](PHASE_9_SAFE_WRITE_SPEC.md) and
 [preparation review](PHASE_9_PREP_REVIEW.md) define the future one-operation scope,
 provider conformance blockers, regression ledger and exact start gates.
 
@@ -622,8 +624,8 @@ not require a complete browser rerun; focused existing browser regressions may
 check refusal, inspector and Learn. Keep existing user services running and stop
 only test-owned services. No live CAD or AI calls belong in these checks.
 
-After Phase 8B completion, human validation, final docs and merge, normally merge
-latest origin/main into this branch and review actual evidence/CSRF contracts.
+The Phase 8 completion/validation/main-integration gates are satisfied. Before
+future runtime work, review the actual merged evidence/checker/CSRF contracts.
 Wait for explicit Phase 9B authorization, including separate permission-change
 approval. No new table/migration, write scope/route/tool or production approval
 control belongs in 9A. Real suppression/atomic-skew tests use disposable CAD in

@@ -2,9 +2,10 @@
 
 Status: **PREPARATION COMPLETE; runtime implementation NOT STARTED.** Research date:
 2026-10-17. This is a future Phase 9B design, not an implemented capability or
-permission to change CAD. Phase 8B is being implemented by a teammate on a separate
-branch; human Onshape validation and merge are pending according to the user.
-This checkout contains merged Phase 7 at `9c12dfb`.
+permission to change CAD. Phase 8 is now **COMPLETE, HUMAN VALIDATED, and MERGED**
+into main at `81199ea95df04b34e6065441cad87d60b637dcf2`, as confirmed by the user.
+Merge `4f168423ce917014312c6946015f9659be0e8e0e` integrates it into this preparation
+branch. **Phase 9B: NOT STARTED.** The original Phase 9A preparation remains `b95e866`.
 
 ## 1. Executive summary and authorization boundary
 
@@ -20,8 +21,8 @@ feature replacement is unnecessary and would increase the fields at risk.
 No measurement input or FeatureScript evaluation is needed.
 
 Phase 9A changes documentation only. No pure domain implementation is added:
-the new authoritative evidence fields must be reconciled with actual merged Phase
-8 contracts, and premature schemas would create unnecessary merge assumptions.
+the required write evidence must be reconciled with the now-merged Phase 8
+contracts during explicitly authorized 9B work; preparation does not implement it.
 No routes, tools, UI controls, scopes, app settings, dependencies, database models
 or migrations change. The existing read-only refusal remains operational.
 
@@ -49,11 +50,18 @@ No live write, OAuth grant inspection or provider write capability is claimed he
 | Admission              | `ReadGate` is process-local, per-user, one active request, five-second cooldown, 32 active / 1,024 tracked capacity. It is insufficient for write consumption across workers.                                                                                                         |
 | Audit/errors           | Existing `AuditKind`/`AuditOutcome` allowlists contain authentication codes only. Fixed public errors and no raw HTTP/SQL payload logs; request-validation defaults that echo data must remain suppressed.                                                                            |
 | Persistence            | Six authentication tables plus Alembic revision table; only `0001_authentication`. No proposals, execution journal or history today.                                                                                                                                                  |
-| Learn/UI               | Phase 7 authored, memory-only learning without CAD/AI calls. Shared Button/Dialog/StatusBadge/GlassSurface and frozen solid reading layer remain canonical. Old DEV-only Modify examples are synthetic and cannot become write approval.                                              |
+| Learn/UI               | Phase 7 authored, memory-only fundamentals without CAD/AI calls. Shared Button/Dialog/StatusBadge/GlassSurface and frozen solid reading layer remain canonical. Old DEV-only Modify examples are synthetic and cannot become write approval.                                          |
 
 Read the historical phase reviews as evidence of their respective checkpoints.
 Their old “next phase not started” wording does not override current authorization.
-No Phase 8 branch or unfinished implementation was copied or inspected here.
+The original Phase 9A preparation did not copy unfinished Phase 8 work. The
+completed Phase 8 implementation is now integrated by the normal merge above. Its
+Mounting Bracket lesson/checker uses fresh authorized evidence, deterministic
+PASS / FAIL / WARNING / UNVERIFIED, feature-name-independent requirements, the
+single-L-profile alternative and verification revocation/restoration. It remains
+read-only and does not supply write approval or atomic write freshness. The original
+[Phase 8 review](PHASE_8_REVIEW.md) is unchanged; its provisional status wording
+is superseded by the user's final validation/merge confirmation.
 
 ## 3. Official sources and reproducible research
 
@@ -784,7 +792,7 @@ or Onshape writes. A mock proves Forge behavior, never provider atomicity.
 | Verification           | Fresh reads required despite HTTP 2xx; wrong feature/suppression/definition/state/body/head causes unverified/recovery; successful state proof distinct from engineering validation; no false geometry equivalence                                     |
 | Privacy/audit          | Correct fixed event/outcome, no secrets/CAD payload/name/digest/ID/prompt/provider errors in logs/errors; no history/browser storage; cleanup/backup policy; state expiry never reauthorizes                                                           |
 | UI/Playwright          | Exact current→proposed hierarchy, deliberate approve, Cancel zero writes, duplicates disabled, context loss/late results, uncertain execution copy, no fake Undo; 320/360/380/400/480/640px, three engines, keyboard/axe/reduced effects/high contrast |
-| Retained regressions   | Read-only Design refusal and zero provider calls, inspector four GETs, Learn no AI/CAD requests, auth/scopes unchanged unless explicitly reviewed 9B change, no new history/analytics                                                                  |
+| Retained regressions   | Read-only Design refusal and zero provider calls, inspector four GETs, fundamentals sample no AI/CAD requests, bracket checks explicit read-only CAD with no AI, auth/scopes unchanged unless explicitly reviewed 9B change, no new history/analytics  |
 
 Minimum malicious tool cases explicitly inject feature ID, provider host/URL,
 verb, bearer token and FeatureScript both as arguments and CAD strings. Test
@@ -886,35 +894,41 @@ Consequences: broader intent is refused, configured/nested models excluded,
 ambiguous timeouts require inspection, and occasional conservative invalidation
 is preferable to unapproved changes. No certification or production readiness.
 
-## 33. Phase 8 dependencies and hard start gates
+## 33. Phase 8 integrated; remaining hard start gate
 
-Phase 8B progress is user-reported external work. This branch neither reproduces
-Check My Step/mounting-bracket lessons nor assumes their eventual schema. Integrate
-at the existing authorized evidence acquisition boundary after reading the merged
-Phase 8 checker/evidence/freshness contracts. Reuse compatible machinery and add
-strict provider projections where necessary. Do not scrape lesson presentation,
-interpret PASS as approval or reuse read-only freshness as write authorization.
+Phase 8 is **COMPLETE, HUMAN VALIDATED, and MERGED** into main at `81199ea` and
+integrated into this branch by merge `4f16842`. Reuse its actual lesson/checker and
+authorized evidence infrastructure; do not create a second Check My Step system,
+lesson engine or evidence framework. Review the merged checker/evidence/freshness
+contracts before any future write integration. Never scrape lesson presentation,
+interpret PASS as write approval or reuse read-only freshness as write authorization.
 
-Phase 9B cannot begin until:
+Start-gate status:
 
-1. Teammate completes Phase 8B.
-2. Human validates Phase 8 in real Onshape.
-3. Final Phase 8 documentation is committed.
-4. Phase 8 merges to main.
-5. This branch merges the then-current `origin/main` normally, preserving both
-   changes and intentionally reviewing docs/evidence/CSRF conflicts.
-6. Human explicitly authorizes Phase 9B; separately obtain explicit approval for
-   write-scope/app-permission changes before any such transition.
+1. Phase 8B implementation: complete.
+2. Real human Onshape validation: complete, confirmed by the user.
+3. Phase 8 documentation: preserved from incoming main. Its original provisional
+   wording is unchanged by instruction; current completion is recorded here and in
+   the roadmap from the user's final confirmation.
+4. Phase 8 merge to main: complete at `81199ea`.
+5. Normal main integration into this branch: complete at `4f16842`; both histories
+   retained with intentional documentation reconciliation.
+6. **Explicit Phase 9B authorization: still required.** Separately obtain human
+   approval before any write-scope/app-permission transition.
+
+No runtime Phase 9B work is authorized by integration alone.
 
 ## 34. Known blockers and residual limits
 
-- Phase 8 completion/validation/merge and Phase 9B authorization remain pending.
+- Phase 8 is complete and integrated. Explicit Phase 9B authorization and future
+  permission-transition approval remain outstanding.
 - S1 schema is authoritative structural evidence, not real-write validation.
   Suppression payload, dynamic/omitted-default exclusions, returned inactive/status
   behavior and atomic reject-on-skew for `updateFeatures` are mandatory live gates.
   If no sufficiently strong update guard can be proven, reject this mechanism.
 - Existing inspector omits write-critical state; no broadening by inferred defaults.
-  Add only the necessary projections/allowlisted reads after Phase 8 review.
+  Add only the necessary projections/allowlisted reads after reviewing the merged
+  Phase 8 contracts under explicit Phase 9B authorization.
 - Future short-lived operational storage/fencing needs reviewed migration,
   cleanup/backup and PostgreSQL concurrency tests; none implemented in 9A.
 - Broad OAuth privilege, other-document consumers and eventual external operations

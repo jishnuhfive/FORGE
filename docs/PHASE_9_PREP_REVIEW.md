@@ -3,8 +3,11 @@
 2026-10-17. Branch: `phase9/safe-cad-edit-prep`. Initial tree clean; base
 `9c12dfb` is the merged Phase 7 Learning Mode checkpoint. The user's Phase 9A
 request authorizes preparation, one scoped commit and normal branch push only.
-Phase 8B is being implemented separately; real validation/final docs/merge remain
-pending according to the user. No teammate branch was copied or recreated.
+At the original preparation checkpoint Phase 8B was separate unfinished work; no
+teammate branch was copied or recreated. Phase 8 is now **COMPLETE, HUMAN VALIDATED,
+and MERGED** into main at `81199ea95df04b34e6065441cad87d60b637dcf2`, confirmed by
+the user, and integrated here by merge `4f168423ce917014312c6946015f9659be0e8e0e`.
+**Phase 9A: PREPARATION COMPLETE. Phase 9B: NOT STARTED.**
 
 ## Preparation outcome
 
@@ -39,8 +42,9 @@ automated/human/screenshot matrices. Broad OAuth2Write risk remains explicit.
 Documentation only; no optional pure code, executable fixtures, runtime schemas,
 routes, adapter functions, tools, frontend controls, auth/CSRF behavior, scopes,
 environment examples, dependencies/lockfiles, models or migrations changed.
-Pure code was deferred deliberately to avoid binding to unfinished Phase 8
-evidence/checker contracts. Temporary PostgreSQL proposal/fence storage is future
+Pure code was deferred at preparation time to avoid unfinished Phase 8 contracts;
+now-merged contracts still require review during separately authorized 9B work.
+Temporary PostgreSQL proposal/fence storage is future
 reviewed 9B architecture, not implemented persistence or CAD edit history.
 
 Current scopes remain documented OAuth2ReadPII + OAuth2Read. Future OAuth2Write
@@ -105,10 +109,25 @@ commit's own hash here.
 
 ## Exact Phase 9B handoff and stop condition
 
-Wait for Phase 8B completion, real human Onshape validation, final documentation
-commit and merge to main. Then normally integrate latest origin/main into this
-branch, inspect actual evidence/checker/CSRF contracts and resolve conflicts
-intentionally. **Explicit human Phase 9B authorization is still required.**
+Phase 8 implementation and human validation are complete and its history/docs are
+merged into this branch. `docs/PHASE_8_REVIEW.md` is byte-for-byte unchanged from
+incoming main; its provisional status is superseded by the user's final completion
+confirmation recorded in the current overview documents. Runtime/test files match
+incoming main exactly. The existing checker, statuses, fresh reads, feature-name
+independence, single-L-profile alternative and verification revocation/restoration
+are preserved. Reuse that infrastructure and review its actual contracts before
+any future write integration. **Explicit human Phase 9B authorization is still required.**
+
+The merge resolution changed only six conflicting Markdown files manually; the
+remaining three Phase 9 handoff documents are synchronized in a separate
+status-only documentation commit. Merge parents are the original `b95e866` Phase
+9A preparation and the supplied `81199ea` main merge; Phase 8 history is not squashed.
+Integration checks passed: conflict-marker scan, git diff --check, targeted Prettier,
+local documentation links, typechecking (76 Python files), build, dependency audits,
+624 frontend tests and 861 backend tests. Three opt-in PostgreSQL tests were skipped
+in this integration run; the original preparation ledger above remains historical.
+No browser rerun is needed for documentation conflict resolution; no runtime file
+was manually modified or new Phase 9B behavior introduced.
 
 Before any permission transition obtain explicit human approval; do not change
 the live app now. In 9B, recheck official contracts and prove ordinary suppression
@@ -117,4 +136,5 @@ plan. If either fails, stop and amend the decision; do not broaden authority.
 Only then implement the single typed operation with all security/verification
 gates and frozen UI. No guessed Phase 8 interfaces or second evidence/checker model.
 
-**Phase 9B: NOT STARTED.** Phase 9A stops after preparation and branch publication.
+**Phase 9B: NOT STARTED.** Phase 9A preparation and Phase 8 integration are complete;
+stop after documentation reconciliation and normal branch publication.
