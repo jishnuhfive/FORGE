@@ -13,7 +13,7 @@ Later hardening does not defer security for earlier live integrations.
 | 4     | Onshape REST client: official APIs, response contracts, permissions, retries and rate limits                        |
 | 5     | CAD inspector: bounded read-only workspace Part Studio evidence; live verification                                  |
 | 6     | Read-only AI agent: provider adapters, strict read tools, bounded budgets, progress streaming                       |
-| 7     | Learning Mode foundation: authored lesson, setup, hint ladder, vocabulary, ephemeral progress; human review pending |
+| 7     | Learning Mode foundation: authored lesson, setup, hint ladder, vocabulary, ephemeral progress; human review: PASSED |
 | 8     | Supported lesson checking from fresh authorized CAD evidence; NOT STARTED, requires separate authorization          |
 | 9     | Reality Lock inventory: component availability, dimensions and manufacturing capabilities                           |
 | 10    | Assemblies and mates: supported instances/mates verified through official APIs                                      |
@@ -117,7 +117,7 @@ only to express the same capability and unknowns without internal roadmap langua
 See [PHASE_6_5_FINAL_REVIEW.md](PHASE_6_5_FINAL_REVIEW.md) for the final gate and scope.
 The earlier review records preserve the two-pass history.
 
-## Phase 7 — Learning Mode foundation, human validation pending
+## Phase 7 — complete, real Onshape human acceptance passed
 
 The user authorized Learning Mode on `phase7/learning-foundation`, from current
 main `24aaf675ba3726b850f229013e95c1ce72765158`. This supersedes the original
@@ -132,9 +132,12 @@ no AI provider or CAD data. Session state is memory-only and survives ordinary
 mode/settings/history navigation. No CAD checker, write operation, OAuth permission,
 student record, mastery score or persistent learning table is introduced.
 
-Automated/local visual results and outstanding real Onshape acceptance are in
-[PHASE_7_REVIEW.md](PHASE_7_REVIEW.md). Commit/push stay on the phase branch; do not
-merge before the human reviews the actual Onshape experience and screenshots.
+The user reported successful real Onshape human acceptance on 2026-10-17,
+including lesson flow, progressive help, honest progress, navigation preservation,
+reset and narrow-panel usability. Screenshots were reviewed outside the repository
+and must not be committed. Results are recorded in
+[PHASE_7_REVIEW.md](PHASE_7_REVIEW.md). The branch is approved and ready for PR/merge;
+the agent must not merge it. Phase 8 remains not started.
 
 ## Phase 8 — NOT STARTED
 

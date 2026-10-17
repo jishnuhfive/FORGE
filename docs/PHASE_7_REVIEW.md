@@ -4,8 +4,9 @@ Implementation is on `phase7/learning-foundation`, branched from main
 `24aaf675ba3726b850f229013e95c1ce72765158`. Local main, origin/main and remote main
 matched before editing; the initial working tree was clean. The user authorized
 this learning foundation, commit and branch push, with no merge before human review.
-The implementation owner worked alone. **Human acceptance is pending. Phase 8 is
-NOT STARTED.** No full mounting-bracket lesson or CAD checking is implemented.
+The implementation owner worked alone. **Real Onshape human acceptance PASSED,
+as reported by the user on 2026-10-17. Phase 8 is NOT STARTED.** No full
+mounting-bracket lesson or CAD checking is implemented.
 
 ## Product and sample lesson
 
@@ -125,7 +126,7 @@ both top and continuation regions during human review. No horizontal overflow wa
 observed in the complete Chromium/Firefox/WebKit journey matrix. Automated results do not establish native
 assistive-technology behavior or real Onshape acceptance.
 
-## Verification ledger
+## Implementation verification ledger
 
 The final complete gate below passes after the repairs. Earlier focused
 runs passed the new domain/UI and existing account regression checks, TypeScript,
@@ -174,18 +175,33 @@ Synthetic screenshot directory: ignored `.cache/phase7/`. State prefixes A–K m
 the human review list below; the 320px variants also cover L. No manual screenshots,
 private identifiers, network captures or QA caches belong in the commit.
 
-## Real Onshape review — pending human acceptance
+## Real Onshape human acceptance — PASSED, reported 2026-10-17
 
-The existing real Part Studio tab was located without printing its private URL or
-identifiers. Its Forge panel showed “Your Forge session is unavailable
-in this panel.” After the complete local gate, the existing Check panel session
-recovery click was intercepted by an Onshape overlay. Its Close control was
-dismissed; authenticated lesson interaction and live screenshots remain unverified.
-Reopen the right panel for the manual procedure below. Do not report this as live acceptance.
-Use the existing separate-tab sign-in / Check panel session recovery; no permission,
-OAuth scope, cookie security or origin change is part of Phase 7.
+The user reported successful human validation inside a real Onshape Part Studio.
+This supersedes the earlier session-recovery blocker and pending-acceptance status.
+The results below record the user's factual observations; they are distinct from
+the automated implementation checks above.
 
-After the local gate, use the existing trusted HTTPS development server and API:
+| Area                    | Reported result                                                                                                                                                              |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Embedding and setup     | Forge Learn loads in the real Part Studio; learner setup and required setup gating work.                                                                                     |
+| Lesson presentation     | The Sketch to solid introduction and active steps render correctly. What to do and Why this step are clearly distinct.                                                       |
+| Vocabulary              | Definitions open in place without leaving the lesson.                                                                                                                        |
+| Hint ladder             | Requests reveal conceptual help only, then tool-specific help, then the full explanation. Hint counts update correctly.                                                      |
+| Progress and completion | Learner-reported completion is clearly distinct from CAD verification. Mid-lesson progress and the completion summary are accurate, with no mastery or CAD-validation claim. |
+| Navigation              | Learn → Design → Learn preserves the active lesson and interaction counts.                                                                                                   |
+| Reset                   | Cancellation preserves progress. Confirmation clears learner setup, goals, progress, hints and vocabulary history.                                                           |
+| Narrow panel            | The real narrow Onshape panel remains usable with no observed horizontal overflow.                                                                                           |
+| Boundaries              | No CAD checking, CAD writes, AI provider calls from Learning Mode or new OAuth permissions were introduced.                                                                  |
+
+Human screenshots were reviewed outside the repository and must not be committed.
+This record contains no browser addresses, private identifiers, personal details,
+screenshots, credentials or tokens. Acceptance covers the reported learning
+scenarios; it does not establish CAD correctness or learner mastery.
+
+### Repeatable human review procedure
+
+The following procedure is retained as a reference for repeating the accepted flow:
 
 1. In the existing Onshape workspace Part Studio, open the Forge right panel.
 2. If needed, use Open Forge in a new tab to complete the existing sign-in flow,
@@ -207,8 +223,9 @@ After the local gate, use the existing trusted HTTPS development server and API:
 14. Narrow the actual panel to 320px; check all controls and vertical scrolling,
     including the continuation area. Also inspect 380/480/640px where practical.
 
-Required human screenshots (crop to the Forge panel; exclude browser address bar,
-private IDs, CAD geometry, Network tabs, OAuth callbacks, credentials and secrets):
+Screenshot review checklist, retained for reference. Keep human captures outside
+the repository; crop to the Forge panel and exclude private identifiers, CAD
+geometry, network captures, authentication details and secrets:
 
 | Ref | State                                                                                                       |
 | --- | ----------------------------------------------------------------------------------------------------------- |
@@ -225,9 +242,9 @@ private IDs, CAD geometry, Network tabs, OAuth callbacks, credentials and secret
 | K   | Completion summary                                                                                          |
 | L   | 320px panel, including accessible continuation and no horizontal overflow                                   |
 
-Human approval must assess Forge visual fit, beginner clarity, How/Why distinction,
-useful vocabulary, deliberate progressive help, clear progression, honest counts,
-narrow-panel usability and navigation preservation. Do not merge until this review.
+The user has approved Phase 7 following the completed real Onshape review and
+external screenshot review. The phase branch is ready for PR/merge by the human
+or team; the agent must not merge it or begin Phase 8.
 
 ## Known limits and exact Phase 8 handoff
 
@@ -235,7 +252,8 @@ One authored conceptual lesson only. No mounting-bracket guided project, automat
 adaptation, provider-generated tutoring, model inspection/checker, persistent progress,
 backward step editing or assessment of understanding. Stronger hints require deliberate
 successive requests, with no delay/failure prerequisite. Session loss clears learning
-by design. Real Onshape/assistive-technology/human visual approval remains pending.
+by design. Real Onshape human acceptance has passed for the reported scenarios;
+broader assistive-technology coverage is not inferred from this acceptance.
 
 Phase 8 may attach fresh authorized evidence to `future.requirements`: supported
 feature existence/activity, solid-body existence or supported-operation presence.
@@ -286,4 +304,5 @@ learning preview, and three browser-test files. Exact inventory:
 Commit and normal push remain on `phase7/learning-foundation`, using the existing Git identity and
 origin; no main merge or pull request is required by this handoff. The resulting
 commit hash/push status are reported to the user rather than embedding a commit's
-own hash here. Human validation remains the final approval step.
+own hash here. Human validation has passed; PR/merge is ready for the human or team.
+The agent must not merge to main or begin Phase 8.

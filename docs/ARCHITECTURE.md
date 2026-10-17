@@ -1,6 +1,6 @@
 # Architecture
 
-## Current implementation — Phase 7 learning foundation, human review pending
+## Current implementation — Phase 7 learning foundation, human acceptance passed
 
 One React/TypeScript/Vite web client, one FastAPI/Pydantic API and shared presentation
 primitives serve desktop browsers. Native clients are not part of Forge.

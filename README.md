@@ -7,7 +7,7 @@ right panel. Learners perform the CAD operations while Forge helps explain what
 to do, why it matters and how to recover when stuck. Approval-bound design
 execution and deterministic checks of supported constraints remain planned.
 
-**Current status: Phase 7 Learning Mode foundation implemented; human validation pending.**
+**Current status: Phase 7 Learning Mode foundation approved after successful real Onshape human validation.**
 Phase 6.5 remains visually approved after two human-review passes.
 The product UI and canonical design system are frozen: Obsidian, Arc Blue, the
 Oblique Plane identity, restrained functional Liquid Glass and answer-first
