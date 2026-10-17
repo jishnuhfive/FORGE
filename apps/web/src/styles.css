@@ -1836,3 +1836,12 @@ ul.compact-list {
 .check-label {
   font-weight: 600;
 }
+
+.chat-lead {
+  margin: 0 0 var(--space-2);
+  color: var(--text);
+}
+.chat-lead.muted {
+  margin: var(--space-3) 0 0;
+  color: var(--muted);
+}

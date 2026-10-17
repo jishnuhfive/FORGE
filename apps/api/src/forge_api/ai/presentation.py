@@ -155,3 +155,50 @@ def overview(inspector: CadInspector) -> str:
             "Some details are only partially captured or remain unverified."
         )
     return "\n\n".join(paragraphs)
+
+
+# Friendly replies for greetings and small talk. Written by the server, never by a
+# model: no CAD is read and no provider is called, so nothing can be invented.
+# Matching is deliberately strict (the whole message); anything else, including a
+# greeting followed by a real question, takes the normal grounded path.
+_SMALLTALK: tuple[tuple[str, str], ...] = (
+    (
+        r"(?:hi|hello|hey|hiya|howdy|yo|good (?:morning|afternoon|evening))"
+        r"(?: (?:there|forge))?",
+        "Hi! I'm Forge, a read-only engineering assistant for this Part Studio. "
+        "I can read your model, explain what I find and point out what to check "
+        "next. What would you like to look at?",
+    ),
+    (
+        r"(?:thanks|thank you|thx|ty|cheers)(?: (?:so much|a lot|forge))?",
+        "You're welcome! Ask me anything else about this Part Studio whenever "
+        "you like.",
+    ),
+    (
+        r"how are you(?: doing)?(?: today)?",
+        "Doing well, thanks for asking! I'm ready to look at your Part Studio "
+        "whenever you are.",
+    ),
+    (
+        r"(?:who|what) are you",
+        "I'm Forge, an engineering assistant inside Onshape. I read your Part "
+        "Studio and explain what it contains. I can't change your model.",
+    ),
+    (
+        r"help|what can you do|what do you do|how does this work",
+        "I can read your current Part Studio and tell you what's in it: its "
+        "features, parts and bodies, and what I could and couldn't verify. I can "
+        "also suggest sensible things to check next. I can't edit your model, and "
+        "I only state what I can actually see.",
+    ),
+)
+SMALLTALK_FOLLOW_UPS = ["What features does my model have?", "Explain my model."]
+
+
+def smalltalk(prompt: str) -> str | None:
+    """A fixed friendly reply for a bare greeting or similar, else None."""
+    value = re.sub(r"\s+", " ", prompt.strip().rstrip("?.!,").strip().lower())
+    for pattern, reply in _SMALLTALK:
+        if re.fullmatch(pattern, value):
+            return reply
+    return None
