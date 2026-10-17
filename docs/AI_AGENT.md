@@ -427,3 +427,12 @@ Phase 6 disclosure, grounding, privacy and read-only boundaries.
 
 Check my step uses no AI provider. A provider may in future explain already-computed results
 but may never assign or alter PASS, FAIL, WARNING or UNVERIFIED. The lesson works without Groq.
+
+## Groq first-round instruction
+
+On Groq, `openai/gpt-oss-120b` often answered advice-style questions ("What should I do next?") by
+calling a nonexistent `answer` tool in the inspection round, which Groq rejects as `tool_use_failed`
+(13 of 18 requests failed in a live check). The inspection request's system message now appends a short
+`FIRST_ROUND` instruction (call only `inspect_current_cad`; no other tool exists; write no answer yet),
+which passed 18 of 18. The answer round keeps the plain policy. There is still no automatic retry and
+no provider fallback: this only makes the first round more reliable.
