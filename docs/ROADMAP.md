@@ -164,10 +164,10 @@ was Learning Mode). Phase 8 adds one guided project and a deterministic step che
 See [PHASE_8_REVIEW.md](PHASE_8_REVIEW.md) and [PHASE_8_LESSON_SPEC.md](PHASE_8_LESSON_SPEC.md).
 No CAD writes, no new OAuth scope and no AI involvement in any status. Phase 9 is not started.
 
-## Phase 10 — Mistake investigation + independent transfer learning (parallel branch)
+## Phase 10 — Mistake investigation + independent transfer learning (merged, not yet human-validated)
 
 Implemented on `phase10/mistake-transfer-learning`, branched from main after Phase 8, in parallel with
 Phase 9 (first safe CAD write, a separate branch). Phase 10 is read-only, authored and session-local, with no
-AI in the core flow. It is not merged and not human-validated; it waits for Phase 9 to merge before final
-integration. See [PHASE_10_REVIEW.md](PHASE_10_REVIEW.md) and
+AI in the core flow. It was merged to `main` at the team's request before Phase 9 and before real Onshape
+validation; Phase 9 must merge on top of it. See [PHASE_10_REVIEW.md](PHASE_10_REVIEW.md) and
 [PHASE_10_LEARNING_SPEC.md](PHASE_10_LEARNING_SPEC.md). Phase 11 is not started.

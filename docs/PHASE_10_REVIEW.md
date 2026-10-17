@@ -1,9 +1,14 @@
 # Phase 10 — Mistake investigation, prediction and independent transfer learning
 
-**Status: implemented on the parallel branch `phase10/mistake-transfer-learning`; automated checks
-pass. Not merged to `main`, not human-validated.** It is waiting for Phase 9 (first safe CAD write)
-to be implemented, validated and merged before final integration and real Onshape validation.
-Phase 11 is not started. Design reference: [PHASE_10_LEARNING_SPEC.md](PHASE_10_LEARNING_SPEC.md).
+**Status: implemented and automatically verified; merged to `main` at the team's request BEFORE Phase 9 and BEFORE real Onshape human validation.** The 22-step validation plan below has not been run. Phase 9 (first safe CAD write) is still being built on its own branch and will need to merge on top of this. Phase 11 is not started. Design reference: [PHASE_10_LEARNING_SPEC.md](PHASE_10_LEARNING_SPEC.md).
+
+## Included AI chat fixes (separate from Phase 10 itself)
+
+This merge also carries three small Design chat commits that were developed in parallel: the Groq
+first-round fix (`gpt-oss` calling a nonexistent `answer` tool), a friendlier answer lead-in, and
+model-driven general chat (the model decides whether to inspect the model or just reply; general chat
+reads no CAD). See "Groq first round: inspect or just chat" in [AI_AGENT.md](AI_AGENT.md). They are
+unrelated to the lessons and to Phase 9.
 
 ## Parallel-development boundary
 
@@ -90,7 +95,7 @@ Files most likely to conflict on a later merge (shared, append-only edits in thi
 nil; the only shared code surface is `apps/api/src/forge_api/step_checks/` and `apps/web/src/learning/`,
 which Phase 9 should not touch. After Phase 9 merges: `git checkout phase10/mistake-transfer-learning`,
 `git fetch origin`, `git merge origin/main`, resolve conflicts intentionally (no blanket ours/theirs),
-re-run the gate and the human validation below. **Do not merge Phase 10 to `main` before then.**
+re-run the gate and the human validation below. (Superseded: the team chose to merge Phase 10 first. Phase 9 must now merge `main` into its branch and reconcile the shared files listed above.)
 
 ## Human validation plan (real Onshape, disposable document)
 
