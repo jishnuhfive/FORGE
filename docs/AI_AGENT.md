@@ -422,3 +422,8 @@ completion summary reports only local observed lesson interactions and learner-m
 steps. Future optional AI teaching would require explicit design/authorization;
 Phase 8 deterministic checking is not implemented. Existing Design sends retain all
 Phase 6 disclosure, grounding, privacy and read-only boundaries.
+
+## Phase 8 deterministic checking boundary
+
+Check my step uses no AI provider. A provider may in future explain already-computed results
+but may never assign or alter PASS, FAIL, WARNING or UNVERIFIED. The lesson works without Groq.

@@ -17,6 +17,7 @@ from forge_api.db.database import make_engine, verify_schema
 from forge_api.integrations.onshape.routes import router as cad_router
 from forge_api.integrations.onshape.service import ReadGate
 from forge_api.routes.health import router as health_router
+from forge_api.step_checks.routes import router as step_checks_router
 
 
 class SafeBoundary(BaseHTTPMiddleware):
@@ -121,6 +122,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(auth_router)
     application.include_router(cad_router)
     application.include_router(ai_router)
+    application.include_router(step_checks_router)
     return application
 
 

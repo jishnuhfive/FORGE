@@ -400,3 +400,12 @@ result. It makes no AI/CAD calls and requires no provider key. All CAD authoriza
 business logic and future engineering evaluation remain backend responsibilities.
 No dependency, API, migration, permission or database model changed. Phase 8 may
 attach deterministic evaluation to the metadata; no evaluator exists here.
+
+## Phase 8 step-check boundary
+
+`POST /api/learning/check-step` accepts a lesson id, a step id and the validated workspace
+context. The server owns the requirement sets (`step_checks/bracket.py`), takes one fresh
+bounded read through the existing `cad_gate` (same per-user in-flight guard and cooldown as
+the inspector and AI), projects it with `inspect()`, and evaluates pure functions. The browser
+cannot supply requirements, statuses, paths, hosts or tokens. Results hold fixed
+server-authored findings; nothing is cached or persisted.

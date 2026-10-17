@@ -426,3 +426,12 @@ polling, telemetry or browser-storage operation. The existing `/api/me` lifecycl
 unchanged. No credentials enter lesson data or presentation. OAuth scopes, CSRF,
 backend evidence and the read-only tool boundary remain unchanged. Phase 8 checking
 and every CAD write still require separate authorization and independent controls.
+
+## Phase 8 Check my step
+
+Explicit, authenticated POST with exact Origin and session-bound CSRF; strict closed request
+schema (extra fields rejected, errors never echo identifiers); 4 KiB body bound. Reuses
+`acquire_bound`, so read-permission, grant-state and session-revocation checks and the
+per-user gate apply. Only the four existing GET reads can reach Onshape; there is no write,
+FeatureScript or scope change. Status is computed server-side from evidence; unknown evidence
+is UNVERIFIED. No lesson state, history or results are stored.

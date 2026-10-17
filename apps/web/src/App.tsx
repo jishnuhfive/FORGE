@@ -19,7 +19,7 @@ import { usePreferences } from './lib/preferences';
 import { AuthGate } from './auth/AuthGate';
 import { useAuth } from './auth/context';
 import { LearningProvider } from './learning/LearningProvider';
-import { sampleResource } from './learning/catalog';
+import { bracketResource, sampleResource } from './learning/catalog';
 import { OnshapeProvider } from './onshape/OnshapeProvider';
 import { useOnshapeContext } from './onshape/store';
 import type { Mode } from './lib/types';
@@ -65,7 +65,15 @@ export function Workspace() {
   // refreshes with the same session and connection preserve it.
   const owner = `${auth?.me.csrf_token ?? 'local'}:${auth?.me.connection ?? 'local'}`;
   return sampleResource.status === 'ready' ? (
-    <LearningProvider owner={owner} lesson={sampleResource.lesson}>
+    <LearningProvider
+      owner={owner}
+      lesson={sampleResource.lesson}
+      lessonFor={(goal) =>
+        goal === 'guided-project' && bracketResource.status === 'ready'
+          ? bracketResource.lesson
+          : null
+      }
+    >
       <WorkspaceContent />
     </LearningProvider>
   ) : (

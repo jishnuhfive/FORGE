@@ -32,6 +32,9 @@ export interface LessonStep {
   vocabulary?: VocabularyTerm[];
   hints: { conceptual: string; tool: string; explanation: string };
   completion: 'learner-reported';
+  // Server-owned deterministic requirements exist for this step id. Metadata only;
+  // it grants no evidence and the backend decides every status.
+  check?: 'deterministic';
   future?: {
     requirements?: LessonRequirement[];
     mistakeInvestigation?: { prompt: string };
@@ -122,7 +125,7 @@ function isStep(value: unknown): value is LessonStep {
     !record(
       value,
       ['id', 'title', 'objective', 'instruction', 'why', 'hints', 'completion'],
-      ['vocabulary', 'future'],
+      ['vocabulary', 'future', 'check'],
     )
   )
     return false;
@@ -131,6 +134,7 @@ function isStep(value: unknown): value is LessonStep {
     !id(v.id) ||
     ![v.title, v.objective, v.instruction, v.why].every(text) ||
     v.completion !== 'learner-reported' ||
+    (Object.hasOwn(v, 'check') && v.check !== 'deterministic') ||
     !record(v.hints, ['conceptual', 'tool', 'explanation']) ||
     !Object.values(v.hints).every(text)
   )
