@@ -1,9 +1,6 @@
 # Phase 8 lesson specification — Mounting Bracket + Check My Step
 
-Status: **Phase 8A (preparation) only.** Phase 7 (Learning Mode foundation) is not
-merged, so no lesson runtime, UI or route exists for this lesson. Everything below
-is derived from the evidence Forge **actually** produces today (Phase 5 `CadInspector`).
-The one piece of code, `apps/api/src/forge_api/step_checks/`, is pure and unwired.
+Status: **Phase 8A specification, now implemented in Phase 8B** (see [PHASE_8_REVIEW.md](PHASE_8_REVIEW.md)). The endpoint, lesson content and UI exist; this document remains the design reference. Where the implementation differs, the review document and code govern.
 
 ## 1. Evidence capability map (from code, not documentation)
 

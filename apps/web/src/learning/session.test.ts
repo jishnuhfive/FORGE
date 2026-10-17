@@ -141,6 +141,8 @@ describe('learning session transitions', () => {
       hints: 0,
       vocabulary: 0,
       withoutHints: 0,
+      forgeVerified: 0,
+      checkable: 0,
     });
   });
   it('requires both learner choices before introduction and explicit start', () => {
@@ -260,6 +262,8 @@ describe('learning session transitions', () => {
     expect(sessionProgress(state, lesson)).toMatchObject({
       completed: 1,
       withoutHints: 1,
+      forgeVerified: 0,
+      checkable: 0,
     });
     expect(transition(state, { type: 'mark-done', stepId: 'sketch' })).toBe(
       state,
@@ -288,6 +292,8 @@ describe('learning session transitions', () => {
       hints: 1,
       vocabulary: 0,
       withoutHints: 2,
+      forgeVerified: 0,
+      checkable: 0,
     });
     expect(transition(state, { type: 'hint', stepId: 'solid', level: 1 })).toBe(
       state,

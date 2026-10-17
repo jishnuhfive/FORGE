@@ -9,6 +9,7 @@ from ..integrations.onshape.inspector import CadInspector
 from .evidence import count_features, solid_bodies, trustworthy
 from .model import Outcome, Reason, Requirement, StepCheckResult, evaluate
 
+LESSON_ID = "mounting-bracket"
 # Faces of a prismatic L-shaped body; two simple through holes add one each.
 L_BRACKET_FACES = 8
 HOLED_BRACKET_FACES = 10

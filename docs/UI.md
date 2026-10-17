@@ -299,3 +299,12 @@ made by any learning action. Existing auth status refresh behavior is unchanged.
 UI Lab → Learn mode adds deterministic representative states, including safe
 unavailable/invalid/load-failure recovery. Those selectors/fixtures are DEV-only.
 See [PHASE_7_REVIEW.md](PHASE_7_REVIEW.md) for verification and human review steps.
+
+## Phase 8 Check my step
+
+A functional control inside the active bracket step (never on the sample lesson or the review
+step). States: idle, "Checking current model…" (single genuine request, no fake stages),
+verified / not yet / can't fully verify, error and cooldown. Status is shown with a symbol and
+a word, never color alone, through the existing StatusBadge tokens. One polite status region;
+evidence is a native disclosure. Learner "Mark step done" stays separate from "Steps Forge
+verified". A failed check never reveals a hint.

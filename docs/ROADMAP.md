@@ -156,3 +156,10 @@ and post-write verification. Remaining roadmap topics above are planned; their o
 and numbering must be confirmed before implementation. No mounting-bracket lesson,
 FeatureScript, write scope, assemblies/mates, Reality Lock or autonomous execution
 is included in this foundation.
+
+## Phase 8 — Mounting Bracket + Check my step (implemented, awaiting human validation)
+
+The numbered table above is the original plan; the team's working phases differ (Phase 7
+was Learning Mode). Phase 8 adds one guided project and a deterministic step checker.
+See [PHASE_8_REVIEW.md](PHASE_8_REVIEW.md) and [PHASE_8_LESSON_SPEC.md](PHASE_8_LESSON_SPEC.md).
+No CAD writes, no new OAuth scope and no AI involvement in any status. Phase 9 is not started.

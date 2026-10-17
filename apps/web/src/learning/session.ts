@@ -9,6 +9,8 @@ export interface StepInteraction {
   whyOpen: boolean;
   vocabularyVisible: string[];
   completed: boolean;
+  // Set only by a backend deterministic check that returned `verified`.
+  forgeVerified?: true;
 }
 interface Profile {
   experience: Experience;
@@ -28,7 +30,7 @@ export type LearningAction =
   | { type: 'goal'; value: LearningGoal }
   | { type: 'review' | 'start' | 'reset' | 'edit-setup' }
   | { type: 'hint'; stepId: string; level: Exclude<HintLevel, 0> }
-  | { type: 'why' | 'mark-done' | 'advance'; stepId: string }
+  | { type: 'why' | 'mark-done' | 'advance' | 'check-verified'; stepId: string }
   | { type: 'vocabulary'; stepId: string; termId: string };
 export const initialSession = (): LearningSession => ({
   phase: 'setup',
@@ -87,6 +89,12 @@ export function reduceSession(
   }
   let next = current;
   if (
+    action.type === 'check-verified' &&
+    step.check === 'deterministic' &&
+    !current.forgeVerified
+  )
+    next = { ...current, forgeVerified: true };
+  if (
     action.type === 'hint' &&
     [1, 2, 3].includes(action.level) &&
     !current.completed &&
@@ -128,6 +136,8 @@ export function sessionProgress(state: LearningSession, lesson: Lesson) {
     hints: interactions.reduce((count, item) => count + item.hintLevel, 0),
     vocabulary: new Set(interactions.flatMap((item) => item.vocabularyOpened))
       .size,
+    forgeVerified: interactions.filter((item) => item.forgeVerified).length,
+    checkable: lesson.steps.filter((step) => step.check).length,
     withoutHints: interactions.filter(
       (item) => item.completed && item.hintLevel === 0,
     ).length,
