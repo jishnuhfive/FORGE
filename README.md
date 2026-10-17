@@ -5,9 +5,10 @@ AI engineering inside Onshape.
 Forge is an engineering tutor and read-only CAD assistant embedded in Onshape's
 right panel. Learners perform the CAD operations while Forge helps explain what
 to do, why it matters and how to recover when stuck. Approval-bound design
-execution and deterministic checks of supported constraints remain planned.
+execution remains planned. Deterministic lesson checks now report supported CAD
+evidence with explicit limits.
 
-**Current status: Phase 7 Learning Mode foundation approved after successful real Onshape human validation.**
+**Current status: Phase 8 COMPLETE, HUMAN VALIDATED, and MERGED; Phase 9A PREPARATION COMPLETE; Phase 9B NOT STARTED.**
 Phase 6.5 remains visually approved after two human-review passes.
 The product UI and canonical design system are frozen: Obsidian, Arc Blue, the
 Oblique Plane identity, restrained functional Liquid Glass and answer-first
@@ -41,22 +42,34 @@ OpenAI uses `store:false`. Neither configuration claims zero retention by defaul
 localStorage conversation persistence or content logs exist.
 See [Phase 6 review](docs/PHASE_6_REVIEW.md) for the complete boundary, checks and
 the final user-reported live results, full quality gate and local Groq setup.
-Phase 7 adds authored learning with no provider or CAD requests. Phase 8B model
-checking is in progress on a teammate's separate branch, with human validation and
-merge pending. Phase 9A is documentation-only preparation for one future safe edit;
+Phase 7 provides authored learning without provider or CAD requests. Phase 8 is
+**COMPLETE, HUMAN VALIDATED, and MERGED** into main at `81199ea`; it adds the
+Mounting Bracket guided project and explicit deterministic **Check my step** from
+fresh CAD evidence. Phase 9A is **PREPARATION COMPLETE** for one future safe edit;
 the running product remains read-only. See the
+[Phase 8 review](docs/PHASE_8_REVIEW.md),
 [safe-write specification](docs/PHASE_9_SAFE_WRITE_SPEC.md) and
-[preparation review](docs/PHASE_9_PREP_REVIEW.md). Phase 9B is not started.
+[preparation review](docs/PHASE_9_PREP_REVIEW.md). **Phase 9B: NOT STARTED.**
 See [the Phase 7 review](docs/PHASE_7_REVIEW.md) for lesson architecture and human acceptance.
 This is not a publicly deployed production service.
 
 ## Learning Mode
 
-Choose Learn, select your CAD experience and goal, then begin **Sketch to solid**.
-Read one step at a time, open Why and vocabulary, and deliberately request a
-conceptual hint, tool-specific hint or full explanation. Mark steps done yourself;
-the completion summary reports only observed interactions, never mastery or CAD
-correctness. The lesson works without an AI provider or model.
+Choose Learn and select your CAD experience and goal. Fundamentals opens the
+**Sketch to solid** sample; the guided-project goal opens **Mounting Bracket**.
+Both offer authored instructions, Why, vocabulary and deliberate progressive hints,
+without AI provider calls. The bracket's explicit **Check my step** retrieves fresh
+CAD evidence and computes PASS / FAIL / WARNING / UNVERIFIED deterministically.
+Feature names do not determine results; the supported single-L-profile alternative
+is accepted. A later non-verified result revokes the active step's Forge verification,
+and a later verified result restores it. Learner-marked completion stays separate.
+Dimensions, units, hole placement, fit and strength are not certified.
+
+The user confirms final human validation and merge to main at
+`81199ea95df04b34e6065441cad87d60b637dcf2`. The unchanged
+[Phase 8 review](docs/PHASE_8_REVIEW.md) preserves the original implementation and
+validation observations; its provisional status wording is superseded by this
+confirmation.
 
 Learning stays in panel memory across modes/settings/history. Reset, reload, panel
 destruction, sign-out or a genuine session/connection teardown clears it. No learning
@@ -156,8 +169,10 @@ package-lock.json        Reproducible JavaScript dependency graph
 `GET /health` reports process liveness only. Authentication readiness is distinct.
 The workspace displays the last verified Onshape authorization status; its Check
 connection action verifies identity, without accessing CAD. Standalone Design prompts remain local drafts; inside Onshape, explicit sends run
-read-only AI. Learn offers a three-step Sketch to solid sample, progressive hints and vocabulary.
-Progress is learner-reported; no lesson model checking runs. See [UI architecture](docs/UI.md).
+read-only AI. Learn offers Sketch to solid and the Mounting Bracket guided project, with
+progressive hints and vocabulary.
+Learner progress and deterministic Forge verification are distinct. See
+[UI architecture](docs/UI.md).
 
 Provider credentials stay backend-only. Sessions, CSRF, token encryption and audit
 persistence are implemented. Real OAuth login was manually verified by the human. Browser-wide iframe compatibility, managed hosting,

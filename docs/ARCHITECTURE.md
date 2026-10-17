@@ -1,6 +1,6 @@
 # Architecture
 
-## Current implementation — Phase 7 learning foundation, human acceptance passed
+## Current implementation — Phase 8 complete, human validated and merged
 
 One React/TypeScript/Vite web client, one FastAPI/Pydantic API and shared presentation
 primitives serve desktop browsers. Native clients are not part of Forge.
@@ -27,15 +27,15 @@ HTTP transports; no runtime setting enables mock sessions.
 
 ## Intended component responsibilities
 
-| Component        | Responsibility                                                                                      | Current state                                           |
-| ---------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| Frontend         | Narrow-panel UI, accessible controls, typed API calls, approved plan presentation                   | Authenticated local UI + DEV fixtures                   |
-| API              | Configuration, sessions, authorization, validated contracts, orchestration                          | OAuth, sessions, CSRF, liveness and read snapshots      |
-| Database         | Users linked to Onshape identity, encrypted token records, sessions, plans, inventory, audit events | Identity, grants, sessions, states and audit migrations |
-| AI layer         | Provider adapters, bounded agent loop, allowlisted functions, streamed user-facing status           | Phase 6 backend adapter and read-only agent             |
-| Onshape layer    | Server REST adapter, OAuth, document inspection, supported feature/assembly operations              | OAuth, identity and four allowlisted CAD reads          |
-| Validation layer | Unit-aware deterministic calculations and evidence-backed results                                   | Documentation only                                      |
-| Tool layer       | High-level operations joining user permissions, approvals, schemas, adapters, verification          | One Phase 6 read-only inspection tool                   |
+| Component        | Responsibility                                                                                      | Current state                                               |
+| ---------------- | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Frontend         | Narrow-panel UI, accessible controls, typed API calls, approved plan presentation                   | Authenticated local UI + DEV fixtures                       |
+| API              | Configuration, sessions, authorization, validated contracts, orchestration                          | OAuth, sessions, CSRF, read snapshots and step checks       |
+| Database         | Users linked to Onshape identity, encrypted token records, sessions, plans, inventory, audit events | Identity, grants, sessions, states and audit migrations     |
+| AI layer         | Provider adapters, bounded agent loop, allowlisted functions, streamed user-facing status           | Phase 6 backend adapter and read-only agent                 |
+| Onshape layer    | Server REST adapter, OAuth, document inspection, supported feature/assembly operations              | OAuth, identity and four allowlisted CAD reads              |
+| Validation layer | Unit-aware deterministic calculations and evidence-backed results                                   | Deterministic lesson checks; engineering validation planned |
+| Tool layer       | High-level operations joining user permissions, approvals, schemas, adapters, verification          | One Phase 6 read-only inspection tool                       |
 
 Backend `auth/` owns identity/security and `db/` owns persistence. `integrations/`
 and `validation/` own the provider-adapter and planned deterministic validation boundaries.
@@ -398,21 +398,46 @@ vocabulary requests keep their control focus. UI Lab's state selector is DEV-onl
 The production lesson is real authored educational content, not a synthetic CAD
 result. It makes no AI/CAD calls and requires no provider key. All CAD authorization,
 business logic and future engineering evaluation remain backend responsibilities.
-No dependency, API, migration, permission or database model changed. Phase 8 may
-attach deterministic evaluation to the metadata; no evaluator exists here.
+Phase 7 introduced no dependency, API, migration, permission or database model
+change. Phase 8 now attaches the deterministic evaluator described below; the
+authored sample itself retains its no-CAD behavior.
 
-## Phase 9A preparation — future architecture only
+## Phase 8 step-check boundary — complete, human validated and merged
 
-[The safe-write specification](PHASE_9_SAFE_WRITE_SPEC.md) selects one future
-terminal standard Fillet suppression. It designs server-owned inventory targets,
-immutable short-lived proposals, exact session/object/document-microversion
-approval, cross-worker single consumption, provider revision rejection and fresh
-deterministic verification. Short-lived PostgreSQL operational state and safety
-fences are proposed for 9B; no schema or runtime code is added here. In particular,
-the current four-read non-atomic snapshot is insufficient for write approval.
+`POST /api/learning/check-step` accepts a lesson id, a step id and the validated workspace
+context. The server owns the requirement sets (`step_checks/bracket.py`), takes one fresh
+bounded read through the existing `cad_gate` (same per-user in-flight guard and cooldown as
+the inspector and AI), projects it with `inspect()`, and evaluates pure functions. The browser
+cannot supply requirements, statuses, paths, hosts or tokens. Results hold fixed
+server-authored findings; nothing is cached or persisted.
 
-Phase 8B is external work awaiting validation/merge. Integrate its actual evidence
-contracts only after merge; do not invent another checker/evidence framework.
-Provider suppression payload and reject-on-skew update semantics require real
-disposable-document conformance gates. Phase 9B, write permissions, write routes,
-tools and active approval controls remain unimplemented and unauthorized in 9A.
+The Mounting Bracket lesson uses the existing learning engine. Deterministic
+PASS / FAIL / WARNING / UNVERIFIED findings preserve evidence limits and do not
+consult the AI. Feature names are not requirements; the supported single-L-profile
+alternative is retained. The active step's Forge verification is revoked by a later
+non-verified check and restored by a later verified check, independently of learner
+completion. Onshape access remains the existing four GETs only.
+
+Final human validation and merge at `81199ea` are confirmed by the user. Preserve
+[PHASE_8_REVIEW.md](PHASE_8_REVIEW.md) as the unchanged implementation/validation
+record; its earlier provisional status is superseded by this confirmation.
+
+## Phase 9A preparation complete — future write architecture only
+
+[The safe-write specification](PHASE_9_SAFE_WRITE_SPEC.md) selects exactly
+`suppress_terminal_fillet_v1`: suppress one active ordinary standard Fillet at the
+end of an unconfigured workspace Part Studio. The flow remains proposal → explicit
+approval → fresh state/version check → guarded write → post-write verification.
+Server-owned inventory targets, immutable short-lived proposals, exact session/
+object/document-microversion binding, cross-worker single consumption and stale
+approval rejection remain mandatory. No generic Onshape API authority or arbitrary
+FeatureScript is allowed. The provider microversion guard is mandatory.
+
+Short-lived PostgreSQL operational state and safety fences are proposed for 9B;
+no write schema or runtime code is added here. The current four-read non-atomic
+snapshot and Phase 8 read-only checks are insufficient for write approval.
+Reuse the now-merged evidence/checker infrastructure where appropriate rather
+than inventing a second framework. Provider suppression payload and reject-on-skew
+update semantics still require disposable-document conformance gates.
+OAuth2Write is not enabled; write routes, tools and active approval controls remain
+unimplemented. **Phase 9B: NOT STARTED**, awaiting explicit authorization.

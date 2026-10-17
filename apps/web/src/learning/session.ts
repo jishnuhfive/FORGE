@@ -2,6 +2,7 @@ import { isExperience, isLearningGoal } from './lesson';
 import type { Experience, LearningGoal, Lesson } from './lesson';
 
 export type HintLevel = 0 | 1 | 2 | 3;
+export type CheckOutcome = 'verified' | 'not_met' | 'unverified';
 export interface StepInteraction {
   stepId: string;
   hintLevel: HintLevel;
@@ -9,6 +10,9 @@ export interface StepInteraction {
   whyOpen: boolean;
   vocabularyVisible: string[];
   completed: boolean;
+  // True only while the latest deterministic server check of this step was
+  // `verified`; any later non-verified result removes it.
+  forgeVerified?: true;
 }
 interface Profile {
   experience: Experience;
@@ -29,6 +33,8 @@ export type LearningAction =
   | { type: 'review' | 'start' | 'reset' | 'edit-setup' }
   | { type: 'hint'; stepId: string; level: Exclude<HintLevel, 0> }
   | { type: 'why' | 'mark-done' | 'advance'; stepId: string }
+  // The latest accepted deterministic server outcome for the active step.
+  | { type: 'check-result'; stepId: string; outcome: CheckOutcome }
   | { type: 'vocabulary'; stepId: string; termId: string };
 export const initialSession = (): LearningSession => ({
   phase: 'setup',
@@ -86,6 +92,15 @@ export function reduceSession(
       : state;
   }
   let next = current;
+  if (action.type === 'check-result' && step.check === 'deterministic') {
+    // Verified reflects the latest result only: anything else revokes it.
+    if (action.outcome === 'verified' && !current.forgeVerified)
+      next = { ...current, forgeVerified: true };
+    else if (action.outcome !== 'verified' && current.forgeVerified) {
+      next = { ...current };
+      delete next.forgeVerified;
+    }
+  }
   if (
     action.type === 'hint' &&
     [1, 2, 3].includes(action.level) &&
@@ -128,6 +143,8 @@ export function sessionProgress(state: LearningSession, lesson: Lesson) {
     hints: interactions.reduce((count, item) => count + item.hintLevel, 0),
     vocabulary: new Set(interactions.flatMap((item) => item.vocabularyOpened))
       .size,
+    forgeVerified: interactions.filter((item) => item.forgeVerified).length,
+    checkable: lesson.steps.filter((step) => step.check).length,
     withoutHints: interactions.filter(
       (item) => item.completed && item.hintLevel === 0,
     ).length,

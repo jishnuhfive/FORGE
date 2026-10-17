@@ -31,6 +31,14 @@ export function LessonProgress({
           <dt>Vocabulary terms opened</dt>
           <dd>{progress.vocabulary}</dd>
         </div>
+        {progress.checkable > 0 && (
+          <div>
+            <dt>Steps Forge verified</dt>
+            <dd>
+              {progress.forgeVerified} of {progress.checkable}
+            </dd>
+          </div>
+        )}
         {summary && (
           <div>
             <dt>Steps completed without hints</dt>

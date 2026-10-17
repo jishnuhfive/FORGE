@@ -1,4 +1,4 @@
-# UI architecture through Phase 7 learning foundation
+# UI architecture through Phase 8 validated lesson checking
 
 ## Ownership
 
@@ -81,9 +81,8 @@ rate limit, cancellation and unexpected failure.
   proposals; Apply records only a local preview acknowledgement.
 - Learn uses an authored three-step fundamentals lesson with short experience/goal
   setup, Why/vocabulary disclosures and an explicitly requested three-level hint
-  ladder. Mark step done is learner-reported progress. There is no Check my step
-  action or result badge; model checking is described as available in supported
-  guided projects. The completion summary records interactions only.
+  ladder. Mark step done is learner-reported progress. The fundamentals sample has no Check my step action; the Mounting Bracket
+  guided project now provides the explicit deterministic checker described below. The completion summary records interactions only.
 - History receives typed arrays; normal history is empty. All fixture timelines,
   operations and reports are explicitly labeled sample data.
 
@@ -262,7 +261,7 @@ Forced-color mode maps semantic colors to system Canvas/CanvasText/LinkText and
 ButtonFace/ButtonText, so text and control contrast follow the user’s system palette.
 This adaptation does not change the approved normal appearance.
 
-## Phase 7 learning interaction and lifecycle
+## Phase 7 fundamentals-sample interaction and lifecycle
 
 `learning/` separates lesson definitions and their runtime validation, pure session
 transitions, selectors, provider ownership and small setup/guidance/progress views.
@@ -274,7 +273,8 @@ progress. Reload, iframe destruction and a new panel start at learner setup. Ord
 focus, visibility, selection and unchanged `/api/me` checks preserve it without reads.
 
 Experience changes introduction wording; the goal frames the same available sample.
-The guided-project choice explicitly says this sample prepares for future projects.
+The guided-project choice now opens the Phase 8 Mounting Bracket lesson described
+below; the fundamentals goal retains this sample.
 No hidden mastery adaptation is inferred. Each hint request replaces the prior level
 with stronger help; access has no delay or failure prerequisite. After the final
 reveal the same focusable control says Full explanation shown and is aria-disabled.
@@ -290,22 +290,43 @@ Explicit introduction/step/completion transitions focus the heading; entering Le
 through tab navigation preserves tab focus. Reduced motion/transparency and forced
 colors inherit the design system. Six widths are covered by browser tests.
 
-Only session observations are counted: marked steps, requested hint levels, distinct
+In the fundamentals sample, only session observations are counted: marked steps, requested hint levels, distinct
 term IDs opened, and completed steps with no hints. No percentages, grades, claims
 of mastery or verified CAD outcomes appear. Lesson state never enters preferences,
 localStorage/sessionStorage, database, analytics or logs. No AI or CAD request is
-made by any learning action. Existing auth status refresh behavior is unchanged.
+made by a fundamentals-sample action; bracket checking is explicit as described below. Existing auth status refresh behavior is unchanged.
 
 UI Lab → Learn mode adds deterministic representative states, including safe
 unavailable/invalid/load-failure recovery. Those selectors/fixtures are DEV-only.
 See [PHASE_7_REVIEW.md](PHASE_7_REVIEW.md) for verification and human review steps.
 
-## Phase 9A preview design — documentation only
+## Phase 8 Check my step — complete, human validated and merged
+
+A functional control inside the active bracket step (never on the sample lesson or the review
+step). States: idle, "Checking current model…" (single genuine request, no fake stages),
+verified / not yet / can't fully verify, error and cooldown. Status is shown with a symbol and
+a word, never color alone, through the existing StatusBadge tokens. One polite status region;
+evidence is a native disclosure. Learner "Mark step done" stays separate from "Steps Forge
+verified". A failed check never reveals a hint.
+
+The Mounting Bracket guided project preserves PASS / FAIL / WARNING / UNVERIFIED
+findings from fresh CAD evidence, feature-name independence and the single-L-profile
+alternative. A later non-verified check revokes that active step's Forge verification;
+a later verified check restores it. The student still performs all CAD edits.
+The user confirms final human validation and merge at `81199ea`; the unchanged
+[Phase 8 review](PHASE_8_REVIEW.md) preserves its earlier validation record.
+
+## Phase 9A preview design — preparation complete, documentation only
 
 The future [first-write specification](PHASE_9_SAFE_WRITE_SPEC.md) defines an
-answer-first suppression preview: requested change, Active → Suppressed, confirmed
-inventory target, effect/limitations, Cancel and **Approve change**. It reuses the
-frozen solid reading layer, functional controls, single scroll region and 320px
-accessibility/focus rules. Executing, uncertain and verified outcomes have distinct
-truthful text; no automatic Undo is promised. No preview or active write approval
-is added in 9A; production Modify and existing read-only behavior remain unchanged.
+answer-first preview for `suppress_terminal_fillet_v1`: requested change,
+Active → Suppressed, confirmed inventory target, effect/limitations, Cancel and
+**Approve change**. It reuses the frozen solid reading layer, functional controls,
+single scroll region and 320px accessibility/focus rules. Explicit approval is
+followed by a fresh state/version check, guarded write and post-write verification;
+stale approval must be rejected. Executing, uncertain and verified outcomes have
+truthful distinct text; no automatic Undo is promised.
+
+No preview or active write approval is added in 9A. Production Modify and the
+read-only CAD boundary remain unchanged; OAuth2Write is not enabled.
+**Phase 9B: NOT STARTED.**

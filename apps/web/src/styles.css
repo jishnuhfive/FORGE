@@ -1786,3 +1786,53 @@ ul.compact-list {
 .learning-continuation > .button + .button {
   margin-left: var(--space-2);
 }
+.learning-check {
+  margin-block: var(--space-6);
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+}
+.learning-check > p,
+.learning-check [role='status'] > p {
+  margin: 0;
+}
+.check-headline {
+  font-weight: 600;
+}
+.check-findings {
+  display: grid;
+  gap: var(--space-2);
+  width: 100%;
+}
+.check-findings h3 {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--muted);
+}
+.check-findings ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+.check-findings li {
+  display: grid;
+  gap: var(--space-1);
+  justify-items: start;
+  overflow-wrap: anywhere;
+}
+/* Primary action on the design-system accent; never layered with .glass-action,
+   whose panel fill would sit under the primary's dark on-accent label. */
+.button.check-action[aria-disabled='true'],
+.button.check-action[aria-disabled='true']:hover,
+.button.check-action[aria-disabled='true']:active {
+  background: var(--surface-hover);
+  color: var(--muted);
+  border-color: var(--border);
+  cursor: not-allowed;
+  transform: none;
+}
+.check-label {
+  font-weight: 600;
+}

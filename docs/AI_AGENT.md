@@ -5,7 +5,8 @@ the user on 2026-10-16, including repaired Evidence, FACE/EDGE grounding and the
 deterministic write-capability path. The complete final repository gate passes;
 [PHASE_6_REVIEW.md](PHASE_6_REVIEW.md) records results and limits.
 The separately authorized Phase 7 authored learning foundation makes no AI calls;
-all CAD mutations remain deferred. This is design assistance, not
+all CAD mutations remain deferred. Phase 8 now adds deterministic read-only lesson
+checking without AI; Phase 9A preparation is complete and 9B is not started. This is design assistance, not
 engineering certification. Codex develops Forge; Forge's runtime AI is separate.
 
 ## Groq contract reviewed — 2026-10-15; retention/quotas rechecked 2026-10-16
@@ -420,19 +421,38 @@ are deterministic authored frontend content. Learning never calls this agent or 
 provider, reads CAD automatically or uses model output to assess a learner. Its
 completion summary reports only local observed lesson interactions and learner-marked
 steps. Future optional AI teaching would require explicit design/authorization;
-Phase 8 deterministic checking is not implemented. Existing Design sends retain all
-Phase 6 disclosure, grounding, privacy and read-only boundaries.
+Phase 8 adds explicit deterministic checks to the separate Mounting Bracket lesson.
+Existing Design sends retain all Phase 6 disclosure, grounding, privacy and
+read-only boundaries.
 
-## Phase 9A authority design — not a runtime tool
+## Phase 8 deterministic checking boundary — complete, human validated and merged
+
+Check my step uses no AI provider. A provider may in future explain already-computed
+results but may never assign or alter PASS, FAIL, WARNING or UNVERIFIED. The
+Mounting Bracket lesson works without Groq. Each explicit check acquires fresh,
+authorized CAD evidence; feature names never determine a result. The second-portion
+check accepts a single extruded L-profile alternative as well as the supported
+two-extrusion route. A later non-verified result revokes the active step's Forge
+verification; a later verified result restores it. Learner completion remains
+separate. These are read-only checks, not engineering certification or write approval.
+
+The user confirms final human validation and merge to main at `81199ea`.
+[PHASE_8_REVIEW.md](PHASE_8_REVIEW.md) retains the original implementation and
+validation record unchanged; its provisional wording is superseded by that confirmation.
+
+## Phase 9A authority design — preparation complete, not a runtime tool
 
 [The future first-write design](PHASE_9_SAFE_WRITE_SPEC.md) permits intent
-interpretation/clarification and explanation of a server-created proposal for one
-terminal Fillet suppression. Deterministic code alone would own target identity,
-approval, freshness, execution and result status. The private executor must never
-be an AI-callable function. No generic HTTP, model-provided IDs/tokens/FeatureScript,
-model approval, success override or expired-approval reuse is permitted.
+interpretation/clarification and explanation of a server-created proposal for
+`suppress_terminal_fillet_v1`. Deterministic code alone would own target identity,
+explicit approval, fresh state/version checks, guarded execution and post-write
+verification. Stale approval must be rejected and the provider microversion guard
+is mandatory. The private executor must never be an AI-callable function. No generic
+HTTP/Onshape authority, model-provided IDs/tokens, arbitrary FeatureScript, model
+approval, success override or expired-approval reuse is permitted.
 
 Phase 9A adds no model tools, provider changes or executable proposal code.
 Current deterministic read-only write refusal and the no-argument inspection tool
-remain unchanged. Phase 8B contracts are external/unmerged; 9B must await their
-final integration and explicit authorization.
+remain unchanged. OAuth2Write is not enabled. Phase 8 is now complete and merged;
+its actual checker/evidence contracts must be reviewed before separately authorized
+runtime work. **Phase 9B: NOT STARTED.**

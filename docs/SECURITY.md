@@ -421,25 +421,45 @@ Closed bounded authored lesson validation precedes use. Content is plain React t
 not HTML, executable rules or React-node payloads. Future check metadata only names
 supported requirement shapes; it cannot execute code or report a result. Marking a
 step done explicitly records learner self-report, never CAD validation. Hints are
-reviewed local content. Learning invokes no AI endpoint, Onshape endpoint, background
+reviewed local content. The fundamentals sample invokes no AI endpoint, Onshape endpoint, background
 polling, telemetry or browser-storage operation. The existing `/api/me` lifecycle is
 unchanged. No credentials enter lesson data or presentation. OAuth scopes, CSRF,
 backend evidence and the read-only tool boundary remain unchanged. Phase 8 checking
-and every CAD write still require separate authorization and independent controls.
+now uses the separately authorized controls below; CAD writes remain future work
+requiring explicit authorization and independent controls.
 
-## Phase 9A write threat model — planned controls only
+## Phase 8 Check my step — complete, human validated and merged
 
-[The safe-write specification](PHASE_9_SAFE_WRITE_SPEC.md) documents threats,
-minimal future OAuth2Write permission, broad provider-scope risk, exact proposal/
-session/object/revision binding, one-time consumption, CSRF, shared execution
-fences, provider stale rejection, verification and uncertain-write recovery.
-It covers privacy/retention of temporary operational records separately from
-content-free audits; no persistent CAD history is proposed. An unresolved fence
-is a deny marker, never reusable write authority.
+Explicit, authenticated POST with exact Origin and session-bound CSRF; strict closed request
+schema (extra fields rejected, errors never echo identifiers); 4 KiB body bound. Reuses
+`acquire_bound`, so read-permission, grant-state and session-revocation checks and the
+per-user gate apply. Only the four existing GET reads can reach Onshape; there is no write,
+FeatureScript or scope change. Status is computed server-side from evidence; unknown evidence
+is UNVERIFIED. No lesson state, history or results are stored on the server.
 
-These controls are **not implemented in Phase 9A**. Existing scopes, sessions,
-CSRF, four-GET CAD transport, AI tools/refusal, database and migrations are
-unchanged. No real Onshape writes or app-setting changes occur. Phase 9B requires
-Phase 8 validation/merge and explicit authorization; any permission expansion
-also requires explicit human approval. If provider-side atomic stale rejection
-cannot be proven, the selected mechanism must not be enabled.
+The Mounting Bracket checker owns PASS / FAIL / WARNING / UNVERIFIED, uses fresh
+CAD evidence and does not trust feature names or model judgment. The supported
+single-L-profile alternative and verification revocation/restoration remain intact.
+Results are memory-only in the panel, separate from learner-marked completion.
+The user confirms final validation and merge at `81199ea`; the original
+[Phase 8 review](PHASE_8_REVIEW.md) is retained unchanged, including its earlier
+provisional wording, which this confirmation supersedes.
+
+## Phase 9A preparation complete — planned write controls only
+
+[The safe-write specification](PHASE_9_SAFE_WRITE_SPEC.md) retains
+`suppress_terminal_fillet_v1` and the exact proposal → explicit approval → fresh
+state/version check → guarded write → post-write verification boundary. It documents
+future OAuth2Write permission, broad provider-scope risk, exact session/object/
+revision binding, one-time consumption, CSRF, shared execution fences and uncertain-write
+recovery. Stale approval must be rejected; the provider microversion guard is
+mandatory. Generic Onshape API authority and arbitrary FeatureScript are prohibited.
+Temporary operational records remain separate from content-free audits; no persistent
+CAD history is proposed. An unresolved fence is a deny marker, never write authority.
+
+These write controls are **not implemented**. OAuth2Write is not enabled. Existing
+sessions, CSRF, four-GET transport, AI tools/refusal, database and migrations remain
+unchanged by this preparation and documentation merge. Phase 8 is now integrated;
+**Phase 9B: NOT STARTED** and still requires explicit authorization. Permission
+expansion separately requires human approval. If provider-side atomic stale
+rejection cannot be proven, the selected write mechanism must not be enabled.

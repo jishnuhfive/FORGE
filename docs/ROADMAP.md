@@ -14,8 +14,8 @@ Later hardening does not defer security for earlier live integrations.
 | 5     | CAD inspector: bounded read-only workspace Part Studio evidence; live verification                                  |
 | 6     | Read-only AI agent: provider adapters, strict read tools, bounded budgets, progress streaming                       |
 | 7     | Learning Mode foundation: authored lesson, setup, hint ladder, vocabulary, ephemeral progress; human review: PASSED |
-| 8     | Mounting Bracket + Check My Step: teammate's Phase 8B in progress separately; human validation and merge pending    |
-| 9     | FIRST SAFE CAD EDIT: 9A preparation only; 9B NOT STARTED, blocked on Phase 8 merge and explicit authorization       |
+| 8     | Mounting Bracket + Check My Step: COMPLETE, HUMAN VALIDATED, MERGED at 81199ea                                      |
+| 9     | FIRST SAFE CAD EDIT: 9A PREPARATION COMPLETE; 9B NOT STARTED, awaiting explicit authorization                       |
 | 10    | Assemblies and mates: supported instances/mates verified through official APIs                                      |
 | 11    | Validation engine: deterministic PASS/WARNING/FAIL/UNVERIFIED checks and evidence                                   |
 | 12    | Full agent execution loop: understand/inspect/plan/approve/execute/reinspect/validate/revise/report                 |
@@ -139,43 +139,46 @@ and must not be committed. Results are recorded in
 [PHASE_7_REVIEW.md](PHASE_7_REVIEW.md). The branch is approved and ready for PR/merge;
 the agent must not merge it. Phase 7 subsequently merged in `9c12dfb`.
 
-## Phase 8 — separate implementation, validation and merge pending
+## Phase 8 — COMPLETE, HUMAN VALIDATED, and MERGED
 
-The Phase 9A user reports Phase 8B Mounting Bracket + Check My Step is being
-implemented by a teammate on another branch. It has not been human-validated or
-merged. This checkout intentionally retains the merged Phase 7 baseline; no Phase
-8 code or guessed interfaces are copied into this branch.
+The user confirms final real Onshape validation and merge to main at
+`81199ea95df04b34e6065441cad87d60b637dcf2`. This integration brings the actual
+Mounting Bracket guided project and deterministic Check my step into the Phase 9
+branch without squashing Phase 8 history. See
+[PHASE_8_REVIEW.md](PHASE_8_REVIEW.md) and
+[PHASE_8_LESSON_SPEC.md](PHASE_8_LESSON_SPEC.md). The review remains unchanged;
+its provisional status wording is superseded by the user's final confirmation.
 
-Phase 8 connects lesson requirements to fresh,
-session-owned, object-authorized read-only CAD evidence. Requirements may describe
-supported feature existence/activity, solid-body existence or a supported operation.
-Phase 7 only validates metadata shape; it evaluates none of these requirements.
-Phase 8 must define evidence/version binding, deterministic checker contracts,
-units/bounds where relevant, stale/partial/unsupported behavior and truthful results.
-No Phase 8 checker is present in this checkout; external branch implementation
-status is not inferred from the older reviews.
+The five-step lesson uses the Phase 7 engine. Explicit checks acquire fresh,
+session-owned CAD evidence and produce deterministic PASS / FAIL / WARNING /
+UNVERIFIED. Feature names are not evidence. The single-L-profile alternative and
+two-extrusion path remain supported; verification can be revoked and restored by
+subsequent checks independently of learner-marked completion. Evidence limits stay
+explicit; no whole-design or engineering-certification claim is introduced.
+No CAD writes, FeatureScript, new OAuth scope or AI-chosen status is added.
 
 ## Phase 9 — FIRST SAFE CAD EDIT
 
-Phase 9A is authorized **preparation only** on `phase9/safe-cad-edit-prep`.
-[The safe-write specification](PHASE_9_SAFE_WRITE_SPEC.md) selects exactly one
-future operation: suppress an active ordinary standard Fillet at the end of an
-unconfigured workspace Part Studio. It defines exact proposal/approval binding,
-provider microversion rejection, single use, verification, failure/recovery,
-privacy, threat model and automated/human gates. This is documentation, not an
-implemented CAD capability. [The preparation review](PHASE_9_PREP_REVIEW.md) records
-verification and handoff.
+Phase 9A is **PREPARATION COMPLETE** on `phase9/safe-cad-edit-prep`, recorded in
+`b95e866687e024d88dcd2e8c0e4304b94390f296`.
+[The safe-write specification](PHASE_9_SAFE_WRITE_SPEC.md) selects exactly
+`suppress_terminal_fillet_v1`: suppress an active ordinary standard Fillet at the
+end of an unconfigured workspace Part Studio. Its architecture remains proposal →
+explicit approval → fresh state/version check → guarded write → post-write
+verification. Stale approval is rejected and the provider microversion guard is
+mandatory. No generic Onshape API authority or arbitrary FeatureScript is allowed.
+[The preparation review](PHASE_9_PREP_REVIEW.md) records the preparation gate.
 
-Phase 9B remains **NOT STARTED**. It requires Phase 8B completion, real human
-validation, final committed documentation, merge to main, normal integration of
-latest origin/main into this branch and explicit human Phase 9B authorization.
-Permission changes require explicit human approval. Suppression payload and atomic
-stale-update rejection must pass disposable-Onshape conformance tests before
-runtime activation. No write scope, callable write tool, production write route,
-active approval UI, FeatureScript or real CAD change is authorized in 9A.
+Phase 8's completion, human validation and merge to main are now satisfied; this
+merge integrates it into the preparation branch. **Phase 9B remains NOT STARTED**,
+waiting for explicit human authorization. OAuth2Write is not enabled. Any future
+permission expansion separately requires explicit human approval. Provider
+suppression-payload and atomic stale-update conformance gates remain mandatory
+before runtime activation. No write route, tool or active approval UI is introduced
+by preparation or this merge.
 
 The prior Phase 9 Reality Lock inventory topic remains planned for later explicit
 resequencing; it is not dropped or implemented by this preparation. Mistake
-investigation moves to the later learning backlog (Phase 14), not this first-write
-scope. Assemblies/mates retain Phase 10; general Modify, a CAD tool library, Reality
-Lock and autonomous workflows remain separately authorized future work.
+investigation moves to the later learning backlog (Phase 14). Assemblies/mates
+retain Phase 10; general Modify, a CAD tool library, Reality Lock and autonomous
+workflows remain separately authorized future work.
