@@ -244,9 +244,11 @@ def test_valid_quantity(quantity: str) -> None:
 @pytest.mark.parametrize(
     "quantity",
     [
+        "",
         "NaN mm",
         "inf mm",
         "Infinity in",
+        "-Infinity mm",
         "-1 mm",
         "0 mm",
         "0.000001 mm",
@@ -815,6 +817,25 @@ def test_maximum_five_operations_execute_in_order(harness: Harness) -> None:
         assert result.operations == ("verified_success",) * 5
         assert provider.writes == 5
         assert provider.guards == [M0] + [f"{n:024x}" for n in range(1, 5)]
+
+
+def test_microversion_chain_m0_to_m3_never_reuses_a_baseline(harness: Harness) -> None:
+    """M0 -> op1 -> M1 -> op2 -> M2 -> op3 -> M3, each guarded by its predecessor."""
+    provider = PlanProvider()
+    chain = [M0] + [f"{n:024x}" for n in (1, 2, 3)]  # M0, M1, M2, M3
+    with running(harness, provider):
+        req, preview = prepare(harness)  # extrude depth, fillet radius, rename
+        assert provider.marker == chain[0]
+        result = approve(harness, req, preview)
+        assert result.operations == ("verified_success",) * 3
+        # op1 used M0, op2 used M1 (never M0), op3 used M2 (never M0 or M1).
+        assert provider.guards == chain[:3]
+        # The final verified state is M3, and no baseline was ever reused.
+        assert provider.marker == chain[3]
+        assert len(set(chain)) == 4
+        for index, guard in enumerate(provider.guards):
+            assert guard == chain[index]
+            assert all(guard != earlier for earlier in chain[:index])
 
 
 @pytest.mark.parametrize(

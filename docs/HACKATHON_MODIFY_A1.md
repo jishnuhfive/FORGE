@@ -275,20 +275,26 @@ The checkpoint above predates the final rename-safety edit. A continuation agent
 re-validated the exact final tree, reviewed the executor, evidence and storage code
 against the A1 requirements, and added 18 end-to-end rename-safety tests.
 
-- Focused A1: 163 passed (145 + 18 new: rename of an incomplete or malformed
-  Extrude/Fillet definition at prepare time, and a definition that degrades after
-  preparation; all assert zero provider writes, no dispatch audit and no fence).
+- Focused A1: 166 passed (145 original + 18 rename-safety cases: rename of an
+  incomplete or malformed Extrude/Fillet definition at prepare time, and a definition
+  that degrades after preparation, all asserting zero provider writes, no dispatch
+  audit and no fence; + 3 narrow additions: empty and `-Infinity` quantities, and an
+  explicit M0 -> M1 -> M2 -> M3 chain assertion).
 - Phase 9 safe-edit regression plus `test_ai_write`: 850 passed (non-PostgreSQL).
 - PostgreSQL (isolated schemas): 15 passed, including four A1 cases.
-- Full backend with PostgreSQL enabled: 1,986 passed. One failure and two collection
+- Full backend with PostgreSQL enabled: 1,989 passed. One failure and two collection
   errors are Windows-only and also occur on clean `main`: `test_dev_key` asserts POSIX
   file mode, and two `test_cad_read` parametrized ids are oversized for pytest.
-- Frontend (`--maxWorkers=2`): 736 of 737 passed. The one failure
-  (`InspectorView`, unrelated; A1 changes no frontend file) took about two minutes
-  under machine load and passes alone (9 of 9).
+- Frontend (normal `npm test --workspace @forge/web`): 737 of 737 passed. An
+  earlier run on a loaded machine showed one timeout in the unrelated `InspectorView`
+  test, which passed alone; A1 changes no frontend file.
 - Phase 9 Modify browser tests (`modify.spec.ts`): 33 passed in Chromium, Firefox and
   WebKit.
-- Ruff, formatting, strict mypy (119 source files), ESLint, TypeScript, production
+- Platform notes (Windows, not A1 regressions): Prettier reports CRLF line endings on
+  192 files repo-wide because `core.autocrlf=true`, and passes everywhere with
+  `--end-of-line auto`; strict mypy over `scripts/` reports three POSIX-only
+  `os.killpg`/`signal.SIGKILL` errors in `scripts/dev.py`, a file A1 does not touch.
+- Ruff, formatting, strict mypy (`src tests migrations`, 119 source files), ESLint, TypeScript, production
   build, Compose config and `git diff --check`: pass. `alembic check`: no new upgrade
   operations, head `0002_safe_edit`; no migration file changed.
 - `npm audit`: zero vulnerabilities. `pip-audit`: no known vulnerabilities.
@@ -322,7 +328,7 @@ change, AI execution, merge or production-readiness claim belongs to A1.
 - `apps/api/src/forge_api/integrations/onshape/edit_registry.py`: sole operation/shape registry and exact definition changes.
 - `apps/api/src/forge_api/integrations/onshape/modify_evidence.py`: request-local projection and complete structural verification.
 - `apps/api/src/forge_api/integrations/onshape/write_client.py`: pinned-read reuse and closed guarded dispatch.
-- `apps/api/tests/test_modify_plan.py`: 163 focused synthetic cases.
+- `apps/api/tests/test_modify_plan.py`: 166 focused synthetic cases.
 - `apps/api/tests/test_modify_plan_postgres.py`: four isolated PostgreSQL cases.
 - `apps/api/tests/fixtures/modify_parameters.json` and its `README.md`: narrow synthetic shapes and provenance.
 - `docs/HACKATHON_MODIFY_A1.md`, `ARCHITECTURE.md`, `SECURITY.md`, `DEVELOPMENT.md`, `ROADMAP.md`: integration, boundaries, validation and scope.
