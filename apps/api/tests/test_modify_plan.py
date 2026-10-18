@@ -929,3 +929,106 @@ def test_authority_rechecked_before_every_operation(
             and result.operations[2] == "skipped"
         )
         assert provider.writes == 1
+
+
+def _break_definition(feature: dict[str, Any], case: str) -> None:
+    """Make a supported Extrude/Fillet definition incomplete or malformed."""
+    params = feature["parameters"]
+    if case == "missing":
+        del feature["parameters"]
+    elif case == "null":
+        feature["parameters"] = None
+    elif case == "empty":
+        feature["parameters"] = []
+    elif case == "malformed":
+        feature["parameters"] = ["not-a-parameter"]
+    elif case == "duplicate":
+        params.append(deepcopy(params[0]))
+    elif case == "unknown_parameter":
+        params.append({"parameterId": "speculative", "value": True})
+    elif case == "wrong_type":
+        params[0] = {"parameterId": params[0]["parameterId"], "btType": "Unknown-1"}
+    else:
+        raise AssertionError(case)
+
+
+def _no_dispatch(harness: Harness, provider: PlanProvider) -> None:
+    assert provider.writes == 0 and not provider.payloads
+    assert all(call.method == "GET" for call in provider.calls)
+    with harness.runtime.sessions() as db:
+        assert (
+            db.scalar(
+                select(AuditEvent).where(AuditEvent.kind == "write_dispatch_started")
+            )
+            is None
+        )
+        assert db.scalar(select(WriteFence)) is None
+
+
+@pytest.mark.parametrize("position", [2, 3])
+@pytest.mark.parametrize(
+    "case",
+    [
+        "missing",
+        "null",
+        "empty",
+        "malformed",
+        "duplicate",
+        "unknown_parameter",
+        "wrong_type",
+    ],
+)
+def test_rename_of_an_incomplete_definition_never_reaches_the_provider(
+    harness: Harness, position: int, case: str
+) -> None:
+    """Rename replaces the whole feature, so an unproven definition is rejected
+    before a plan exists, let alone before any dispatch."""
+    provider = PlanProvider()
+    _break_definition(provider.data["features"][position - 1], case)
+    with running(harness, provider):
+        try:
+            req, targets = discover(harness)
+        except EditError:
+            targets = None  # The whole evidence was refused: even earlier, still safe.
+        if targets is not None:
+            match = next((t for t in targets.targets if t.position == position), None)
+            if match is not None:
+                # A target may remain listed for other supported edits, but never
+                # for rename, and an explicit rename request cannot become a plan.
+                assert "RENAME_FEATURE" not in match.supported_operations
+                semantic = SemanticPlan.model_validate_json(
+                    json.dumps(
+                        {
+                            "target_catalog": targets.target_catalog,
+                            "operations": [
+                                {
+                                    "type": "RENAME_FEATURE",
+                                    "target": match.handle,
+                                    "new_name": "Renamed",
+                                }
+                            ],
+                        }
+                    )
+                )
+                req.app.state.cad_gate = ReadGate()
+                with pytest.raises(EditError):
+                    plan_service.prepare(req, harness.runtime, semantic)
+        _no_dispatch(harness, provider)
+
+
+@pytest.mark.parametrize("case", ["missing", "empty", "malformed", "unknown_parameter"])
+def test_a_definition_that_becomes_incomplete_after_preparation_is_never_written(
+    harness: Harness, case: str
+) -> None:
+    provider = PlanProvider()
+    with running(harness, provider):
+        req, preview = prepare(harness, ("RENAME_FEATURE", "SET_SUPPRESSED"))
+        assert provider.writes == 0
+        # The definition degrades between approval time and execution.
+        _break_definition(provider.data["features"][-1], case)
+        result = approve(harness, req, preview)
+        # First operation fails before dispatch; the second is never attempted.
+        assert result.operations[0] in ("write_failed", "rejected_stale")
+        assert result.operations[1] == "skipped"
+        assert result.state in ("write_failed", "rejected_stale")
+        _no_dispatch(harness, provider)

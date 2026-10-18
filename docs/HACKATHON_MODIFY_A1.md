@@ -91,6 +91,27 @@ unavailable; complete maps must cover every feature and strictly agree with
 suppression/inactive states. Partial maps, missing Boolean, configured/parent
 conflicts or unsupported bodies reject. Unavailable states imply no model health.
 
+### Rename safety (full-definition replacement)
+
+Onshape's partial update endpoint does not document rename, so rename is a
+**full feature-definition replacement**: the server copies the entire fresh
+definition and changes only `name`. It is therefore safe only when Forge holds a
+complete, proven definition to copy. Rename is restricted to the same narrow
+Extrude and Fillet shapes as the quantity edits and must pass the full supported
+parameter-shape check (`quantity_parameter` over exactly the allowed parameter IDs,
+the required explicit enum/query/Boolean parameters, and a valid supported
+quantity expression) before a target is even offered for rename.
+
+Rename rejects **before any plan exists, and before any dispatch**, when the
+definition is incomplete or malformed: parameters missing, null, empty, malformed,
+duplicated, unknown or wrongly typed; unsupported feature type; non-standard
+`btType`; unknown suppression state; or a name that is empty, over-long or contains
+control characters. Missing provider fields are never treated as harmless defaults.
+If a definition degrades after a plan was prepared, the executor repeats the check
+against fresh evidence and stops with zero provider writes. Tests assert this
+end to end: provider write count zero, no dispatch audit event, no workspace fence,
+and later operations skipped.
+
 ### Parameter evidence and explicit limits
 
 Repository inspection found no reliable captured depth/radius write fixtures.
@@ -248,6 +269,44 @@ Final automated gate:
 - Browser E2E was not rerun: no browser code, route or public HTTP contract changed.
   Existing Modify frontend regressions and the complete production build passed.
 
+### Continuation validation of the final tree (Windows)
+
+The checkpoint above predates the final rename-safety edit. A continuation agent
+re-validated the exact final tree, reviewed the executor, evidence and storage code
+against the A1 requirements, and added 18 end-to-end rename-safety tests.
+
+- Focused A1: 163 passed (145 + 18 new: rename of an incomplete or malformed
+  Extrude/Fillet definition at prepare time, and a definition that degrades after
+  preparation; all assert zero provider writes, no dispatch audit and no fence).
+- Phase 9 safe-edit regression plus `test_ai_write`: 850 passed (non-PostgreSQL).
+- PostgreSQL (isolated schemas): 15 passed, including four A1 cases.
+- Full backend with PostgreSQL enabled: 1,986 passed. One failure and two collection
+  errors are Windows-only and also occur on clean `main`: `test_dev_key` asserts POSIX
+  file mode, and two `test_cad_read` parametrized ids are oversized for pytest.
+- Frontend (`--maxWorkers=2`): 736 of 737 passed. The one failure
+  (`InspectorView`, unrelated; A1 changes no frontend file) took about two minutes
+  under machine load and passes alone (9 of 9).
+- Phase 9 Modify browser tests (`modify.spec.ts`): 33 passed in Chromium, Firefox and
+  WebKit.
+- Ruff, formatting, strict mypy (119 source files), ESLint, TypeScript, production
+  build, Compose config and `git diff --check`: pass. `alembic check`: no new upgrade
+  operations, head `0002_safe_edit`; no migration file changed.
+- `npm audit`: zero vulnerabilities. `pip-audit`: no known vulnerabilities.
+- Real Onshape writes: zero. OAuth changes: zero. Writes remain default OFF.
+
+### Known limitations for Team B
+
+- Suppress and unsuppress apply only to the terminal standard Fillet, because the
+  reused Phase 9 evidence policy requires every non-terminal feature to be active.
+  Models must also have 3 to 20 standard Sketch/Extrude/Fillet features.
+- Extrude and Fillet quantity shapes come from a synthetic fixture and official
+  documentation, not from a live capture. Live conformance is unproven.
+- The whole plan shares one 30-second verification budget, so a five-operation plan
+  can stop as `execution_uncertain` under provider latency. That is fail-closed, not
+  unsafe, but the fence then needs the existing recovery path.
+- A planner may call `discover` and `prepare` only. `approve`, the write client, the
+  private records and the registry must never be exposed as model tools.
+
 Real new-operation representation/payload/guard validation remains required, along with the deferred
 Phase 9 Gate B provider audit. No live mutation, OAuth redirect/permission/key
 change, AI execution, merge or production-readiness claim belongs to A1.
@@ -263,7 +322,7 @@ change, AI execution, merge or production-readiness claim belongs to A1.
 - `apps/api/src/forge_api/integrations/onshape/edit_registry.py`: sole operation/shape registry and exact definition changes.
 - `apps/api/src/forge_api/integrations/onshape/modify_evidence.py`: request-local projection and complete structural verification.
 - `apps/api/src/forge_api/integrations/onshape/write_client.py`: pinned-read reuse and closed guarded dispatch.
-- `apps/api/tests/test_modify_plan.py`: 145 focused synthetic cases.
+- `apps/api/tests/test_modify_plan.py`: 163 focused synthetic cases.
 - `apps/api/tests/test_modify_plan_postgres.py`: four isolated PostgreSQL cases.
 - `apps/api/tests/fixtures/modify_parameters.json` and its `README.md`: narrow synthetic shapes and provenance.
 - `docs/HACKATHON_MODIFY_A1.md`, `ARCHITECTURE.md`, `SECURITY.md`, `DEVELOPMENT.md`, `ROADMAP.md`: integration, boundaries, validation and scope.
