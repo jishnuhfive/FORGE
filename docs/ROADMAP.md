@@ -261,3 +261,7 @@ atomic pending cancellation through generalized plan routes. It preserves B1's
 preview-only authority and the existing Phase 9 browser flow. B2's live Modify UI
 and disposable real Onshape validation remain future work. No new operation,
 OAuth permission or migration. See [HACKATHON_MODIFY_A2.md](HACKATHON_MODIFY_A2.md).
+
+B2 implements the live natural-language Modify UI over the integrated A1/B1/A2
+contracts. Controlled disposable-document validation is still pending; no CAD scope
+or OAuth changes are added. See [HACKATHON_MODIFY_B2.md](HACKATHON_MODIFY_B2.md).

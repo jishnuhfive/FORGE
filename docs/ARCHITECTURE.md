@@ -557,3 +557,7 @@ consumer disconnect. PostgreSQL conditionally cancels only pending plans, retain
 status-only journals. Claims, fences, verification, revision chaining and execution
 budgets stay in A1. No new UI, CAD operation, AI tool, dependency or migration.
 See [the stable B2 API and stream contract](HACKATHON_MODIFY_A2.md).
+
+B2 now connects the live Modify tab to that pipeline: natural-language planning,
+exact multi-operation review, explicit human approval and bounded progress/status.
+Authority remains in component memory and the backend; see [B2](HACKATHON_MODIFY_B2.md).

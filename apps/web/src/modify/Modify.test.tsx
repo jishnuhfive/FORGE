@@ -1,11 +1,12 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Modify } from '../features/Modify';
 import { AuthContext } from '../auth/context';
 import { OnshapeContext } from '../onshape/store';
 import type { Me } from '../auth/api';
 import type { ClientState } from '../onshape/model';
-import { approve, parseProposal, messages } from './api';
+import type { PlanPreview, PlanResult } from './api';
+import { clarificationMessages, messages } from './api';
 
 const me: Me = {
   status: 'authenticated',
@@ -25,63 +26,130 @@ const context: ClientState = {
   },
   selection: { status: 'waiting', entities: [] },
 };
-const proposal = {
-  proposal_id: 'p'.repeat(43),
-  digest: 'd'.repeat(64),
-  operation_type: 'suppress_terminal_fillet_v1',
-  label: 'Fillet fixture',
-  position: 3,
-  current: 'Active',
-  proposed: 'Suppressed',
-  expires_at: 2000000000,
-};
-let capability = 'available';
-let terminal = 'verified_success';
-let error: string | null = null;
-let writes = 0;
-let fetcher: ReturnType<typeof vi.fn<(input: string) => Promise<Response>>>;
-const reply = (body: unknown) => new Response(JSON.stringify(body));
+function fixture(count = 3): PlanPreview {
+  return {
+    proposal_id: 'p'.repeat(43),
+    digest: 'd'.repeat(64),
+    expires_at: Math.floor(Date.now() / 1000) + 120,
+    operations: [
+      {
+        type: 'SET_EXTRUDE_DEPTH',
+        label: 'Base extrusion',
+        feature_type: 'extrude',
+        position: 2,
+        field: 'Depth',
+        current: '20 mm',
+        proposed: '30 mm',
+      },
+      {
+        type: 'SET_FILLET_RADIUS',
+        label: 'Edge fillet',
+        feature_type: 'fillet',
+        position: 3,
+        field: 'Radius',
+        current: '2 mm',
+        proposed: '4 mm',
+      },
+      {
+        type: 'RENAME_FEATURE',
+        label: 'Edge fillet',
+        feature_type: 'fillet',
+        position: 3,
+        field: 'Name',
+        current: 'Edge fillet',
+        proposed: 'Edge Rounds',
+      },
+      {
+        type: 'SET_SUPPRESSED',
+        label: 'Edge Rounds',
+        feature_type: 'fillet',
+        position: 3,
+        field: 'Suppression',
+        current: 'Active',
+        proposed: 'Suppressed',
+      },
+      {
+        type: 'SET_UNSUPPRESSED',
+        label: 'Edge Rounds',
+        feature_type: 'fillet',
+        position: 3,
+        field: 'Suppression',
+        current: 'Suppressed',
+        proposed: 'Active',
+      },
+    ].slice(0, count) as PlanPreview['operations'],
+  };
+}
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  });
+const ndjson = (body: unknown[]) =>
+  new Response(body.map((e) => JSON.stringify(e) + '\n').join(''), {
+    headers: { 'Content-Type': 'application/x-ndjson' },
+  });
+function success(count = 3): unknown[] {
+  return [
+    ...Array.from({ length: count }, (_, i) => [
+      ...['checking', 'executing', 'verifying'].map((stage) => ({
+        type: 'progress',
+        operation: i + 1,
+        total: count,
+        stage,
+      })),
+      {
+        type: 'operation_result',
+        operation: i + 1,
+        total: count,
+        state: 'verified_success',
+      },
+    ]).flat(),
+    {
+      type: 'result',
+      state: 'verified_success',
+      operations: Array(count).fill('verified_success'),
+    },
+  ];
+}
+let preview: PlanPreview;
+let planResponse: unknown;
+let approval: () => Promise<Response>;
+let statusResult: PlanResult;
+let capability: string;
+let fetcher: ReturnType<
+  typeof vi.fn<(input: string, init?: RequestInit) => Promise<Response>>
+>;
 beforeEach(() => {
+  preview = fixture();
+  planResponse = null;
   capability = 'available';
-  terminal = 'verified_success';
-  error = null;
-  writes = 0;
+  statusResult = {
+    state: 'verified_success',
+    operations: ['verified_success', 'verified_success', 'verified_success'],
+  };
+  approval = async () => ndjson(success(preview.operations.length));
   fetcher = vi.fn(async (input: string) => {
-    if (input.endsWith('capabilities')) return reply({ state: capability });
-    if (input.endsWith('targets'))
-      return reply({
-        candidates: [
-          {
-            handle: 'c'.repeat(43),
-            label: 'Fillet fixture',
-            position: 3,
-            expires_at: 2000000000,
-          },
-        ],
+    if (input.endsWith('/capabilities')) return json({ state: capability });
+    if (input === '/api/modify/plan')
+      return json(planResponse ?? { outcome: 'plan', preview });
+    if (input === '/api/modify/plans/' + preview.proposal_id + '/approve')
+      return approval();
+    if (input.endsWith('/cancel'))
+      return json({
+        state: 'cancelled',
+        operations: preview.operations.map(() => 'skipped'),
       });
-    if (input.endsWith('proposals')) return reply({ proposal });
-    if (input.endsWith('/cancel')) return reply({ state: 'cancelled' });
-    if (input.endsWith('/approve')) {
-      writes++;
-      return new Response(
-        (error
-          ? [{ type: 'error', code: error }]
-          : [
-              { type: 'progress', stage: 'checking' },
-              { type: 'progress', stage: 'executing' },
-              { type: 'progress', stage: 'verifying' },
-              { type: 'result', state: terminal },
-            ]
-        )
-          .map((e) => JSON.stringify(e) + '\n')
-          .join(''),
-      );
-    }
-    return reply({ state: terminal });
+    if (input === '/api/modify/plans/' + preview.proposal_id)
+      return json(statusResult);
+    throw new Error('Unexpected route');
   });
   vi.stubGlobal('fetch', fetcher);
 });
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.useRealTimers();
+});
 function view(state = context) {
   return (
     <AuthContext.Provider
@@ -93,184 +161,455 @@ function view(state = context) {
     </AuthContext.Provider>
   );
 }
-async function preview() {
-  render(view());
-  await screen.findByRole('button', { name: 'Find supported target' });
+const approvals = () =>
+  fetcher.mock.calls.filter(([url]) => url.endsWith('/approve'));
+async function requestPlan() {
+  await screen.findByRole('button', { name: 'Prepare plan' });
   fireEvent.change(screen.getByLabelText('Modification request'), {
-    target: { value: 'suppress final fillet' },
+    target: { value: 'Make the extrude 30 mm deep and fillet 4 mm' },
   });
-  fireEvent.click(
-    screen.getByRole('button', { name: 'Find supported target' }),
-  );
-  fireEvent.click(
-    await screen.findByRole('button', {
-      name: 'Prepare change for Fillet fixture',
-    }),
-  );
-  await screen.findByRole('button', { name: 'Approve change' });
+  fireEvent.click(screen.getByRole('button', { name: 'Prepare plan' }));
 }
+async function ready() {
+  render(view());
+  await requestPlan();
+  await screen.findByRole('button', { name: /Approve \d changes?/ });
+}
+const approveClick = () =>
+  fireEvent.click(screen.getByRole('button', { name: /Approve \d changes?/ }));
 
-describe('safe Modify', () => {
-  for (const state of [
+describe('live natural-language Modify', () => {
+  it.each([
     'write_disabled',
     'write_permission_required',
     'authorization_unknown',
     'reconsent_required',
-  ] as const)
-    it(`shows truthful ${state}`, async () => {
-      capability = state;
-      render(view());
-      expect(await screen.findByText(messages[state])).toBeVisible();
-      expect(
-        screen.queryByRole('button', { name: 'Approve change' }),
-      ).toBeNull();
-      expect(writes).toBe(0);
-    });
-  it('requires a separate human target choice then cancel makes zero writes', async () => {
-    await preview();
-    expect(screen.getByText('Active → Suppressed')).toBeVisible();
-    expect(
-      screen.getByText(/Overall feature health is not established\./),
-    ).toBeVisible();
-    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-    expect(
-      await screen.findByText('Proposal cancelled. Forge made no CAD change.'),
-    ).toBeVisible();
-    expect(writes).toBe(0);
+  ] as const)('shows truthful %s', async (state) => {
+    capability = state;
+    render(view());
+    expect(await screen.findByText(messages[state])).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Prepare plan' })).toBeNull();
+    expect(approvals()).toHaveLength(0);
   });
-  it('approves the exact proposal once and waits for verification', async () => {
-    await preview();
-    const button = screen.getByRole('button', { name: 'Approve change' });
-    fireEvent.click(button);
-    fireEvent.click(button);
-    expect(await screen.findByText(/Change verified\./)).toBeVisible();
-    expect(writes).toBe(1);
-    const call = fetcher.mock.calls.find(([url]) =>
-      String(url).endsWith('/approve'),
+  it('plans from context and natural language, without approval on render or rerender', async () => {
+    const rendered = render(view());
+    await requestPlan();
+    await screen.findByRole('heading', { name: 'Plan ready for review' });
+    rendered.rerender(
+      view({
+        ...context,
+        selection: {
+          status: 'available',
+          entities: [{ type: 'face', reference: 'synthetic-selection' }],
+        },
+      }),
     );
-    expect(call).toBeDefined();
-  });
-  for (const code of [
-    'model_changed',
-    'proposal_expired',
-    'proposal_used',
-    'proposal_tampered',
-    'session_expired',
-  ] as const)
-    it(`does not convert ${code} to success`, async () => {
-      error = code;
-      await preview();
-      fireEvent.click(screen.getByRole('button', { name: 'Approve change' }));
-      expect(await screen.findByText(messages[code])).toBeVisible();
-      expect(screen.queryByText(/Change verified\./)).toBeNull();
+    expect(approvals()).toHaveLength(0);
+    const [, init] = fetcher.mock.calls.find(
+      ([url]) => url === '/api/modify/plan',
+    )!;
+    expect(JSON.parse(init!.body as string)).toEqual({
+      context: {
+        documentId: 'a'.repeat(24),
+        workspaceId: 'b'.repeat(24),
+        elementId: 'c'.repeat(24),
+        revisionKind: 'workspace',
+      },
+      request: 'Make the extrude 30 mm deep and fillet 4 mm',
     });
-  it('uncertainty offers inspection and never retries or offers Undo', async () => {
-    terminal = 'execution_uncertain';
-    await preview();
-    fireEvent.click(screen.getByRole('button', { name: 'Approve change' }));
+    expect(init).toMatchObject({
+      method: 'POST',
+      credentials: 'same-origin',
+      cache: 'no-store',
+      headers: { 'X-CSRF-Token': me.csrf_token },
+    });
     expect(
-      (await screen.findAllByText(messages.execution_uncertain)).length,
-    ).toBeGreaterThan(0);
+      fetcher.mock.calls.some(
+        ([url]) => url.includes('/proposals') || url.endsWith('/targets'),
+      ),
+    ).toBe(false);
+  });
+  it('Enter in the textarea plans only', async () => {
+    render(view());
+    await screen.findByRole('button', { name: 'Prepare plan' });
+    const input = screen.getByLabelText('Modification request');
+    fireEvent.change(input, {
+      target: { value: 'Rename the fillet Edge Rounds' },
+    });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    await screen.findByRole('heading', { name: 'Plan ready for review' });
+    expect(approvals()).toHaveLength(0);
+  });
+  it.each([1, 3, 5])(
+    'renders the exact %i-operation ordered preview',
+    async (count) => {
+      preview = fixture(count);
+      await ready();
+      const operations = within(
+        screen.getByRole('list', { name: 'Planned changes' }),
+      ).getAllByRole('listitem');
+      expect(operations).toHaveLength(count);
+      preview.operations.forEach((op, i) => {
+        expect(
+          within(operations[i]!).getByRole('heading', {
+            name: `${i + 1}. ${op.label}`,
+          }),
+        ).toBeVisible();
+        expect(operations[i]).toHaveTextContent(
+          `${op.field}${op.current} → changes to ${op.proposed}`,
+        );
+      });
+      expect(approvals()).toHaveLength(0);
+    },
+  );
+  it.each(
+    Object.keys(
+      clarificationMessages,
+    ) as (keyof typeof clarificationMessages)[],
+  )(
+    'shows server-owned clarification %s with display-only choices',
+    async (reason) => {
+      planResponse = {
+        outcome: 'clarification',
+        reason,
+        choices: [
+          { label: 'Edge fillet', feature_type: 'fillet', position: 3 },
+        ],
+      };
+      render(view());
+      await requestPlan();
+      expect(
+        await screen.findByText(clarificationMessages[reason]),
+      ).toBeVisible();
+      expect(
+        screen.getByText('Edge fillet · Fillet · position 3'),
+      ).toBeVisible();
+      expect(screen.queryByRole('button', { name: /Approve/ })).toBeNull();
+      expect(approvals()).toHaveLength(0);
+    },
+  );
+  it('sends exactly one digest approval after rapid clicks and reports verification', async () => {
+    await ready();
+    const button = screen.getByRole('button', { name: 'Approve 3 changes' });
+    fireEvent.click(button);
+    fireEvent.click(button);
     expect(
-      screen.getByRole('button', { name: 'Check operation status' }),
+      await screen.findByRole('heading', { name: 'Plan verified' }),
+    ).toBeVisible();
+    expect(screen.getByText('3 of 3 changes verified.')).toBeVisible();
+    expect(approvals()).toHaveLength(1);
+    expect(JSON.parse(approvals()[0]![1]!.body as string)).toEqual({
+      digest: preview.digest,
+    });
+    expect(screen.queryByRole('button', { name: /Approve/ })).toBeNull();
+    expect(
+      within(
+        screen.getByRole('list', { name: 'Planned changes' }),
+      ).getAllByText('Verified'),
+    ).toHaveLength(3);
+  });
+  it.each([1, 5])(
+    'verifies a complete %i-operation stream within its bounds',
+    async (count) => {
+      preview = fixture(count);
+      await ready();
+      approveClick();
+      await screen.findByRole('heading', { name: 'Plan verified' });
+      expect(
+        screen.getByText(`${count} of ${count} changes verified.`),
+      ).toBeVisible();
+      expect(approvals()).toHaveLength(1);
+    },
+  );
+  it('cancels the generalized plan with an empty object and zero approvals', async () => {
+    await ready();
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel plan' }));
+    expect(
+      await screen.findByRole('heading', { name: 'Plan cancelled' }),
+    ).toBeVisible();
+    expect(approvals()).toHaveLength(0);
+    const [url, init] = fetcher.mock.calls.find(([url]) =>
+      url.endsWith('/cancel'),
+    )!;
+    expect(url).toBe('/api/modify/plans/' + preview.proposal_id + '/cancel');
+    expect(JSON.parse(init!.body as string)).toEqual({});
+    expect(screen.getAllByText('Not attempted')).toHaveLength(3);
+  });
+  it('preserves the verified prefix after partial failure', async () => {
+    approval = async () =>
+      ndjson([
+        {
+          type: 'result',
+          state: 'partial_failure',
+          operations: ['verified_success', 'write_failed', 'skipped'],
+        },
+      ]);
+    await ready();
+    approveClick();
+    expect(
+      await screen.findByRole('heading', { name: 'Plan partially completed' }),
     ).toBeVisible();
     expect(
-      screen.getByRole('button', { name: 'Approve change' }),
-    ).toBeDisabled();
-    expect(screen.queryByRole('button', { name: 'Undo' })).toBeNull();
-    expect(writes).toBe(1);
+      screen.getByText(
+        /1 of 3 changes verified. Earlier verified changes remain applied/,
+      ),
+    ).toBeVisible();
+    const operations = within(
+      screen.getByRole('list', { name: 'Planned changes' }),
+    ).getAllByRole('listitem');
+    expect(operations[0]).toHaveTextContent('Verified');
+    expect(operations[1]).toHaveTextContent('Not applied');
+    expect(operations[2]).toHaveTextContent('Not attempted');
+    expect(approvals()).toHaveLength(1);
   });
-  it('context loss removes preview and approval authority', async () => {
-    const result = render(view());
-    await screen.findByRole('button', { name: 'Find supported target' });
-    result.rerender(
+  it.each([
+    'uncertain',
+    'incomplete',
+    'malformed',
+    'network',
+    'wrong-content-type',
+  ])(
+    'treats %s approval as unresolved and recovers with GET only',
+    async (mode) => {
+      approval = async () => {
+        if (mode === 'network') throw new TypeError('synthetic disconnect');
+        if (mode === 'wrong-content-type')
+          return json({ type: 'result', state: 'verified_success' });
+        if (mode === 'malformed')
+          return new Response('not-json\n', {
+            headers: { 'Content-Type': 'application/x-ndjson' },
+          });
+        return ndjson(
+          mode === 'uncertain'
+            ? [
+                {
+                  type: 'result',
+                  state: 'execution_uncertain',
+                  operations: [
+                    'verified_success',
+                    'execution_uncertain',
+                    'skipped',
+                  ],
+                },
+              ]
+            : [
+                {
+                  type: 'progress',
+                  operation: 1,
+                  total: 3,
+                  stage: 'executing',
+                },
+              ],
+        );
+      };
+      await ready();
+      approveClick();
+      expect(
+        await screen.findByRole('heading', {
+          name: 'Forge could not confirm the final result.',
+        }),
+      ).toBeVisible();
+      expect(screen.queryByRole('button', { name: /Approve/ })).toBeNull();
+      fireEvent.click(screen.getByRole('button', { name: 'Check status' }));
+      expect(
+        await screen.findByRole('heading', { name: 'Plan verified' }),
+      ).toBeVisible();
+      const status = fetcher.mock.calls.find(
+        ([url]) => url === '/api/modify/plans/' + preview.proposal_id,
+      )!;
+      expect(status[1]?.method).toBe('GET');
+      expect(status[1]?.body).toBeUndefined();
+      expect(approvals()).toHaveLength(1);
+    },
+  );
+  it('keeps status available while the server is still verifying', async () => {
+    approval = async () =>
+      ndjson([{ type: 'error', code: 'execution_uncertain' }]);
+    statusResult = {
+      state: 'verifying',
+      operations: ['verified_success', 'verifying', 'pending'],
+    };
+    await ready();
+    approveClick();
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Check status' }),
+    );
+    expect(
+      await screen.findByText(/approved plan is still being checked/),
+    ).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Check status' })).toBeEnabled();
+    expect(approvals()).toHaveLength(1);
+  });
+  it('never retries after a bounded approval HTTP error', async () => {
+    approval = async () => json({ detail: 'proposal_used' }, 409);
+    await ready();
+    approveClick();
+    expect(await screen.findByText(messages.proposal_used)).toBeVisible();
+    expect(screen.queryByRole('button', { name: /Approve/ })).toBeNull();
+    expect(approvals()).toHaveLength(1);
+  });
+  it('clears plan authority on workspace/context changes', async () => {
+    const rendered = render(view());
+    await requestPlan();
+    await screen.findByRole('heading', { name: 'Plan ready for review' });
+    const changed: ClientState = {
+      ...context,
+      context: { ...context.context!, elementId: 'e'.repeat(24) },
+    };
+    rendered.rerender(view(changed));
+    expect(
+      screen.queryByRole('heading', { name: 'Plan ready for review' }),
+    ).toBeNull();
+    expect(approvals()).toHaveLength(0);
+    await screen.findByRole('button', { name: 'Prepare plan' });
+  });
+  it('ignores a planning response that arrives after the context changes', async () => {
+    let finish: (response: Response) => void = () => {};
+    const original = fetcher.getMockImplementation()!;
+    fetcher.mockImplementation((url, init) =>
+      url === '/api/modify/plan'
+        ? new Promise<Response>((resolve) => {
+            finish = resolve;
+          })
+        : original(url, init),
+    );
+    const rendered = render(view());
+    await requestPlan();
+    rendered.rerender(
+      view({
+        ...context,
+        context: { ...context.context!, elementId: 'e'.repeat(24) },
+      }),
+    );
+    await act(async () => {
+      finish(json({ outcome: 'plan', preview }));
+    });
+    expect(
+      screen.queryByRole('heading', { name: 'Plan ready for review' }),
+    ).toBeNull();
+    expect(approvals()).toHaveLength(0);
+  });
+  it('removes the plan when context is lost', async () => {
+    const rendered = render(view());
+    await requestPlan();
+    await screen.findByRole('heading', { name: 'Plan ready for review' });
+    rendered.rerender(
       view({ ...context, status: 'EMBEDDED_CONTEXT_ERROR', context: null }),
     );
-    expect(screen.queryByRole('button', { name: 'Approve change' })).toBeNull();
+    expect(screen.queryByRole('button', { name: /Approve/ })).toBeNull();
     expect(screen.getByText(/Open a current workspace/)).toBeVisible();
   });
-  it('closed browser proposal rejects operation/value/ID injection', () => {
-    for (const changes of [
-      { current: 'Suppressed' },
-      { proposed: 'Active' },
-      { operation_type: 'delete_feature' },
-      { token: 'secret' },
-      { featureId: 'injected' },
-      { digest: 'bad' },
-    ])
-      expect(() => parseProposal({ ...proposal, ...changes })).toThrow();
-  });
-  it('unsupported request is a fixed safe refusal, without an approval', async () => {
-    render(view());
-    await screen.findByRole('button', { name: 'Find supported target' });
-    fetcher.mockImplementationOnce(
-      async () =>
-        new Response(JSON.stringify({ detail: 'unsupported_edit' }), {
-          status: 422,
-        }),
-    );
-    fireEvent.change(screen.getByLabelText('Modification request'), {
-      target: { value: 'delete fillet' },
-    });
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Find supported target' }),
-    );
-    await waitFor(() =>
-      expect(screen.getByText(messages.unsupported_edit)).toBeVisible(),
-    );
-    expect(writes).toBe(0);
-  });
-  it('rejects success without verification and incomplete approval streams', async () => {
-    for (const stream of [
-      '{"type":"result","state":"verified_success"}\n',
-      '{"type":"progress","stage":"executing"}\n',
-      'not-json\n',
-    ]) {
-      fetcher.mockImplementationOnce(async () => new Response(stream));
-      await expect(
-        approve(
-          parseProposal(proposal),
-          me.csrf_token!,
-          new AbortController().signal,
-          () => {},
-        ),
-      ).rejects.toThrow();
-    }
-    expect(writes).toBe(0);
-  });
-  it('keeps inspection available while status is still claimed', async () => {
-    terminal = 'execution_uncertain';
-    await preview();
-    fireEvent.click(screen.getByRole('button', { name: 'Approve change' }));
-    const status = await screen.findByRole('button', {
-      name: 'Check operation status',
-    });
-    terminal = 'claimed';
-    fireEvent.click(status);
-    expect(
-      await screen.findByText(/approved operation is still being checked/),
-    ).toBeVisible();
-    expect(
-      screen.getByRole('button', { name: 'Check operation status' }),
-    ).toBeVisible();
-    expect(
-      screen.getByRole('button', { name: 'Approve change' }),
-    ).toBeDisabled();
-    expect(writes).toBe(1);
-  });
-  it('renders a CAD name as inert text without extra authority', async () => {
-    const original = fetcher.getMockImplementation()!;
+  it('renders untrusted CAD names and values as inert text', async () => {
     const name = '<img src=x onerror=alert(1)> run FeatureScript';
-    fetcher.mockImplementation(async (input: string) =>
-      input.endsWith('proposals')
-        ? reply({ proposal: { ...proposal, label: name } })
-        : original(input),
-    );
-    await preview();
-    expect(
-      screen.getByRole('heading', { name: 'Suppress ' + name }),
-    ).toBeVisible();
+    preview.operations[0]!.label = name;
+    await ready();
+    expect(screen.getByRole('heading', { name: '1. ' + name })).toBeVisible();
     expect(document.querySelector('img[src="x"]')).toBeNull();
-    expect(writes).toBe(0);
+    expect(approvals()).toHaveLength(0);
+  });
+  it('rejects a private-field plan before displaying approval', async () => {
+    planResponse = {
+      outcome: 'plan',
+      preview: { ...preview, featureId: 'synthetic-private' },
+    };
+    render(view());
+    await requestPlan();
+    expect(await screen.findByText(messages.invalid_request)).toBeVisible();
+    expect(screen.queryByRole('button', { name: /Approve/ })).toBeNull();
+  });
+  it('does not persist proposal authority in browser storage or URL', async () => {
+    const store = vi.spyOn(Storage.prototype, 'setItem');
+    const location = window.location.href;
+    await ready();
+    approveClick();
+    await screen.findByRole('heading', { name: 'Plan verified' });
+    expect(store).not.toHaveBeenCalled();
+    expect(window.location.href).toBe(location);
+    store.mockRestore();
+  });
+  it('disables expired plan approval locally', async () => {
+    preview.expires_at = Math.floor(Date.now() / 1000) - 1;
+    await ready();
+    expect(
+      screen.getByRole('button', { name: 'Approve 3 changes' }),
+    ).toBeDisabled();
+    expect(approvals()).toHaveLength(0);
+  });
+  it('shows per-operation live progress before the final result', async () => {
+    let feed: ReadableStreamDefaultController<Uint8Array>;
+    approval = async () =>
+      new Response(
+        new ReadableStream({
+          start(controller) {
+            feed = controller;
+          },
+        }),
+        { headers: { 'Content-Type': 'application/x-ndjson' } },
+      );
+    await ready();
+    approveClick();
+    await act(async () => {
+      feed.enqueue(
+        new TextEncoder().encode(
+          '{"type":"progress","operation":1,"total":3,"stage":"checking"}\n',
+        ),
+      );
+    });
+    expect(screen.getByText('Checking…')).toBeVisible();
+    expect(screen.queryByRole('heading', { name: 'Plan verified' })).toBeNull();
+    await act(async () => {
+      feed.enqueue(
+        new TextEncoder().encode(
+          '{"type":"progress","operation":1,"total":3,"stage":"executing"}\n',
+        ),
+      );
+    });
+    expect(screen.getByText('Applying…')).toBeVisible();
+    await act(async () => {
+      feed.enqueue(
+        new TextEncoder().encode(
+          '{"type":"progress","operation":1,"total":3,"stage":"verifying"}\n',
+        ),
+      );
+    });
+    expect(screen.getByText('Verifying…')).toBeVisible();
+    await act(async () => {
+      feed.enqueue(
+        new TextEncoder().encode(
+          '{"type":"result","state":"execution_uncertain","operations":["execution_uncertain","skipped","skipped"]}\n',
+        ),
+      );
+      feed.close();
+    });
+    await screen.findByRole('button', { name: 'Check status' });
+    expect(approvals()).toHaveLength(1);
+  });
+  it('approval timeout offers status without reapproval', async () => {
+    await ready();
+    vi.useFakeTimers();
+    approval = async () =>
+      new Promise<Response>((_, reject) => {
+        const init = approvals().at(-1)![1]!;
+        init.signal!.addEventListener('abort', () =>
+          reject(new DOMException('Aborted', 'AbortError')),
+        );
+      });
+    approveClick();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(35001);
+    });
+    vi.useRealTimers();
+    await screen.findByRole('button', { name: 'Check status' });
+    expect(approvals()).toHaveLength(1);
+  });
+  it('allows a fresh request only after the completed plan is acknowledged', async () => {
+    await ready();
+    approveClick();
+    await screen.findByRole('heading', { name: 'Plan verified' });
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Plan another change' }),
+    );
+    expect(screen.getByRole('button', { name: 'Prepare plan' })).toBeVisible();
+    expect(approvals()).toHaveLength(1);
   });
 });
