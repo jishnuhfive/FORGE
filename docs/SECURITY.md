@@ -574,3 +574,8 @@ exposes no private identities or revisions. Disconnects never replay writes;
 application-owned execution continues and status preserves A1's truthful partial
 completion/uncertainty and persistent fences. No OAuth or default write-flag change.
 See [A2 authority and privacy](HACKATHON_MODIFY_A2.md).
+
+B2's live browser flow strictly parses previews/events/results, keeps authority in
+component memory, consumes local approval before dispatch and never retries it.
+Context changes abort consumers and clear authority. Names render as ordinary text;
+uncertain outcomes use authenticated GET status only. See [B2](HACKATHON_MODIFY_B2.md).

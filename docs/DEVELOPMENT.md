@@ -755,3 +755,8 @@ regressions, then the full repository gate. All CAD/model traffic is mocked; no
 credential or live write is needed. Isolate tests from operator dotenv when testing
 unconfigured settings. A2 adds no migration or frontend change. See
 [the API, bounded events and cancellation/disconnect contract](HACKATHON_MODIFY_A2.md).
+
+B2 checks: `npm test --workspace @forge/web -- src/modify --maxWorkers=2`,
+`npm run typecheck`, full frontend tests/build, and
+`./node_modules/.bin/playwright test tests/e2e/modify.spec.ts --workers=2`.
+All browser provider outcomes are intercepted synthetic fixtures. See [B2](HACKATHON_MODIFY_B2.md).
