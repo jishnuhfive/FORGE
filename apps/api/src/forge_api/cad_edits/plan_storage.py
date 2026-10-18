@@ -1,7 +1,9 @@
 """A1 serialized records on Phase 9 tables, claims, fences and retention."""
 
+from sqlalchemy import update
 from sqlalchemy.orm import Session
 
+from forge_api.auth.security import audit
 from forge_api.db.models import WriteFence, WriteRecord, now
 
 from . import storage
@@ -64,6 +66,36 @@ def claim(db: Session, handle: str, user: str, session: str, digest: str) -> Mod
     return saved.plan
 
 
+def cancel(db: Session, handle: str, user: str, session: str) -> PlanResult:
+    record = storage.owned(db, handle, user, session)
+    if record.state != "pending":
+        raise EditError("proposal_used")
+    saved = load(record)
+    if saved.result != pending(saved.plan):
+        raise EditError("proposal_tampered")
+    if now() >= saved.plan.expires_at:
+        raise EditError("proposal_expired")
+    result = PlanResult(
+        state="cancelled", operations=tuple("skipped" for _ in saved.plan.operations)
+    )
+    winner = db.scalar(
+        update(WriteRecord)
+        .where(
+            WriteRecord.id == handle,
+            WriteRecord.user_id == user,
+            WriteRecord.session_hash == session,
+            WriteRecord.state == "pending",
+            WriteRecord.expires_at > now(),
+        )
+        .values(state="cancelled", payload=result.model_dump_json())
+        .returning(WriteRecord.id)
+    )
+    if winner is None:
+        raise EditError("proposal_used")
+    audit(db, "write_proposal_cancelled", user_id=user)
+    return result
+
+
 def journal(db: Session, plan: ModifyPlan, result: PlanResult) -> None:
     record = storage.owned(
         db, plan.proposal_id, plan.binding.user, plan.binding.session
@@ -102,6 +134,7 @@ def result(record: WriteRecord) -> PlanResult:
         "partial_failure",
         "write_failed",
         "rejected_stale",
+        "cancelled",
     ):
         try:
             return PlanResult.model_validate_json(record.payload)

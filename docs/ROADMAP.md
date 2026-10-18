@@ -253,3 +253,11 @@ B1 adds the natural-language planner backend, stopping at the A1 plan preview. B
 the plan-preview UI and the human approval flow. CAD writes stay OFF by default; Phase 9
 Gate A remains proven and Gate B provider audit remains deferred. See
 [HACKATHON_MODIFY_B1.md](HACKATHON_MODIFY_B1.md).
+
+## Hackathon Modify A2
+
+A2 exposes A1 human approval, bounded execution progress, owner-scoped status and
+atomic pending cancellation through generalized plan routes. It preserves B1's
+preview-only authority and the existing Phase 9 browser flow. B2's live Modify UI
+and disposable real Onshape validation remain future work. No new operation,
+OAuth permission or migration. See [HACKATHON_MODIFY_A2.md](HACKATHON_MODIFY_A2.md).

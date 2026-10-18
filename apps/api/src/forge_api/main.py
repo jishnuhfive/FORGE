@@ -13,6 +13,7 @@ from starlette.responses import JSONResponse, RedirectResponse, Response
 from forge_api.ai.routes import router as ai_router
 from forge_api.auth.routes import router as auth_router
 from forge_api.auth.runtime import AuthRuntime
+from forge_api.cad_edits.plan_routes import router as plan_router
 from forge_api.cad_edits.routes import router as edit_router
 from forge_api.core.config import Settings
 from forge_api.db.database import make_engine, verify_schema
@@ -128,6 +129,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                         cleaner.cancel()
                         with suppress(asyncio.CancelledError):
                             await cleaner
+                        # Finish human-approved work before closing CAD transports
+                        # on graceful shutdown. A process crash still fails closed
+                        # through A1's durable claim/fence and abandoned-claim TTL.
+                        if application.state.plan_executions:
+                            await asyncio.gather(*application.state.plan_executions)
         finally:
             if engine is not None:
                 engine.dispose()
@@ -150,6 +156,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.state.planner_gate = ReadGate()
     application.state.planner_cap = HourlyCap()
     application.state.settings = config
+    application.state.plan_executions = set()
     application.add_middleware(SafeBoundary)
     application.include_router(health_router)
     application.include_router(auth_router)
@@ -159,6 +166,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(step_checks_router)
     application.include_router(tutor_router)
     application.include_router(planner_router)
+    application.include_router(plan_router)
     return application
 
 

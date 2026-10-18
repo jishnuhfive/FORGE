@@ -744,3 +744,14 @@ Team B must keep planner calls separate from the explicit human approval handler
 transports (Groq and OpenAI shapes); no key or network is required. Run it with the A1
 (`test_modify_plan.py`), Phase 9 `test_safe_edit*.py` and AI tests. No migration,
 dependency or live write is involved.
+
+## Generalized approval tests (A2)
+
+Run `uv run --frozen pytest tests/test_modify_plan_routes.py` from `apps/api`, then
+`tests/test_modify_plan_routes_postgres.py` with the existing isolated local
+FORGE_TEST_DATABASE_URL. Include `test_modify_plan.py`, `test_modify_plan_postgres.py`,
+`test_modify_planner.py`, all `test_safe_edit*`, AI/provider/tutor and PostgreSQL
+regressions, then the full repository gate. All CAD/model traffic is mocked; no
+credential or live write is needed. Isolate tests from operator dotenv when testing
+unconfigured settings. A2 adds no migration or frontend change. See
+[the API, bounded events and cancellation/disconnect contract](HACKATHON_MODIFY_A2.md).
