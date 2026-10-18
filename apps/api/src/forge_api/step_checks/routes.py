@@ -8,6 +8,7 @@ the existing gate, and evaluates deterministic requirements over that evidence.
 import asyncio
 import hmac
 import re
+from time import time
 from typing import Literal, cast
 from uuid import uuid4
 
@@ -26,6 +27,7 @@ from forge_api.integrations.onshape.inspector import inspect
 from forge_api.integrations.onshape.models import SectionState
 from forge_api.integrations.onshape.routes import acquire_bound
 from forge_api.integrations.onshape.service import ReadGate
+from forge_api.tutor.evidence_token import issue
 
 from .bracket import STEPS, check_step
 from .model import RequirementResult, StepOutcome
@@ -60,6 +62,9 @@ class CheckStepResponse(BaseModel):
     captured_at: str
     # The snapshot consists of separate reads; Forge never claims it is atomic.
     consistency: Literal["unverified", "mismatch"]
+    # Opaque, session-bound proof of this result. Ask Forge accepts check results
+    # only through it, so the browser cannot author or alter them.
+    evidence_token: str
 
 
 def refuse(code: str, retry_after: int | None = None) -> JSONResponse:
@@ -111,6 +116,7 @@ async def check_my_step(request: Request, auth: Runtime) -> Response:
     if value.step_id not in STEPS:
         raise HTTPException(400, "invalid_request")
 
+    credential = request.cookies.get(auth.settings.session_cookie, "")
     correlation = uuid4().hex
     cad_gate = cast(ReadGate, request.app.state.cad_gate)
     cad_transport = cast(httpx.Client, request.app.state.cad_transport)
@@ -163,6 +169,15 @@ async def check_my_step(request: Request, auth: Runtime) -> Response:
                 results=result.results,
                 captured_at=evidence.source.captured_at,
                 consistency=evidence.source.consistency,
+                evidence_token=issue(
+                    credential,
+                    lesson_id=value.lesson_id,
+                    step_id=value.step_id,
+                    outcome=result.outcome,
+                    captured_at=evidence.source.captured_at,
+                    results=result.results,
+                    now=int(time()),
+                ),
             ).model_dump(mode="json"),
             headers={"Cache-Control": "no-store"},
         )

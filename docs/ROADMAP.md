@@ -228,3 +228,11 @@ Learn remains independent of Modify and requires no write consent.
 ## Phase 11 — NOT STARTED
 
 No Phase 11 implementation is included or authorized by this merge.
+
+## Phase 11 — Contextual AI tutor in Learn Mode (implemented on its branch, automated checks pass)
+
+`phase11/contextual-ai-tutor`, from main after Phases 9 and 10. Ask Forge is explicit-send only, read-only and
+session-only; check results reach it only through a server-signed, session-bound evidence token; deterministic
+checkers keep all authority. Not merged and not human-validated; Phase 9 Gate B's provider-side audit remains
+deferred. See [PHASE_11_REVIEW.md](PHASE_11_REVIEW.md) and [PHASE_11_TUTOR_SPEC.md](PHASE_11_TUTOR_SPEC.md).
+Phase 12 is not started.

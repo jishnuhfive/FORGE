@@ -519,3 +519,12 @@ Phase 10 requires no Modify execution, write scope or write flag; its prediction
 are ungraded and its transfer counts are not mastery scores. See
 [the learning review](PHASE_10_REVIEW.md) for automated results and the pending
 real-Onshape human validation plan.
+
+## Phase 11 tutor boundary
+
+`apps/api/src/forge_api/tutor/` adds `POST /api/learning/tutor`. Check my step issues an opaque evidence token
+(HMAC keyed by the caller's session credential); the tutor verifies it and builds a bounded context from the
+server's own lesson catalog and checker labels. The model may request only the existing read-only
+`inspect_current_cad` call, through the existing gate and projection. It returns a strict structure; the server
+prints verified observations itself. No new provider, table, scope or write path; the browser keeps at most three
+exchanges in memory. See [PHASE_11_TUTOR_SPEC.md](PHASE_11_TUTOR_SPEC.md).

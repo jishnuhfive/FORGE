@@ -718,3 +718,10 @@ Do not use it to infer upstream settlement, recover a live claim or clear multip
 fences. New CAD work always requires a new proposal and approval. Focused coverage:
 `tests/test_safe_edit_operator_recovery.py` and the PostgreSQL recovery concurrency
 case in `tests/test_safe_edit_postgres.py`.
+
+## Phase 11 tutor checks
+
+Backend: `uv run --frozen pytest tests/test_tutor_core.py tests/test_tutor_route.py tests/test_tutor_eval.py`.
+Frontend: `npx vitest run src/learning/Tutor.test.tsx`. Browser: `npx playwright test tests/e2e/tutor.spec.ts`.
+All use mocked providers and CAD; no live service or secret is needed. After pulling Phase 9, run
+`uv run --frozen alembic upgrade head` once from `apps/api` against your local database.

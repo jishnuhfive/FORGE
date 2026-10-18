@@ -215,3 +215,7 @@ Phase 10 (merged to main before Phase 9 and now integrated here; real-Onshape hu
 investigation, prediction prompts, explainable guidance fading and an optional transfer challenge to
 the Mounting Bracket. It is read-only and session-local. See
 [PHASE_10_REVIEW.md](docs/PHASE_10_REVIEW.md).
+
+Phase 11 (implemented on `phase11/contextual-ai-tutor`; not merged, not yet human-validated) adds **Ask Forge**,
+a learner-requested AI tutor inside the Mounting Bracket lesson. Deterministic checkers still own every status;
+the tutor explains and cannot verify, grade or edit. See [PHASE_11_REVIEW.md](docs/PHASE_11_REVIEW.md).

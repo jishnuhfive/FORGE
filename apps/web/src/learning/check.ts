@@ -32,6 +32,9 @@ export interface StepCheck {
   results: RequirementResult[];
   captured_at: string;
   consistency: 'unverified' | 'mismatch';
+  // Opaque server-signed proof of this result. Ask Forge returns it so the server
+  // can trust the check result; the browser can neither author nor alter it.
+  evidence_token: string;
 }
 // Public, fixed wording. Raw status codes and server text are never rendered.
 export const checkErrors = {
@@ -68,6 +71,7 @@ export function parseCheck(value: unknown): StepCheck {
       'results',
       'captured_at',
       'consistency',
+      'evidence_token',
     ]);
   } catch {
     throw fail();
@@ -76,6 +80,8 @@ export function parseCheck(value: unknown): StepCheck {
     data.lesson_id !== 'mounting-bracket' ||
     !text(data.step_id, 64) ||
     !outcomes.includes(data.outcome as StepOutcome) ||
+    !text(data.evidence_token, 6000) ||
+    !/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(data.evidence_token) ||
     !text(data.captured_at, 40) ||
     !/^\d{4}-\d{2}-\d{2}T[0-9:.]+(?:Z|\+00:00)$/.test(data.captured_at) ||
     !['unverified', 'mismatch'].includes(data.consistency as string) ||

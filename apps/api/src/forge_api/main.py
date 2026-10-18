@@ -20,6 +20,8 @@ from forge_api.integrations.onshape.routes import router as cad_router
 from forge_api.integrations.onshape.service import ReadGate
 from forge_api.routes.health import router as health_router
 from forge_api.step_checks.routes import router as step_checks_router
+from forge_api.tutor.limits import HourlyCap
+from forge_api.tutor.routes import router as tutor_router
 
 
 class SafeBoundary(BaseHTTPMiddleware):
@@ -142,6 +144,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.state.auth = None
     application.state.cad_gate = ReadGate()
     application.state.ai_gate = ReadGate()
+    application.state.tutor_gate = ReadGate()
+    application.state.tutor_cap = HourlyCap()
     application.state.settings = config
     application.add_middleware(SafeBoundary)
     application.include_router(health_router)
@@ -150,6 +154,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(ai_router)
     application.include_router(edit_router)
     application.include_router(step_checks_router)
+    application.include_router(tutor_router)
     return application
 
 

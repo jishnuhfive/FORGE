@@ -61,6 +61,7 @@ def test_only_allowlisted_auth_read_and_single_edit_routes_exist(
         "/api/onshape/part-studio/inspector",
         "/api/ai/ask",
         "/api/learning/check-step",
+        "/api/learning/tutor",
         "/api/modify/capabilities",
         "/api/modify/targets",
         "/api/modify/proposals",
@@ -71,6 +72,7 @@ def test_only_allowlisted_auth_read_and_single_edit_routes_exist(
     assert set(paths["/api/onshape/part-studio/inspector"]) == {"get"}
     assert set(paths["/api/ai/ask"]) == {"post"}
     assert set(paths["/api/learning/check-step"]) == {"post"}
+    assert set(paths["/api/learning/tutor"]) == {"post"}
 
     assert set(paths["/api/modify/proposals/{handle}/{action}"]) == {"post"}
     assert set(paths["/api/modify/proposals/{handle}"]) == {"get"}

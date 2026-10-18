@@ -1,0 +1,199 @@
+"""One bounded tutor turn. The model explains; the server owns every verified claim."""
+
+import re
+from collections.abc import AsyncIterator, Awaitable, Callable
+
+from forge_api.ai.evidence import FRESHNESS, UNITS, project
+from forge_api.ai.policy import REFUSAL, blocked
+from forge_api.ai.presentation import GENERAL_REPLY_NOTE, mentions_model
+from forge_api.integrations.onshape.inspector import CadInspector
+
+from .catalog import CATALOG
+from .context import build_context
+from .evidence_token import VerifiedCheck
+from .models import LatestCheck, Observed, TutorAnswer, TutorModelAnswer, TutorRequest
+from .policy import boundary_response
+from .providers import TutorProvider, TutorTask
+
+TOTAL_SECONDS = 120
+STATUS_NOTE = (
+    "Only Check my step can verify a step. This explanation doesn't change your result."
+)
+STALE_NOTE = (
+    "Based on your last check. If you've changed your model since, press Check my "
+    "step again."
+)
+DIMENSION_NOTE = (
+    "Forge can't read your dimensions or units, so nothing here confirms a size."
+)
+STRENGTH_NOTE = "Forge doesn't verify strength, fit or safety."
+# Presentation guards, like the verdict guard below: the model may mention sizes or
+# strength in teaching, but the learner is always told Forge has verified neither.
+_DIMENSION = re.compile(
+    r"\b\d+(?:\.\d+)?\s*(?:mm|cm|millimet\w+|centimet\w+|inch(?:es)?|in)\b",
+    re.IGNORECASE,
+)
+_STRENGTH = re.compile(
+    r"\b(?:strong\s+enough|will\s+hold|sturdy|won't\s+break|structurally\s+sound|"
+    r"safe\s+to\s+(?:use|print|build|ship))\b",
+    re.IGNORECASE,
+)
+# The tutor claiming a verdict itself. Presentation guard only: the real authority
+# is that nothing the model writes can set any status, resolution or completion.
+_VERDICT = re.compile(
+    r"\b(?:your|this|the)\s+(?:step|check|challenge|investigation)\s+"
+    r"(?:is|has|was|now)\s+(?:passed|verified|complete|completed|resolved|done|correct)\b"
+    r"|\byou(?:'ve|\s+have)?\s+(?:passed|completed|nailed|mastered)\b",
+    re.IGNORECASE,
+)
+
+
+def latest(check: VerifiedCheck | None) -> LatestCheck | None:
+    return (
+        LatestCheck(outcome=check.outcome, captured_at=check.captured_at)
+        if check
+        else None
+    )
+
+
+def plain(text: str, check: VerifiedCheck | None) -> TutorAnswer:
+    """A server-authored answer with no model involvement (refusals, boundaries)."""
+    return TutorAnswer(
+        explanation=text,
+        reasoning_question=None,
+        next_action=None,
+        observed=[],
+        unknowns=[],
+        notes=[],
+        latest_check=latest(check),
+        used_cad=False,
+        captured_at=None,
+    )
+
+
+def resolve_tutor(
+    model: TutorModelAnswer,
+    *,
+    check: VerifiedCheck | None,
+    facts: dict[str, object],
+    used_cad: bool,
+    captured_at: str | None,
+) -> TutorAnswer:
+    from forge_api.ai.models import Fact
+
+    findings = {item.id: item for item in (check.findings if check else ())}
+    # The server only ever prints statements it owns, so an id the model invented or
+    # repeated is simply not shown. Dropping it is safe; failing the whole answer
+    # (as Design does) would throw away good teaching for a harmless slip.
+    check_refs = [i for i in dict.fromkeys(model.check_refs) if i in findings]
+    fact_ids = [i for i in dict.fromkeys(model.fact_ids) if i in facts]
+    observed = [
+        Observed(
+            source="check",
+            status=findings[i].status,
+            statement=findings[i].statement,
+        )
+        for i in check_refs
+    ]
+    for identifier in fact_ids:
+        fact = facts[identifier]
+        assert isinstance(fact, Fact)
+        observed.append(
+            Observed(source="cad", status=fact.status, statement=fact.statement)
+        )
+    # Limitations never fade: every unverified finding is always shown, and a CAD
+    # read always carries its freshness and units caveats.
+    unknowns = list(
+        dict.fromkeys(
+            item.statement for item in findings.values() if item.status == "UNVERIFIED"
+        )
+    )
+    if used_cad:
+        unknowns += [UNITS, FRESHNESS]
+    notes: list[str] = []
+    if check is not None:
+        notes.append(STALE_NOTE)
+    if _VERDICT.search(model.explanation):
+        notes.append(STATUS_NOTE)
+    prose = model.explanation + " " + model.next_action + " " + model.reasoning_question
+    if check is None and not used_cad and mentions_model(model.explanation):
+        notes.append(GENERAL_REPLY_NOTE)
+    if _DIMENSION.search(prose):
+        notes.append(DIMENSION_NOTE)
+    if _STRENGTH.search(prose):
+        notes.append(STRENGTH_NOTE)
+    return TutorAnswer(
+        explanation=model.explanation.strip(),
+        reasoning_question=model.reasoning_question.strip() or None,
+        next_action=model.next_action.strip() or None,
+        observed=observed,
+        unknowns=unknowns[:8],
+        notes=notes[:6],
+        latest_check=latest(check),
+        used_cad=used_cad,
+        captured_at=captured_at,
+    )
+
+
+async def run_tutor(
+    request: TutorRequest,
+    check: VerifiedCheck | None,
+    provider: TutorProvider,
+    read: Callable[[], Awaitable[CadInspector]],
+    ensure_active: Callable[[], Awaitable[None]],
+    request_id: str,
+) -> AsyncIterator[dict[str, object]]:
+    yield {"type": "progress", "stage": "understanding"}
+    if blocked(request.question):
+        yield {"type": "result", "result": plain(REFUSAL, check).model_dump()}
+        return
+    fixed = boundary_response(request.question)
+    if fixed is not None:
+        # Authority boundaries are deterministic: no model call, no CAD read.
+        yield {"type": "result", "result": plain(fixed, check).model_dump()}
+        return
+    step = CATALOG[request.step_id]
+    context = build_context(
+        step=step,
+        learner=request.learner,
+        check=check,
+        can_inspect=request.context is not None,
+    )
+    await ensure_active()
+    wants_cad = await provider.decide(
+        TutorTask(
+            request.question,
+            tuple(request.history),
+            context,
+            can_inspect=request.context is not None,
+        ),
+        request_id=request_id,
+    )
+    await ensure_active()
+    payload: str | None = None
+    facts: dict[str, object] = {}
+    captured_at: str | None = None
+    if wants_cad:
+        yield {"type": "progress", "stage": "inspecting"}
+        evidence = await read()
+        payload, projected = project(evidence, "none")
+        facts = dict(projected)
+        captured_at = evidence.source.captured_at
+        await ensure_active()
+    yield {"type": "progress", "stage": "reviewing"}
+    model = await provider.answer(payload, request_id=request_id)
+    await ensure_active()
+    yield {"type": "progress", "stage": "preparing"}
+    if model.safety == "refuse":
+        yield {"type": "result", "result": plain(REFUSAL, check).model_dump()}
+        return
+    yield {
+        "type": "result",
+        "result": resolve_tutor(
+            model,
+            check=check,
+            facts=facts,
+            used_cad=wants_cad,
+            captured_at=captured_at,
+        ).model_dump(),
+    }

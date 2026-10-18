@@ -83,6 +83,52 @@ def structured(text: str) -> bool:
         return False
 
 
+def tool_call_id(result: dict[str, object]) -> str:
+    """Validate exactly one inspect_current_cad({}) call; return its call id."""
+    calls = result.get("tool_calls")
+    if result.get("content") not in (None, "") or (
+        not isinstance(calls, list) or len(calls) != 1
+    ):
+        raise AiError("invalid_response", reason=Reason.TOOL_CALL_SHAPE_INVALID)
+    call = calls[0]
+    if not isinstance(call, dict) or call.get("type") != "function":
+        raise AiError("invalid_response", reason=Reason.TOOL_CALL_SHAPE_INVALID)
+    function = call.get("function")
+    identifier = call.get("id")
+    if (
+        not isinstance(function, dict)
+        or function.get("name") != "inspect_current_cad"
+        or not isinstance(identifier, str)
+        or not re.fullmatch(r"[A-Za-z0-9_-]{1,200}", identifier)
+    ):
+        raise AiError("invalid_response", reason=Reason.TOOL_CALL_SHAPE_INVALID)
+    arguments = function.get("arguments")
+    if not isinstance(arguments, str) or len(arguments) > 256:
+        raise AiError("invalid_response", reason=Reason.TOOL_CALL_SHAPE_INVALID)
+    try:
+        ToolArguments.model_validate(bounded_json(arguments.encode()))
+    except ValueError, UnicodeError:
+        raise AiError(
+            "invalid_response", reason=Reason.TOOL_ARGUMENTS_INVALID
+        ) from None
+    return identifier
+
+
+def replayed_call(identifier: str) -> dict[str, object]:
+    """Replay only the validated call; no provider prose, ids or reasoning."""
+    return {
+        "role": "assistant",
+        "content": None,
+        "tool_calls": [
+            {
+                "id": identifier,
+                "type": "function",
+                "function": {"name": "inspect_current_cad", "arguments": "{}"},
+            }
+        ],
+    }
+
+
 class GroqProvider:
     def __init__(self, settings: Settings, transport: httpx.AsyncClient) -> None:
         self._settings = settings
@@ -112,6 +158,10 @@ class GroqProvider:
             raise AiError("capacity_unavailable", 60)
         # Groq Chat's store option is unsupported; do not send OpenAI-only flags.
         return await post_json(self._transport, GROQ_ENDPOINT, key, payload, request_id)
+
+    async def request(self, payload: dict[str, object], request_id: str) -> object:
+        """Budgeted Groq request shared with the Learn tutor."""
+        return await self._request(payload, request_id)
 
     async def request_inspection(
         self, task: AgentTask, *, request_id: str
@@ -150,31 +200,7 @@ class GroqProvider:
             if not text or len(text) > MAX_CHAT_CHARS or structured(text):
                 raise AiError("invalid_response", reason=Reason.FINAL_CONTENT_INVALID)
             return text
-        if result.get("content") not in (None, "") or (
-            not isinstance(calls, list) or len(calls) != 1
-        ):
-            raise AiError("invalid_response", reason=Reason.TOOL_CALL_SHAPE_INVALID)
-        call = calls[0]
-        if not isinstance(call, dict) or call.get("type") != "function":
-            raise AiError("invalid_response", reason=Reason.TOOL_CALL_SHAPE_INVALID)
-        function = call.get("function")
-        identifier = call.get("id")
-        if (
-            not isinstance(function, dict)
-            or function.get("name") != "inspect_current_cad"
-            or not isinstance(identifier, str)
-            or not re.fullmatch(r"[A-Za-z0-9_-]{1,200}", identifier)
-        ):
-            raise AiError("invalid_response", reason=Reason.TOOL_CALL_SHAPE_INVALID)
-        arguments = function.get("arguments")
-        if not isinstance(arguments, str) or len(arguments) > 256:
-            raise AiError("invalid_response", reason=Reason.TOOL_CALL_SHAPE_INVALID)
-        try:
-            ToolArguments.model_validate(bounded_json(arguments.encode()))
-        except ValueError, UnicodeError:
-            raise AiError(
-                "invalid_response", reason=Reason.TOOL_ARGUMENTS_INVALID
-            ) from None
+        identifier = tool_call_id(result)
         # Replay only the validated call; no provider prose, response IDs
         # or reasoning state.
         self._call_id = identifier
