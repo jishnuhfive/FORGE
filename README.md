@@ -5,9 +5,9 @@ Onshape Part Studio. You work in Onshape like normal, and Forge sits next to you
 reads what's actually in your model, explains what to do next, and checks your work
 with plain deterministic rules (no guessing from a language model).
 
-It's a hackathon project, not a hosted product. You run it on your own machine and
-point your own Onshape account at it. This README gets you from a fresh clone to a
-working panel.
+We built this for a hackathon, so it isn't a hosted product. You run it on your own
+machine and point your own Onshape account at it. Below is everything you need to go
+from a fresh clone to a working panel.
 
 ## What it does
 
@@ -22,9 +22,9 @@ working panel.
   fillet, rename a feature, set an extrude depth, set a fillet radius), shows you
   exactly what will happen, and only runs it after you approve. Every step is
   re-checked against the live model, and nothing is retried or rolled back for you.
-  The backend for this is done. The panel UI for it is still being built.
+  The backend works. We're still building the panel UI for it.
 
-Forge isn't engineering certification. It doesn't check strength, fit or tolerances.
+Forge isn't a substitute for an engineer. It doesn't check strength, fit or tolerances.
 
 ## What you need first
 
@@ -176,7 +176,7 @@ a Part Studio in Onshape and click the Forge icon in the right panel.
 
 Run only one API process. A leftover server from an earlier run can quietly hold the
 port and cause odd "disconnected" errors. If things act strange, kill every `uvicorn`
-process and start one fresh.
+process and start a single new one.
 
 ## If something's off
 
@@ -202,8 +202,8 @@ FORGE_CAD_WRITES_ENABLED=true
 Restart the API and reconnect your Onshape account so the new permission is granted.
 Turn it back off when you're done. Writes happen only after you explicitly approve a
 shown plan, and Forge stops at the first thing that looks wrong. The details and the
-limits of what's been tested are in [docs/HACKATHON_MODIFY_A2.md](docs/HACKATHON_MODIFY_A2.md)
-and [docs/PHASE_9_REVIEW.md](docs/PHASE_9_REVIEW.md).
+limits of what's been tested are in [the plan approval doc](docs/HACKATHON_MODIFY_A2.md)
+and [the safe-write review](docs/PHASE_9_REVIEW.md).
 
 ## Everyday commands
 
@@ -229,7 +229,7 @@ permissions and long test ids), and they fail the same way on a clean checkout.
 apps/web/                React + TypeScript + Vite interface
 apps/api/                FastAPI backend (uv-managed), tests and migrations
 packages/design-system/  Shared UI components
-docs/                    Architecture, security, per-phase reviews
+docs/                    Architecture, security, design notes and reviews
 scripts/                 Dev server supervisor, key generator
 tests/e2e/               Playwright tests
 docker-compose.yml       Local PostgreSQL
@@ -246,8 +246,8 @@ a CSRF token.
 - [Authentication](docs/AUTHENTICATION.md), [Onshape setup](docs/ONSHAPE.md) and
   [the panel extension](docs/ONSHAPE_EXTENSION.md)
 - [AI agent](docs/AI_AGENT.md) and [security](docs/SECURITY.md)
-- Modify: [A1 executor](docs/HACKATHON_MODIFY_A1.md), [B1 planner](docs/HACKATHON_MODIFY_B1.md),
-  [A2 approval API](docs/HACKATHON_MODIFY_A2.md)
+- Modify: [the executor](docs/HACKATHON_MODIFY_A1.md), [the planner](docs/HACKATHON_MODIFY_B1.md)
+  and [the approval API](docs/HACKATHON_MODIFY_A2.md)
 - [Roadmap](docs/ROADMAP.md) and [AGENTS.md](AGENTS.md) for contributors and coding agents
 
 ## Privacy and limits
@@ -256,5 +256,5 @@ When you use the AI, your message, the last few turns of conversation and the re
 model data go to the AI provider you configured. Groq keeps some data for reliability
 and abuse checks unless you turn on its data controls; OpenAI is called with storage
 off. Nothing is stored in the database about your chats. There's no license selected
-yet and no public hosting. Don't point this at documents you can't afford to lose
-until you've tried Modify on a disposable one.
+yet and no public hosting. Keep Modify away from documents you can't afford to lose
+until you've tried it on a throwaway one.
