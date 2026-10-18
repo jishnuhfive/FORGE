@@ -1,221 +1,260 @@
 # Forge
 
-AI engineering inside Onshape.
+Forge is an AI tutor and CAD assistant that lives in the right-hand panel of an
+Onshape Part Studio. You work in Onshape like normal, and Forge sits next to you. It
+reads what's actually in your model, explains what to do next, and checks your work
+with plain deterministic rules (no guessing from a language model).
 
-Forge is an engineering tutor and CAD assistant embedded in Onshape's right
-panel. Learners perform lesson CAD operations while Forge explains what to do,
-why it matters and how to recover. Deterministic lesson checks report evidence
-with explicit limits. Modify implements one explicitly approved Fillet suppression,
-disabled by default. Gate A is human-proven; full provider conformance remains pending.
+It's a hackathon project, not a hosted product. You run it on your own machine and
+point your own Onshape account at it. This README gets you from a fresh clone to a
+working panel.
 
-**Current status: Phase 7 COMPLETE; Phase 8 COMPLETE, HUMAN VALIDATED, and MERGED; Phase 9A PREPARATION COMPLETE; Phase 9B IMPLEMENTED; Gate A PROVEN; Gate B provider-audit confirmation deferred; Phase 10 IMPLEMENTED and MERGED, human validation pending; Phase 11 NOT STARTED.**
-Phase 6.5 remains visually approved after two human-review passes.
-The product UI and canonical design system are frozen: Obsidian, Arc Blue, the
-Oblique Plane identity, restrained functional Liquid Glass and answer-first
-reading. Final product copy uses timeless capability and uncertainty language.
-See [the final review](docs/PHASE_6_5_FINAL_REVIEW.md) and
-[the approved design system](docs/FORGE_DESIGN_SYSTEM.md).
+## What it does
 
-Real read-only Groq AI was verified inside Onshape during Phase 6.
-Phases 0–5 are preserved, including real OAuth, validated right-panel context and
-selection, four backend read operations and the CAD Inspector verified against a
-real Part Studio. The Design composer now offers read-only AI analysis inside
-Onshape after an explicit send. Design remains read-only; engineering validation is not claimed.
+- **Design.** Ask questions about the part you have open. Forge reads the Part Studio
+  (features, bodies, mass, your current selection) and answers from that. It can also
+  just chat. Nothing is sent to the AI until you press send.
+- **Learn.** Guided lessons, including a Mounting Bracket project. "Check my step"
+  looks at your real model and reports PASS, FAIL, WARNING or UNVERIFIED. The AI never
+  decides those; it can only explain them when you ask ("Ask Forge").
+- **Modify.** Edits to the model, and this is **off by default**. You describe a change,
+  Forge turns it into a short list of typed operations (suppress or unsuppress the final
+  fillet, rename a feature, set an extrude depth, set a fillet radius), shows you
+  exactly what will happen, and only runs it after you approve. Every step is
+  re-checked against the live model, and nothing is retried or rolled back for you.
+  The backend for this is done. The panel UI for it is still being built.
 
-Forge uses a provider-independent backend agent with Groq / `openai/gpt-oss-120b`
-by default. OpenAI Responses / `gpt-6.1-sol` remains an explicit optional provider.
-Both expose one no-argument inspection tool, bounded requests and normalized progress.
-Groq can answer general chat without reading CAD; model-specific answers still require inspection.
-Groq separates tool calling from strict final JSON-schema output into two rounds.
-Explicit CAD modification requests in Design use a deterministic read-only capability path:
-the same authorized CAD inspection, zero provider calls, and no inferred edit target.
-No automatic paid-provider fallback exists; shared free capacity is limited.
-When inspection is required, it reads fresh Phase 5 evidence and preserves unknown units, missing
-mass, incomplete evidence and unknown selection ownership. Verified answer facts
-are selected from server-authored evidence statements. Optional next steps use reviewed server wording and remain explicitly unverified.
-Broad inventory answers are concise deterministic presentations of captured evidence;
-details are available separately. Conversations remain in panel memory, at most three exchanges.
+Forge isn't engineering certification. It doesn't check strength, fit or tolerances.
 
-AI requests disclose that prompts, recent conversation and bounded CAD evidence go
-to the operator-configured hosted AI service. Groq inference has reliability/abuse
-retention exceptions unless the operator enables its Data Controls. Optional
-OpenAI uses `store:false`. Neither configuration claims zero retention by default. No automatic AI calls, database conversation storage,
-localStorage conversation persistence or content logs exist.
-See [Phase 6 review](docs/PHASE_6_REVIEW.md) for the complete boundary, checks and
-the final user-reported live results, full quality gate and local Groq setup.
-Phase 7 provides authored learning without provider or CAD requests. Phase 8 is
-**COMPLETE, HUMAN VALIDATED, and MERGED** into main at `81199ea`; it adds the
-Mounting Bracket guided project and explicit deterministic **Check my step** from
-fresh CAD evidence. Phase 9A is **PREPARATION COMPLETE**. Phase 9B implements
-`suppress_terminal_fillet_v1` behind backend `FORGE_CAD_WRITES_ENABLED` (default OFF):
-proposal → explicit approval → fresh state/version check → guarded write → fresh
-post-write verification. The first human-approved real suppression entered uncertainty;
-Forge made no success claim and did not retry. After deliberate operator recovery,
-a fresh approved suppression reached verified success from fresh evidence: Gate A
-is PROVEN. Gate B reached the pause; the human advanced the workspace and stale
-suppression did not apply. Provider-side rejection audit confirmation was deferred,
-so full provider conformance is not claimed. Writes returned OFF.
-See the [Phase 9 runtime review](docs/PHASE_9_REVIEW.md) for exact human instructions, the
-[Phase 8 review](docs/PHASE_8_REVIEW.md),
-[safe-write specification](docs/PHASE_9_SAFE_WRITE_SPEC.md) and
-[preparation review](docs/PHASE_9_PREP_REVIEW.md). Phase 10 was implemented and
-merged to main separately; this branch now integrates that history and its
-investigation/transfer learning. Automated validation is complete; real-Onshape
-human validation remains pending. Phase 11 is **NOT STARTED**.
-See [the Phase 7 review](docs/PHASE_7_REVIEW.md) for lesson architecture and human acceptance.
-This is not a publicly deployed production service.
+## What you need first
 
-## Learning Mode
+- **Node.js 24** and npm 11
+- **Python 3.14** and [uv](https://docs.astral.sh/uv/)
+- **Git**
+- **Docker** (running) for the PostgreSQL database
+- **mkcert**, for local HTTPS (Onshape only embeds HTTPS pages)
+- An **Onshape account** where you can create an OAuth application (a free account works)
+- A **Groq API key** if you want the AI parts. It's free at
+  [console.groq.com/keys](https://console.groq.com/keys)
 
-Choose Learn and select your CAD experience and goal. Fundamentals opens the
-**Sketch to solid** sample; the guided-project goal opens **Mounting Bracket**.
-Both offer authored instructions, Why, vocabulary and deliberate progressive hints,
-without AI provider calls. The bracket's explicit **Check my step** retrieves fresh
-CAD evidence and computes PASS / FAIL / WARNING / UNVERIFIED deterministically.
-Feature names do not determine results; the supported single-L-profile alternative
-is accepted. A later non-verified result revokes the active step's Forge verification,
-and a later verified result restores it. Learner-marked completion stays separate.
-Dimensions, units, hole placement, fit and strength are not certified.
+`make` is optional. On macOS and Linux the commands below use it; on Windows each one has
+a plain equivalent right beside it.
 
-The user confirms final human validation and merge to main at
-`81199ea95df04b34e6065441cad87d60b637dcf2`. The unchanged
-[Phase 8 review](docs/PHASE_8_REVIEW.md) preserves the original implementation and
-validation observations; its provisional status wording is superseded by this
-confirmation.
+You can skip Onshape and the key entirely if you only want to look at the interface.
+See "Just the UI" below.
 
-Learning stays in panel memory across modes/settings/history. Reset, reload, panel
-destruction, sign-out or a genuine session/connection teardown clears it. No learning
-records, analytics, browser-storage entries or database tables are added.
-
-## Architecture and stack
-
-One React + TypeScript + Vite web application will serve desktop browsers on
-macOS and Windows. Tailwind CSS, Radix accessible primitives, and Lucide provide
-the presentation foundation. Motion is restrained, event-driven and respects reduced-motion preferences;
-there is no idle decorative animation.
-
-FastAPI + Pydantic owns server boundaries; SQLAlchemy and psycopg are installed
-with Alembic for PostgreSQL authentication persistence. uv manages Python. npm workspaces manage the web and shared design
-system. Docker Compose runs PostgreSQL; native development servers provide fast
-reloads. Git origin is `https://github.com/jishnuhfive/FORGE.git`.
-
-## Prerequisites
-
-- Node.js 24 LTS and npm 11.
-- Python 3.14 and uv; the API lockfile supports Python 3.14.
-- Git, Docker with a running daemon, Docker Compose, and GNU Make 3.81+ on macOS.
-- Playwright browsers for browser tests, installed explicitly with `make browsers`.
-
-Versions actually verified are recorded in `docs/PHASE_0_REVIEW.md` after validation.
-No AI-provider key, Onshape account, or GitHub account is required to review the UI.
-
-## Quick start
-
-For the sign-in screen and credential-free development UI lab, run:
+## Just the UI (two minutes)
 
 ```sh
-cd /Users/jishnuhiremath/Developer/FORGE && make dev-web
+git clone https://github.com/jishnuhfive/FORGE.git
+cd FORGE
+make setup        # Windows: npm ci   then   cd apps/api && uv sync --locked
+make dev-web      # Windows: npm run dev:web
 ```
 
-Open <http://127.0.0.1:5173>. The development-only UI lab is
-<http://127.0.0.1:5173/#/lab>. Account settings after sign-in: <http://127.0.0.1:5173/#/settings>.
-The reserved history route is <http://127.0.0.1:5173/#/history>. Ctrl+C stops the server.
+Open <http://127.0.0.1:5173>. There's also a component playground at
+<http://127.0.0.1:5173/#/lab>. This mode needs no `.env`, database or accounts.
 
-For a fresh checkout, run `make setup` first. `make dev` still starts both native
-web and API servers. Optional PostgreSQL starts with `make db-up` and stops with
-`make db-down`, retaining its data. Neither is required for the development UI lab.
-The API health endpoint remains <http://127.0.0.1:8000/health>.
+## Full setup (real Onshape panel)
 
-No `.env` is required for the UI lab or tests. Real login needs the exact
-[Onshape application and local HTTPS setup](docs/AUTHENTICATION.md). `.env.example`
-contains empty placeholders; never put real credentials in it. The local database uses deliberately public development defaults
-on loopback only. See [development](docs/DEVELOPMENT.md) before overriding them.
+### 1. Install dependencies
 
-## Team development
+```sh
+make setup
+```
 
-Start with the [team onboarding guide](docs/TEAM_DEVELOPMENT.md) for independent
-macOS/Windows setup, private integrations, branches, PRs and coding-agent worktrees.
-`make team-check` checks local readiness; add `--integration` to the direct
-`python scripts/team_doctor.py` command to check private integration presence safely.
+Windows: `npm ci`, then `cd apps/api && uv sync --locked`.
 
-## Developer commands
+### 2. Create your `.env`
 
-| Command                         | Purpose                                                      |
-| ------------------------------- | ------------------------------------------------------------ |
-| `make setup`                    | Install JavaScript and Python dependencies from lockfiles    |
-| `make dev`                      | Run the native web and API servers together                  |
-| `make dev-web` / `make dev-api` | Run one server independently                                 |
-| `make test`                     | Run Vitest/React Testing Library and Pytest                  |
-| `make browsers`                 | Install Playwright Chromium, Firefox, and WebKit             |
-| `make test-e2e`                 | Test production UI and dev lab in three engines; build first |
-| `make lint`                     | Check ESLint, Prettier, Ruff lint, and Python formatting     |
-| `make typecheck`                | Run strict TypeScript and mypy checks                        |
-| `make format`                   | Format with Prettier and Ruff                                |
-| `make build`                    | Build the web application                                    |
-| `make compose-check`            | Validate Compose without starting services                   |
-| `make db-up` / `make db-down`   | Start a healthy database / stop it, keeping data             |
-| `make audit`                    | Scan npm and Python dependencies for known vulnerabilities   |
-| `make check`                    | Run lint, types, unit tests, build, and Compose validation   |
+```sh
+cp .env.example .env        # Windows: copy .env.example .env
+```
 
-`make smoke` additionally verifies real native web/API startup, health, proxy,
-and clean shutdown. Ports 5173 and 8000 must be free.
+Keep this file private. It's already in `.gitignore`. Never commit it or paste it
+anywhere. Then generate the key that encrypts stored Onshape tokens:
 
-## Repository structure
+```sh
+uv run --project apps/api --frozen python scripts/generate_dev_key.py
+```
+
+It fills in `TOKEN_ENCRYPTION_KEY` without printing it. Keep that value stable, because
+if you change it, existing logins stop working and you'll have to sign in again.
+
+### 3. Make a local HTTPS certificate
+
+Install [mkcert](https://github.com/FiloSottile/mkcert), then from the repo root:
+
+```sh
+mkcert -install
+mkdir .certs
+mkcert -cert-file .certs/localhost.pem -key-file .certs/localhost-key.pem localhost 127.0.0.1 ::1
+```
+
+The `.certs` folder is git-ignored. Don't share it.
+
+### 4. Register Forge in Onshape
+
+You do this once, signed in to Onshape:
+
+1. Click your account icon, then **My account**, **Developer**, **OAuth applications**,
+   and **Create new OAuth application**.
+2. Name it `Forge Development`. The "Primary format" has to be unique across Onshape and
+   can't be changed later, so use something like `com.yourname.forge.dev`.
+3. Choose **Integrated Cloud App**.
+4. Redirect URL: `https://localhost:5173/auth/onshape/callback`
+5. OAuth URL: `https://localhost:5173/auth/onshape/start`
+6. Permissions: tick **OAuth2ReadPII** and **OAuth2Read**. Add **OAuth2Write** only if
+   you plan to try Modify (see below).
+7. Create it and save the secret straight away. It's only shown once. The client ID is
+   under **Keys and secret**.
+
+Next, add the panel itself. Under **Extensions**, choose **Add extension**:
+
+- Location: **Element right panel**
+- Context: **Inside part studio**
+- Action URL (one line):
+  `https://localhost:5173/extension?documentId={$documentId}&workspaceId={$workspaceOrVersionId}&elementId={$elementId}`
+
+Don't add a `server` parameter to the Action URL; Onshape adds it for you. If your
+account asks for a private store entry before you can use the app, create one under
+the app's **Details** (category Content) and subscribe to it. Don't publish it publicly.
+[docs/ONSHAPE_EXTENSION.md](docs/ONSHAPE_EXTENSION.md) has the longer version with the
+edge cases.
+
+### 5. Fill in `.env`
+
+Open `.env` and set these. Leave anything not listed blank and the defaults apply.
+
+```dotenv
+ENVIRONMENT=development
+APP_BASE_URL=https://localhost:5173
+ONSHAPE_REDIRECT_URI=https://localhost:5173/auth/onshape/callback
+ONSHAPE_CLIENT_ID=<from Keys and secret>
+ONSHAPE_CLIENT_SECRET=<saved in step 4>
+DATABASE_URL=postgresql+psycopg://forge_local:local-development-only@127.0.0.1:5432/forge_local
+
+# AI (optional, but Design chat and Ask Forge need it)
+FORGE_AI_PROVIDER=groq
+GROQ_API_KEY=<your Groq key>
+```
+
+The database URL uses the throwaway local Compose credentials, which is fine for
+this setup. Use `https://localhost:5173` everywhere, not `127.0.0.1`. Cookies and the
+origin checks treat them as different sites, and mixing them breaks login.
+
+Using OpenAI instead of Groq? Set `FORGE_AI_PROVIDER=openai` and `OPENAI_API_KEY`. There's
+no automatic fallback between the two.
+
+### 6. Start the database and run migrations
+
+```sh
+make db-up
+make migrate
+```
+
+Windows: `docker compose up --detach --wait postgres`, then
+`cd apps/api && uv run --frozen alembic upgrade head`.
+
+If Postgres complains that port 5432 is taken, set `POSTGRES_PORT` in `.env` and update
+`DATABASE_URL` to match.
+
+### 7. Run it
+
+Two terminals, both from the repo root.
+
+```sh
+make dev-api          # Windows: cd apps/api && uv run --frozen uvicorn forge_api.main:app --reload --host 127.0.0.1 --port 8000 --no-access-log
+```
+
+```sh
+make dev-web-https    # Windows: npm run dev --workspace @forge/web -- --mode local-https
+```
+
+Open <https://localhost:5173>, click **Continue with Onshape** and approve. Then open
+a Part Studio in Onshape and click the Forge icon in the right panel.
+
+Run only one API process. A leftover server from an earlier run can quietly hold the
+port and cause odd "disconnected" errors. If things act strange, kill every `uvicorn`
+process and start one fresh.
+
+## If something's off
+
+| Symptom                                  | What to check                                                              |
+| ---------------------------------------- | -------------------------------------------------------------------------- |
+| Panel is blank or won't load             | Open <https://localhost:5173> in the same browser first and trust the cert |
+| Login loops or "session expired"         | You mixed `localhost` and `127.0.0.1`, or kept an old tab around           |
+| "Forge couldn't read your model"         | Reconnect from Settings; check the API terminal for errors                 |
+| API won't start, mentions migrations     | Run `make migrate`                                                         |
+| AI replies say it isn't configured       | `GROQ_API_KEY` empty, or the API wasn't restarted after editing `.env`     |
+| Third-party cookie warnings in the panel | Allow cookies for `localhost` in your browser, then reload                 |
+| Port 5173 or 8000 already in use         | Something else is running; stop it rather than changing ports              |
+
+## Modify and CAD writes
+
+Modify can change a real document, so it's disabled until you opt in. To try it, use a
+throwaway Part Studio, give the OAuth app **OAuth2Write**, and set this in `.env`:
+
+```dotenv
+FORGE_CAD_WRITES_ENABLED=true
+```
+
+Restart the API and reconnect your Onshape account so the new permission is granted.
+Turn it back off when you're done. Writes happen only after you explicitly approve a
+shown plan, and Forge stops at the first thing that looks wrong. The details and the
+limits of what's been tested are in [docs/HACKATHON_MODIFY_A2.md](docs/HACKATHON_MODIFY_A2.md)
+and [docs/PHASE_9_REVIEW.md](docs/PHASE_9_REVIEW.md).
+
+## Everyday commands
+
+| Command                         | What it does                                                        |
+| ------------------------------- | ------------------------------------------------------------------- |
+| `make dev`                      | Web and API together, plain HTTP, no login                          |
+| `make dev-web` / `make dev-api` | One server at a time                                                |
+| `make test`                     | Frontend (Vitest) and backend (pytest) tests                        |
+| `make test-e2e`                 | Browser tests; run `make browsers` once, then build first           |
+| `make lint` / `make typecheck`  | ESLint, Prettier, Ruff, TypeScript, mypy                            |
+| `make check`                    | Lint, types, tests, build and Compose validation                    |
+| `make db-up` / `make db-down`   | Start or stop PostgreSQL (data is kept)                             |
+| `make migrate`                  | Apply database migrations                                           |
+| `make test-postgres`            | Extra tests against a real database (set `FORGE_TEST_DATABASE_URL`) |
+
+Tests never touch a real Onshape account or AI provider. On Windows, `test_dev_key`
+and two long `test_cad_read` cases fail for reasons unrelated to the app (POSIX file
+permissions and long test ids), and they fail the same way on a clean checkout.
+
+## How it's put together
 
 ```text
-apps/web/                 React/Vite workspace, feature views, UI lab and unit tests
-apps/api/                uv-managed FastAPI source, tests, and Python lockfile
-packages/design-system/  Shared accessible presentation primitives
-docs/                    Architecture, security, integrations, workflow, roadmap
-infra/                   Local infrastructure notes
-scripts/                 Native development server supervisor
-tests/e2e/               Playwright browser tests
-AGENTS.md                Permanent instructions for future engineering sessions
-docker-compose.yml       Local PostgreSQL and health check
-Makefile                 Root command interface
-package-lock.json        Reproducible JavaScript dependency graph
+apps/web/                React + TypeScript + Vite interface
+apps/api/                FastAPI backend (uv-managed), tests and migrations
+packages/design-system/  Shared UI components
+docs/                    Architecture, security, per-phase reviews
+scripts/                 Dev server supervisor, key generator
+tests/e2e/               Playwright tests
+docker-compose.yml       Local PostgreSQL
 ```
 
-## Scope, limitations, and security
+Python 3.14, FastAPI, Pydantic, SQLAlchemy and Alembic on the back end, with PostgreSQL
+for sessions. The front end is React, Tailwind and Radix. Onshape tokens, session
+handling and AI keys stay on the server, and the browser only gets a session cookie and
+a CSRF token.
 
-`GET /health` reports process liveness only. Authentication readiness is distinct.
-The workspace displays the last verified Onshape authorization status; its Check
-connection action verifies identity, without accessing CAD. Standalone Design prompts remain local drafts; inside Onshape, explicit sends run
-read-only AI. Learn offers Sketch to solid and the Mounting Bracket guided project, with
-progressive hints and vocabulary.
-Learner progress and deterministic Forge verification are distinct. See
-[UI architecture](docs/UI.md).
+## Where to read more
 
-Provider credentials stay backend-only. Sessions, CSRF, token encryption and audit
-persistence are implemented. Real OAuth login was manually verified by the human. Browser-wide iframe compatibility, managed hosting,
-rate limits and operational launch controls still need verification/configuration.
-See [Phase 2 review](docs/PHASE_2_REVIEW.md). No certification is claimed.
+- [Architecture](docs/ARCHITECTURE.md) and [development notes](docs/DEVELOPMENT.md)
+- [Authentication](docs/AUTHENTICATION.md), [Onshape setup](docs/ONSHAPE.md) and
+  [the panel extension](docs/ONSHAPE_EXTENSION.md)
+- [AI agent](docs/AI_AGENT.md) and [security](docs/SECURITY.md)
+- Modify: [A1 executor](docs/HACKATHON_MODIFY_A1.md), [B1 planner](docs/HACKATHON_MODIFY_B1.md),
+  [A2 approval API](docs/HACKATHON_MODIFY_A2.md)
+- [Roadmap](docs/ROADMAP.md) and [AGENTS.md](AGENTS.md) for contributors and coding agents
 
-Forge v1 targets education and low-risk mechanical prototyping. Future results
-must distinguish PASS, WARNING, FAIL, and UNVERIFIED. Design assistance is not
-professional engineering certification.
+## Privacy and limits
 
-## Development expectations
-
-Read [AGENTS.md](AGENTS.md), [architecture](docs/ARCHITECTURE.md), and
-[development](docs/DEVELOPMENT.md) before changes. Preserve the agreed stack,
-write meaningful tests for important behavior, run quality checks, and document
-architecture changes. Never add fake integrations or fabricate validation results.
-Advance only into the phase explicitly authorized by the user. This repository
-has no public contribution policy or open-source license selected yet.
-
-Phase 2 adds `make migrate`, `make migration-check`, `make test-postgres` and
-`make dev-web-https`. See [authentication](docs/AUTHENTICATION.md) before using them
-with real account credentials. Existing Phase 0 and Phase 1 commits remain intact.
-
-Phase 3 extension registration, exact local URLs, source-contract gap and manual
-acceptance steps: [Onshape extension](docs/ONSHAPE_EXTENSION.md).
-
-Phase 10 (merged to main before Phase 9 and now integrated here; real-Onshape human validation pending) adds mistake
-investigation, prediction prompts, explainable guidance fading and an optional transfer challenge to
-the Mounting Bracket. It is read-only and session-local. See
-[PHASE_10_REVIEW.md](docs/PHASE_10_REVIEW.md).
-
-Phase 11 (implemented on `phase11/contextual-ai-tutor`; not merged, not yet human-validated) adds **Ask Forge**,
-a learner-requested AI tutor inside the Mounting Bracket lesson. Deterministic checkers still own every status;
-the tutor explains and cannot verify, grade or edit. See [PHASE_11_REVIEW.md](docs/PHASE_11_REVIEW.md).
+When you use the AI, your message, the last few turns of conversation and the relevant
+model data go to the AI provider you configured. Groq keeps some data for reliability
+and abuse checks unless you turn on its data controls; OpenAI is called with storage
+off. Nothing is stored in the database about your chats. There's no license selected
+yet and no public hosting. Don't point this at documents you can't afford to lose
+until you've tried Modify on a disposable one.
