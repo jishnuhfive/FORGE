@@ -725,3 +725,15 @@ Backend: `uv run --frozen pytest tests/test_tutor_core.py tests/test_tutor_route
 Frontend: `npx vitest run src/learning/Tutor.test.tsx`. Browser: `npx playwright test tests/e2e/tutor.spec.ts`.
 All use mocked providers and CAD; no live service or secret is needed. After pulling Phase 9, run
 `uv run --frozen alembic upgrade head` once from `apps/api` against your local database.
+
+## Hackathon Modify A1 checks
+
+A1 is backend-only: [typed contracts and integration instructions](HACKATHON_MODIFY_A1.md).
+Keep CAD writes OFF; tests use only synthetic fixtures and MockTransport. Run
+`uv run --project apps/api --frozen pytest apps/api/tests/test_modify_plan.py` and
+all existing `test_safe_edit*.py` regressions. With the existing privately supplied
+FORGE_TEST_DATABASE_URL, additionally run `test_modify_plan_postgres.py`,
+`test_safe_edit_postgres.py` and `test_postgres.py`; they own only random schemas.
+Run the standard format/lint/strict-type/test/build/audit gate and migration drift
+check. No migration, dependencies, browser contract or live write is required.
+Team B must keep planner calls separate from the explicit human approval handler.

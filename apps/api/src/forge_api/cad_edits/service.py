@@ -144,32 +144,7 @@ def create(
     provider = client(request, auth)
     with auth.sessions.begin() as db:
         binding = authority(request, auth, db, context, lock=True)
-        storage.cleanup(db)
-        storage.unfenced(db, binding)
-        recent = db.scalar(
-            select(func.count())
-            .select_from(WriteRecord)
-            .where(
-                WriteRecord.user_id == binding.user,
-                WriteRecord.state == "admission",
-                WriteRecord.created_at > now() - 60,
-            )
-        )
-        if recent is not None and recent >= 6:
-            raise EditError("rate_limited", 429)
-        db.add(
-            WriteRecord(
-                id=random_token(),
-                user_id=binding.user,
-                session_hash=binding.session,
-                state="admission",
-                digest="0" * 64,
-                payload=None,
-                created_at=now(),
-                expires_at=now() + 60,
-                purge_at=now() + 60,
-            )
-        )
+        admit(db, binding)
         old = None
         if candidate:
             record = storage.owned(db, candidate, binding.user, binding.session)
@@ -206,6 +181,36 @@ def create(
             }
         ]
     }
+
+
+def admit(db: DatabaseSession, binding: Binding) -> None:
+    """Shared durable preparation budget and workspace/user denial."""
+    storage.cleanup(db)
+    storage.unfenced(db, binding)
+    recent = db.scalar(
+        select(func.count())
+        .select_from(WriteRecord)
+        .where(
+            WriteRecord.user_id == binding.user,
+            WriteRecord.state == "admission",
+            WriteRecord.created_at > now() - 60,
+        )
+    )
+    if recent is not None and recent >= 6:
+        raise EditError("rate_limited", 429)
+    db.add(
+        WriteRecord(
+            id=random_token(),
+            user_id=binding.user,
+            session_hash=binding.session,
+            state="admission",
+            digest="0" * 64,
+            payload=None,
+            created_at=now(),
+            expires_at=now() + 60,
+            purge_at=now() + 60,
+        )
+    )
 
 
 def identity(

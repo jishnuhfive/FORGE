@@ -1,16 +1,20 @@
-"""Private fixed transport for one operation. No generic API authority or retry."""
+"""Private closed CAD transport. No generic public API authority or retry."""
 
 import json
 from time import monotonic
+from urllib.parse import quote
 
 import httpx2 as httpx
 from pydantic import JsonValue, TypeAdapter
 
-from forge_api.cad_edits.domain import Baseline, EditError, Proposal
+from forge_api.cad_edits.domain import Baseline, EditError, Proposal, fingerprint
+from forge_api.cad_edits.plans import ResolvedOperation
 from forge_api.core.config import Settings
 
 from .client import MAX_BYTES, bounded_json
 from .contracts import ACCEPT, API_VERSION, CadId, WorkspaceReference, api_origin
+from .edit_registry import change
+from .modify_evidence import ModifyEvidence, project_modify_evidence
 from .write_evidence import project_write_evidence
 
 
@@ -105,19 +109,7 @@ class SafeEditClient:
             raise EditError("invalid_provider_response", 503) from None
 
     def evidence(self, context: WorkspaceReference, *, after: bool = False) -> Baseline:
-        microversion = self.head(context)
-        scope = f"d/{context.documentId}/m/{microversion}/e/{context.elementId}"
-        features = self._exchange(
-            "GET",
-            f"/partstudios/{scope}/features?includeGeometryIds=false&noSketchGeometry=false&rollbackBarIndex=-1",
-        )
-        configuration = self._exchange("GET", f"/elements/{scope}/configuration")
-        bodies = self._exchange(
-            "GET", f"/partstudios/{scope}/bodydetails?includeGeometricData=false"
-        )
-        if self.head(context) != microversion:
-            raise EditError("model_changed")
-        self._observe_body_evidence(bodies, microversion)
+        microversion, features, configuration, bodies = self._read_evidence(context)
         try:
             return project_write_evidence(
                 context,
@@ -131,8 +123,128 @@ class SafeEditClient:
         except ValueError, TypeError:
             raise EditError("unsupported_target", 422) from None
 
+    def _read_evidence(
+        self, context: WorkspaceReference
+    ) -> tuple[str, JsonValue, JsonValue, JsonValue]:
+        microversion = self.head(context)
+        scope = f"d/{context.documentId}/m/{microversion}/e/{context.elementId}"
+        features = self._exchange(
+            "GET",
+            f"/partstudios/{scope}/features?includeGeometryIds=false&noSketchGeometry=false&rollbackBarIndex=-1",
+        )
+        configuration = self._exchange("GET", f"/elements/{scope}/configuration")
+        bodies = self._exchange(
+            "GET", f"/partstudios/{scope}/bodydetails?includeGeometricData=false"
+        )
+        if self.head(context) != microversion:
+            raise EditError("model_changed")
+        self._observe_body_evidence(bodies, microversion)
+        return microversion, features, configuration, bodies
+
+    def modify_evidence(self, context: WorkspaceReference) -> ModifyEvidence:
+        microversion, features, configuration, bodies = self._read_evidence(context)
+        try:
+            return project_modify_evidence(
+                context, microversion, features, configuration, bodies
+            )
+        except ValueError, TypeError:
+            raise EditError("unsupported_target", 422) from None
+
     def _observe_body_evidence(self, bodies: JsonValue, microversion: str) -> None:
         """DEV subclass hook after the bounded, pinned reads pass head bracketing."""
+
+    def execute_operation(
+        self, evidence: ModifyEvidence, operation: ResolvedOperation
+    ) -> str:
+        """Closed internal dispatch from a freshly checked, already-claimed plan.
+
+        No caller-supplied path, method, parameter identifier or payload is accepted.
+        The fixed executor is the sole caller; this is never a planner tool.
+        """
+        if not self._enabled:
+            raise EditError("write_disabled", 403)
+        baseline = evidence.baseline
+        path, body, updated, suppression = self._operation_request(evidence, operation)
+        data = self._exchange("POST", path, body)  # Exactly once. Never retried.
+        if not isinstance(data, dict) or data.get("microversionSkew") is not False:
+            raise EditError("verification_failed")
+        if suppression:
+            returned = data.get("features")
+            if not isinstance(returned, list) or len(returned) != 1:
+                raise EditError("verification_failed")
+            feature = returned[0]
+        else:
+            feature = data.get("feature")
+        if (
+            not isinstance(feature, dict)
+            or feature.get("featureId") != operation.target.feature_id
+        ):
+            raise EditError("verification_failed")
+        if suppression and feature.get("suppressed") is not updated["suppressed"]:
+            raise EditError("verification_failed")
+        if not suppression and fingerprint(feature) != fingerprint(updated):
+            raise EditError("verification_failed")
+        try:
+            marker = TypeAdapter(CadId).validate_python(
+                data.get("sourceMicroversion"), strict=True
+            )
+        except ValueError:
+            raise EditError("verification_failed") from None
+        if marker == baseline.microversion:
+            raise EditError("verification_failed")
+        return marker
+
+    def check_operation(
+        self, evidence: ModifyEvidence, operation: ResolvedOperation
+    ) -> None:
+        """Local payload preflight before recording an operation dispatch boundary."""
+        self._operation_request(evidence, operation)
+
+    def _operation_request(
+        self, evidence: ModifyEvidence, operation: ResolvedOperation
+    ) -> tuple[str, dict[str, object], dict[str, JsonValue], bool]:
+        baseline = evidence.baseline
+        context = baseline.context
+        updated, preview = change(
+            evidence.features(), operation.target, operation.operation
+        )
+        if preview != operation.preview:
+            raise EditError("model_changed")
+        scope = (
+            f"/partstudios/d/{context.documentId}/w/{context.workspaceId}"
+            f"/e/{context.elementId}/features"
+        )
+        body: dict[str, object] = {
+            "sourceMicroversion": baseline.microversion,
+            "rejectMicroversionSkew": True,
+            "serializationVersion": baseline.serialization,
+            "libraryVersion": baseline.library,
+        }
+        suppression = operation.operation.type in ("SET_SUPPRESSED", "SET_UNSUPPRESSED")
+        if suppression:
+            path = scope + "/updates"
+            body.update(
+                {
+                    "btType": "BTUpdateFeaturesCall-1748",
+                    "updateSuppressionAttributes": True,
+                    "features": [
+                        {
+                            "btType": "BTMFeature-134",
+                            "featureId": operation.target.feature_id,
+                            "suppressed": updated["suppressed"],
+                        }
+                    ],
+                }
+            )
+        else:
+            # updateFeatures documents parameter/suppression updates, not rename.
+            # Use the documented full-definition replacement for name/quantity;
+            # preserve every fresh unrelated field, and retain the same 8 KiB cap.
+            path = scope + "/featureid/" + quote(operation.target.feature_id, safe="")
+            body.update({"btType": "BTFeatureDefinitionCall-1406", "feature": updated})
+        if len(json.dumps(body, allow_nan=False).encode()) > 8192:
+            raise EditError("unsupported_target", 422)
+        return path, body, updated, suppression
 
     def suppress_terminal_fillet(self, proposal: Proposal) -> str:
         if not self._enabled:
