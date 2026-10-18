@@ -10,6 +10,7 @@ from forge_api.auth.security import audit
 from forge_api.db.models import WriteFence, WriteRecord, now
 
 from .domain import Binding, EditError, Proposal, State, fingerprint
+from .plans import OwnedAuthority
 
 
 def invalidate(db: Session, user: str, session: str | None = None) -> None:
@@ -50,7 +51,7 @@ def cleanup(db: Session) -> None:
     db.execute(delete(WriteRecord).where(WriteRecord.purge_at <= now()))
 
 
-def store(db: Session, proposal: Proposal, state: State) -> None:
+def store(db: Session, proposal: Proposal | OwnedAuthority, state: State) -> None:
     invalidate(db, proposal.binding.user, proposal.binding.session)
     db.add(
         WriteRecord(
@@ -82,21 +83,23 @@ def decode(record: WriteRecord) -> Proposal:
         )
     try:
         proposal = Proposal.model_validate_json(record.payload)
-        if not hmac.compare_digest(
-            record.digest, fingerprint(proposal.model_dump(mode="json"))
-        ):
-            raise EditError("proposal_tampered")
-        if (
-            proposal.proposal_id != record.id
-            or proposal.binding.user != record.user_id
-            or proposal.binding.session != record.session_hash
-            or proposal.created_at != record.created_at
-            or proposal.expires_at != record.expires_at
-        ):
-            raise EditError("proposal_tampered")
+        verify_record(record, proposal)
         return proposal
     except ValueError:
         raise EditError("proposal_tampered") from None
+
+
+def verify_record(record: WriteRecord, proposal: Proposal | OwnedAuthority) -> None:
+    if not hmac.compare_digest(
+        record.digest, fingerprint(proposal.model_dump(mode="json"))
+    ) or (
+        proposal.proposal_id != record.id
+        or proposal.binding.user != record.user_id
+        or proposal.binding.session != record.session_hash
+        or proposal.created_at != record.created_at
+        or proposal.expires_at != record.expires_at
+    ):
+        raise EditError("proposal_tampered")
 
 
 def claim(db: Session, handle: str, user: str, session: str, supplied: str) -> Proposal:
@@ -106,6 +109,17 @@ def claim(db: Session, handle: str, user: str, session: str, supplied: str) -> P
             "proposal_expired" if record.state == "expired" else "proposal_used"
         )
     proposal = decode(record)
+    claim_record(db, record, proposal.binding, supplied)
+    return proposal
+
+
+def claim_record(
+    db: Session, record: WriteRecord, binding: Binding, supplied: str
+) -> None:
+    """Shared atomic one-use claim/fence, after typed decode and owner validation."""
+    if record.state != "pending":
+        raise EditError("proposal_used")
+    handle, user = record.id, binding.user
     if not hmac.compare_digest(record.digest, supplied):
         raise EditError("proposal_tampered")
     if now() >= record.expires_at:
@@ -126,7 +140,7 @@ def claim(db: Session, handle: str, user: str, session: str, supplied: str) -> P
     try:
         db.add(
             WriteFence(
-                workspace_key=proposal.binding.workspace_key,
+                workspace_key=binding.workspace_key,
                 user_id=user,
                 record_id=handle,
             )
@@ -137,11 +151,14 @@ def claim(db: Session, handle: str, user: str, session: str, supplied: str) -> P
         raise EditError("workspace_fenced") from None
     audit(db, "write_proposal_claimed", user_id=user)
     # Caller commits this transaction BEFORE touching the provider.
-    return proposal
 
 
 def finish(
-    db: Session, proposal: Proposal, state: State, *, safe_to_release: bool
+    db: Session,
+    proposal: Proposal | OwnedAuthority,
+    state: State,
+    *,
+    safe_to_release: bool,
 ) -> None:
     record = db.get(WriteRecord, proposal.proposal_id)
     if record is None:

@@ -725,3 +725,38 @@ Backend: `uv run --frozen pytest tests/test_tutor_core.py tests/test_tutor_route
 Frontend: `npx vitest run src/learning/Tutor.test.tsx`. Browser: `npx playwright test tests/e2e/tutor.spec.ts`.
 All use mocked providers and CAD; no live service or secret is needed. After pulling Phase 9, run
 `uv run --frozen alembic upgrade head` once from `apps/api` against your local database.
+
+## Hackathon Modify A1 checks
+
+A1 is backend-only: [typed contracts and integration instructions](HACKATHON_MODIFY_A1.md).
+Keep CAD writes OFF; tests use only synthetic fixtures and MockTransport. Run
+`uv run --project apps/api --frozen pytest apps/api/tests/test_modify_plan.py` and
+all existing `test_safe_edit*.py` regressions. With the existing privately supplied
+FORGE_TEST_DATABASE_URL, additionally run `test_modify_plan_postgres.py`,
+`test_safe_edit_postgres.py` and `test_postgres.py`; they own only random schemas.
+Run the standard format/lint/strict-type/test/build/audit gate and migration drift
+check. No migration, dependencies, browser contract or live write is required.
+Team B must keep planner calls separate from the explicit human approval handler.
+
+## Modify planner tests (B1)
+
+`apps/api/tests/test_modify_planner.py` runs entirely on invented CAD and fake model
+transports (Groq and OpenAI shapes); no key or network is required. Run it with the A1
+(`test_modify_plan.py`), Phase 9 `test_safe_edit*.py` and AI tests. No migration,
+dependency or live write is involved.
+
+## Generalized approval tests (A2)
+
+Run `uv run --frozen pytest tests/test_modify_plan_routes.py` from `apps/api`, then
+`tests/test_modify_plan_routes_postgres.py` with the existing isolated local
+FORGE_TEST_DATABASE_URL. Include `test_modify_plan.py`, `test_modify_plan_postgres.py`,
+`test_modify_planner.py`, all `test_safe_edit*`, AI/provider/tutor and PostgreSQL
+regressions, then the full repository gate. All CAD/model traffic is mocked; no
+credential or live write is needed. Isolate tests from operator dotenv when testing
+unconfigured settings. A2 adds no migration or frontend change. See
+[the API, bounded events and cancellation/disconnect contract](HACKATHON_MODIFY_A2.md).
+
+B2 checks: `npm test --workspace @forge/web -- src/modify --maxWorkers=2`,
+`npm run typecheck`, full frontend tests/build, and
+`./node_modules/.bin/playwright test tests/e2e/modify.spec.ts --workers=2`.
+All browser provider outcomes are intercepted synthetic fixtures. See [B2](HACKATHON_MODIFY_B2.md).

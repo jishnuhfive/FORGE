@@ -1856,6 +1856,40 @@ ul.compact-list {
 .modify-state {
   font-size: var(--font-size-section, 15px);
 }
+.modify-operations {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.modify-operations > li {
+  min-width: 0;
+  padding-block: var(--space-4);
+  border-bottom: 1px solid var(--border);
+}
+.modify-operations dd {
+  white-space: pre-wrap;
+}
+.modify-operation-heading {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.modify-operation-heading h3 {
+  flex: 1 1 140px;
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: var(--text-body);
+}
+.modify-summary:empty {
+  display: none;
+}
+.modify-feature section,
+.modify-feature li,
+.modify-summary {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 
 .learning-investigation {
   margin-block: var(--space-6);
