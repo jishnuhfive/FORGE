@@ -1,0 +1,59 @@
+{
+  "extrude": [
+    {
+      "btType": "BTMParameterEnum-145",
+      "parameterId": "bodyType",
+      "enumName": "ExtendedToolBodyType",
+      "value": "SOLID"
+    },
+    {
+      "btType": "BTMParameterEnum-145",
+      "parameterId": "operationType",
+      "enumName": "NewBodyOperationType",
+      "value": "NEW"
+    },
+    {
+      "btType": "BTMParameterQueryList-148",
+      "parameterId": "entities",
+      "queries": [
+        {
+          "btType": "BTMIndividualSketchRegionQuery-140",
+          "featureId": "synthetic-feature-0"
+        }
+      ]
+    },
+    {
+      "btType": "BTMParameterEnum-145",
+      "parameterId": "endBound",
+      "enumName": "BoundingType",
+      "value": "BLIND"
+    },
+    {
+      "btType": "BTMParameterQuantity-147",
+      "parameterId": "depth",
+      "expression": "20 mm"
+    }
+  ],
+  "fillet": [
+    {
+      "btType": "BTMParameterQueryList-148",
+      "parameterId": "entities",
+      "queries": [
+        {
+          "btType": "BTMIndividualQuery-138",
+          "queryString": "synthetic-edge-query"
+        }
+      ]
+    },
+    {
+      "btType": "BTMParameterQuantity-147",
+      "parameterId": "radius",
+      "expression": "2 mm"
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "tangentPropagation",
+      "value": true
+    }
+  ]
+}

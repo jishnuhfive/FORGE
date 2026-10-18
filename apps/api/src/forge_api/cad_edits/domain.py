@@ -26,6 +26,7 @@ State = Literal[
     "unverified_result",
     "execution_uncertain",
     "recovery_required",
+    "partial_failure",
 ]
 
 

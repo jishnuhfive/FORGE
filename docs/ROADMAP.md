@@ -236,3 +236,20 @@ session-only; check results reach it only through a server-signed, session-bound
 checkers keep all authority. Not merged and not human-validated; Phase 9 Gate B's provider-side audit remains
 deferred. See [PHASE_11_REVIEW.md](PHASE_11_REVIEW.md) and [PHASE_11_TUTOR_SPEC.md](PHASE_11_TUTOR_SPEC.md).
 Phase 12 is not started.
+
+## Hackathon Modify A1 — deterministic core implemented on its branch
+
+A1 adds five typed semantic operations, server-owned 1–5 operation plans, private
+target resolution, sequential guarded execution and deterministic per-step results.
+The Phase 9 browser workflow remains unchanged. No AI planner or general Modify UI
+is included; Team B planner integration is next. Exact narrow provider shapes and
+remaining live-validation work are documented in [HACKATHON_MODIFY_A1.md](HACKATHON_MODIFY_A1.md).
+CAD writes stay OFF. Phase 9 Gate A remains proven; Gate B provider audit remains
+deferred. This branch is not merged by A1 implementation work.
+
+## Hackathon Modify B1
+
+B1 adds the natural-language planner backend, stopping at the A1 plan preview. B2 will add
+the plan-preview UI and the human approval flow. CAD writes stay OFF by default; Phase 9
+Gate A remains proven and Gate B provider audit remains deferred. See
+[HACKATHON_MODIFY_B1.md](HACKATHON_MODIFY_B1.md).

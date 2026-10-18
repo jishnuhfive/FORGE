@@ -528,3 +528,22 @@ server's own lesson catalog and checker labels. The model may request only the e
 `inspect_current_cad` call, through the existing gate and projection. It returns a strict structure; the server
 prints verified observations itself. No new provider, table, scope or write path; the browser keeps at most three
 exchanges in memory. See [PHASE_11_TUTOR_SPEC.md](PHASE_11_TUTOR_SPEC.md).
+
+## Hackathon Modify A1 backend core
+
+A1 adds a closed five-operation semantic plan/resolver/executor behind backend
+interfaces, with no new browser route or AI tool. It reuses Phase 9 admission,
+claims, fences, authority locks and pinned evidence; the original browser workflow
+and evidence policy remain intact. One to five operations execute sequentially,
+advancing only from verified revisions and stopping on any failure/uncertainty.
+Typed plan/status envelopes reuse existing operational tables without migration.
+See [the A1 contract and limitations](HACKATHON_MODIFY_A1.md). CAD writes remain OFF;
+new operation conformance is not live-proven, and Phase 9 Gate B audit remains deferred.
+
+## Natural-language Modify planner (B1)
+
+`POST /api/modify/plan` takes `{context, request}`, runs a fresh A1 `discover()`, asks the
+operator-selected model (no tools) to choose handles and values from a minimal catalog,
+validates the output server-side, builds the `SemanticPlan` with the server-owned
+`target_catalog` and returns A1's authoritative `prepare()` preview or a clarification.
+It never approves or executes. See [HACKATHON_MODIFY_B1.md](HACKATHON_MODIFY_B1.md).

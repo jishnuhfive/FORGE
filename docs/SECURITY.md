@@ -538,3 +538,27 @@ by the caller's session credential (forged, altered, foreign-session, wrong-step
 tokens are rejected; expired ones are ignored). No identifier, token, cookie, CSRF value, evidence token or learner
 prediction is sent to the provider. The only tool is read-only `inspect_current_cad`. One in-flight request per user
 plus a 30/hour in-memory cap. No persistence and no write path.
+
+## Hackathon Modify A1 authority extension
+
+A1 accepts only closed semantic operations and opaque catalog-owned targets;
+provider identity, parameter selection, request construction and execution remain
+server-only. Human approval binds the exact immutable ordered plan. Each operation
+rechecks authority, expiry, the persistent fence and the previous verified revision.
+A durable per-operation journal precedes the single guarded dispatch. Failures stop
+later operations; dispatched uncertainty retains the fence without retry/rollback.
+No route, AI execution tool, OAuth permission, secret, table or migration is added.
+Private plan bindings follow Phase 9 retention; safe terminal journals retain only
+statuses. Raw CAD stays request-local. See [A1](HACKATHON_MODIFY_A1.md) for exact
+shape/quantity limits, privacy boundaries and required future HTTP/CSRF controls.
+CAD writes remain OFF and new-operation live conformance remains unverified.
+
+## Modify planner (B1)
+
+The planner route reuses the Modify guard (session, same-origin, CSRF, closed JSON,
+8 KiB cap) plus a per-user hourly cap and one-in-flight gate. The model receives only
+opaque handles, display labels, feature types, positions and supported operations, and
+its output is validated by the server before A1 `prepare()`. Prompts, CAD names, catalogs
+and model output are never logged. The route stops at the preview; approval stays a
+separate human action. CAD writes remain OFF by default. See
+[HACKATHON_MODIFY_B1.md](HACKATHON_MODIFY_B1.md).

@@ -64,6 +64,7 @@ def test_only_allowlisted_auth_read_and_single_edit_routes_exist(
         "/api/learning/tutor",
         "/api/modify/capabilities",
         "/api/modify/targets",
+        "/api/modify/plan",
         "/api/modify/proposals",
         "/api/modify/proposals/{handle}",
         "/api/modify/proposals/{handle}/{action}",
@@ -73,6 +74,7 @@ def test_only_allowlisted_auth_read_and_single_edit_routes_exist(
     assert set(paths["/api/ai/ask"]) == {"post"}
     assert set(paths["/api/learning/check-step"]) == {"post"}
     assert set(paths["/api/learning/tutor"]) == {"post"}
+    assert set(paths["/api/modify/plan"]) == {"post"}
 
     assert set(paths["/api/modify/proposals/{handle}/{action}"]) == {"post"}
     assert set(paths["/api/modify/proposals/{handle}"]) == {"get"}
