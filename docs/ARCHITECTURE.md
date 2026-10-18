@@ -539,3 +539,11 @@ advancing only from verified revisions and stopping on any failure/uncertainty.
 Typed plan/status envelopes reuse existing operational tables without migration.
 See [the A1 contract and limitations](HACKATHON_MODIFY_A1.md). CAD writes remain OFF;
 new operation conformance is not live-proven, and Phase 9 Gate B audit remains deferred.
+
+## Natural-language Modify planner (B1)
+
+`POST /api/modify/plan` takes `{context, request}`, runs a fresh A1 `discover()`, asks the
+operator-selected model (no tools) to choose handles and values from a minimal catalog,
+validates the output server-side, builds the `SemanticPlan` with the server-owned
+`target_catalog` and returns A1's authoritative `prepare()` preview or a clarification.
+It never approves or executes. See [HACKATHON_MODIFY_B1.md](HACKATHON_MODIFY_B1.md).

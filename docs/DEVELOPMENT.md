@@ -737,3 +737,10 @@ FORGE_TEST_DATABASE_URL, additionally run `test_modify_plan_postgres.py`,
 Run the standard format/lint/strict-type/test/build/audit gate and migration drift
 check. No migration, dependencies, browser contract or live write is required.
 Team B must keep planner calls separate from the explicit human approval handler.
+
+## Modify planner tests (B1)
+
+`apps/api/tests/test_modify_planner.py` runs entirely on invented CAD and fake model
+transports (Groq and OpenAI shapes); no key or network is required. Run it with the A1
+(`test_modify_plan.py`), Phase 9 `test_safe_edit*.py` and AI tests. No migration,
+dependency or live write is involved.

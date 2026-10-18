@@ -511,3 +511,11 @@ settings and budgets. At most two rounds, no automatic retry or fallback. Round 
 `TutorModelAnswer`. The model never sets a status; `check_refs` and `fact_ids` select server-owned statements and
 invented ids are dropped. Requests to change CAD, use APIs or mark a step passed get fixed server replies with no
 model call. See [PHASE_11_TUTOR_SPEC.md](PHASE_11_TUTOR_SPEC.md).
+
+## Modify planner (B1)
+
+A third narrow use of the provider layer: a strict, tool-free structured request that
+maps a natural-language change to at most five of A1's semantic operations over opaque
+handles. Same provider, transport, budgets and error mapping; no retry or fallback. The
+model can never reach approval, the write client, provider identities or FeatureScript.
+See [HACKATHON_MODIFY_B1.md](HACKATHON_MODIFY_B1.md).

@@ -246,3 +246,10 @@ is included; Team B planner integration is next. Exact narrow provider shapes an
 remaining live-validation work are documented in [HACKATHON_MODIFY_A1.md](HACKATHON_MODIFY_A1.md).
 CAD writes stay OFF. Phase 9 Gate A remains proven; Gate B provider audit remains
 deferred. This branch is not merged by A1 implementation work.
+
+## Hackathon Modify B1
+
+B1 adds the natural-language planner backend, stopping at the A1 plan preview. B2 will add
+the plan-preview UI and the human approval flow. CAD writes stay OFF by default; Phase 9
+Gate A remains proven and Gate B provider audit remains deferred. See
+[HACKATHON_MODIFY_B1.md](HACKATHON_MODIFY_B1.md).

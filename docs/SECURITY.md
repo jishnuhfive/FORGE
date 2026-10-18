@@ -552,3 +552,13 @@ Private plan bindings follow Phase 9 retention; safe terminal journals retain on
 statuses. Raw CAD stays request-local. See [A1](HACKATHON_MODIFY_A1.md) for exact
 shape/quantity limits, privacy boundaries and required future HTTP/CSRF controls.
 CAD writes remain OFF and new-operation live conformance remains unverified.
+
+## Modify planner (B1)
+
+The planner route reuses the Modify guard (session, same-origin, CSRF, closed JSON,
+8 KiB cap) plus a per-user hourly cap and one-in-flight gate. The model receives only
+opaque handles, display labels, feature types, positions and supported operations, and
+its output is validated by the server before A1 `prepare()`. Prompts, CAD names, catalogs
+and model output are never logged. The route stops at the preview; approval stays a
+separate human action. CAD writes remain OFF by default. See
+[HACKATHON_MODIFY_B1.md](HACKATHON_MODIFY_B1.md).

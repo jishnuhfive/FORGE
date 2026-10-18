@@ -76,6 +76,11 @@ class ReadGate:
                 self._active.discard(user_id)
                 self._until[user_id] = max(self._until.get(user_id, 0), monotonic() + 5)
 
+    def remaining(self, user_id: str) -> float:
+        """Seconds until this user may enter again (0 if now). Reads only."""
+        with self._lock:
+            return max(0.0, self._until.get(user_id, 0) - monotonic())
+
     def defer(self, user_id: str, seconds: int) -> None:
         with self._lock:
             self._until[user_id] = max(
