@@ -1,10 +1,12 @@
-"""A1 resolver and sequential executor. No AI and no new HTTP routes.
+"""A1 resolver and sequential executor. No AI authority.
 
 Team B may consume discover/prepare and semantic contracts. Only a separately
 authenticated, same-origin/CSRF-protected explicit approval handler may invoke
 approve; a planner must never be given that capability.
 """
 
+from collections.abc import Callable
+from contextlib import suppress
 from time import monotonic
 from typing import cast
 
@@ -32,6 +34,13 @@ from forge_api.integrations.onshape.write_client import SafeEditClient
 
 from . import plan_storage, service, storage
 from .domain import Baseline, Binding, EditError
+from .plan_events import (
+    OperationOutcome,
+    OperationResultEvent,
+    Progress,
+    ProgressEvent,
+    ProgressStage,
+)
 from .plans import (
     FeatureType,
     ModifyPlan,
@@ -200,7 +209,11 @@ def _current(
 
 
 def approve(
-    request: Request, auth: AuthRuntime, handle: str, digest: str
+    request: Request,
+    auth: AuthRuntime,
+    handle: str,
+    digest: str,
+    progress: Callable[[Progress], None] | None = None,
 ) -> PlanResult:
     _enabled(auth)
     with auth.sessions.begin() as db:
@@ -213,6 +226,19 @@ def approve(
     states: list[OperationState] = ["pending"] * len(plan.operations)
     index = 0
     dispatched = False
+
+    def observe(event: Progress) -> None:
+        if progress is not None:
+            # Presentation cannot change dispatch, verification or replay.
+            with suppress(Exception):
+                progress(event)
+
+    def stage(value: ProgressStage) -> None:
+        observe(ProgressEvent(operation=index + 1, total=len(states), stage=value))
+
+    def outcome(number: int, value: OperationOutcome) -> None:
+        observe(OperationResultEvent(operation=number, total=len(states), state=value))
+
     try:
         provider = service.client(request, auth)
         for index, operation in enumerate(plan.operations):
@@ -223,6 +249,7 @@ def approve(
                 plan_storage.journal(
                     db, plan, PlanResult(state="claimed", operations=tuple(states))
                 )
+            stage("checking")
             evidence = provider.modify_evidence(plan.binding.context)
             if evidence.baseline != expected:
                 raise EditError("model_changed")
@@ -241,6 +268,7 @@ def approve(
                     db, plan, PlanResult(state="claimed", operations=tuple(states))
                 )
                 audit(db, "write_dispatch_started", user_id=user)
+            stage("executing")
             # The per-operation dispatch boundary is committed before the POST.
             # Reacquire auth locks and close the inter-transaction head race.
             with auth.sessions.begin() as db:
@@ -257,6 +285,7 @@ def approve(
                 plan_storage.journal(
                     db, plan, PlanResult(state="verifying", operations=tuple(states))
                 )
+            stage("verifying")
             after = provider.modify_evidence(plan.binding.context)
             verify_operation(evidence, after, operation, marker)
             if not 0 <= monotonic() - started <= 30:
@@ -274,6 +303,7 @@ def approve(
                     db, plan, PlanResult(state="verifying", operations=tuple(states))
                 )
                 audit(db, "write_verified", user_id=user)
+            outcome(index + 1, "verified_success")
             expected = after.baseline  # M0 -> verified M1 -> verified M2 only.
         result = PlanResult(state="verified_success", operations=tuple(states))
     except Exception as error:
@@ -303,7 +333,17 @@ def approve(
     with auth.sessions.begin() as db:
         user_lock(db, user)
         plan_storage.finish(db, plan, result)
+    if result.state != "verified_success":
+        for number in range(index + 1, len(states) + 1):
+            outcome(number, cast(OperationOutcome, states[number - 1]))
     return result
+
+
+def cancel(request: Request, auth: AuthRuntime, handle: str) -> PlanResult:
+    with auth.sessions.begin() as db:
+        user, session = service.identity(request, auth, db)
+        user_lock(db, user)
+        return plan_storage.cancel(db, handle, user, session)
 
 
 def status(request: Request, auth: AuthRuntime, handle: str) -> PlanResult:

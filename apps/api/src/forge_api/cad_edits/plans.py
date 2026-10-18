@@ -208,6 +208,7 @@ PlanState = Literal[
     "rejected_stale",
     "write_failed",
     "execution_uncertain",
+    "cancelled",
 ]
 
 

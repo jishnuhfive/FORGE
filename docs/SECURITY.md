@@ -562,3 +562,15 @@ its output is validated by the server before A1 `prepare()`. Prompts, CAD names,
 and model output are never logged. The route stops at the preview; approval stays a
 separate human action. CAD writes remain OFF by default. See
 [HACKATHON_MODIFY_B1.md](HACKATHON_MODIFY_B1.md).
+
+## Generalized approval API (A2)
+
+Only authenticated human POST `/api/modify/plans/{handle}/approve` reaches A1's
+approval authority. It reuses the original Modify origin/session/CSRF/body guard
+and accepts exactly the preview digest. Pending-only PostgreSQL cancellation races
+atomically with claim and persists a queryable cancelled/skipped journal; cancel
+and status call neither AI, approval nor CAD. The bounded, closed NDJSON stream
+exposes no private identities or revisions. Disconnects never replay writes;
+application-owned execution continues and status preserves A1's truthful partial
+completion/uncertainty and persistent fences. No OAuth or default write-flag change.
+See [A2 authority and privacy](HACKATHON_MODIFY_A2.md).

@@ -547,3 +547,13 @@ operator-selected model (no tools) to choose handles and values from a minimal c
 validates the output server-side, builds the `SemanticPlan` with the server-owned
 `target_catalog` and returns A1's authoritative `prepare()` preview or a clarification.
 It never approves or executes. See [HACKATHON_MODIFY_B1.md](HACKATHON_MODIFY_B1.md).
+
+## Generalized human approval transport (A2)
+
+`cad_edits/plan_routes.py` adds approve/cancel/status under `/api/modify/plans/{handle}`
+beside the unchanged Phase 9 routes. Explicit human approval alone invokes A1's
+executor, with a bounded NDJSON observer and application-owned task that survives
+consumer disconnect. PostgreSQL conditionally cancels only pending plans, retaining
+status-only journals. Claims, fences, verification, revision chaining and execution
+budgets stay in A1. No new UI, CAD operation, AI tool, dependency or migration.
+See [the stable B2 API and stream contract](HACKATHON_MODIFY_A2.md).
