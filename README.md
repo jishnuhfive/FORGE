@@ -85,3 +85,8 @@ You can review the UI without an AI-provider key, an Onshape account, or a GitHu
 To use real Onshape sign-in, follow the application configuration and local HTTPS steps in the [authentication guide](https://github.com/jishnuhfive/FORGE/blob/main/docs/AUTHENTICATION.md).
 
 Keep real credentials out of `.env.example`. That file should contain empty placeholders only.
+
+## Credits
+Ved Tripathi
+Jishnu Hiremath
+Lakshiet 
