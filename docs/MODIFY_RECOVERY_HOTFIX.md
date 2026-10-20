@@ -23,7 +23,8 @@ IndexedDB, URL, cookie, provider permission or OAuth-scope change.
 The existing Modify guard authenticates and checks origin, CSRF, bounded JSON and
 absence of query parameters. `authority()` derives user, session, grant generation,
 exact Part Studio context and the workspace fence key on the server. Discovery
-uses only its matching fence and user/session-owned record. It performs no CAD
+checks its matching workspace fence and current user before resolving private
+user/session-owned recovery authority. It performs no CAD
 read, provider call or write. Responses use `Cache-Control: no-store`.
 
 Response variants:
@@ -44,8 +45,13 @@ Response variants:
 
 Only a valid same-session, exact-binding A2 record supplies a consumed handle or
 previews. A different user/session/workspace/Part Studio/grant cannot obtain the
-plan. Legacy orphaned fences and unavailable evidence produce a fixed manual-recovery
-view with null handle and empty arrays. No digest, provider/CAD identity, revision,
+plan. A matching same-user fence always remains visibly `recovery_required` when
+its record is missing, belongs to an unusable user/session, cannot be interpreted
+safely, or has a different saved binding (including session, grant generation or
+exact Part Studio context). This fixed manual-recovery view has a null handle,
+empty operation/state arrays and `reconciliation: "manual_required"`. It grants no
+reconciliation authority to a newer session or grant. `state: "none"` means there
+is no matching workspace fence owned by the current user. No digest, provider/CAD identity, revision,
 fingerprint, target handle, definition, OAuth data or provider URL is returned.
 Labels and reviewed values remain the existing untrusted display text.
 
@@ -253,7 +259,7 @@ This hotfix changes 37 files:
 - `package-lock.json`
 - `tests/e2e/modify.spec.ts`
 
-## Final automated verification
+## Original hotfix automated verification (d89a4b0)
 
 All results below are from the final implementation and patched frozen lockfiles,
 with PostgreSQL tests enabled in random isolated schemas. No application data or

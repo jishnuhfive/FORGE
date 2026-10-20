@@ -12,12 +12,42 @@ from test_modify_plan_routes import private_free
 from test_safe_edit import running
 
 from forge_api.cad_edits import plan_service, plan_storage, storage
-from forge_api.cad_edits.domain import EditError
-from forge_api.cad_edits.plans import OperationState, PlanPreview, PlanResult
+from forge_api.cad_edits.domain import EditError, fingerprint
+from forge_api.cad_edits.plans import (
+    OperationState,
+    PlanPreview,
+    PlanResult,
+    StoredPlan,
+)
 from forge_api.db.models import AuditEvent, WriteFence, WriteRecord, now
 from forge_api.integrations.onshape.service import ReadGate
 
 PATH = "/api/modify/recovery"
+MANUAL_RECOVERY: dict[str, Any] = {
+    "state": "recovery_required",
+    "plan": None,
+    "operations": [],
+    "operation_states": [],
+    "reconciliation": "manual_required",
+}
+
+
+def forbid_discovery_providers(
+    h: Harness, monkeypatch: pytest.MonkeyPatch
+) -> list[str]:
+    attempts: list[str] = []
+
+    def forbidden(*_: Any, **__: Any) -> None:
+        attempts.append("provider")
+        raise AssertionError("Recovery discovery must never contact a provider")
+
+    for transport in (
+        h.runtime.provider.client,
+        h.client.app.state.cad_transport,  # type: ignore[attr-defined]
+        h.client.app.state.ai_transport,  # type: ignore[attr-defined]
+    ):
+        monkeypatch.setattr(transport, "send", forbidden)
+    return attempts
 
 
 def uncertain(h: Harness, kinds: tuple[str, ...] = ("SET_SUPPRESSED",)) -> PlanPreview:
@@ -65,17 +95,22 @@ def current(provider: PlanProvider, suppressed: bool) -> None:
         provider.data["featureStates"][identity]["inactive"] = suppressed
 
 
-def test_no_fence_no_reads(harness: Harness) -> None:
+def test_no_fence_no_reads(harness: Harness, monkeypatch: pytest.MonkeyPatch) -> None:
     provider = PlanProvider()
     with running(harness, provider):
+        attempts = forbid_discovery_providers(harness, monkeypatch)
         assert recovery(harness).json() == {"state": "none"}
         assert provider.calls == []
+        assert attempts == []
 
 
-def test_remount_discovery_is_private_and_cannot_approve(harness: Harness) -> None:
+def test_remount_discovery_is_private_and_cannot_approve(
+    harness: Harness, monkeypatch: pytest.MonkeyPatch
+) -> None:
     provider = PlanProvider()
     with running(harness, provider):
         p = uncertain(harness)
+        attempts = forbid_discovery_providers(harness, monkeypatch)
         before = len(provider.calls)
         first = recovery(harness)
         assert first.status_code == 200
@@ -89,6 +124,7 @@ def test_remount_discovery_is_private_and_cannot_approve(harness: Harness) -> No
             "operation_states",
             "reconciliation",
         }
+        assert view["state"] == "execution_uncertain"
         assert view["plan"] == p.proposal_id
         assert view["reconciliation"] == "available"
         private_free(view)
@@ -103,12 +139,24 @@ def test_remount_discovery_is_private_and_cannot_approve(harness: Harness) -> No
         assert approved.status_code == 409
         assert approved.json()["detail"] == "proposal_used"
         assert provider.writes == 0
+        assert attempts == []
 
 
 @pytest.mark.parametrize(
-    "boundary", ["user", "session", "workspace", "element", "generation"]
+    "boundary",
+    [
+        "user",
+        "fence_user",
+        "session",
+        "workspace",
+        "element",
+        "generation",
+        "session_and_generation",
+    ],
 )
-def test_discovery_ownership(harness: Harness, boundary: str) -> None:
+def test_discovery_ownership(
+    harness: Harness, monkeypatch: pytest.MonkeyPatch, boundary: str
+) -> None:
     provider = PlanProvider()
     with running(harness, provider):
         p = uncertain(harness)
@@ -116,11 +164,21 @@ def test_discovery_ownership(harness: Harness, boundary: str) -> None:
         with harness.runtime.sessions.begin() as db:
             row = db.get(WriteRecord, p.proposal_id)
             assert row
-            if boundary == "session":
-                row.session_hash = "f" * 64
-            elif boundary == "user":
-                # Simulate a different current authenticated identity, without
-                # introducing unrelated identity fixture requirements.
+            if boundary in ("session", "session_and_generation"):
+                # A valid stored plan belongs to an old, inactive session, while
+                # the request retains the current active synthetic session.
+                saved = plan_storage.load(row)
+                old_binding = saved.plan.binding.model_copy(
+                    update={"session": "f" * 64}
+                )
+                old_plan = saved.plan.model_copy(update={"binding": old_binding})
+                row.session_hash = old_binding.session
+                row.digest = fingerprint(old_plan.model_dump(mode="json"))
+                row.payload = StoredPlan(
+                    plan=old_plan, result=saved.result
+                ).model_dump_json()
+                assert plan_storage.load(row).plan == old_plan
+            elif boundary in ("user", "fence_user"):
                 from forge_api.db.models import User
 
                 user = User(
@@ -130,8 +188,13 @@ def test_discovery_ownership(harness: Harness, boundary: str) -> None:
                 )
                 db.add(user)
                 db.flush()
-                row.user_id = user.id
-            elif boundary == "generation":
+                if boundary == "user":
+                    row.user_id = user.id
+                else:
+                    fence = db.scalar(select(WriteFence))
+                    assert fence
+                    fence.user_id = user.id
+            if boundary in ("generation", "session_and_generation"):
                 from forge_api.db.models import OnshapeAuthorization
 
                 grant = db.scalar(select(OnshapeAuthorization))
@@ -141,11 +204,67 @@ def test_discovery_ownership(harness: Harness, boundary: str) -> None:
             context["workspaceId" if boundary == "workspace" else "elementId"] = (
                 "f" * 24
             )
+        attempts = forbid_discovery_providers(harness, monkeypatch)
+        before = len(provider.calls)
         response = harness.client.post(
             PATH, json={"context": context}, headers=harness.headers()
         )
-        assert response.json() == {"state": "none"}
+        assert response.status_code == 200
+        assert response.json() == (
+            {"state": "none"}
+            if boundary in ("workspace", "fence_user")
+            else MANUAL_RECOVERY
+        )
+        private_free(response.json())
+        assert p.proposal_id not in response.text
+        assert p.digest not in response.text
+        assert attempts == []
+        assert len(provider.calls) == before
         assert provider.writes == 0
+        if boundary in ("session", "generation", "session_and_generation"):
+            denied = reconcile(harness, p)
+            assert denied.status_code == (409 if boundary == "generation" else 404)
+            assert attempts == []
+            with harness.runtime.sessions() as db:
+                assert db.scalar(select(WriteFence)) is not None
+
+
+@pytest.mark.parametrize(
+    "case",
+    ["missing_record", "missing_payload", "malformed", "wrong_shape", "tampered"],
+)
+def test_unusable_record_is_manual_recovery_without_provider_access(
+    harness: Harness, monkeypatch: pytest.MonkeyPatch, case: str
+) -> None:
+    provider = PlanProvider()
+    with running(harness, provider):
+        p = uncertain(harness)
+        with harness.runtime.sessions.begin() as db:
+            row = db.get(WriteRecord, p.proposal_id)
+            assert row
+            if case == "missing_record":
+                db.delete(row)
+            elif case == "missing_payload":
+                row.payload = None
+            elif case == "malformed":
+                row.payload = "synthetic-invalid-json"
+            elif case == "wrong_shape":
+                row.payload = "{}"
+            else:
+                row.digest = "0" * 64
+        attempts = forbid_discovery_providers(harness, monkeypatch)
+        before = len(provider.calls)
+        response = recovery(harness)
+        assert response.status_code == 200
+        assert response.json() == MANUAL_RECOVERY
+        private_free(response.json())
+        assert p.proposal_id not in response.text
+        assert p.digest not in response.text
+        assert attempts == []
+        assert len(provider.calls) == before
+        assert provider.writes == 0
+        with harness.runtime.sessions() as db:
+            assert db.scalar(select(WriteFence)) is not None
 
 
 @pytest.mark.parametrize("kind", ["SET_SUPPRESSED", "SET_UNSUPPRESSED"])

@@ -705,18 +705,30 @@ it('keeps unresolved recovery visible after inspection fails', async () => {
   ).not.toBeInTheDocument();
   expect(approvals()).toHaveLength(0);
 });
-it('manual recovery hides both composer and automatic reconciliation', async () => {
-  recoveryResult = { ...unresolved(), reconciliation: 'manual_required' };
-  render(view());
-  await screen.findByText(messages.recovery_required);
-  expect(
-    screen.queryByRole('button', { name: 'Inspect current CAD' }),
-  ).not.toBeInTheDocument();
-  expect(
-    screen.queryByRole('button', { name: 'Prepare plan' }),
-  ).not.toBeInTheDocument();
-  expect(approvals()).toHaveLength(0);
-});
+it.each(['detailed', 'unavailable'])(
+  'manual recovery with %s authority hides composer and automatic reconciliation',
+  async (authority) => {
+    recoveryResult =
+      authority === 'detailed'
+        ? { ...unresolved(), reconciliation: 'manual_required' }
+        : {
+            state: 'recovery_required',
+            plan: null,
+            operations: [],
+            operation_states: [],
+            reconciliation: 'manual_required',
+          };
+    render(view());
+    await screen.findByText(messages.recovery_required);
+    expect(
+      screen.queryByRole('button', { name: 'Inspect current CAD' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Prepare plan' }),
+    ).not.toBeInTheDocument();
+    expect(approvals()).toHaveLength(0);
+  },
+);
 it('recovery failure keeps the composer closed', async () => {
   recoveryResult = { state: 'none', digest: 'd'.repeat(64) };
   render(view());

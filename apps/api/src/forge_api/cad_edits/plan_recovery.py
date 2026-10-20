@@ -65,18 +65,14 @@ def discover(
     with auth.sessions.begin() as db:
         binding = service.authority(request, auth, db, context, lock=True)
         storage.cleanup(db)
+        fence = db.get(WriteFence, binding.workspace_key)
+        if fence is None or fence.user_id != binding.user:
+            return NoRecovery()
         record = _record(db, binding)
         if record is None:
-            # A legacy orphan still presents a safe manual path, with no private
-            # plan/session data. New records never become orphaned by cleanup.
-            fence = db.get(WriteFence, binding.workspace_key)
-            if (
-                fence is not None
-                and fence.user_id == binding.user
-                and db.get(WriteRecord, fence.record_id) is None
-            ):
-                return RecoveryView(state="recovery_required", plan=None)
-            return NoRecovery()
+            # A same-user denial remains visible even when its private recovery
+            # authority is unavailable. Never disclose the old plan's details.
+            return RecoveryView(state="recovery_required", plan=None)
         if record.payload is None:
             return RecoveryView(state="recovery_required", plan=None)
         try:
@@ -85,7 +81,7 @@ def discover(
             # Legacy Phase 9 or corrupt records cannot be interpreted as A2.
             return RecoveryView(state="recovery_required", plan=None)
         if saved.plan.binding != binding:
-            return NoRecovery()
+            return RecoveryView(state="recovery_required", plan=None)
         result = plan_storage.result(record)
         if result.state not in ("execution_uncertain", "claimed", "verifying"):
             return RecoveryView(state="recovery_required", plan=None)
