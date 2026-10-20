@@ -11,12 +11,15 @@ import {
   cancelPlan,
   createPlan,
   planStatus,
+  recovery as discoverRecovery,
+  reconcile,
   messages,
   clarificationMessages,
   ModifyError,
 } from '../modify/api';
 import type {
   ErrorCode,
+  Recovery,
   OperationState,
   PlanPreview,
   PlanResult,
@@ -82,8 +85,10 @@ const stateLabels: Record<OperationState, string> = {
   execution_uncertain: 'Uncertain',
   skipped: 'Not attempted',
 };
-type Busy = '' | 'planning' | 'approving' | 'cancelling' | 'status';
+type Busy =
+  '' | 'planning' | 'approving' | 'cancelling' | 'status' | 'reconciling';
 const busyLabels = {
+  reconciling: 'Inspecting current CAD…',
   planning: 'Preparing a plan…',
   approving: 'Applying approved plan…',
   cancelling: 'Cancelling plan…',
@@ -99,6 +104,9 @@ function ModifyFlow({
   onAvailabilityChange: (ready: boolean) => void;
 }) {
   const [available, setAvailable] = useState(false);
+  const [recoveryChecked, setRecoveryChecked] = useState(false);
+  const [recovery, setRecovery] = useState<Recovery>({ state: 'none' });
+  const [reconciled, setReconciled] = useState(false);
   const [intent, setIntent] = useState('');
   const [code, setCode] = useState<ErrorCode | null>(null);
   const [busy, setBusy] = useState<Busy>('');
@@ -121,7 +129,19 @@ function ModifyFlow({
       .then(() => {
         if (!c.signal.aborted) {
           setAvailable(true);
-          onAvailabilityChange(true);
+        }
+      })
+      .catch((cause: unknown) => {
+        if (!c.signal.aborted)
+          setCode(
+            cause instanceof ModifyError ? cause.code : 'invalid_request',
+          );
+      });
+    void discoverRecovery(context, csrf, c.signal)
+      .then((value) => {
+        if (!c.signal.aborted) {
+          setRecovery(value);
+          setRecoveryChecked(true);
         }
       })
       .catch((cause: unknown) => {
@@ -134,7 +154,32 @@ function ModifyFlow({
       c.abort();
       onAvailabilityChange(false);
     };
-  }, [csrf, onAvailabilityChange]);
+  }, [context, csrf, onAvailabilityChange]);
+  useEffect(() => {
+    onAvailabilityChange(
+      available &&
+        recoveryChecked &&
+        recovery.state === 'none' &&
+        code !== 'workspace_fenced',
+    );
+  }, [available, recoveryChecked, recovery.state, code, onAvailabilityChange]);
+  useEffect(() => {
+    if (
+      result?.state !== 'execution_uncertain' &&
+      code !== 'workspace_fenced' &&
+      code !== 'execution_uncertain'
+    )
+      return;
+    const c = new AbortController();
+    void discoverRecovery(context, csrf, c.signal)
+      .then((value) => {
+        if (!c.signal.aborted) setRecovery(value);
+      })
+      .catch(() => {
+        /* Existing unresolved state remains closed. */
+      });
+    return () => c.abort();
+  }, [result?.state, code, context, csrf]);
   useEffect(() => () => controller.current?.abort(), []);
   useEffect(() => {
     if (!preview || attempted) return;
@@ -194,7 +239,15 @@ function ModifyFlow({
     }
   }
   function requestPlan() {
-    if (!available || preview || !intent.trim()) return;
+    if (
+      !available ||
+      !recoveryChecked ||
+      recovery.state !== 'none' ||
+      code === 'workspace_fenced' ||
+      preview ||
+      !intent.trim()
+    )
+      return;
     void run('planning', async (signal) => {
       const response = await createPlan(context, intent.trim(), csrf, signal);
       if (signal.aborted) return;
@@ -282,53 +335,106 @@ function ModifyFlow({
         Rename supported features, change an Extrude depth or Fillet radius, or
         suppress or unsuppress the final Fillet. Up to five changes per plan.
       </p>
-      {available && !preview && (
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            requestPlan();
-          }}
-          aria-busy={busy === 'planning'}
-        >
-          <label className="field-label" htmlFor="modify-request">
-            Modification request
-          </label>
-          <textarea
-            id="modify-request"
-            className="textarea"
-            rows={3}
-            maxLength={512}
-            value={intent}
-            disabled={!!busy}
-            placeholder="Make the extrude 30 mm deep and the fillet radius 4 mm."
-            aria-describedby="modify-request-hint"
-            onChange={(event) => setIntent(event.target.value)}
-            onKeyDown={(event) => {
-              if (
-                event.key === 'Enter' &&
-                !event.shiftKey &&
-                !event.nativeEvent.isComposing
-              ) {
-                event.preventDefault();
-                requestPlan();
-              }
-            }}
-          />
-          <p id="modify-request-hint" className="muted small">
-            Include a feature name or position and explicit units. Enter
-            prepares a plan; Shift+Enter adds a line.
-          </p>
-          <div>
-            <Button
-              type="submit"
-              variant="primary"
-              disabled={!!busy || !intent.trim()}
-            >
-              Prepare plan
-            </Button>
-          </div>
-        </form>
+      {reconciled && (
+        <p role="status">
+          Fresh current CAD evidence matches the intended final state. The
+          previous provider write's outcome remains unproven.
+        </p>
       )}
+      {recovery.state !== 'none' && (
+        <section className="modification-review" aria-label="Unresolved change">
+          <h2>Unresolved change</h2>
+          <p>
+            Forge could not verify a previous approved change. Further Forge
+            writes are blocked until its current state is inspected.
+          </p>
+          <ol>
+            {recovery.operations.map((operation, i) => (
+              <li key={i}>
+                {operation.label}: {operation.field} · {operation.current} →{' '}
+                {operation.proposed}
+              </li>
+            ))}
+          </ol>
+          {recovery.reconciliation === 'manual_required' ? (
+            <p>{messages.recovery_required}</p>
+          ) : (
+            <Button
+              disabled={!!busy}
+              onClick={() => {
+                if (!recovery.plan) return;
+                const handle = recovery.plan;
+                const total = recovery.operations.length;
+                void run('reconciling', async (signal) => {
+                  await reconcile(handle, total, csrf, signal);
+                  if (!signal.aborted) {
+                    setRecovery({ state: 'none' });
+                    setPreview(null);
+                    setResult(null);
+                    setStates([]);
+                    setAttempted(false);
+                    approvalSent.current = false;
+                    setReconciled(true);
+                  }
+                });
+              }}
+            >
+              Inspect current CAD
+            </Button>
+          )}
+        </section>
+      )}
+      {available &&
+        recoveryChecked &&
+        recovery.state === 'none' &&
+        code !== 'workspace_fenced' &&
+        !preview && (
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              requestPlan();
+            }}
+            aria-busy={busy === 'planning'}
+          >
+            <label className="field-label" htmlFor="modify-request">
+              Modification request
+            </label>
+            <textarea
+              id="modify-request"
+              className="textarea"
+              rows={3}
+              maxLength={512}
+              value={intent}
+              disabled={!!busy}
+              placeholder="Make the extrude 30 mm deep and the fillet radius 4 mm."
+              aria-describedby="modify-request-hint"
+              onChange={(event) => setIntent(event.target.value)}
+              onKeyDown={(event) => {
+                if (
+                  event.key === 'Enter' &&
+                  !event.shiftKey &&
+                  !event.nativeEvent.isComposing
+                ) {
+                  event.preventDefault();
+                  requestPlan();
+                }
+              }}
+            />
+            <p id="modify-request-hint" className="muted small">
+              Include a feature name or position and explicit units. Enter
+              prepares a plan; Shift+Enter adds a line.
+            </p>
+            <div>
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={!!busy || !intent.trim()}
+              >
+                Prepare plan
+              </Button>
+            </div>
+          </form>
+        )}
       {clarification && !preview && (
         <section
           className="modification-review"
@@ -420,7 +526,7 @@ function ModifyFlow({
           <p className="notice">{messages[code]}</p>
         )}
       </div>
-      {preview && (
+      {recovery.state === 'none' && preview && (
         <section className="modification-review" aria-label="CAD change plan">
           <h2>
             {attempted || result ? 'Reviewed changes' : 'Plan ready for review'}

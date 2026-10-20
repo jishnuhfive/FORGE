@@ -103,6 +103,12 @@ def case(harness: Harness, monkeypatch: pytest.MonkeyPatch) -> Case:
             )
         db.flush()
         storage.cleanup(db)
+        # Construct a historical orphan explicitly. Current cleanup no longer
+        # creates orphan fences; the legacy recovery policy remains unchanged.
+        row = db.get(WriteRecord, reference.record_id)
+        assert row
+        db.delete(row)
+        db.flush()
         assert db.get(WriteRecord, reference.record_id) is None
 
     def no_http(*args: object, **kwargs: object) -> None:

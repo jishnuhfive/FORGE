@@ -519,3 +519,11 @@ maps a natural-language change to at most five of A1's semantic operations over 
 handles. Same provider, transport, budgets and error mapping; no retry or fallback. The
 model can never reach approval, the write client, provider identities or FeatureScript.
 See [HACKATHON_MODIFY_B1.md](HACKATHON_MODIFY_B1.md).
+
+## Deterministic Modify fast path and recovery
+
+[Recovery hotfix](MODIFY_RECOVERY_HOTFIX.md) parses simple explicit supported
+commands over fresh safe target options before invoking the B1 provider fallback.
+Both paths still use the same A1 validators and prepare boundary; neither can
+approve or write. Modify has its own default-high reasoning effort. Uncertainty
+recovery is server-owned and read-only, never an AI tool or retry authority.

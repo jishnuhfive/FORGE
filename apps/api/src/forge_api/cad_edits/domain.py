@@ -27,6 +27,7 @@ State = Literal[
     "execution_uncertain",
     "recovery_required",
     "partial_failure",
+    "reconciled_current_state",
 ]
 
 

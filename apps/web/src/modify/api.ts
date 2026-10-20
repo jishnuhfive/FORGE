@@ -32,6 +32,8 @@ export const messages = {
   workspace_fenced:
     'A previous change requires inspection. Further Forge writes are blocked for this workspace.',
   execution_uncertain: 'Forge could not confirm the final result.',
+  recovery_required:
+    'Manual recovery required. Forge cannot safely prove the final result. Further writes remain blocked.',
   onshape_unavailable:
     'Forge could not read the model. Request a fresh plan when the connection is available.',
   invalid_request:
@@ -99,6 +101,7 @@ const planStates = [
   'verifying',
   ...executionStates,
   'cancelled',
+  'reconciled_current_state',
 ] as const;
 export type OperationState = (typeof operationStates)[number];
 export type PlanState = (typeof planStates)[number];
@@ -547,4 +550,75 @@ export async function approve(
   } finally {
     await reader.cancel().catch(() => {});
   }
+}
+
+export type Recovery =
+  | { state: 'none' }
+  | {
+      state:
+        'execution_uncertain' | 'claimed' | 'verifying' | 'recovery_required';
+      plan: string | null;
+      operations: OperationPreview[];
+      operation_states: OperationState[];
+      reconciliation: 'available' | 'manual_required';
+    };
+export function parseRecovery(raw: unknown): Recovery {
+  if ((raw as { state?: unknown } | null)?.state === 'none') {
+    object(raw, ['state']);
+    return { state: 'none' };
+  }
+  const v = object(raw, [
+    'state',
+    'plan',
+    'operations',
+    'operation_states',
+    'reconciliation',
+  ]);
+  if (
+    !member(v.state, [
+      'execution_uncertain',
+      'claimed',
+      'verifying',
+      'recovery_required',
+    ]) ||
+    (v.plan !== null && !handle(v.plan)) ||
+    !Array.isArray(v.operations) ||
+    v.operations.length > 5 ||
+    !Array.isArray(v.operation_states) ||
+    v.operation_states.length !== v.operations.length ||
+    !v.operation_states.every((s) => member(s, operationStates)) ||
+    !member(v.reconciliation, ['available', 'manual_required']) ||
+    (v.reconciliation === 'available' &&
+      (v.state !== 'execution_uncertain' ||
+        !handle(v.plan) ||
+        v.operations.length !== 1))
+  )
+    fail();
+  return {
+    ...v,
+    operations: (v.operations as unknown[]).map(parseOperation),
+  } as Recovery;
+}
+export async function recovery(
+  context: OnshapeClientContext,
+  csrf: string,
+  signal: AbortSignal,
+): Promise<Recovery> {
+  return parseRecovery(
+    await request('recovery', csrf, signal, { context: contextBody(context) }),
+  );
+}
+export async function reconcile(
+  plan: string,
+  total: number,
+  csrf: string,
+  signal: AbortSignal,
+): Promise<PlanResult> {
+  if (!handle(plan)) fail();
+  const result = parseResult(
+    await request('plans/' + plan + '/reconcile', csrf, signal, {}),
+    total,
+  );
+  if (result.state !== 'reconciled_current_state') fail();
+  return result;
 }

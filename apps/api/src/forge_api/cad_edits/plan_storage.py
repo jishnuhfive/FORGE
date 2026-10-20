@@ -128,13 +128,18 @@ def finish(db: Session, plan: ModifyPlan, result: PlanResult) -> None:
 
 def result(record: WriteRecord) -> PlanResult:
     if record.payload is None:
-        raise EditError("proposal_used")
+        raise EditError(
+            "recovery_required"
+            if record.state == "recovery_required"
+            else "proposal_used"
+        )
     if record.state in (
         "verified_success",
         "partial_failure",
         "write_failed",
         "rejected_stale",
         "cancelled",
+        "reconciled_current_state",
     ):
         try:
             return PlanResult.model_validate_json(record.payload)

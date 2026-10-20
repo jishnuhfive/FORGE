@@ -75,7 +75,12 @@ def conversation(request: str, options: tuple[TargetOption, ...]) -> list[str]:
 
 class GroqPlanner:
     def __init__(self, settings: Settings, transport: httpx.AsyncClient) -> None:
-        self._groq = GroqProvider(settings, transport)
+        # Request-local settings copy: Design and Learn keep their own effort.
+        effort = settings.forge_modify_reasoning_effort
+        self._groq = GroqProvider(
+            settings.model_copy(update={"forge_groq_reasoning_effort": effort}),
+            transport,
+        )
 
     async def plan(
         self, request: str, options: tuple[TargetOption, ...], *, request_id: str
@@ -132,7 +137,7 @@ class OpenAIPlanner:
             key,
             {
                 "model": self._settings.forge_openai_model,
-                "reasoning": {"effort": self._settings.forge_openai_reasoning_effort},
+                "reasoning": {"effort": self._settings.forge_modify_reasoning_effort},
                 "store": False,
                 "background": False,
                 "stream": False,

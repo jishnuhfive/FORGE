@@ -760,3 +760,17 @@ B2 checks: `npm test --workspace @forge/web -- src/modify --maxWorkers=2`,
 `npm run typecheck`, full frontend tests/build, and
 `./node_modules/.bin/playwright test tests/e2e/modify.spec.ts --workers=2`.
 All browser provider outcomes are intercepted synthetic fixtures. See [B2](HACKATHON_MODIFY_B2.md).
+
+## Modify recovery hotfix
+
+See [recovery contracts and live validation](MODIFY_RECOVERY_HOTFIX.md).
+`FORGE_MODIFY_REASONING_EFFORT` defaults to `high`; it affects only Modify planner
+fallback, independently of Design/Learn Groq effort. Supported explicit commands
+use fresh deterministic A1 previews without an AI request or AI credentials.
+
+Include `test_modify_recovery.py`, `test_modify_deterministic.py` and
+`test_modify_diagnostics.py` in focused verification. With a privately supplied
+FORGE_TEST_DATABASE_URL also run `test_modify_recovery_postgres.py`; every database
+case owns a random schema and uses synthetic CAD. Browser `modify.spec.ts` covers
+tab remount, refresh, explicit inspection and retained fencing after disagreement.
+Never use the actual application fence as a fixture or run real provider calls.

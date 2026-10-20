@@ -9,8 +9,9 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 
 from forge_api.auth.routes import Runtime
+from forge_api.integrations.onshape.contracts import WorkspaceReference
 
-from . import plan_service
+from . import plan_recovery, plan_service
 from .domain import Closed, EditError
 from .plan_events import (
     MAX_EVENT_BYTES,
@@ -152,5 +153,42 @@ async def status(request: Request, auth: Runtime, handle: str) -> JSONResponse:
         valid_handle(handle)
         result = await asyncio.to_thread(plan_service.status, request, auth, handle)
         return JSONResponse(result.model_dump(mode="json"))
+    except EditError as error:
+        return error_response(error)
+
+
+class RecoveryRequest(Closed):
+    context: WorkspaceReference
+
+
+@router.post("/api/modify/recovery")
+async def recovery(request: Request, auth: Runtime) -> JSONResponse:
+    raw = await guard(request, auth)
+    try:
+        value = RecoveryRequest.model_validate(raw)
+        result = await asyncio.to_thread(
+            plan_recovery.discover, request, auth, value.context
+        )
+        return JSONResponse(
+            result.model_dump(mode="json"), headers={"Cache-Control": "no-store"}
+        )
+    except ValueError:
+        raise HTTPException(400, "invalid_request") from None
+    except EditError as error:
+        return error_response(error)
+
+
+@router.post("/api/modify/plans/{handle}/reconcile")
+async def reconcile(request: Request, auth: Runtime, handle: str) -> JSONResponse:
+    raw = await guard(request, auth)
+    try:
+        valid_handle(handle)
+        Closed.model_validate(raw)
+        result = await asyncio.to_thread(plan_recovery.reconcile, request, auth, handle)
+        return JSONResponse(
+            result.model_dump(mode="json"), headers={"Cache-Control": "no-store"}
+        )
+    except ValueError:
+        raise HTTPException(400, "invalid_request") from None
     except EditError as error:
         return error_response(error)

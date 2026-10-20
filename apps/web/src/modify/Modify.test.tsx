@@ -116,12 +116,20 @@ let preview: PlanPreview;
 let planResponse: unknown;
 let approval: () => Promise<Response>;
 let statusResult: PlanResult;
+let recoveryResult: unknown;
+let reconciliation: () => Promise<Response>;
 let capability: string;
 let fetcher: ReturnType<
   typeof vi.fn<(input: string, init?: RequestInit) => Promise<Response>>
 >;
 beforeEach(() => {
   preview = fixture();
+  recoveryResult = { state: 'none' };
+  reconciliation = async () =>
+    json({
+      state: 'reconciled_current_state',
+      operations: ['execution_uncertain'],
+    });
   planResponse = null;
   capability = 'available';
   statusResult = {
@@ -130,6 +138,8 @@ beforeEach(() => {
   };
   approval = async () => ndjson(success(preview.operations.length));
   fetcher = vi.fn(async (input: string) => {
+    if (input === '/api/modify/recovery') return json(recoveryResult);
+    if (input.endsWith('/reconcile')) return reconciliation();
     if (input.endsWith('/capabilities')) return json({ state: capability });
     if (input === '/api/modify/plan')
       return json(planResponse ?? { outcome: 'plan', preview });
@@ -612,4 +622,122 @@ describe('live natural-language Modify', () => {
     expect(screen.getByRole('button', { name: 'Prepare plan' })).toBeVisible();
     expect(approvals()).toHaveLength(1);
   });
+});
+
+function unresolved() {
+  return {
+    state: 'execution_uncertain',
+    plan: preview.proposal_id,
+    operations: [
+      {
+        ...preview.operations[1],
+        type: 'SET_SUPPRESSED',
+        field: 'Suppression',
+        current: 'Active',
+        proposed: 'Suppressed',
+      },
+    ],
+    operation_states: ['execution_uncertain'],
+    reconciliation: 'available',
+  };
+}
+it('rediscovers unresolved server state on mount, remount and context change without approval', async () => {
+  recoveryResult = unresolved();
+  const mounted = render(view());
+  await screen.findByRole('heading', { name: 'Unresolved change' });
+  expect(
+    screen.queryByRole('button', { name: 'Prepare plan' }),
+  ).not.toBeInTheDocument();
+  expect(approvals()).toHaveLength(0);
+  mounted.unmount();
+  const next = render(view());
+  await screen.findByRole('button', { name: 'Inspect current CAD' });
+  expect(
+    fetcher.mock.calls.filter(([url]) => url.endsWith('/recovery')),
+  ).toHaveLength(2);
+  expect(
+    fetcher.mock.calls.filter(([url]) => url.endsWith('/reconcile')),
+  ).toHaveLength(0);
+  const changed = {
+    ...context,
+    context: { ...context.context!, elementId: 'f'.repeat(24) },
+  };
+  recoveryResult = { state: 'none' };
+  next.rerender(view(changed));
+  await screen.findByRole('button', { name: 'Prepare plan' });
+  expect(
+    screen.queryByRole('heading', { name: 'Unresolved change' }),
+  ).not.toBeInTheDocument();
+  expect(approvals()).toHaveLength(0);
+});
+it('inspects exactly once on rapid clicks and returns the composer only on reconciliation', async () => {
+  recoveryResult = unresolved();
+  render(view());
+  const inspect = await screen.findByRole('button', {
+    name: 'Inspect current CAD',
+  });
+  fireEvent.click(inspect);
+  fireEvent.click(inspect);
+  await screen.findByRole('button', { name: 'Prepare plan' });
+  expect(
+    screen.getByText(/Fresh current CAD evidence matches/),
+  ).toBeInTheDocument();
+  const calls = fetcher.mock.calls.filter(([url]) =>
+    url.endsWith('/reconcile'),
+  );
+  expect(calls).toHaveLength(1);
+  expect(JSON.parse(calls[0]![1]!.body as string)).toEqual({});
+  expect(approvals()).toHaveLength(0);
+});
+it('keeps unresolved recovery visible after inspection fails', async () => {
+  recoveryResult = unresolved();
+  reconciliation = async () => json({ detail: 'recovery_required' }, 409);
+  render(view());
+  fireEvent.click(
+    await screen.findByRole('button', { name: 'Inspect current CAD' }),
+  );
+  await screen.findByText(messages.recovery_required);
+  expect(
+    screen.getByRole('heading', { name: 'Unresolved change' }),
+  ).toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', { name: 'Prepare plan' }),
+  ).not.toBeInTheDocument();
+  expect(approvals()).toHaveLength(0);
+});
+it('manual recovery hides both composer and automatic reconciliation', async () => {
+  recoveryResult = { ...unresolved(), reconciliation: 'manual_required' };
+  render(view());
+  await screen.findByText(messages.recovery_required);
+  expect(
+    screen.queryByRole('button', { name: 'Inspect current CAD' }),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', { name: 'Prepare plan' }),
+  ).not.toBeInTheDocument();
+  expect(approvals()).toHaveLength(0);
+});
+it('recovery failure keeps the composer closed', async () => {
+  recoveryResult = { state: 'none', digest: 'd'.repeat(64) };
+  render(view());
+  await screen.findByText(messages.invalid_request);
+  expect(
+    screen.queryByRole('button', { name: 'Prepare plan' }),
+  ).not.toBeInTheDocument();
+});
+
+it('keeps recovered authority out of storage and URL', async () => {
+  recoveryResult = unresolved();
+  const before = window.location.href;
+  const local = vi.spyOn(window.localStorage, 'setItem');
+  const session = vi.spyOn(window.sessionStorage, 'setItem');
+  render(view());
+  await screen.findByRole('heading', { name: 'Unresolved change' });
+  expect(local).not.toHaveBeenCalled();
+  expect(session).not.toHaveBeenCalled();
+  expect(window.location.href).toBe(before);
+  expect(document.cookie).not.toContain(preview.proposal_id);
+  expect(approvals()).toHaveLength(0);
+  local.mockRestore();
+  session.mockRestore();
 });

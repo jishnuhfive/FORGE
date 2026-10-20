@@ -548,8 +548,9 @@ rechecks authority, expiry, the persistent fence and the previous verified revis
 A durable per-operation journal precedes the single guarded dispatch. Failures stop
 later operations; dispatched uncertainty retains the fence without retry/rollback.
 No route, AI execution tool, OAuth permission, secret, table or migration is added.
-Private plan bindings follow Phase 9 retention; safe terminal journals retain only
-statuses. Raw CAD stays request-local. See [A1](HACKATHON_MODIFY_A1.md) for exact
+Private plan bindings behind a live fence remain until safe resolution; the
+closed schema and one-fence-per-user invariant bound unresolved storage. Safe
+terminal journals retain only statuses under the 15-minute purge policy. Raw CAD stays request-local. See [A1](HACKATHON_MODIFY_A1.md) for exact
 shape/quantity limits, privacy boundaries and required future HTTP/CSRF controls.
 CAD writes remain OFF and new-operation live conformance remains unverified.
 
@@ -579,3 +580,18 @@ B2's live browser flow strictly parses previews/events/results, keeps authority 
 component memory, consumes local approval before dispatch and never retries it.
 Context changes abort consumers and clear authority. Names render as ordinary text;
 uncertain outcomes use authenticated GET status only. See [B2](HACKATHON_MODIFY_B2.md).
+
+## Modify recovery and deterministic planning
+
+[Recovery controls](MODIFY_RECOVERY_HOTFIX.md) use the existing authenticated
+same-origin CSRF guard. Recovery returns only same-session consumed status handles
+and safe previews, never approval digests or provider bindings. Reconciliation
+performs fresh authorized reads only and closes exactly one matching fence after
+strict terminal-suppression baseline agreement and a final authority/head check.
+Rename, quantity and batch uncertainty remain fenced for manual recovery.
+
+Cleanup cannot orphan live fences or erase their reconciliation evidence.
+Unresolved records remain bounded by the existing one-fence-per-user invariant
+and the fixed plan schema; closed status records expire normally. No new persistence of client
+authority, scope, model tool or mutation route is introduced. Development-only A2
+verification logs contain fixed stage/result categories only.

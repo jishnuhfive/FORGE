@@ -42,6 +42,9 @@ const preview = {
 async function open(page: Page, mode = 'success') {
   let dispatches = 0;
   let statusReads = 0;
+  let recoveryReads = 0;
+  let inspections = 0;
+  let unresolved = mode.startsWith('recovery');
   await page.addInitScript(() =>
     localStorage.setItem(
       'forge.preferences.v1',
@@ -63,6 +66,47 @@ async function open(page: Page, mode = 'success') {
                 : 'available',
         },
       });
+    if (url.pathname === '/api/modify/recovery') {
+      recoveryReads++;
+      expect(Object.keys(request.postDataJSON() as object)).toEqual([
+        'context',
+      ]);
+      return route.fulfill({
+        json: unresolved
+          ? {
+              state: 'execution_uncertain',
+              plan: preview.proposal_id,
+              operations: [
+                {
+                  ...preview.operations[1],
+                  type: 'SET_SUPPRESSED',
+                  field: 'Suppression',
+                  current: 'Active',
+                  proposed: 'Suppressed',
+                },
+              ],
+              operation_states: ['execution_uncertain'],
+              reconciliation: 'available',
+            }
+          : { state: 'none' },
+      });
+    }
+    if (url.pathname.endsWith('/reconcile')) {
+      inspections++;
+      expect(request.postDataJSON()).toEqual({});
+      if (mode === 'recovery-failure')
+        return route.fulfill({
+          status: 409,
+          json: { detail: 'recovery_required' },
+        });
+      unresolved = false;
+      return route.fulfill({
+        json: {
+          state: 'reconciled_current_state',
+          operations: ['execution_uncertain'],
+        },
+      });
+    }
     if (url.pathname === '/api/modify/plan') {
       expect(Object.keys(request.postDataJSON() as object).sort()).toEqual([
         'context',
@@ -194,6 +238,8 @@ async function open(page: Page, mode = 'success') {
     frame,
     dispatches: () => dispatches,
     statusReads: () => statusReads,
+    recoveryReads: () => recoveryReads,
+    inspections: () => inspections,
   };
 }
 async function plan(page: Page, mode = 'success') {
@@ -375,4 +421,54 @@ test('B2 reduced motion and forced colors retain exact values', async ({
   await expect(
     frame.getByRole('button', { name: 'Approve 3 changes' }),
   ).toBeEnabled();
+});
+
+test('recovery survives tab remount and page refresh, and inspection never approves', async ({
+  page,
+}) => {
+  const { frame, recoveryReads, inspections, dispatches } = await open(
+    page,
+    'recovery',
+  );
+  await expect(
+    frame.getByRole('heading', { name: 'Unresolved change' }),
+  ).toBeVisible();
+  await expect(frame.getByLabel('Modification request')).toHaveCount(0);
+  await frame.getByRole('tab', { name: 'Design', exact: true }).click();
+  await frame.getByRole('tab', { name: 'Modify', exact: true }).click();
+  await expect(
+    frame.getByRole('heading', { name: 'Unresolved change' }),
+  ).toBeVisible();
+  expect(recoveryReads()).toBe(2);
+  await page.reload();
+  await frame.getByRole('tab', { name: 'Modify', exact: true }).click();
+  await expect(
+    frame.getByRole('heading', { name: 'Unresolved change' }),
+  ).toBeVisible();
+  expect(recoveryReads()).toBe(3);
+  expect(inspections()).toBe(0);
+  expect(dispatches()).toBe(0);
+  await frame.getByRole('button', { name: 'Inspect current CAD' }).click();
+  await expect(frame.getByLabel('Modification request')).toBeVisible();
+  await expect(
+    frame.getByText(/Fresh current CAD evidence matches/),
+  ).toBeVisible();
+  expect(inspections()).toBe(1);
+  expect(dispatches()).toBe(0);
+});
+test('failed recovery retains the unresolved card and write block', async ({
+  page,
+}) => {
+  const { frame, inspections, dispatches } = await open(
+    page,
+    'recovery-failure',
+  );
+  await frame.getByRole('button', { name: 'Inspect current CAD' }).click();
+  await expect(frame.getByText(/Manual recovery required/)).toBeVisible();
+  await expect(
+    frame.getByRole('heading', { name: 'Unresolved change' }),
+  ).toBeVisible();
+  await expect(frame.getByLabel('Modification request')).toHaveCount(0);
+  expect(inspections()).toBe(1);
+  expect(dispatches()).toBe(0);
 });

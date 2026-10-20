@@ -561,3 +561,12 @@ See [the stable B2 API and stream contract](HACKATHON_MODIFY_A2.md).
 B2 now connects the live Modify tab to that pipeline: natural-language planning,
 exact multi-operation review, explicit human approval and bounded progress/status.
 Authority remains in component memory and the backend; see [B2](HACKATHON_MODIFY_B2.md).
+
+## Modify recovery reliability hotfix
+
+[Recovery hotfix](MODIFY_RECOVERY_HOTFIX.md) adds session-owned server discovery,
+read-only single-terminal-suppression reconciliation and a deterministic planning
+fast path before AI fallback. `reconciled_current_state` proves present-state
+agreement without attributing the original write. Live fences retain the bounded
+reconciliation payload until safe closure; resolved status records expire after
+15 minutes. Consumed handles never regain approval power.
