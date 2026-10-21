@@ -452,6 +452,16 @@ audit atomically. It has no route, CLI, browser/AI authority or provider transpo
 production mode rejects it. It neither restores proposal authority nor promotes an
 uncertain result. Normal persistent-fence and reconciliation behavior is unchanged.
 
+Retained A2 uncertain records have a separate internal development-only operator
+path: closed contracts → fixed pinned GET reader → bounded operator coordinator →
+provider-free atomic release. It requires independent preserved operation evidence,
+hard-expired/revoked historical identity, current connected read authorization,
+cache-only credentials, drained writers and independent settlement. Scoped user,
+session/grant/fence/record locks protect single-use same-transaction evidence and
+exact redacted `operator_recovered` closure. No browser authority, route, CLI, AI
+tool, refresh, replay, schema or default changes. See
+[retained recovery V1](RETAINED_RECORD_OPERATOR_RECOVERY.md).
+
 The operation-specific `terminal-fillet-6` policy binds an explicit feature-state
 evidence mode into the baseline/digest. A nonempty state map must cover the inventory
 exactly and pass every strict status/inactive check. An exactly empty map means

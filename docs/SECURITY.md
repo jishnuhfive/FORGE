@@ -530,6 +530,19 @@ separately authorized recovery cleared one orphan with ZERO Onshape contact and
 writes OFF; neither conformance gate was proven by that administration. The later
 Gate A proof is a separate human-approved CAD trial, not a recovery outcome.
 
+The separate retained-record V1 helper supports only a valid, aged A2 explicitly
+uncertain single terminal Fillet suppression operation with independent preserved
+operation evidence. It never changes the orphan helper's eligibility or transfers
+old session/grant authority. Current credentials are cache-only, and the dedicated
+five-GET reader is discarded before provider-free release. Exact transaction/object
+provenance, deterministic current-state comparison, scoped row/advisory locks and
+conditional mutations atomically produce a redacted `operator_recovered` tombstone
+and fixed `write_retained_operator_recovery` / `local_only` audit. Independent
+settlement and globally drained writers remain human prerequisites; DB locks and
+receipt models cannot establish either. No public invocation or automatic recovery;
+implementation verification is synthetic. See
+[eligibility, trust assumptions and failure semantics](RETAINED_RECORD_OPERATOR_RECOVERY.md).
+
 ## Phase 11 tutor
 
 Explicit authenticated POST with exact Origin and session-bound CSRF; closed ≤16 KiB schema; errors never echo the

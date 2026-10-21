@@ -719,6 +719,19 @@ fences. New CAD work always requires a new proposal and approval. Focused covera
 `tests/test_safe_edit_operator_recovery.py` and the PostgreSQL recovery concurrency
 case in `tests/test_safe_edit_postgres.py`.
 
+Retained records require the **separate** reviewed
+[retained-record operator V1 runbook](RETAINED_RECORD_OPERATOR_RECOVERY.md).
+Its internal coordinator is deliberately not exposed as a CLI, route or browser
+control. Do not invoke it for live recovery as part of implementation verification.
+It requires independently preserved operation evidence, pre-reviewed settlement
+and drained writers, a surviving hard-inactive original session and a current
+generation's already cached read credential in the trusted operator process.
+Missing receipts or cache state are blockers, not reasons to copy DB values,
+refresh/export tokens, edit rows or weaken the orphan helper. Focused verification
+uses `tests/test_retained*.py` with synthetic transports and temporary DBs. PostgreSQL
+races must use an independently disposable service/random schemas, never the live
+FORGE database. No migration or production configuration change is needed.
+
 ## Phase 11 tutor checks
 
 Backend: `uv run --frozen pytest tests/test_tutor_core.py tests/test_tutor_route.py tests/test_tutor_eval.py`.

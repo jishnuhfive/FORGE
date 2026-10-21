@@ -136,6 +136,15 @@ This hotfix neither invokes that tool nor adds a general administrative bypass.
 Unrecoverable/manual cases require a separately reviewed recovery decision; users
 must not delete fences, replay approvals or edit database records to continue.
 
+A separately reviewed retained-record administrative V1 is now implemented outside
+the browser hotfix; see [its runbook](RETAINED_RECORD_OPERATOR_RECOVERY.md). Its
+internal `operator_recovered` state is a redacted administrative closure preserving
+the original uncertain outcome. This does not give a replacement session/grant
+reconciliation authority. A same-user durable denial remains visibly
+`recovery_required` whenever private same-session recovery authority is unavailable,
+until a separately authorized atomic closure actually commits. Implementation and
+synthetic verification do not authorize or perform that live closure.
+
 ## Deterministic Modify planning
 
 `modify_planner/deterministic.py` consumes only safe TargetOption handle, label,

@@ -28,6 +28,7 @@ State = Literal[
     "recovery_required",
     "partial_failure",
     "reconciled_current_state",
+    "operator_recovered",
 ]
 
 

@@ -30,7 +30,7 @@ def catalog(record: WriteRecord) -> TargetCatalog:
 
 
 def load(record: WriteRecord) -> StoredPlan:
-    if record.payload is None:
+    if record.payload is None or record.state == "operator_recovered":
         raise EditError("proposal_used")
     try:
         value = StoredPlan.model_validate_json(record.payload)
@@ -127,6 +127,9 @@ def finish(db: Session, plan: ModifyPlan, result: PlanResult) -> None:
 
 
 def result(record: WriteRecord) -> PlanResult:
+    if record.state == "operator_recovered":
+        # Private administrative closure is consumed, not a public PlanResult.
+        raise EditError("proposal_used")
     if record.payload is None:
         raise EditError(
             "recovery_required"
