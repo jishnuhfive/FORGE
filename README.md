@@ -86,6 +86,10 @@ To use real Onshape sign-in, follow the application configuration and local HTTP
 
 Keep real credentials out of `.env.example`. That file should contain empty placeholders only.
 
+## Deployment foundation
+
+**DEPLOYMENT FOUNDATION IMPLEMENTED — NOT YET HOSTED.** The production image and Railway configuration prepare one HTTPS origin for the web UI and API with private PostgreSQL. See the [deployment guide](docs/DEPLOYMENT.md) for local verification, runtime variables, migrations and the later hosted URL transition.
+
 ## Credits
 
 Ved Tripathi

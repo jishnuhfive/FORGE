@@ -775,7 +775,10 @@ def test_create_provider_requires_the_selected_providers_key() -> None:
     from forge_api.core.config import Settings
 
     with pytest.raises(AiError) as caught:
-        create_planner_provider(Settings(), None)  # type: ignore[arg-type]
+        create_planner_provider(
+            Settings(_env_file=None, groq_api_key=None, openai_api_key=None),
+            None,  # type: ignore[arg-type]
+        )
     assert caught.value.code == "not_configured"
 
 

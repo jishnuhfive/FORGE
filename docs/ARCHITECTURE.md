@@ -71,7 +71,8 @@ Keep units and bounds explicit, and treat missing evidence as UNVERIFIED.
 - **One uv project:** Python dependencies/lockfile/environment live in `apps/api`.
   Adding a Python workspace is unnecessary until there are multiple Python packages.
 - **Native web/API, containerized database:** faster reloads and fewer Dockerfiles.
-  Production images are deferred to the deployment phase.
+  The separately authorized deployment foundation adds a production image; native
+  development remains unchanged.
 - **Source-exported design system:** Vite compiles the local TypeScript package;
   it is private and not published. It exports semantic tokens, component styles
   and reusable accessible primitives backed by Radix where appropriate.
@@ -89,19 +90,25 @@ This follows the requested layout. Additional configuration, lockfiles, and a
 development supervisor support reproducibility; no substantive structural deviation
 or alternate framework was introduced.
 
-## Planned deployment
+## Production deployment foundation — not yet hosted
 
-Serve the built SPA and `/api` through one HTTPS origin, with the API and managed
-PostgreSQL on private networks. A same-origin proxy avoids permissive CORS. A worker
-may become appropriate for long-running operations, but is not part of Phases 0–2.
-Use production secret management, encryption key rotation, backups, migration
-review, request/rate/usage limits, sanitized telemetry, and deployment gates.
+The root Dockerfile builds the locked React workspace and Python API into one
+non-root service. FastAPI serves explicit `/` and `/extension` entrypoints and
+bounded asset mounts only when production WEB_BUILD_DIR is configured; there is
+no catch-all SPA fallback over API/auth/docs routes. Production responses apply
+the exact Onshape frame-ancestors policy, no-referrer and nosniff.
 
-Set the extension's `frame-ancestors` allowlist at the hosting layer after verifying
-registered Onshape environments. Browser third-party-cookie restrictions require
-real embedded-session testing. Do not assume an iframe works because the standalone
-UI renders. [SECURITY.md](SECURITY.md) records the required controls;
-[ONSHAPE.md](ONSHAPE.md) records integration verification gates.
+Railway configuration targets one public HTTPS origin, private PostgreSQL, explicit
+pre-deploy Alembic upgrade, startup schema verification and `/health` liveness.
+TLS terminates at Railway; the one-worker launcher ignores forwarding headers.
+Validated APP_BASE_URL remains the canonical security origin. Keep one replica
+and writes OFF pending a separate scaling/write-coordination review.
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for build/context inspection, synthetic smoke,
+runtime variables, cookie/Onshape URL transition and rollback. No hosted resources
+or registration changes have occurred. Secret management, backups, ingress log
+review, usage controls and real embedded-session testing remain live-deployment
+gates, alongside [SECURITY.md](SECURITY.md) and [ONSHAPE.md](ONSHAPE.md).
 
 ## Phase 2 deployment decisions
 

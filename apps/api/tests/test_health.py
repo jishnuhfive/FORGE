@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 from conftest import Harness
 from fastapi.testclient import TestClient
@@ -20,13 +22,18 @@ def test_product_endpoints_are_not_implemented(path: str) -> None:
         assert client.get(path).status_code == 404
 
 
-def test_production_disables_public_api_documentation(harness: Harness) -> None:
+def test_production_disables_public_api_documentation(
+    harness: Harness, tmp_path: Path
+) -> None:
+    (tmp_path / "index.html").write_text("<html></html>")
+    (tmp_path / "assets").mkdir()
     values = harness.runtime.settings.model_dump()
     values.update(
         environment="production",
         app_base_url="https://forge.example",
         onshape_redirect_uri="https://forge.example/auth/onshape/callback",
         database_url="postgresql+psycopg://localhost/unused",
+        web_build_dir=tmp_path,
     )
     config = Settings.model_validate(values)
     # Liveness/documentation do not require running the persistence lifespan.

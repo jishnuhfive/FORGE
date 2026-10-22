@@ -54,9 +54,11 @@ free them. `make dev-web` and `make dev-api` run individual servers. Database st
 is separate; the liveness API does not need a database. API access logging is disabled
 in development commands to avoid creating future sensitive URL/header logs by default.
 
-Native servers intentionally avoid container rebuilds during editing. Only PostgreSQL
-is containerized in Phase 0. Production containers, HTTPS hosting, deployment,
-and network policy belong to later authorized phases. Phase 2 adds Alembic migrations.
+Native servers intentionally avoid container rebuilds during editing. The local
+Compose service remains PostgreSQL only. The separately authorized production
+foundation now supplies a root Dockerfile and Railway config; see
+[DEPLOYMENT.md](DEPLOYMENT.md). No production hosting has occurred. Phase 2 adds
+Alembic migrations.
 
 `make smoke` checks real web/API startup, `/health`, the development API proxy, and
 clean shutdown. It requires free ports 5173/8000 and never stops existing services.
@@ -793,3 +795,16 @@ FORGE_TEST_DATABASE_URL also run `test_modify_recovery_postgres.py`; every datab
 case owns a random schema and uses synthetic CAD. Browser `modify.spec.ts` covers
 tab remount, refresh, explicit inspection and retained fencing after disagreement.
 Never use the actual application fence as a fixture or run real provider calls.
+
+## Production image verification
+
+Keep local development commands/settings unchanged; leave WEB_BUILD_DIR unset.
+For the hosted foundation run `make build`, then
+`docker build --tag forge:railway-foundation .` and `make deployment-check`.
+The latter checks real Docker context exclusion rules and image contents, then
+uses only synthetic configuration and its own disposable PostgreSQL/network for
+container smoke, `make migration-check` and `make test` with real PostgreSQL tests.
+It removes its own resources and leaves any existing local DB untouched.
+See [DEPLOYMENT.md](DEPLOYMENT.md) for the variable inventory and later Railway /
+Onshape transition. Do not run `make migrate` against an existing/live database
+as part of this deployment-foundation gate.

@@ -24,6 +24,7 @@ from forge_api.routes.health import router as health_router
 from forge_api.step_checks.routes import router as step_checks_router
 from forge_api.tutor.limits import HourlyCap
 from forge_api.tutor.routes import router as tutor_router
+from forge_api.web import FRAME_ANCESTORS, install_web
 
 
 class SafeBoundary(BaseHTTPMiddleware):
@@ -59,6 +60,8 @@ class SafeBoundary(BaseHTTPMiddleware):
         response.headers["Cache-Control"] = "no-store"
         response.headers["Referrer-Policy"] = "no-referrer"
         response.headers["X-Content-Type-Options"] = "nosniff"
+        if request.app.state.settings.environment == "production":
+            response.headers["Content-Security-Policy"] = FRAME_ANCESTORS
         return response
 
 
@@ -143,6 +146,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         title="Forge API",
         version="0.6.0",
         debug=False,
+        redirect_slashes=development_docs,
         lifespan=lifespan,
         docs_url="/docs" if development_docs else None,
         redoc_url=None,
@@ -167,6 +171,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(tutor_router)
     application.include_router(planner_router)
     application.include_router(plan_router)
+    if config.web_build_dir is not None:
+        install_web(application, config.web_build_dir)
     return application
 
 

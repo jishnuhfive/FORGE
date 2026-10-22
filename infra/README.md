@@ -1,7 +1,8 @@
 # Local infrastructure
 
 The root `docker-compose.yml` runs PostgreSQL only. Web and API run natively for
-fast reloads; no frontend/backend images or production deployment are provided.
+fast reloads. The root Dockerfile and Railway config now provide a separate
+[production foundation](../docs/DEPLOYMENT.md), not yet hosted.
 The PostgreSQL 18 volume mounts `/var/lib/postgresql`, its supported parent data
 directory. Ports bind only to loopback. Local credentials are public development
 placeholders and must never be used in production.
