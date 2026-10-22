@@ -732,18 +732,11 @@ uses `tests/test_retained*.py` with synthetic transports and temporary DBs. Post
 races must use an independently disposable service/random schemas, never the live
 FORGE database. No migration or production configuration change is needed.
 
-The separately reviewed temporary [legacy runbook](LEGACY_RETAINED_RETIREMENT.md)
-covers only the frozen October 20 reactivation incident and expires
-2026-10-23T00:00:00Z. Shipped enrollment is empty; tests substitute invented private
-pins and closed synthetic settlement/maintenance reviews. No live DB inspection,
-Onshape access or recovery is part of implementation verification. Run
-`tests/test_legacy*.py` only with synthetic transports and an independently disposable
-PostgreSQL service/random schemas. Missing enrollment, settlement, drain or cached
-credentials must remain denials; no live DB mutation or OAuth bootstrap is allowed.
-Legacy settlement may also use the separately reviewed synchronous acknowledgement
-category; `tests/test_legacy_settlement.py` covers its fixed predicates and exact
-audit pins. A live preflight must stop before arming or GET capture if complete
-runtime quiescence or the owning process's cache-only credential cannot be proven.
+The temporary October 20 recovery mechanism and its dedicated tests have been
+removed after the authorized one-time closure. The
+[closed incident record](LEGACY_RETAINED_RETIREMENT.md) is historical documentation,
+not an operator procedure. Permanent retained-record verification remains in
+`tests/test_retained*.py`; no incident enrollment or recovery entry point remains.
 
 ## Phase 11 tutor checks
 

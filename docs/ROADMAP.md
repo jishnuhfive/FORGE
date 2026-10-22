@@ -273,14 +273,8 @@ authority. Actual live recovery is a separate review/authorization step and rema
 pending; no fence is cleared by implementation work. See
 [RETAINED_RECORD_OPERATOR_RECOVERY.md](RETAINED_RECORD_OPERATOR_RECOVERY.md).
 
-The temporary [single-incident legacy implementation](LEGACY_RETAINED_RETIREMENT.md)
-adds synthetic-only verification for the October 20 terminal-Fillet reactivation
-case, with explicit trusted-DB identity and no V1 change. Static private enrollment
-is absent; live validation/recovery remains blocked by enrollment, settlement,
-quiescence and credential/evidence prerequisites. Fixed sunset is
-2026-10-23T00:00:00Z; remove after the one retirement or sunset, never extend to new
-incidents. No live fence release or merge is authorized by implementation work.
-The narrow legacy settlement amendment represents the reviewer's accepted
-synchronous-mutation acknowledgement basis, with exact audit revalidation.
-Enrollment, runtime drain, cache-only credentials and fresh evidence remain
-independent live-preflight gates; no retirement follows from settlement alone.
+The October 20 administrative recovery is CLOSED. The temporary one-incident
+implementation, enrollment, sunset logic, audit emitter allowance and dedicated
+tests have been removed. Normal retained-record V1 and Modify remain unchanged;
+no serialization exception was introduced. See the
+[closed incident record](LEGACY_RETAINED_RETIREMENT.md).

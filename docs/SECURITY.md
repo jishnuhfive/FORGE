@@ -543,19 +543,11 @@ receipt models cannot establish either. No public invocation or automatic recove
 implementation verification is synthetic. See
 [eligibility, trust assumptions and failure semantics](RETAINED_RECORD_OPERATOR_RECOVERY.md).
 
-The temporary [October 20 legacy exception](LEGACY_RETAINED_RETIREMENT.md) is a
-separate, currently unenrolled development-only path. Historical scope is independently
-preserved; identity is explicitly `trusted_retained_database`, without a fabricated
-V1 receipt or malicious-DB-admin protection. Structured provider-backed settlement
-and maintenance proofs are mandatory trusted review inputs, not automatic provider
-completion checks. Exact scoped locking and single-use GET evidence produce only
-redacted `legacy_administrative_retirement` plus the fixed
-`write_legacy_retained_retirement` / `local_only` audit. No current browser authority,
-refresh, write/replay capability or generic enrollment. Sunset disables without
-releasing any fence; V1 and orphan eligibility remain unchanged.
-The accepted synchronous-acknowledgement basis uses a distinct closed legacy-only
-category, fixed case/endpoint/source validation profile and exact audit-row pins.
-It is not an external provider letter, current CAD proof or deployed-binary attestation.
+The one-time October 20 exception is CLOSED and its executable recovery surface
+has been removed. Existing historical audit/result labels remain interpretable
+without an incident-specific audit emitter, enrollment or invocation path. Normal
+V1 provenance, authorization and strict CAD evidence checks remain unchanged. See
+the [closed incident record](LEGACY_RETAINED_RETIREMENT.md).
 
 ## Phase 11 tutor
 

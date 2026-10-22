@@ -462,16 +462,10 @@ exact redacted `operator_recovered` closure. No browser authority, route, CLI, A
 tool, refresh, replay, schema or default changes. See
 [retained recovery V1](RETAINED_RECORD_OPERATOR_RECOVERY.md).
 
-A separate temporary [single-incident legacy path](LEGACY_RETAINED_RETIREMENT.md)
-supports only the frozen October 20 terminal-Fillet reactivation case. It explicitly
-trusts retained DB identity, requires structured settlement/quiescence reviews and
-distinct run-bound GET evidence, and uses provider-free atomic administrative
-closure. Its shipped static enrollment is empty and denies before DB/CAD access.
-No V1 provenance change, public entry point or automatic fallback; fixed sunset is
-2026-10-23T00:00:00Z, followed by removal.
-The legacy settlement union separately represents reviewer-accepted synchronous
-acknowledgement, with fixed historical endpoint/response predicates and exact
-audit-row digest/time revalidation. It creates no current-state or browser authority.
+The one-time October 20 administrative recovery is CLOSED. Its temporary recovery
+modules, enrollment and dedicated reader have been removed; no executable incident
+exception remains. Normal retained-record V1 is unchanged. See the
+[closed incident record](LEGACY_RETAINED_RETIREMENT.md).
 
 The operation-specific `terminal-fillet-6` policy binds an explicit feature-state
 evidence mode into the baseline/digest. A nonempty state map must cover the inventory
