@@ -265,3 +265,16 @@ OAuth permission or migration. See [HACKATHON_MODIFY_A2.md](HACKATHON_MODIFY_A2.
 B2 implements the live natural-language Modify UI over the integrated A1/B1/A2
 contracts. Controlled disposable-document validation is still pending; no CAD scope
 or OAuth changes are added. See [HACKATHON_MODIFY_B2.md](HACKATHON_MODIFY_B2.md).
+
+Retained-record administrative recovery V1 is implemented for development, writes
+OFF and synthetic verification only. It supports a separately authorized narrow
+single terminal Fillet suppression closure without restoring historical browser
+authority. Actual live recovery is a separate review/authorization step and remains
+pending; no fence is cleared by implementation work. See
+[RETAINED_RECORD_OPERATOR_RECOVERY.md](RETAINED_RECORD_OPERATOR_RECOVERY.md).
+
+The October 20 administrative recovery is CLOSED. The temporary one-incident
+implementation, enrollment, sunset logic, audit emitter allowance and dedicated
+tests have been removed. Normal retained-record V1 and Modify remain unchanged;
+no serialization exception was introduced. See the
+[closed incident record](LEGACY_RETAINED_RETIREMENT.md).

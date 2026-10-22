@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from threading import Lock
 
 from cryptography.fernet import InvalidToken
+from pydantic import SecretStr
 from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -52,6 +53,36 @@ class TokenManager:
     def forget(self, user_id: str) -> None:
         with self._lock:
             self._cache.pop(user_id, None)
+
+    def cached_read_credential(
+        self,
+        user_id: str,
+        generation: str,
+        granted_scope: str | None,
+        *,
+        capture_seconds: int,
+    ) -> SecretStr:
+        """Cache only. Caller must hold/validate the exact current grant row.
+
+        No database access, provider request, refresh, persistence or cache write.
+        This cannot bootstrap a separate operator process without a cached token.
+        """
+        if (
+            type(capture_seconds) is not int
+            or not 30 <= capture_seconds <= 40
+            or not granted_scope
+            or "OAuth2Read" not in granted_scope.split()
+        ):
+            raise ProviderError
+        with self._lock:
+            cached = self._cache.get(user_id)
+            if (
+                cached is None
+                or cached.generation != generation
+                or cached.expires_at <= now() + capture_seconds
+            ):
+                raise ProviderError
+            return SecretStr(cached.value)
 
     def get_valid_onshape_access_token(self, user_id: str) -> str:
         failure: ProviderError | None = None

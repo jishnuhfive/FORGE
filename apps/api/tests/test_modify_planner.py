@@ -148,6 +148,9 @@ def fast_settle(monkeypatch: pytest.MonkeyPatch) -> None:
         gate._until.clear()  # noqa: SLF001
 
     monkeypatch.setattr(planner_service, "settle", instant)
+    # This suite exercises the preserved AI fallback and provider failure paths.
+    # Fast-path behavior is covered separately in test_modify_deterministic.py.
+    monkeypatch.setattr(planner_service, "parse", lambda *_: None)
 
 
 @pytest.fixture
@@ -926,3 +929,16 @@ def test_planning_never_invokes_the_safe_edit_client_write_path(
         states = set(db.scalars(select(WriteRecord.state)))
         assert states <= {"admission", "candidate", "invalidated", "pending"}, states
         assert db.scalar(select(func.count()).select_from(WriteFence)) == 0
+
+
+def test_modify_effort_is_high_without_changing_design_or_learn(
+    harness: Harness, lab: Callable[[Make], tuple[Run, Any]]
+) -> None:
+    run, stack = lab(fillet_off)
+    with stack:
+        assert harness.runtime.settings.forge_groq_reasoning_effort == "low"
+        assert harness.runtime.settings.forge_modify_reasoning_effort == "high"
+        assert send(harness).status_code == 200
+        assert run.model.calls[0]["reasoning_effort"] == "high"
+        assert run.model.calls[0]["include_reasoning"] is False
+        assert harness.runtime.settings.forge_groq_reasoning_effort == "low"

@@ -26,7 +26,14 @@ def invalidate(db: Session, user: str, session: str | None = None) -> None:
 
 
 def cleanup(db: Session) -> None:
-    # No TTL ever deletes a fence. Orphaned claims become recovery-only.
+    # Never erase reconciliation evidence behind a live denial. Retention is
+    # bounded by one existing fence per user and the closed five-operation schema,
+    # not an accumulating history. Only safely resolved records may expire.
+    fenced = (
+        select(WriteFence.record_id)
+        .where(WriteFence.record_id == WriteRecord.id)
+        .exists()
+    )
     for owner in db.scalars(
         update(WriteRecord)
         .where(
@@ -45,10 +52,7 @@ def cleanup(db: Session) -> None:
         )
         .values(state="execution_uncertain")
     )
-    db.execute(
-        update(WriteRecord).where(WriteRecord.purge_at <= now()).values(payload=None)
-    )
-    db.execute(delete(WriteRecord).where(WriteRecord.purge_at <= now()))
+    db.execute(delete(WriteRecord).where(WriteRecord.purge_at <= now(), ~fenced))
 
 
 def store(db: Session, proposal: Proposal | OwnedAuthority, state: State) -> None:

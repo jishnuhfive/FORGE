@@ -52,6 +52,7 @@ class Settings(BaseSettings):
     groq_api_key: SecretStr | None = Field(default=None, min_length=1, max_length=4096)
     forge_groq_model: Literal["openai/gpt-oss-120b"] = "openai/gpt-oss-120b"
     forge_groq_reasoning_effort: Literal["low", "medium", "high"] = "low"
+    forge_modify_reasoning_effort: Literal["low", "medium", "high"] = "high"
     forge_openai_model: Literal["gpt-6.1-sol"] = Field(
         default="gpt-6.1-sol",
         validation_alias=AliasChoices("forge_openai_model", "forge_ai_model"),

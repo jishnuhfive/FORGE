@@ -530,6 +530,25 @@ separately authorized recovery cleared one orphan with ZERO Onshape contact and
 writes OFF; neither conformance gate was proven by that administration. The later
 Gate A proof is a separate human-approved CAD trial, not a recovery outcome.
 
+The separate retained-record V1 helper supports only a valid, aged A2 explicitly
+uncertain single terminal Fillet suppression operation with independent preserved
+operation evidence. It never changes the orphan helper's eligibility or transfers
+old session/grant authority. Current credentials are cache-only, and the dedicated
+five-GET reader is discarded before provider-free release. Exact transaction/object
+provenance, deterministic current-state comparison, scoped row/advisory locks and
+conditional mutations atomically produce a redacted `operator_recovered` tombstone
+and fixed `write_retained_operator_recovery` / `local_only` audit. Independent
+settlement and globally drained writers remain human prerequisites; DB locks and
+receipt models cannot establish either. No public invocation or automatic recovery;
+implementation verification is synthetic. See
+[eligibility, trust assumptions and failure semantics](RETAINED_RECORD_OPERATOR_RECOVERY.md).
+
+The one-time October 20 exception is CLOSED and its executable recovery surface
+has been removed. Existing historical audit/result labels remain interpretable
+without an incident-specific audit emitter, enrollment or invocation path. Normal
+V1 provenance, authorization and strict CAD evidence checks remain unchanged. See
+the [closed incident record](LEGACY_RETAINED_RETIREMENT.md).
+
 ## Phase 11 tutor
 
 Explicit authenticated POST with exact Origin and session-bound CSRF; closed ≤16 KiB schema; errors never echo the
@@ -548,8 +567,9 @@ rechecks authority, expiry, the persistent fence and the previous verified revis
 A durable per-operation journal precedes the single guarded dispatch. Failures stop
 later operations; dispatched uncertainty retains the fence without retry/rollback.
 No route, AI execution tool, OAuth permission, secret, table or migration is added.
-Private plan bindings follow Phase 9 retention; safe terminal journals retain only
-statuses. Raw CAD stays request-local. See [A1](HACKATHON_MODIFY_A1.md) for exact
+Private plan bindings behind a live fence remain until safe resolution; the
+closed schema and one-fence-per-user invariant bound unresolved storage. Safe
+terminal journals retain only statuses under the 15-minute purge policy. Raw CAD stays request-local. See [A1](HACKATHON_MODIFY_A1.md) for exact
 shape/quantity limits, privacy boundaries and required future HTTP/CSRF controls.
 CAD writes remain OFF and new-operation live conformance remains unverified.
 
@@ -579,3 +599,18 @@ B2's live browser flow strictly parses previews/events/results, keeps authority 
 component memory, consumes local approval before dispatch and never retries it.
 Context changes abort consumers and clear authority. Names render as ordinary text;
 uncertain outcomes use authenticated GET status only. See [B2](HACKATHON_MODIFY_B2.md).
+
+## Modify recovery and deterministic planning
+
+[Recovery controls](MODIFY_RECOVERY_HOTFIX.md) use the existing authenticated
+same-origin CSRF guard. Recovery returns only same-session consumed status handles
+and safe previews, never approval digests or provider bindings. Reconciliation
+performs fresh authorized reads only and closes exactly one matching fence after
+strict terminal-suppression baseline agreement and a final authority/head check.
+Rename, quantity and batch uncertainty remain fenced for manual recovery.
+
+Cleanup cannot orphan live fences or erase their reconciliation evidence.
+Unresolved records remain bounded by the existing one-fence-per-user invariant
+and the fixed plan schema; closed status records expire normally. No new persistence of client
+authority, scope, model tool or mutation route is introduced. Development-only A2
+verification logs contain fixed stage/result categories only.

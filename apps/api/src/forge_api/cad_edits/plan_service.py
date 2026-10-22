@@ -32,7 +32,7 @@ from forge_api.integrations.onshape.modify_evidence import (
 from forge_api.integrations.onshape.service import ReadGate
 from forge_api.integrations.onshape.write_client import SafeEditClient
 
-from . import plan_storage, service, storage
+from . import plan_diagnostics, plan_storage, service, storage
 from .domain import Baseline, Binding, EditError
 from .plan_events import (
     OperationOutcome,
@@ -226,6 +226,11 @@ def approve(
     states: list[OperationState] = ["pending"] * len(plan.operations)
     index = 0
     dispatched = False
+    verify_stage: plan_diagnostics.Stage | None = None
+    development = auth.settings.environment == "development"
+
+    def diagnostic(stage: plan_diagnostics.Stage) -> None:
+        plan_diagnostics.emit(development, stage, True)
 
     def observe(event: Progress) -> None:
         if progress is not None:
@@ -243,6 +248,7 @@ def approve(
         provider = service.client(request, auth)
         for index, operation in enumerate(plan.operations):
             dispatched = False
+            verify_stage = None
             states[index] = "checking"
             with auth.sessions.begin() as db:
                 _current(request, auth, db, plan, started)
@@ -286,10 +292,17 @@ def approve(
                     db, plan, PlanResult(state="verifying", operations=tuple(states))
                 )
             stage("verifying")
+            verify_stage = "post_read"
             after = provider.modify_evidence(plan.binding.context)
+            diagnostic(verify_stage)
+            verify_stage = "operation_compare"
             verify_operation(evidence, after, operation, marker)
+            diagnostic(verify_stage)
+            verify_stage = "deadline"
             if not 0 <= monotonic() - started <= 30:
                 raise EditError("verification_failed")
+            diagnostic(verify_stage)
+            verify_stage = "authority"
             with auth.sessions.begin() as db:
                 if (
                     service.authority(
@@ -298,6 +311,8 @@ def approve(
                     != plan.binding
                 ):
                     raise EditError("context_changed")
+                diagnostic(verify_stage)
+                verify_stage = None
                 states[index] = "verified_success"
                 plan_storage.journal(
                     db, plan, PlanResult(state="verifying", operations=tuple(states))
@@ -307,6 +322,8 @@ def approve(
             expected = after.baseline  # M0 -> verified M1 -> verified M2 only.
         result = PlanResult(state="verified_success", operations=tuple(states))
     except Exception as error:
+        if verify_stage is not None:
+            plan_diagnostics.emit(development, verify_stage, False)
         # No raw exception/provider data escapes and no later operation executes.
         stale = isinstance(error, EditError) and error.code in (
             "model_changed",

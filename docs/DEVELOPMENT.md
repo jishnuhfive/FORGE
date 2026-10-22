@@ -719,6 +719,25 @@ fences. New CAD work always requires a new proposal and approval. Focused covera
 `tests/test_safe_edit_operator_recovery.py` and the PostgreSQL recovery concurrency
 case in `tests/test_safe_edit_postgres.py`.
 
+Retained records require the **separate** reviewed
+[retained-record operator V1 runbook](RETAINED_RECORD_OPERATOR_RECOVERY.md).
+Its internal coordinator is deliberately not exposed as a CLI, route or browser
+control. Do not invoke it for live recovery as part of implementation verification.
+It requires independently preserved operation evidence, pre-reviewed settlement
+and drained writers, a surviving hard-inactive original session and a current
+generation's already cached read credential in the trusted operator process.
+Missing receipts or cache state are blockers, not reasons to copy DB values,
+refresh/export tokens, edit rows or weaken the orphan helper. Focused verification
+uses `tests/test_retained*.py` with synthetic transports and temporary DBs. PostgreSQL
+races must use an independently disposable service/random schemas, never the live
+FORGE database. No migration or production configuration change is needed.
+
+The temporary October 20 recovery mechanism and its dedicated tests have been
+removed after the authorized one-time closure. The
+[closed incident record](LEGACY_RETAINED_RETIREMENT.md) is historical documentation,
+not an operator procedure. Permanent retained-record verification remains in
+`tests/test_retained*.py`; no incident enrollment or recovery entry point remains.
+
 ## Phase 11 tutor checks
 
 Backend: `uv run --frozen pytest tests/test_tutor_core.py tests/test_tutor_route.py tests/test_tutor_eval.py`.
@@ -760,3 +779,17 @@ B2 checks: `npm test --workspace @forge/web -- src/modify --maxWorkers=2`,
 `npm run typecheck`, full frontend tests/build, and
 `./node_modules/.bin/playwright test tests/e2e/modify.spec.ts --workers=2`.
 All browser provider outcomes are intercepted synthetic fixtures. See [B2](HACKATHON_MODIFY_B2.md).
+
+## Modify recovery hotfix
+
+See [recovery contracts and live validation](MODIFY_RECOVERY_HOTFIX.md).
+`FORGE_MODIFY_REASONING_EFFORT` defaults to `high`; it affects only Modify planner
+fallback, independently of Design/Learn Groq effort. Supported explicit commands
+use fresh deterministic A1 previews without an AI request or AI credentials.
+
+Include `test_modify_recovery.py`, `test_modify_deterministic.py` and
+`test_modify_diagnostics.py` in focused verification. With a privately supplied
+FORGE_TEST_DATABASE_URL also run `test_modify_recovery_postgres.py`; every database
+case owns a random schema and uses synthetic CAD. Browser `modify.spec.ts` covers
+tab remount, refresh, explicit inspection and retained fencing after disagreement.
+Never use the actual application fence as a fixture or run real provider calls.

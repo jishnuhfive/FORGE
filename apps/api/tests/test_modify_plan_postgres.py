@@ -86,7 +86,7 @@ def test_partial_uncertainty_retains_prefix_and_denies_phase9(
             db.flush()
             storage.cleanup(db)
         with harness.runtime.sessions() as db:
-            assert db.get(WriteRecord, preview.proposal_id) is None
+            assert db.get(WriteRecord, preview.proposal_id) is not None
             assert db.scalar(select(WriteFence)) is not None
         assert provider.writes == 2
 

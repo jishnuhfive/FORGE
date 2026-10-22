@@ -87,6 +87,7 @@ To use real Onshape sign-in, follow the application configuration and local HTTP
 Keep real credentials out of `.env.example`. That file should contain empty placeholders only.
 
 ## Credits
+
 Ved Tripathi
 Jishnu Hiremath
 Lakshiet Dasari

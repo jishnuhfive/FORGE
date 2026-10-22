@@ -81,8 +81,6 @@ async def plan(request: Request, auth: Runtime) -> JSONResponse:
     except ValidationError, ValueError:
         # Default validation errors would echo the user's private request.
         raise HTTPException(400, "invalid_request") from None
-    if not auth.settings.ai_configured:
-        raise HTTPException(503, "not_configured")
     wait = cast(HourlyCap, request.app.state.planner_cap).acquire(user_id)
     if wait is not None:
         return failure("rate_limited", 429, wait)
@@ -107,7 +105,9 @@ async def plan(request: Request, auth: Runtime) -> JSONResponse:
                 user_id,
                 value.context,
                 text,
-                create_planner_provider(auth.settings, transport),
+                create_planner_provider(auth.settings, transport)
+                if auth.settings.ai_configured
+                else None,
                 correlation,
             )
         return JSONResponse(

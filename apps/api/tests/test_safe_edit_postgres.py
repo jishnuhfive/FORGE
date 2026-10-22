@@ -122,6 +122,9 @@ def test_operator_recovery_has_one_postgres_winner(postgres: Engine) -> None:
             )
         db.flush()
         storage.cleanup(db)
+        # Historical orphan fixture; current cleanup preserves live records.
+        db.delete(row)
+        db.flush()
 
     def attempt(_: int) -> str:
         try:
@@ -175,7 +178,7 @@ def test_one_claim_winner_across_workers_and_fence_survives_cleanup(
         db.flush()
         storage.cleanup(db)
     with factory() as db:
-        assert db.get(WriteRecord, p.proposal_id) is None
+        assert db.get(WriteRecord, p.proposal_id) is not None
         assert db.scalar(select(WriteFence)) is not None
 
 

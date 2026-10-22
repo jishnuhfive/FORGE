@@ -65,6 +65,8 @@ def test_only_allowlisted_auth_read_and_approved_edit_routes_exist(
         "/api/modify/capabilities",
         "/api/modify/targets",
         "/api/modify/plan",
+        "/api/modify/recovery",
+        "/api/modify/plans/{handle}/reconcile",
         "/api/modify/proposals",
         "/api/modify/proposals/{handle}",
         "/api/modify/proposals/{handle}/{action}",

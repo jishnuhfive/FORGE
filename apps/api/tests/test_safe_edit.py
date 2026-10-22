@@ -531,7 +531,7 @@ def test_cleanup_preserves_uncertain_fence(harness: Harness) -> None:
             row.purge_at = now() - 1
             storage.cleanup(db)
         with harness.runtime.sessions() as db:
-            assert db.get(WriteRecord, p["proposal_id"]) is None
+            assert db.get(WriteRecord, p["proposal_id"]) is not None
             assert db.scalar(select(WriteFence)) is not None
 
 

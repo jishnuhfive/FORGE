@@ -17,6 +17,7 @@ from forge_api.cad_edits.plans import SemanticPlan
 from forge_api.integrations.onshape.contracts import WorkspaceReference
 from forge_api.integrations.onshape.service import ReadGate
 
+from .deterministic import parse
 from .models import PlannerClarification, PlannerPlan
 from .providers import PlannerProvider
 from .screen import screen
@@ -46,7 +47,7 @@ async def plan(
     user_id: str,
     context: WorkspaceReference,
     text: str,
-    provider: PlannerProvider,
+    provider: PlannerProvider | None,
     request_id: str,
 ) -> dict[str, object]:
     verdict = screen(text)
@@ -57,12 +58,18 @@ async def plan(
         )
     targets = await asyncio.to_thread(plan_service.discover, request, auth, context)
     options = targets.targets
-    async with asyncio.timeout(MODEL_SECONDS):
-        wire = await provider.plan(text, options, request_id=request_id)
-    try:
-        result = to_result(wire, options, text)
-    except PlannerError:
-        raise Unplannable from None
+    result = parse(text, options)
+    if result is None:
+        if provider is None:
+            from forge_api.ai.models import AiError
+
+            raise AiError("not_configured")
+        async with asyncio.timeout(MODEL_SECONDS):
+            wire = await provider.plan(text, options, request_id=request_id)
+        try:
+            result = to_result(wire, options, text)
+        except PlannerError:
+            raise Unplannable from None
     if isinstance(result, PlannerClarification):
         return result.model_dump(mode="json")
     assert isinstance(result, PlannerPlan)

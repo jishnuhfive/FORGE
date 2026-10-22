@@ -452,6 +452,21 @@ audit atomically. It has no route, CLI, browser/AI authority or provider transpo
 production mode rejects it. It neither restores proposal authority nor promotes an
 uncertain result. Normal persistent-fence and reconciliation behavior is unchanged.
 
+Retained A2 uncertain records have a separate internal development-only operator
+path: closed contracts → fixed pinned GET reader → bounded operator coordinator →
+provider-free atomic release. It requires independent preserved operation evidence,
+hard-expired/revoked historical identity, current connected read authorization,
+cache-only credentials, drained writers and independent settlement. Scoped user,
+session/grant/fence/record locks protect single-use same-transaction evidence and
+exact redacted `operator_recovered` closure. No browser authority, route, CLI, AI
+tool, refresh, replay, schema or default changes. See
+[retained recovery V1](RETAINED_RECORD_OPERATOR_RECOVERY.md).
+
+The one-time October 20 administrative recovery is CLOSED. Its temporary recovery
+modules, enrollment and dedicated reader have been removed; no executable incident
+exception remains. Normal retained-record V1 is unchanged. See the
+[closed incident record](LEGACY_RETAINED_RETIREMENT.md).
+
 The operation-specific `terminal-fillet-6` policy binds an explicit feature-state
 evidence mode into the baseline/digest. A nonempty state map must cover the inventory
 exactly and pass every strict status/inactive check. An exactly empty map means
@@ -561,3 +576,12 @@ See [the stable B2 API and stream contract](HACKATHON_MODIFY_A2.md).
 B2 now connects the live Modify tab to that pipeline: natural-language planning,
 exact multi-operation review, explicit human approval and bounded progress/status.
 Authority remains in component memory and the backend; see [B2](HACKATHON_MODIFY_B2.md).
+
+## Modify recovery reliability hotfix
+
+[Recovery hotfix](MODIFY_RECOVERY_HOTFIX.md) adds session-owned server discovery,
+read-only single-terminal-suppression reconciliation and a deterministic planning
+fast path before AI fallback. `reconciled_current_state` proves present-state
+agreement without attributing the original write. Live fences retain the bounded
+reconciliation payload until safe closure; resolved status records expire after
+15 minutes. Consumed handles never regain approval power.
