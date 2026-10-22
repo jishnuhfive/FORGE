@@ -90,4 +90,4 @@ Keep real credentials out of `.env.example`. That file should contain empty plac
 
 Ved Tripathi
 Jishnu Hiremath
-Lakshiet
+Lakshiet Dasari
