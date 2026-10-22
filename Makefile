@@ -55,6 +55,10 @@ audit:
 compose-check:
 	docker compose config --quiet
 
+.PHONY: deployment-check
+deployment-check:
+	cd apps/api && uv run --frozen python ../../scripts/deployment_check.py
+
 db-up:
 	docker compose up --detach --wait --wait-timeout 90 postgres
 

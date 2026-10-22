@@ -419,3 +419,12 @@ retain OAuth2ReadPII/OAuth2Read, add OAuth2Write only, and explicitly reauthoriz
 Unknown scope evidence fails closed. Follow [the runtime review](PHASE_9_REVIEW.md)
 for exact OAuth, disposable CAD, suppression-payload Gate A, atomic stale-rejection
 Gate B and screenshot instructions. Real CAD-write validation remains pending.
+
+## Hosted URL transition plan
+
+The deployment foundation now serves `/extension` from the same FastAPI service as
+`/api` and `/auth`, with the existing exact Onshape frame policy. No registration,
+OAuth scope, credential or Action URL is changed. See
+[DEPLOYMENT.md](DEPLOYMENT.md) for the final HTTPS callback/Action URL shapes,
+Onshape-added default parameters (do not hardcode server), embedded cookie limits
+and the later coordinated Railway/custom-domain transition.

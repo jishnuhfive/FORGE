@@ -278,3 +278,19 @@ implementation, enrollment, sunset logic, audit emitter allowance and dedicated
 tests have been removed. Normal retained-record V1 and Modify remain unchanged;
 no serialization exception was introduced. See the
 [closed incident record](LEGACY_RETAINED_RETIREMENT.md).
+
+## Deployment track Phase 1 — production hosting foundation
+
+**DEPLOYMENT FOUNDATION IMPLEMENTED — NOT YET HOSTED.**
+Authorized separately from product phases, starting at
+`c10744b10d897ab9bd4ebb8b650b5d8ce39c1a9f` on `deploy/railway-foundation`.
+One Railway service/image serves the SPA and FastAPI on one HTTPS origin; private
+PostgreSQL, pre-deploy Alembic, exact production iframe headers, fail-closed static
+configuration and a one-worker runtime are prepared and locally testable.
+Phase 9 and normal retained recovery V1 remain unchanged. No legacy recovery path
+returns, no CAD writes are enabled, and no live data or Onshape registration changes
+are authorized. [DEPLOYMENT.md](DEPLOYMENT.md) records the foundation and gates.
+
+Railway provisioning, runtime secrets, real migrations, callback/Action URL changes,
+real OAuth/AI/embedded validation and custom-domain transition are later authorized
+operations. This implementation does not deploy or merge into main.

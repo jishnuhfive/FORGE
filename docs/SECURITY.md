@@ -108,8 +108,9 @@ Apply quotas and bounded model turns, calls, timeouts, spend and cancellation.
 Never persist private chain-of-thought. No engineering certification is claimed.
 
 Phase 3 dev/preview HTML responses restrict frame ancestors to the standard Onshape
-origin and suppress referrers. Production ingress must replicate those headers;
-Vite build output alone does not configure an ingress. No enterprise wildcard is
+origin and suppress referrers. The deployment foundation now supplies these headers
+from FastAPI in production too; platform-generated errors still require live ingress
+review. Vite build output alone does not configure an ingress. No enterprise wildcard is
 accepted. Missing/unapproved server, URL credentials and malformed IDs fail closed.
 Untrusted messages cannot change CAD context or selection, and no raw payload/query
 is logged or persisted. An unavailable in-frame session keeps the auth gate closed.
@@ -614,3 +615,26 @@ Unresolved records remain bounded by the existing one-fence-per-user invariant
 and the fixed plan schema; closed status records expire normally. No new persistence of client
 authority, scope, model tool or mutation route is introduced. Development-only A2
 verification logs contain fixed stage/result categories only.
+
+## Deployment hosting foundation
+
+**DEPLOYMENT FOUNDATION IMPLEMENTED — NOT YET HOSTED.**
+The image uses one non-root worker and one Railway replica, with private-only
+PostgreSQL planned. Production static roots must be explicit, absolute and built,
+without symlinks; routes expose only SPA entrypoints and asset directories.
+No API/auth fallback, extra frame ancestor, X-Frame-Options conflict, CORS wildcard
+or postMessage relaxation is introduced. Production docs remain disabled.
+
+The canonical security origin stays validated APP_BASE_URL. Uvicorn ignores proxy
+headers; internal HTTP does not remove Secure cookies or alter OAuth/CSRF origins.
+Exact PostgreSQL URLs are parsed and standard PostgreSQL schemes normalized to the
+existing psycopg driver without logging URL material. Production configuration
+still rejects incomplete OAuth, missing encryption/database/static setup or HTTP.
+
+The deny-by-default Docker context, nested exclusion canaries and final filesystem
+inspection guard against env/certificates/Git/local data entering the build/image.
+Backend-only keys are supplied at runtime. Alembic runs separately before deploy;
+startup only checks schema. No live migration, OAuth/AI/CAD call, recovery change
+or CAD write is part of this phase. Ingress callback-log redaction, private-network
+configuration, backup restore verification and actual embedded cookie validation
+remain operational gates. See [DEPLOYMENT.md](DEPLOYMENT.md).

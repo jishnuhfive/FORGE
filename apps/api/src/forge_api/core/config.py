@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 from typing import Literal, Self
 from urllib.parse import urlsplit
@@ -5,6 +6,8 @@ from urllib.parse import urlsplit
 from cryptography.fernet import Fernet
 from pydantic import AliasChoices, AnyHttpUrl, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from sqlalchemy.engine import make_url
+from sqlalchemy.exc import ArgumentError
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[5]
 
@@ -25,6 +28,7 @@ class Settings(BaseSettings):
     forge_cad_write_conformance_pause_seconds: int = Field(default=0, ge=0, le=10)
 
     environment: Literal["development", "test", "production"] = "development"
+    web_build_dir: Path | None = None
     app_base_url: AnyHttpUrl = AnyHttpUrl("http://127.0.0.1:5173")
     database_url: SecretStr | None = None
     token_encryption_key: SecretStr | None = None
@@ -151,10 +155,37 @@ class Settings(BaseSettings):
             raise ValueError("Onshape API base must end in /api")
         if self.database_url:
             value = self.database_url.get_secret_value()
-            if not value.startswith("postgresql+psycopg://") and not (
-                self.environment == "test" and value.startswith("sqlite")
-            ):
-                raise ValueError("PostgreSQL with psycopg is required")
+            if not (self.environment == "test" and value.startswith("sqlite")):
+                # Railway's private DATABASE_URL uses PostgreSQL's standard scheme.
+                # Preserve encoded credentials/options; never interpolate or log it.
+                if value.startswith("postgresql://"):
+                    value = "postgresql+psycopg://" + value.removeprefix(
+                        "postgresql://"
+                    )
+                try:
+                    parsed_db = urlsplit(value)
+                    database = make_url(value)
+                    if (
+                        database.drivername != "postgresql+psycopg"
+                        or not parsed_db.hostname
+                        or not database.host
+                        or database.host.lower() != parsed_db.hostname.lower()
+                        or not database.database
+                        or parsed_db.path in ("", "/")
+                        or parsed_db.fragment
+                        or re.search(r"%(?![0-9a-fA-F]{2})", value)
+                        or any(
+                            character.isspace() or ord(character) < 32
+                            for character in value
+                        )
+                        or parsed_db.port == 0
+                    ):
+                        raise ValueError
+                except ArgumentError, ValueError:
+                    raise ValueError(
+                        "A valid PostgreSQL URL with psycopg is required"
+                    ) from None
+                self.database_url = SecretStr(value)
         keys = [self.token_encryption_key]
         if self.token_encryption_previous_keys:
             keys += [
@@ -175,4 +206,21 @@ class Settings(BaseSettings):
             raise ValueError(
                 "Production requires complete authentication configuration"
             )
+        if self.environment == "production" and self.web_build_dir is None:
+            raise ValueError("Production requires WEB_BUILD_DIR")
+        if self.web_build_dir is not None:
+            if self.environment != "production":
+                raise ValueError("WEB_BUILD_DIR is production-only")
+            directory = self.web_build_dir
+            if (
+                not directory.is_absolute()
+                or ".." in directory.parts
+                or directory.is_symlink()
+                or not (directory / "index.html").is_file()
+                or not (directory / "assets").is_dir()
+                or any(path.is_symlink() for path in directory.rglob("*"))
+            ):
+                raise ValueError(
+                    "WEB_BUILD_DIR must be absolute, built and without symlinks"
+                )
         return self
