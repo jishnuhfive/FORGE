@@ -132,6 +132,13 @@ manual-recovery view and cannot be automatically reconciled. No database table
 or migration changes.
 
 Existing development-only historical orphan-recovery restrictions are unchanged.
+
+The separate temporary [legacy administrative path](LEGACY_RETAINED_RETIREMENT.md)
+is restricted to one frozen October 20 terminal-Fillet reactivation incident,
+currently unenrolled and therefore unable to capture CAD or release a fence. It
+does not change browser discovery/reconciliation, normal V1 receipt requirements
+or orphan eligibility. Live settlement remains unestablished; implementation tests
+are synthetic only and the fixed sunset never releases a denial.
 This hotfix neither invokes that tool nor adds a general administrative bypass.
 Unrecoverable/manual cases require a separately reviewed recovery decision; users
 must not delete fences, replay approvals or edit database records to continue.

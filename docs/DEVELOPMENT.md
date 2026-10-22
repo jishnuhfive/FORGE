@@ -732,6 +732,15 @@ uses `tests/test_retained*.py` with synthetic transports and temporary DBs. Post
 races must use an independently disposable service/random schemas, never the live
 FORGE database. No migration or production configuration change is needed.
 
+The separately reviewed temporary [legacy runbook](LEGACY_RETAINED_RETIREMENT.md)
+covers only the frozen October 20 reactivation incident and expires
+2026-10-23T00:00:00Z. Shipped enrollment is empty; tests substitute invented private
+pins and closed synthetic settlement/maintenance reviews. No live DB inspection,
+Onshape access or recovery is part of implementation verification. Run
+`tests/test_legacy*.py` only with synthetic transports and an independently disposable
+PostgreSQL service/random schemas. Missing enrollment, settlement, drain or cached
+credentials must remain denials; no live DB mutation or OAuth bootstrap is allowed.
+
 ## Phase 11 tutor checks
 
 Backend: `uv run --frozen pytest tests/test_tutor_core.py tests/test_tutor_route.py tests/test_tutor_eval.py`.

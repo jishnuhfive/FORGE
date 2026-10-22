@@ -272,3 +272,11 @@ single terminal Fillet suppression closure without restoring historical browser
 authority. Actual live recovery is a separate review/authorization step and remains
 pending; no fence is cleared by implementation work. See
 [RETAINED_RECORD_OPERATOR_RECOVERY.md](RETAINED_RECORD_OPERATOR_RECOVERY.md).
+
+The temporary [single-incident legacy implementation](LEGACY_RETAINED_RETIREMENT.md)
+adds synthetic-only verification for the October 20 terminal-Fillet reactivation
+case, with explicit trusted-DB identity and no V1 change. Static private enrollment
+is absent; live validation/recovery remains blocked by enrollment, settlement,
+quiescence and credential/evidence prerequisites. Fixed sunset is
+2026-10-23T00:00:00Z; remove after the one retirement or sunset, never extend to new
+incidents. No live fence release or merge is authorized by implementation work.

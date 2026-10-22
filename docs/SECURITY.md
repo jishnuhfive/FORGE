@@ -543,6 +543,17 @@ receipt models cannot establish either. No public invocation or automatic recove
 implementation verification is synthetic. See
 [eligibility, trust assumptions and failure semantics](RETAINED_RECORD_OPERATOR_RECOVERY.md).
 
+The temporary [October 20 legacy exception](LEGACY_RETAINED_RETIREMENT.md) is a
+separate, currently unenrolled development-only path. Historical scope is independently
+preserved; identity is explicitly `trusted_retained_database`, without a fabricated
+V1 receipt or malicious-DB-admin protection. Structured provider-backed settlement
+and maintenance proofs are mandatory trusted review inputs, not automatic provider
+completion checks. Exact scoped locking and single-use GET evidence produce only
+redacted `legacy_administrative_retirement` plus the fixed
+`write_legacy_retained_retirement` / `local_only` audit. No current browser authority,
+refresh, write/replay capability or generic enrollment. Sunset disables without
+releasing any fence; V1 and orphan eligibility remain unchanged.
+
 ## Phase 11 tutor
 
 Explicit authenticated POST with exact Origin and session-bound CSRF; closed ≤16 KiB schema; errors never echo the
