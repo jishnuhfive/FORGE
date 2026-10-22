@@ -553,6 +553,9 @@ redacted `legacy_administrative_retirement` plus the fixed
 `write_legacy_retained_retirement` / `local_only` audit. No current browser authority,
 refresh, write/replay capability or generic enrollment. Sunset disables without
 releasing any fence; V1 and orphan eligibility remain unchanged.
+The accepted synchronous-acknowledgement basis uses a distinct closed legacy-only
+category, fixed case/endpoint/source validation profile and exact audit-row pins.
+It is not an external provider letter, current CAD proof or deployed-binary attestation.
 
 ## Phase 11 tutor
 

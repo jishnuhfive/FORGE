@@ -740,6 +740,10 @@ Onshape access or recovery is part of implementation verification. Run
 `tests/test_legacy*.py` only with synthetic transports and an independently disposable
 PostgreSQL service/random schemas. Missing enrollment, settlement, drain or cached
 credentials must remain denials; no live DB mutation or OAuth bootstrap is allowed.
+Legacy settlement may also use the separately reviewed synchronous acknowledgement
+category; `tests/test_legacy_settlement.py` covers its fixed predicates and exact
+audit pins. A live preflight must stop before arming or GET capture if complete
+runtime quiescence or the owning process's cache-only credential cannot be proven.
 
 ## Phase 11 tutor checks
 

@@ -116,8 +116,8 @@ class LegacyEnrollment(_LegacyClosed):
 class ProviderSettlementEvidence(_LegacyClosed):
     """A provider-issued confirmation reviewed out of band, NOT an API predicate.
 
-    No current Onshape history/head/ack field is asserted to supply this guarantee.
-    The operator must retain the actual confirmation and verify its semantics.
+    This category requires the actual separate confirmation and reviewed semantics.
+    Synchronous acknowledgement evidence must use its distinct category below.
     """
 
     category: Literal["provider_issued_terminal_confirmation"]
@@ -132,6 +132,48 @@ class ProviderSettlementEvidence(_LegacyClosed):
     disposition: Literal["terminated_no_outstanding_activity_can_later_apply"]
 
 
+class SynchronousAckPredicates(_LegacyClosed):
+    """Fixed historical validation profile, not a new current-state assertion."""
+
+    http_status: Literal[200]
+    bounded_valid_json: Literal[True]
+    returned_feature_count: Literal[1]
+    approved_feature_id_matches: Literal[True]
+    pre_dispatch_terminal_fillet_validated: Literal[True]
+    result_suppressed: Literal[False]
+    microversion_skew: Literal[False]
+    result_microversion_valid: Literal[True]
+    result_microversion_differs_from_baseline: Literal[True]
+    consumed_single_operation_no_supported_replay: Literal[True]
+
+
+class SynchronousAcknowledgementEvidence(_LegacyClosed):
+    """Reviewer-accepted synchronous mutation settlement for ONLY this case.
+
+    Trusted source/audit history establishes the validation profile; the original
+    response and exact deployed binary were not retained. This is not an external
+    confirmation, a normal V1 receipt, verified_success or current CAD evidence.
+    """
+
+    category: Literal["synchronous_provider_acknowledgement"]
+    case_id: CaseId
+    identity_basis: Literal["trusted_retained_database"]
+    review_basis: Literal["reviewer_accepted_october20_source_and_audit_history"]
+    endpoint: Literal[
+        "POST /api/v17/partstudios/d/{did}/w/{wid}/e/{eid}/features/updates"
+    ]
+    operation: Literal["SET_UNSUPPRESSED"]
+    reviewed_source_family: Literal["forge-a1-b728d422-682dfcf7"]
+    predicates: SynchronousAckPredicates
+    audit_sequence_digest: Digest = Field(repr=False)
+    user: PrivateText
+    context: LegacyContext
+    execution_start: Literal[1792513486]
+    execution_end_exclusive: Literal[1792513490]
+    issued_at: int = Field(ge=1792513486, lt=1792513490)
+    disposition: Literal["acknowledged_document_mutation_terminal_no_supported_replay"]
+
+
 class SettlementReview(_LegacyClosed):
     case_id: CaseId
     enrollment_fingerprint: Digest = Field(repr=False)
@@ -139,7 +181,10 @@ class SettlementReview(_LegacyClosed):
     review_id: PrivateText
     reviewed_at: int = Field(ge=0)
     valid_until: int = Field(ge=0)
-    evidence: ProviderSettlementEvidence = Field(repr=False)
+    evidence: Annotated[
+        ProviderSettlementEvidence | SynchronousAcknowledgementEvidence,
+        Field(discriminator="category"),
+    ] = Field(repr=False)
     disposition: Literal["approved_for_exact_legacy_retirement"]
 
 

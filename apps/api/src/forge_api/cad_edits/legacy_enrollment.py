@@ -23,7 +23,12 @@ from forge_api.db.models import (
 
 from . import plan_storage
 from .domain import EditError, fingerprint
-from .legacy_contracts import LegacyEnrollment, LegacyRecoveryDenied, LegacyReview
+from .legacy_contracts import (
+    LegacyEnrollment,
+    LegacyRecoveryDenied,
+    LegacyReview,
+    SynchronousAcknowledgementEvidence,
+)
 from .legacy_policy import CASE, require_enrollment
 from .plans import StoredPlan
 
@@ -85,7 +90,29 @@ def _plan(saved: StoredPlan, enrollment: LegacyEnrollment) -> None:
         raise LegacyRecoveryDenied("legacy_plan_scope_mismatch")
 
 
-def _audits(db: DatabaseSession, enrollment: LegacyEnrollment, at: int) -> None:
+def audit_sequence_fingerprint(events: list[AuditEvent]) -> str:
+    """Consistency pin over exact reviewed rows, not independent identity proof."""
+    ordered: list[dict[str, object]] = []
+    for kind in _SEQUENCE:
+        found = [event for event in events if event.kind == kind]
+        if len(found) != 1:
+            raise LegacyRecoveryDenied("legacy_unique_audit_required")
+        event = found[0]
+        ordered.append(
+            {
+                "id": event.id,
+                "user": event.user_id,
+                "kind": event.kind,
+                "outcome": event.outcome,
+                "created_at": event.created_at,
+            }
+        )
+    return fingerprint(ordered)
+
+
+def _audits(
+    db: DatabaseSession, enrollment: LegacyEnrollment, review: LegacyReview, at: int
+) -> None:
     events = list(
         db.scalars(
             select(AuditEvent)
@@ -118,6 +145,12 @@ def _audits(db: DatabaseSession, enrollment: LegacyEnrollment, at: int) -> None:
         )
     ):
         raise LegacyRecoveryDenied("legacy_unique_audit_required")
+    evidence = review.settlement.evidence
+    if isinstance(evidence, SynchronousAcknowledgementEvidence) and (
+        evidence.audit_sequence_digest != audit_sequence_fingerprint(events)
+        or evidence.issued_at != times[2]
+    ):
+        raise LegacyRecoveryDenied("legacy_acknowledgement_evidence_mismatch")
 
 
 def validate_locked(
@@ -234,7 +267,7 @@ def validate_locked(
         is not None
     ):
         raise LegacyRecoveryDenied("legacy_conflicting_operation")
-    _audits(db, enrollment, at)
+    _audits(db, enrollment, review, at)
     # Lock acquisition/validation may outlive a proof or cross the fixed sunset.
     if require_enrollment(settings, review) != enrollment:
         raise LegacyRecoveryDenied("legacy_enrollment_changed")

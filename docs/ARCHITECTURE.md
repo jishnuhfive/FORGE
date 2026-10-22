@@ -469,6 +469,9 @@ distinct run-bound GET evidence, and uses provider-free atomic administrative
 closure. Its shipped static enrollment is empty and denies before DB/CAD access.
 No V1 provenance change, public entry point or automatic fallback; fixed sunset is
 2026-10-23T00:00:00Z, followed by removal.
+The legacy settlement union separately represents reviewer-accepted synchronous
+acknowledgement, with fixed historical endpoint/response predicates and exact
+audit-row digest/time revalidation. It creates no current-state or browser authority.
 
 The operation-specific `terminal-fillet-6` policy binds an explicit feature-state
 evidence mode into the baseline/digest. A nonempty state map must cover the inventory

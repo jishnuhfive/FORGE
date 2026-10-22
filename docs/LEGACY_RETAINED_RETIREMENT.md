@@ -99,10 +99,36 @@ this conservative unique-user sequence cannot manufacture a historical receipt.
 
 ## Settlement and quiescence contracts
 
-Live upstream settlement remains **NOT ESTABLISHED**. No automatic completion
-predicate, provider settlement request or new history endpoint is implemented.
-`SettlementReview` requires exact case/enrollment fingerprint, reviewer identity,
-review ID, bounded review validity and a `ProviderSettlementEvidence` object with:
+The reviewer accepts **SETTLEMENT ESTABLISHED BY SYNCHRONOUS PROVIDER
+ACKNOWLEDGEMENT** for this exact historical incident, subject to matching the live
+candidate's unique audit sequence. This establishes only that the acknowledged
+document mutation is terminal and cannot later execute again through a supported
+retry/replay path. It does not establish `verified_success`, current CAD agreement,
+absence of later edits or writer quiescence. Fresh five-GET evidence remains mandatory.
+No provider settlement request or new history/completion endpoint is implemented.
+
+`SettlementReview.evidence` is a closed discriminated union. The distinct
+`synchronous_provider_acknowledgement` category fixes this case/context/window,
+`SET_UNSUPPRESSED`, the exact v17 `features/updates` endpoint class and reviewed
+historical source family `b728d422…` / `682dfcf7…`. Required response predicates
+are HTTP 200, bounded valid JSON, exactly one approved feature ID, pre-dispatch
+terminal Fillet validation, explicit suppressed=false and microversionSkew=false,
+a valid resulting microversion different from baseline, and consumed single-operation
+approval without a supported replay path. The closed review also requires the
+reviewer-accepted development-history basis and explicit terminal-mutation disposition.
+
+Its audit-sequence digest pins the exact reviewed four rows (IDs, owner, kind,
+outcome and timestamp); locked validation checks that digest and the exact
+acknowledgement timestamp before and after capture. Audit identity is still trusted
+DB evidence, not an independent receipt. Source-family attribution is not deployed
+binary attestation; the original response was not retained. The different-marker
+check was not a microversion ancestry proof. Response type/position and complete
+serialization/library/definition agreement still require the existing fresh evidence.
+
+The optional, separately reviewed external-confirmation category remains unchanged.
+For that category, `SettlementReview` requires exact case/enrollment fingerprint,
+reviewer identity, review ID, bounded review validity and a
+`ProviderSettlementEvidence` object with:
 
 - category `provider_issued_terminal_confirmation`;
 - issuer, privately retained evidence reference/digest and issue timestamp;
@@ -116,7 +142,8 @@ review disposition must be `approved_for_exact_legacy_retirement`. These fields
 record a trusted review; filling them in cannot prove it happened. Digests identify
 evidence but are not signatures. No Onshape head/history/ack field is assigned
 undocumented completion semantics. Elapsed time, session expiry, writes OFF, quiet
-DB, stable head, current suppression and acknowledgement are insufficient.
+DB, stable head, current suppression and a bare acknowledgement alone are insufficient.
+Do not fabricate an external confirmation to represent the accepted synchronous basis.
 Unavailable, conflicting, ambiguous or incomplete evidence leaves the fence intact.
 
 `QuiescenceReview` separately requires case/enrollment pins, reviewer/review ID,
@@ -191,7 +218,7 @@ path. Keep the historical audit kind interpretable. New incidents require new
 design review; absence of a receipt never selects legacy automatically.
 
 Separate live-validation review still needs private static enrollment, adequate
-provider-backed settlement, complete quiescence proof, exact current grant/cache,
+candidate-matched settlement review, complete quiescence proof, exact current grant/cache,
 fresh deterministic evidence and explicit authorization. Implementation approval
 does not authorize any of those live actions. No general DB editing instructions
 or manual deletion substitute for this reviewed helper.
@@ -232,7 +259,7 @@ stopped and removed after verification. No existing FORGE container, DB or volum
 was used. No merge, actual enrollment or recovery was performed. Browser E2E was
 not required because no browser behavior or public contract changed.
 
-Exact file inventory (18 files):
+Initial implementation file inventory (18 files):
 
 - `apps/api/src/forge_api/auth/security.py` (one fixed audit kind only)
 - `apps/api/src/forge_api/cad_edits/legacy_contracts.py`
@@ -252,3 +279,46 @@ Exact file inventory (18 files):
 - `docs/DEVELOPMENT.md`
 - `docs/ROADMAP.md`
 - `docs/MODIFY_RECOVERY_HOTFIX.md`
+
+## Settlement amendment and final read-only preflight
+
+Base `10b01e9343fe924e0e0fe0739d1ec4ecf5db899f`. Only the two legacy
+contract/enrollment modules, a new `test_legacy_settlement.py`, and this runbook plus
+architecture/security/development/roadmap documentation changed. V1, orphan,
+browser recovery, provider reader, token accessor, policy/enrollment slot, release
+transaction, migrations/schema, dependency locks and production defaults are unchanged.
+
+Synthetic verification completed **before** live preflight: 71 new settlement
+cases (including two isolated PostgreSQL cases); 526 combined legacy/V1/orphan
+cases; full backend 2,704 passed, zero skipped, including 61 PostgreSQL cases.
+Ruff/format/strict mypy, ESLint/Prettier, TypeScript and build passed. The existing
+approximately 505 kB build-chunk warning remains. Test-run isolation disabled dotenv
+and real HTTP; the newly created tmpfs PostgreSQL container was stopped/removed
+before live inspection. The original implementation's verification table above is
+historical; this separate preflight includes live **read-only** DB access.
+
+The PostgreSQL-enforced read-only preflight found exactly one corrected-scope
+candidate. All owner/context/record/fence/digest/canonical-payload/Binding/target/
+chronology/current-generation and scope-review pins were obtained, closed-model
+round-trip validated and held only in process memory. The original session was
+hard-inactive, current authorization connected with explicit read scope, the audit
+sequence uniquely compatible, and no other same-user operational row existed.
+The accepted synchronous settlement type matched the exact live audit rows.
+No private identifier, pin or credential was printed or persisted.
+
+The process inventory observed zero local Forge API, supervisor or other Forge
+Python processes and no non-database Forge container. Same-user advisory holders
+and waiters were zero. These observations did not establish the complete controlled
+maintenance/admission-and-recovery exclusion proof required by `QuiescenceReview`.
+No owned runtime/task inventory or maintained exclusion evidence was established;
+do not replace the missing proof with true flags or database counts.
+
+Preflight therefore stopped at quiescence with **NO-GO**. No cache accessor or
+credential bootstrap was attempted, `_ENROLLMENT` remains `None`, the in-memory
+candidate was not persisted, and the five-GET capture/post-capture validation were
+not performed. A fresh read-only snapshot confirmed the original fence and entire
+retained uncertain row unchanged. No API process was stopped or restarted.
+
+Counts: real CAD GETs 0; CAD writes 0; AI calls 0; OAuth refreshes 0; live DB
+mutations 0; fence deletions 0; retained-record lifecycle changes 0. No legacy
+release, merge, commit, push or sensitive source enrollment was performed.

@@ -280,3 +280,7 @@ is absent; live validation/recovery remains blocked by enrollment, settlement,
 quiescence and credential/evidence prerequisites. Fixed sunset is
 2026-10-23T00:00:00Z; remove after the one retirement or sunset, never extend to new
 incidents. No live fence release or merge is authorized by implementation work.
+The narrow legacy settlement amendment represents the reviewer's accepted
+synchronous-mutation acknowledgement basis, with exact audit revalidation.
+Enrollment, runtime drain, cache-only credentials and fresh evidence remain
+independent live-preflight gates; no retirement follows from settlement alone.
