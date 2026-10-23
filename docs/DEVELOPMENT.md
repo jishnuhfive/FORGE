@@ -808,3 +808,21 @@ It removes its own resources and leaves any existing local DB untouched.
 See [DEPLOYMENT.md](DEPLOYMENT.md) for the variable inventory and later Railway /
 Onshape transition. Do not run `make migrate` against an existing/live database
 as part of this deployment-foundation gate.
+
+## Phase 13 Inspector graph verification
+
+From `apps/api`, run:
+
+```sh
+uv run --frozen pytest tests/test_inspector_graph.py \
+  tests/test_inspector_graph_equivalence.py tests/test_cad_inspector.py \
+  tests/test_model_graph.py
+```
+
+Then run the full repository gate including
+all three browser engines, migration/Compose checks and audits. Equivalence reuses
+existing parameterized Inspector/topology fixtures against a test-only frozen Phase 12
+projection; the production UI and API schema need no changes. Use a disposable synthetic
+PostgreSQL instance for migration/integration checks; retain existing local data.
+No new environment variable, dependency, scope or migration is required. Human work is
+read-only; follow [the Phase 13 plan](PHASE_13_INSPECTOR_GRAPH_ADOPTION.md), with writes OFF.

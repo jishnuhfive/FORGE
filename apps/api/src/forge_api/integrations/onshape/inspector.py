@@ -221,6 +221,47 @@ def inspect(snapshot: Snapshot | SectionState, correlation: str) -> CadInspector
     feature_items = (
         feature_data.items if isinstance(feature_data, FeatureSummaryList) else []
     )
+    views = [feature(f, n) for n, f in enumerate(feature_items[:MAX_FEATURES], 1)]
+    inventory = _feature_evidence(
+        views,
+        len(feature_items),
+        feature_data.complete if isinstance(feature_data, FeatureSummaryList) else None,
+        source,
+    )
+    return _project(snapshot, source, inventory)
+
+
+def _feature_evidence(
+    views: list[InspectorFeature],
+    returned_count: int,
+    complete: bool | None,
+    source: SnapshotProof,
+) -> FeatureEvidence:
+    """Shared presentation policy; the caller supplies inventory and order."""
+    return FeatureEvidence(
+        items=views,
+        returned_count=returned_count,
+        omitted_count=max(0, returned_count - MAX_FEATURES),
+        completeness="unavailable"
+        if source.features.status != "success"
+        else "partial"
+        if returned_count > MAX_FEATURES
+        or any(f.completeness == "partial" for f in views)
+        or complete is False
+        else "unverified"
+        if source.features.count is None
+        or any(f.completeness == "unverified" for f in views)
+        else "complete",
+    )
+
+
+def _project(
+    snapshot: Snapshot | SectionState,
+    source: SnapshotProof,
+    inventory: FeatureEvidence,
+) -> CadInspector:
+    """Common public presentation; parts/bodies retain provider-return order."""
+    documents = snapshot.documents if isinstance(snapshot, Snapshot) else {}
     parts = documents.get("parts")
     part_items = (
         [p for p in parts.normalized if isinstance(p, PartSummary)]
@@ -239,9 +280,6 @@ def inspect(snapshot: Snapshot | SectionState, correlation: str) -> CadInspector
         if mass and isinstance(mass.normalized, list)
         else None
     )
-    feature_views = [
-        feature(f, n) for n, f in enumerate(feature_items[:MAX_FEATURES], 1)
-    ]
     part_views = [part(p, n) for n, p in enumerate(part_items[:MAX_PARTS], 1)]
     body_views = [
         InspectorBody(
@@ -258,24 +296,7 @@ def inspect(snapshot: Snapshot | SectionState, correlation: str) -> CadInspector
         freshness="stale"
         if source.consistency == "mismatch"
         else "captured_unverified",
-        features=FeatureEvidence(
-            items=feature_views,
-            returned_count=len(feature_items),
-            omitted_count=max(0, len(feature_items) - MAX_FEATURES),
-            completeness="unavailable"
-            if source.features.status != "success"
-            else "partial"
-            if len(feature_items) > MAX_FEATURES
-            or any(f.completeness == "partial" for f in feature_views)
-            or (
-                isinstance(feature_data, FeatureSummaryList)
-                and feature_data.complete is False
-            )
-            else "unverified"
-            if source.features.count is None
-            or any(f.completeness == "unverified" for f in feature_views)
-            else "complete",
-        ),
+        features=inventory,
         parts=EvidenceList[InspectorPart](
             items=part_views,
             returned_count=len(part_items),

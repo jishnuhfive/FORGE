@@ -321,5 +321,17 @@ guarantee or engineering-correctness claim. Railway remains not hosted. See
 After the narrow query review fix, the gate passed 127 focused graph tests,
 827 frontend / 2,612 API tests (including
 all 42 PostgreSQL cases), 594 browser tests and all required format/lint/type/build /
-migration/Compose/audit checks. This is automated evidence only. **Phase 13 remains
-NOT STARTED**; adoption requires separate authorization.
+migration/Compose/audit checks. This is automated evidence only. At that merge, Phase 13 was not started;
+its subsequent separate authorization and implementation are recorded below.
+
+## Phase 13 — first ForgeModelGraph consumer: CAD Inspector
+
+**IMPLEMENTED — AUTOMATED GATE PASSED — AWAITING HUMAN READ-ONLY VALIDATION**
+
+Authorized from `main` at `6f7d147dc4239dbe7b52c775eef9c4e2a7f12039` on
+`phase13/inspector-graph-adoption`. Only direct read-only Inspector feature
+inventory/order adopts the graph, preserving an independent validated request
+context and same-Snapshot rich evidence. Public schema/UI, parts/bodies/physical
+presentation, provider reads and other consumers remain unchanged. Invalid graph
+evidence fails closed. Phase 13 is not COMPLETE and will not merge before later
+human review. See [implementation and manual plan](PHASE_13_INSPECTOR_GRAPH_ADOPTION.md).

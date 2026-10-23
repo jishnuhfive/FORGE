@@ -18,7 +18,8 @@ from forge_api.db.models import Session as ForgeSession
 
 from .client import OnshapeReadClient, ReadError
 from .contracts import WorkspaceReference
-from .inspector import CadInspector, inspect
+from .inspector import CadInspector
+from .inspector_graph import inspect_graph
 from .models import SectionState, Snapshot, SnapshotProof
 from .service import ReadGate, capture, failed_proof, proof
 
@@ -63,7 +64,7 @@ router = APIRouter()
 def snapshot(
     request: Request, response: Response, auth: Runtime, db: Database
 ) -> SnapshotProof:
-    result, correlation = acquire(request, response, auth, db)
+    result, correlation, _reference = acquire(request, response, auth, db)
     return (
         failed_proof(result, correlation)
         if isinstance(result, SectionState)
@@ -79,8 +80,10 @@ def snapshot(
 def inspector(
     request: Request, response: Response, auth: Runtime, db: Database
 ) -> CadInspector:
-    result, correlation = acquire(request, response, auth, db, diagnostic=True)
-    return inspect(result, correlation)
+    result, correlation, reference = acquire(
+        request, response, auth, db, diagnostic=True
+    )
+    return inspect_graph(result, reference, correlation)
 
 
 def acquire(
@@ -90,8 +93,8 @@ def acquire(
     db: Database,
     *,
     diagnostic: bool = False,
-) -> tuple[Snapshot | SectionState, str]:
-    """Both projections share authentication, quota gate and exactly one capture."""
+) -> tuple[Snapshot | SectionState, str, WorkspaceReference]:
+    """Retain the validated request context independently of acquired evidence."""
     session = active_session(request, auth, db)
     if session is None:
         raise HTTPException(401, "connection_required")
@@ -132,18 +135,22 @@ def acquire(
     response.headers["X-Forge-Request-Id"] = correlation
     gate = cast(ReadGate, request.app.state.cad_gate)
     transport = cast(httpx.Client, request.app.state.cad_transport)
-    return acquire_bound(
-        request,
-        response,
-        auth,
-        db,
-        session,
-        reference,
+    return (
+        acquire_bound(
+            request,
+            response,
+            auth,
+            db,
+            session,
+            reference,
+            correlation,
+            gate,
+            transport,
+            diagnostic=diagnostic,
+        ),
         correlation,
-        gate,
-        transport,
-        diagnostic=diagnostic,
-    ), correlation
+        reference,
+    )
 
 
 def acquire_bound(
