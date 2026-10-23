@@ -38,6 +38,7 @@ from forge_api.model_graph.contracts import (
     MAX_NODES,
     MAX_PARTS,
     GraphEvidence,
+    Relation,
     SelectionObservation,
     edge_id,
 )
@@ -749,11 +750,45 @@ def test_provider_ids_remain_opaque() -> None:
 
 
 def test_requested_context_containment_stays_unknown(graph: ForgeModelGraphV1) -> None:
+    query = GraphQuery(graph)
+    workspace = query.nodes_of_type("workspace")[0]
+    studio = query.nodes_of_type("part_studio")[0]
     edge = next(e for e in graph.edges if e.provenance == "context")
+    assert (edge.kind, edge.source, edge.target) == (
+        "CONTAINS",
+        workspace.id,
+        studio.id,
+    )
     assert edge.availability == "unknown"
     assert all(
         e.availability == "available" for e in graph.edges if e.provenance != "context"
     )
+    # False means unproven here: the explicit unknown association remains recorded.
+    assert not query.has_fact("CONTAINS", workspace.id, studio.id)
+    assert query.neighbors(workspace.id, "CONTAINS") == ()
+    assert query.neighbors(studio.id, "CONTAINS", incoming=True) == ()
+    assert query.relationship_evidence("CONTAINS", workspace.id, studio.id) == (edge,)
+    assert edge in query.graph.edges
+
+
+@pytest.mark.parametrize("relation", ["CONTAINS", "PRECEDES", "REFERENCES"])
+def test_available_relationship_queries_preserve_evidence(relation: Relation) -> None:
+    source = snapshot()
+    query = GraphQuery(graph_from_snapshot(source, REF, selection=observed(source)))
+    before, after = query.ordered_features()
+    source_node, target_node = {
+        "CONTAINS": (query.nodes_of_type("part_studio")[0], before),
+        "PRECEDES": (before, after),
+        "REFERENCES": (query.selection(), query.selected_nodes()[0]),
+    }[relation]
+    edges = query.relationship_evidence(relation, source_node.id, target_node.id)
+    assert len(edges) == 1 and edges[0].availability == "available"
+    assert query.has_fact(relation, source_node.id, target_node.id)
+    assert target_node in query.neighbors(source_node.id, relation)
+    assert source_node in query.neighbors(target_node.id, relation, incoming=True)
+    assert query.relationship_evidence(relation, target_node.id, source_node.id) == ()
+    assert query.relationship_evidence(relation, "missing", target_node.id) == ()
+    assert not query.has_fact(relation, "missing", target_node.id)
 
 
 def test_existing_authenticated_capture_is_reused_without_extra_reads(

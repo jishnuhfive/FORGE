@@ -6,6 +6,7 @@ from types import MappingProxyType
 
 from .contracts import NodeKind, Relation
 from .graph import (
+    Edge,
     EntityReferenceNode,
     FeatureNode,
     ForgeModelGraphV1,
@@ -62,17 +63,34 @@ class GraphQuery:
     def neighbors(
         self, identifier: str, relation: Relation, *, incoming: bool = False
     ) -> tuple[GraphNode, ...]:
+        """Traverse AVAILABLE edges only; an empty result does not disprove CAD."""
         adjacent = {
             edge.source if incoming else edge.target
             for edge in self.graph.edges
-            if edge.kind == relation
+            if edge.availability == "available"
+            and edge.kind == relation
             and (edge.target if incoming else edge.source) == identifier
         }
         return tuple(node for node in self.graph.nodes if node.id in adjacent)
 
     def has_fact(self, relation: Relation, source: str, target: str) -> bool:
-        """Membership in this evidence graph only; False does not disprove CAD."""
+        """True only for an AVAILABLE graph fact; False does not disprove CAD."""
         return any(
-            edge.kind == relation and edge.source == source and edge.target == target
+            edge.availability == "available"
+            for edge in self.relationship_evidence(relation, source, target)
+        )
+
+    def relationship_evidence(
+        self, relation: Relation, source: str, target: str
+    ) -> tuple[Edge, ...]:
+        """Inspect matching edges and availability, including UNKNOWN evidence.
+
+        AVAILABLE edges may be treated as graph facts within their provenance.
+        UNKNOWN records an evidence state, not a proven CAD fact. Absence does
+        not prove an inverse fact.
+        """
+        return tuple(
+            edge
             for edge in self.graph.edges
+            if edge.kind == relation and edge.source == source and edge.target == target
         )

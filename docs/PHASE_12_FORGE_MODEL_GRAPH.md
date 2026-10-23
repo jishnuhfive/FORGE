@@ -164,10 +164,19 @@ outputs under different Python hash seeds are tested. Noncanonical deserialized
 node/edge order rejects instead of being silently rearranged.
 
 `GraphQuery` provides get_node, nodes_of_type, ordered_features, terminal_feature,
-selection, selected_nodes, neighbors and has_fact. Query order is deterministic;
-the view and its lookup map are immutable. has_fact tests graph membership only:
-False means the edge is absent here, not that the CAD relationship is false.
-Consumers must inspect availability and provenance before interpreting any edge.
+selection, selected_nodes, neighbors, has_fact and relationship_evidence. Query
+order is deterministic; the view and its lookup map are immutable. `has_fact`
+returns true only for a matching AVAILABLE edge, and `neighbors` traverses only
+AVAILABLE edges in either direction. An AVAILABLE relationship may be treated as
+a graph fact within its recorded provenance and relationship meaning; ordering
+still does not prove dependency, nor a browser reference CAD ownership.
+
+`relationship_evidence(relation, source, target)` explicitly returns matching Edge
+objects, including availability and provenance. UNKNOWN is recorded evidence state,
+not a proven CAD fact. The UNKNOWN workspace → Part Studio association remains in
+the graph and is visible through this helper, but yields false from `has_fact`
+and no default neighbor traversal. False, an empty query result or an absent edge
+does not prove that the CAD relationship (or its inverse) is false.
 Likewise an empty selected_nodes result does not conflate clear, unknown,
 unavailable or category-only observations; inspect selection state/reference state.
 
@@ -261,3 +270,31 @@ lockfiles and migrations are unchanged. The temporary runner, logs and browser
 artifacts are ignored and excluded from the commit. Source review found no raw
 provider-document access, authority/I/O imports, model-selected graph facts or new
 public endpoint. Secret-pattern review passed; this is not a security certification.
+
+## Narrow query review fix — 2026-10-22
+
+Started with a clean `phase12/forge-model-graph` at
+`ee827e191dc8e9c85085363686b68990dcf2f442`, matching the fetched remote branch.
+Fetched main remained `8d72cafc5cf94b79a7e38e15f17e4bc7b37817c1`.
+
+The query boundary now treats only AVAILABLE relationships as graph facts and
+traversable neighbors. Explicit `relationship_evidence` inspection preserves the
+UNKNOWN context association and its provenance. Regression coverage checks both
+traversal directions, available containment/order/selection references, and missing
+or reversed evidence. No graph schema, identity, builder or serialized tree changed.
+
+The focused suite passed **127 tests**. The complete review gate passed
+`make format`, `make lint`, `make typecheck`, `make test` (**827 frontend / 2,612 API**),
+`make build`, `make test-e2e` (**594 Chromium/Firefox/WebKit**),
+`make migration-check`, `make compose-check` and `make audit`. All **42 PostgreSQL
+cases** ran; no tests were skipped, retried or weakened in this review gate.
+The only build advisory is the existing unchanged frontend bundle size.
+
+The isolated synthetic PostgreSQL database was healthy, migrated and removed after
+verification; the pre-existing local database was untouched. The review fix changes
+only query behavior, graph tests, this document and factual roadmap status. No
+deployment, OAuth, CAD-write, recovery, dependency or lockfile changes are included.
+Phase 11's merge is established by PR #5's merge commit in main; real Onshape human
+validation is not recorded as complete. The deployment foundation is merged but
+has no live Railway provisioning, production secrets, OAuth cutover or hosted
+validation. This Phase 12 branch remains unmerged and has no live Onshape validation.
