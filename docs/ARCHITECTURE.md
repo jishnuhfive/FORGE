@@ -609,3 +609,21 @@ mixed-context/revision evidence rejects, and sequential-read consistency remains
 unverified. Deployment, authentication, CAD-write and recovery code are unchanged.
 See [PHASE_12_FORGE_MODEL_GRAPH.md](PHASE_12_FORGE_MODEL_GRAPH.md) for the prior
 evidence inventory, schema, bounds, integration boundary and validation status.
+
+## Phase 13 — direct CAD Inspector feature inventory
+
+**IMPLEMENTED — AUTOMATED GATE PASSED — AWAITING HUMAN READ-ONLY VALIDATION**
+
+Only the direct Inspector endpoint now calls `inspect_graph`. `acquire` retains the
+request-validated immutable WorkspaceReference independently of the acquired Snapshot;
+unchanged `acquire_bound` finishes its session/grant revalidation before graph creation.
+`GraphQuery.ordered_features()` supplies feature identity/order/index, with checked
+same-Snapshot provider-ID correspondence for rich display evidence. Shared presentation
+preserves the public contract, source proof, parts/body provider order and physical
+metadata. AI, Tutor, Step Checks, Modify and compact proof retain their existing paths.
+
+Rejected graph/equivalence evidence becomes the existing fixed `invalid_response`
+unavailable Inspector response; there is no legacy Snapshot fallback. Authorization
+stops preserve their fixed code while discarding earlier evidence. No extra acquisition,
+cache, persistence, endpoint, frontend exposure or authority is added. See
+[Phase 13 boundaries and equivalence review](PHASE_13_INSPECTOR_GRAPH_ADOPTION.md).

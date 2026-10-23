@@ -655,3 +655,15 @@ provider payloads or model reasoning are included. Future consumers must preserv
 existing owner/session/lifecycle controls and further minimize AI context. This
 phase changes no deployment, OAuth, CSRF, write flag, safe-write predicate or recovery
 behavior. See [the graph contract](PHASE_12_FORGE_MODEL_GRAPH.md).
+
+## Phase 13 Inspector adoption
+
+The direct Inspector route supplies the independently request-validated workspace
+reference to graph construction after the unchanged final session/grant check.
+Full graph/Snapshot feature correspondence is checked before display truncation;
+rich evidence joins by same-Snapshot opaque provider ID only. Graph rejection returns
+fixed `invalid_response` unavailable evidence without logs, graph bytes or exception
+inputs. Authorization stops discard partial evidence with their existing fixed code.
+Other Inspector consumers retain their prior path. No acquisition, persistence,
+public graph API, frontend data, OAuth scope or write/recovery authority is added.
+See [Phase 13](PHASE_13_INSPECTOR_GRAPH_ADOPTION.md) for failure semantics and limits.

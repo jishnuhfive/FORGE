@@ -321,5 +321,44 @@ guarantee or engineering-correctness claim. Railway remains not hosted. See
 After the narrow query review fix, the gate passed 127 focused graph tests,
 827 frontend / 2,612 API tests (including
 all 42 PostgreSQL cases), 594 browser tests and all required format/lint/type/build /
-migration/Compose/audit checks. This is automated evidence only. **Phase 13 remains
-NOT STARTED**; adoption requires separate authorization.
+migration/Compose/audit checks. This is automated evidence only. At that merge, Phase 13 was not started;
+its subsequent separate authorization and implementation are recorded below.
+
+## Phase 13 — first ForgeModelGraph consumer: CAD Inspector
+
+**COMPLETE — HUMAN READ-ONLY VALIDATED — READY FOR FINAL MERGE REVIEW**
+
+Authorized from `main` at `6f7d147dc4239dbe7b52c775eef9c4e2a7f12039` on
+`phase13/inspector-graph-adoption`; implementation commit
+`7696aa0e51002725811379123f498cb91da1e3ff`. Only direct read-only Inspector feature
+inventory/order adopts the graph, preserving an independent validated request
+context and same-Snapshot rich evidence. Public schema/UI, parts/bodies/physical
+presentation, provider reads and other consumers remain unchanged. Invalid graph
+evidence fails closed. The implementation gate passed **276 focused tests**,
+**827 frontend / 2,712 API tests**, **594 browser tests** and all required automated
+checks; the implementation's full verification record is preserved in
+[the Phase 13 review](PHASE_13_INSPECTOR_GRAPH_ADOPTION.md).
+
+The human reported read-only validation in real Onshape workspace Part Studios,
+using the local HTTPS Forge development environment on the Phase 13 branch, with
+**CAD writes OFF**. The normal model contained Sketch Gate → Extrude 1 → Fillet 1
+and 1 part. Refresh CAD showed those **3 modeled features in exact order**, recognized
+as **Sketch, Extrude and Fillet**, all **Active**, with normal expanded parameter
+presentation, **1 part**, **1 SOLID body** and conservative physical evidence
+(mass unavailable; no invented mass value). No graph/provider IDs, provenance,
+graph bytes or other graph internals were exposed. Onshape's larger visible Features
+count includes default Origin/planes and does not contradict the three modeled features.
+
+The empty Part Studio refreshed to **0 features / 0 parts / 0 bodies**, as successful
+empty inventory rather than unavailable evidence, with no previous inventory remaining.
+Switching back and refreshing restored **3 / 1 / 1** and
+**Sketch Gate → Extrude 1 → Fillet 1**; switching again to the empty Part Studio and
+refreshing restored **0 / 0 / 0**. No stale inventory persisted across those transitions.
+
+The human observed no CAD mutation, feature suppression/unsuppression, write proposal,
+approval prompt or additional Onshape consent prompt. No Phase 9 write validation
+was performed or required. This evidence does not establish atomic reads, general
+production readiness, graph adoption in AI/Tutor/Learn/Modify, topology continuity,
+feature ownership, dependency DAG correctness or engineering correctness. Known
+limitations remain; Railway remains unhosted. **The branch is not merged** and awaits
+final merge review. See the linked review for the complete human-observed record.
