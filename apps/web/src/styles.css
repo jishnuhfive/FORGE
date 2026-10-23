@@ -1244,20 +1244,12 @@ ul.compact-list {
 .availability-marker {
   color: var(--warning);
 }
-.answer-uncertainty {
+.answer-limits {
   margin-top: var(--space-4);
-  padding-left: var(--space-3);
-  border-left: 1px solid color-mix(in srgb, var(--warning) 55%, transparent);
   color: var(--muted);
   font-size: var(--text-control);
 }
-.answer-uncertainty h3 {
-  color: var(--warning);
-  font-size: var(--text-caption);
-}
-.uncertainty-repeat {
-  padding: 0;
-  min-height: var(--control-sm);
+.answer-limits h3 {
   color: var(--muted);
   font-size: var(--text-caption);
 }

@@ -694,3 +694,11 @@ Tutor/Learn/Check my step/Modify remain unmigrated. No persistence, schema/migra
 OAuth scope, public graph API, topology continuity, engineering correctness or new
 CAD authority is introduced. Reads remain sequential/non-atomic. Writes remain OFF;
 Railway remains unhosted. See [Phase 14](PHASE_14_ASK_FORGE_GRAPH_GROUNDING.md).
+
+The authorized UX polish adds deterministic display formatting only. Exact fact
+IDs/statuses and server statement grammar are required; duplicate/conflicting
+identities or unmatched wording retain the original response. CAD names stay DOM
+text, never HTML or policy. No model prose becomes a verified fact. Contextual
+Limits change prominence only: the full uncertainty array, canonical evidence,
+original answer and capture time remain accessible in Evidence. Selection UNKNOWN
+and read-only capability authority are unchanged; no CAD write path is added.

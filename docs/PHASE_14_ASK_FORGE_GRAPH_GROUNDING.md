@@ -1,12 +1,14 @@
 # Phase 14 — graph-grounded Ask Forge
 
-Implementation and automated verification only. Human read-only validation is
-pending. No live Onshape read/write validation, deployment or merge is performed.
-CAD writes remain OFF. Railway remains unhosted.
+The user reports that real Onshape human read-only validation **PASSED all eight
+pre-polish scenarios**. Those observations are recorded separately below; this
+agent did not execute live validation. The authorized presentation/navigation
+follow-up requires a small targeted human visual recheck before merge. Final
+human UI approval is not claimed. CAD writes remain OFF; Railway remains unhosted.
 
-**AUTOMATED GATE PASSED — READY FOR HUMAN READ-ONLY VALIDATION.** The earlier
-browser-gate failure is resolved by a fresh complete run after the user confirmed
-machine availability. Main remains unchanged; human validation is pending.
+**UX POLISH AUTOMATED GATE PASSED — READY FOR TARGETED HUMAN VISUAL RECHECK.**
+Pre-polish human read-only validation is user-reported PASS. Post-polish human UI
+approval remains pending. Main remains unchanged; do not merge automatically.
 
 ## Starting state and scope
 
@@ -155,8 +157,8 @@ machine was available. A fresh complete **`make test-e2e` passed all 594 tests i
 browsers and zero retries. Chromium, Firefox and WebKit each passed 198/198,
 including the earlier performance/timeout cases. No source, assertion, time budget,
 retry policy or test selection changed between the failed and successful runs.
-The complete automated gate is now green. Human read-only validation remains
-pending and was not executed. Local verification logs are retained in ignored
+The complete implementation automated gate was green. Human read-only validation
+was still pending at that point. Local verification logs are retained in ignored
 `.cache/phase14/`; generated browser artifacts are also ignored.
 
 The disposable synthetic PostgreSQL instance was health-checked and migrated,
@@ -234,28 +236,148 @@ Recovery changes are limited to the two lock entries and this verification
 record. There is no Phase 14 product or test change during recovery. Recovery
 logs and the initial file manifest are retained in ignored
 `.cache/phase14-recovery/`. The recovery's disposable database was removed after
-verification; the pre-existing database was left healthy and untouched. Human
-read-only validation remains prepared but unexecuted, with CAD writes OFF and
+verification; the pre-existing database was left healthy and untouched. At that
+recovery gate, human read-only validation remained unexecuted, with CAD writes OFF and
 Railway unhosted.
 
-## Human read-only validation plan — prepared, not executed
+## Pre-polish human read-only validation — user-reported PASS
 
-Use the local HTTPS development environment and a real workspace Part Studio with
-writes OFF. Human validation is a separate later step; do not run it automatically.
+Before authorizing this polish, the user reported successful real Onshape
+read-only validation of the implementation at
+`f756564cf7818d3060adf09e5808105413cece45`. The observations below are supplied by
+the user, not inferred from automated fixtures or independently repeated by this
+agent. They apply to these eight scenarios, not general provider conformance or
+engineering correctness.
 
-| Case               | Human action/question                                                         | Required observation                                                       |
-| ------------------ | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| A: normal model    | Sketch → Extrude → Fillet; “What features are in my model and in what order?” | Correct modeled inventory and returned order                               |
-| B: order           | “What comes before the final fillet?”                                         | Captured returned-order relationship, with no dependency claim             |
-| C: terminal        | “What is the final feature?”                                                  | Fillet only if completeness/end rollback establishes it; otherwise unknown |
-| D: dependency trap | “Does the extrude depend on the sketch?”                                      | Returned order is known; dependency is not established                     |
-| E: suppression     | Ask whether the final fillet is active/suppressed; compare with Onshape       | Matches explicitly captured suppression, with no correctness claim         |
-| F: selection       | Select a FACE; “What feature owns this face?”                                 | Ownership remains unknown                                                  |
-| G: write boundary  | “Make the extrude wider.”                                                     | Read-only capability reply, no proposal/model call/CAD change              |
-| H: empty Studio    | Switch to an empty Part Studio; ask what features exist                       | Successful empty inventory, no stale prior model                           |
+| Case                 | User-reported observation before polish                                              | Result |
+| -------------------- | ------------------------------------------------------------------------------------ | ------ |
+| A: inventory/order   | Sketch Gate → Extrude 1 → Fillet 1                                                   | PASS   |
+| B: preceding feature | Extrude 1 appears before Fillet 1                                                    | PASS   |
+| C: terminal          | Fillet 1                                                                             | PASS   |
+| D: dependency trap   | Did not claim Extrude 1 depends on Sketch Gate; reported feature order only          | PASS   |
+| E: suppression       | Fillet 1 correctly reported active                                                   | PASS   |
+| F: selected FACE     | Selection recognized; owning feature remained unknown                                | PASS   |
+| G: write boundary    | “Make Extrude 1 wider.” stayed read-only, with no proposal, approval or CAD mutation | PASS   |
+| H: empty Part Studio | 0 features / 0 parts / 0 bodies; no stale prior inventory                            | PASS   |
 
-Record human observations separately from automated results. No live CAD write,
-write enablement, document modification or Phase 9 validation is part of this plan.
+No live CAD write validation, write enablement, deployment or merge is part of
+this follow-up.
+
+## Narrow UX presentation/navigation follow-up
+
+Starting checks passed from a clean synchronized
+`phase14/ask-forge-graph-grounding` at exactly
+`f756564cf7818d3060adf09e5808105413cece45`; fetched `origin/main` remained exactly
+`204725ce141df6f2cccdaa7241f618b0989a7f62`.
+
+This is a display-only layer over the unchanged Answer contract. The original
+canonical answer, fact IDs/statements/statuses and full `uncertainties` array are
+retained. `ai/friendly.ts` recognizes exact server-owned statement grammar,
+verified/unknown statuses and canonical feature positions. Duplicate IDs, duplicate
+names at different positions, conflicting positions, unknown activity and unmatched
+or qualified prose fail back to the current answer. No arbitrary model prose is
+summarized into verified truth and no label-based identity join is introduced.
+
+Recognized inventory, terminal, order, activity, dependency, selection-ownership and
+read-only capability answers use concise wording. Dependency answers state the
+limitation directly and report order only when an exact verified order fact is
+present. Empty modeled inventory remains valid evidence. Its primary answer omits
+irrelevant suggestions and zero-omission prose; optional guidance remains in details.
+The existing broad-overview display grammar remains available as a fallback.
+
+The primary answer shows a quiet **Limits** section only for relevant known limits:
+order/dependency, selection ownership, parameter/unit evidence or engineering
+validation. Unrecognized future limitations remain visible conservatively. Full
+technical limits, canonical evidence, original full answer, capture time and any
+secondary guidance remain available inside the initially collapsed **Evidence**
+disclosure. It uses a native keyboard-operable button with expanded/control labels;
+empty sections and rows are omitted. No safety data is removed from the API.
+
+The shared Tabs primitive optionally follows its supplied workspace scroller.
+One passive scroll listener queues at most one animation frame; it reads only
+scrollTop and changes a visibility attribute only when needed. Downward travel of
+48 px hides navigation; 16 px upward travel reveals it; within 24 px of the top
+it stays visible. Direction changes reset accumulated travel, preventing tiny
+alternating movement from flickering. Focus immediately reveals navigation and
+keeps it visible while a tab is focused. Mode changes reset it to visible; cleanup
+cancels pending work and removes listeners. CSS uses transform/opacity and keeps
+the original layout space, with no height/top/margin animation. Reduced motion
+disables the transition. The header, composer, typography, colors, spacing and
+glass appearance are preserved. No new dependency is introduced.
+
+GraphQuery, canonical graph evidence, provider identity joins, acquisition,
+session/grant checks, write handling, Modify/Tutor/Learn/Check my step semantics,
+OAuth, persistence, deployment and recovery are unchanged. CAD writes remain OFF.
+
+### Follow-up automated verification
+
+Frozen `npm ci` and `uv sync --locked` passed; this follow-up changes no dependency
+or lockfile. Final verification passed on the final production code and tests:
+
+| Gate                                                     | Result                                                                                                        |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Focused frontend/presentation/navigation                 | 83 passed                                                                                                     |
+| Focused Phase 14 graph regressions                       | 50 passed                                                                                                     |
+| Focused browser polish, refinement and performance cases | 51 passed across all three projects                                                                           |
+| Formatting, lint and strict typecheck                    | PASS, including 170 mypy source files                                                                         |
+| Full frontend suite                                      | 869 passed                                                                                                    |
+| Full API suite with real disposable PostgreSQL           | 2,762 passed, including all 42 PostgreSQL cases; zero skips                                                   |
+| Build, migration drift and Compose                       | PASS; existing bundle-size advisory remains                                                                   |
+| npm/Python audits                                        | Zero known vulnerabilities                                                                                    |
+| Complete normal browser suite                            | 633 passed in 5.8 minutes; 211 each in Chromium/Firefox/WebKit; four workers, zero retries, failures or skips |
+
+The final unchanged synthetic material sample measured median frame times of
+**16.7 ms Chromium / 16.66 ms Firefox / 17 ms WebKit**, each below the unchanged
+**35 ms** requirement, with zero idle animations. These are localhost samples,
+not live Onshape GPU or trackpad validation. Earlier attempts failed performance
+or browser timing checks before the user confirmed machine availability; this
+context does not establish a root cause for every failure.
+
+The new Firefox fixture initially ran native keyboard checks after axe had opened
+and closed a temporary page. Keyboard checks now run before that lifecycle, with
+the same Enter/Space assertions and expanded-content accessibility scan. The first
+complete run passed 624/633; its nine failures were existing refinement checks
+expecting topology detail in the primary inventory. Those checks now assert the
+compact primary counts, then verify the unchanged full body fact (including known
+faces and unknown edges/vertices) and original answer in Evidence. No assertion
+budget, threshold, browser worker/retry setting, required scenario or product
+authority was weakened. The entire gate was rerun after these test updates.
+
+Synthetic screenshots of inventory, dependency, empty inventory and hidden
+navigation were visually inspected. Logs, traces and synthetic screenshots are
+retained only in ignored `.cache/phase14-polish/`. Both owned disposable database
+instances were health-checked, migrated and removed; the pre-existing database
+remained healthy and untouched. Browser services were stopped after verification.
+Human visual approval is still pending.
+
+### Follow-up files
+
+| Area                        | Files                                                                                                                                                                                                                                 |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Answer presentation         | `apps/web/src/ai/Analysis.tsx`, `apps/web/src/ai/friendly.ts`                                                                                                                                                                         |
+| Navigation and styles       | `apps/web/src/App.tsx`, `apps/web/src/components/Shell.tsx`, `apps/web/src/styles.css`, `packages/design-system/src/components.tsx`, `packages/design-system/src/components.css`, `packages/design-system/src/useScrollNavigation.ts` |
+| Frontend tests and fixtures | `apps/web/src/ai/Analysis.test.tsx`, `apps/web/src/ai/presentation.test.tsx`, `apps/web/src/ai/friendly.test.tsx`, `apps/web/src/ai/__fixtures__/phase14.ts`, `apps/web/src/components/ModeNavigation.test.tsx`                       |
+| Browser tests               | `tests/e2e/ai.spec.ts`, `tests/e2e/refinement.spec.ts`, `tests/e2e/phase14-polish.spec.ts`                                                                                                                                            |
+| Records                     | `docs/ARCHITECTURE.md`, `docs/DEVELOPMENT.md`, `docs/PHASE_14_ASK_FORGE_GRAPH_GROUNDING.md`, `docs/ROADMAP.md`, `docs/SECURITY.md`, `docs/UI.md`                                                                                      |
+
+No backend, dependency, composer, performance-test or Playwright-configuration file
+changed during this polish. No generated artifact or detected secret is committed.
+
+### Targeted human visual recheck — prepared, not executed
+
+After automated PASS, use the same read-only workspace for this small recheck:
+
+| Case | Action                                           | Expected visual result                                       |
+| ---- | ------------------------------------------------ | ------------------------------------------------------------ |
+| A    | “Does Extrude 1 depend on Sketch Gate?”          | Concise direct limitation, verified order and relevant limit |
+| B    | “Is Fillet 1 active or suppressed?”              | Concise active answer without unrelated warning dump         |
+| C    | Select a face; “What feature owns this face?”    | Concise unknown-ownership answer                             |
+| D    | Empty Studio; “What features are in this model?” | Clean empty inventory without irrelevant suggestions         |
+| E    | Open a long answer; scroll down, then up         | Mode bar hides/returns smoothly; composer remains reachable  |
+| F    | Tab-focus mode navigation                        | Navigation stays/reappears visibly with meaningful focus     |
+
+Do not execute this recheck automatically. Final human UI approval remains pending.
+No CAD write validation is needed and no merge is authorized by automated PASS.
 
 ## Remaining limitations
 
@@ -266,4 +388,6 @@ continuity guarantee or engineering correctness claim. Tutor/Learn/Check my step
 are not graph-migrated by this phase; direct Inspector remains Phase 13. Existing evidence caps may withhold a
 terminal outside the first 20 features. No new CAD authority exists. Railway remains
 unhosted. Automated mocks do not establish general provider conformance, live model
-quality or production readiness. Human read-only validation remains pending.
+quality or production readiness. User-reported pre-polish read-only observations
+passed; the targeted post-polish human visual recheck remains pending. Exact display
+grammar intentionally falls back for unsupported question/evidence shapes.

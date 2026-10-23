@@ -192,6 +192,27 @@ select.input {
   padding: var(--space-1);
   margin: var(--space-2) var(--space-4) var(--space-4);
 }
+.tabs-list[data-scroll-navigation] {
+  transition:
+    transform var(--motion-state) var(--ease),
+    opacity var(--motion-state) var(--ease);
+}
+.tabs-list[data-scroll-hidden='true']:not(:focus-within) {
+  transform: translateY(calc(-100% - var(--space-4)));
+  opacity: 0;
+  pointer-events: none;
+}
+.tabs-list[data-scroll-navigation]:focus-within {
+  transform: none;
+  opacity: 1;
+  pointer-events: auto;
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tabs-list[data-scroll-navigation] {
+    transition: none;
+  }
+}
 .tabs-indicator {
   position: absolute;
   inset: var(--space-1) auto var(--space-1) var(--space-1);

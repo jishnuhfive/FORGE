@@ -847,6 +847,16 @@ and Modify keep their existing tests and acquisition paths. Direct Inspector rem
 Phase 13. No new dependency, environment variable, migration or public API is needed.
 PRECEDES is returned order, not dependency; there is no ownership inference,
 topology continuity, engineering correctness or new CAD authority. Reads remain
-sequential/non-atomic; Railway remains unhosted. Human read-only validation is a
-later manual step in [the Phase 14 plan](PHASE_14_ASK_FORGE_GRAPH_GROUNDING.md);
-do not execute it automatically or enable writes.
+sequential/non-atomic; Railway remains unhosted. User-reported pre-polish human
+read-only validation passed; the small post-polish visual recheck in
+[the Phase 14 record](PHASE_14_ASK_FORGE_GRAPH_GROUNDING.md) remains manual.
+Do not execute it automatically or enable writes.
+
+For the UX follow-up, run the focused `ai/friendly`, `ai/presentation`,
+`ai/Analysis`, `ai/chatLead` and `components/ModeNavigation` Vitest files first.
+Build the production frontend, then run `tests/e2e/phase14-polish.spec.ts`, the
+real-panel refinement cases in `tests/e2e/refinement.spec.ts` and the unchanged
+material performance sample in `tests/e2e/design.spec.ts` across all
+three projects before the complete normal quality gate. Browser workers, retries,
+assertion budgets and the <35 ms median threshold remain unchanged. New browser
+fixtures mock all CAD/auth/model transports and are not live human validation.

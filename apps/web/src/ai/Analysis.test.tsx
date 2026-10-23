@@ -155,7 +155,7 @@ describe('Read-only analysis UX', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Evidence' }));
     expect(screen.getByText('unknown')).toBeVisible();
     expect(
-      screen.getByRole('heading', { name: 'Uncertainties' }),
+      screen.getByRole('heading', { name: 'Technical limits' }),
     ).toBeVisible();
     expect(fetch).toHaveBeenCalledOnce();
     expect(JSON.stringify(localStorage)).not.toContain(
@@ -384,9 +384,11 @@ describe('Read-only analysis UX', () => {
     render(tree());
     fill('Make this model 20 mm wider.');
     send();
-    expect(await screen.findByText(/currently read-only/)).toBeVisible();
-    expect(screen.getByText(/width-driving dimension/)).toBeVisible();
-    expect(screen.getByText(/performed no CAD writes/)).toBeVisible();
+    expect(await screen.findByText(/Forge is read-only here/)).toBeVisible();
+    expect(
+      screen.getByText(/which parameter controls the width/),
+    ).toBeVisible();
+    expect(screen.queryByText(/performed no CAD writes/)).toBeNull();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(
       screen.queryByRole('heading', { name: 'Assumptions' }),
@@ -462,6 +464,7 @@ describe('Read-only analysis UX', () => {
           resultStream({
             ...syntheticAnswer,
             evidence: [],
+            uncertainties: [],
             discussion: '  ',
           }),
           { headers: { 'Content-Type': 'application/x-ndjson' } },

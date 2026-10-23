@@ -89,15 +89,15 @@ describe('grounded display summary', () => {
     expect(screen.getByText(name)).toBeVisible();
     expect(document.querySelector('img')).toBeNull();
   });
-  it('collapses only exact repeated uncertainty strings, with the original text available', () => {
-    render(
-      <AnswerContent
-        result={syntheticOverview}
-        previousUncertainties={syntheticOverview.uncertainties}
-      />,
-    );
-    expect(screen.queryByText(syntheticOverview.uncertainties[0]!)).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: /unchanged limit/ }));
-    expect(screen.getByText(syntheticOverview.uncertainties[0]!)).toBeVisible();
+  it('retains the full uncertainty text inside the collapsed evidence disclosure', () => {
+    render(<AnswerContent result={syntheticOverview} />);
+    expect(
+      screen.queryByRole('heading', { name: 'Technical limits' }),
+    ).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Evidence' }));
+    const details = screen.getByRole('heading', {
+      name: 'Technical limits',
+    }).parentElement!;
+    expect(details).toHaveTextContent(syntheticOverview.uncertainties[0]!);
   });
 });

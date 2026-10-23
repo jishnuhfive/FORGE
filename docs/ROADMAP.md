@@ -370,7 +370,10 @@ for the complete human-observed record.
 
 ## Phase 14 — graph-grounded Ask Forge
 
-**IMPLEMENTED — AUTOMATED GATE PASSED — HUMAN READ-ONLY VALIDATION PENDING.**
+**IMPLEMENTED — PRE-POLISH HUMAN READ-ONLY VALIDATION REPORTED PASSED.**
+The narrowly authorized UX polish has passed its complete automated gate and
+requires a targeted human visual recheck before merge; final human UI approval is
+pending.
 
 Authorized from clean synchronized main
 `204725ce141df6f2cccdaa7241f618b0989a7f62` on
@@ -384,13 +387,22 @@ remain unmigrated. Explicit sends, session/grant revalidation, at most four GETs
 selection ownership UNKNOWN and zero-model-call write capability replies remain.
 
 Automated verification and human-validation status are recorded in
-[Phase 14](PHASE_14_ASK_FORGE_GRAPH_GROUNDING.md). Human read-only validation is
-pending. Focused tests (50), full frontend/API tests (827/2,762, including all 42
+[Phase 14](PHASE_14_ASK_FORGE_GRAPH_GROUNDING.md). The user reported PASS for all
+eight real Onshape read-only scenarios on the pre-polish implementation. Its
+focused tests (50), full frontend/API tests (827/2,762, including all 42
 PostgreSQL cases), format/lint/types, build, migrations, Compose and audits passed.
 The final complete `make test-e2e` passed all 594 cases with the normal four workers
 and zero retries after the user confirmed machine availability. Earlier loaded-host
 browser failures are retained in the Phase 14 record; no source, tests or time
 budgets were changed to obtain the pass. This phase must not merge automatically.
+The follow-up changes concise answer formatting, contextual Limits/detail hierarchy
+and auto-hiding mode navigation only; the eight semantic outcomes and all backend
+authority boundaries are preserved. Its final gate passed 83 focused frontend
+tests, 50 graph regressions, 51 focused browser cases, 869 frontend / 2,762 API
+tests (including all 42 PostgreSQL cases), all standard quality targets and all
+633 browser cases with four workers and zero retries/skips. Post-polish automated
+results and the small prepared visual recheck are recorded in the same Phase 14
+record.
 PRECEDES is returned order,
 not dependency; no ownership inference, selected-face/edge ownership, dependency
 DAG, topology continuity, engineering correctness or new CAD authority is added.

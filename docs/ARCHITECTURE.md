@@ -647,7 +647,7 @@ validated request WorkspaceReference. It supplies both the Phase 13 feature proj
 and GraphQuery structural facts. Full inventory correspondence uses exact opaque
 provider IDs before truncation; rich parameters, parts, bodies, source/capture and
 physical evidence still come from the same Snapshot. Public Inspector/answer schemas
-and UI are unchanged.
+are unchanged. The later authorized UX follow-up changes presentation only.
 
 The AI projection adds at most 19 adjacent AVAILABLE returned-order facts, at most
 one completeness-proven terminal within the existing 20-feature cap, and a server-owned
@@ -666,3 +666,11 @@ unmigrated. The recognized write-request capability path remains deterministic w
 zero model calls or writes. At most four sequential/non-atomic GETs, no extra provider
 read, persistence, scope, public graph API or new CAD authority. Railway remains
 unhosted. See [Phase 14](PHASE_14_ASK_FORGE_GRAPH_GROUNDING.md).
+
+The UX follow-up uses an exact frontend display grammar over canonical IDs,
+statuses, positions and server-owned statements, with truthful prose fallback for
+ambiguity or unmatched shapes. It does not interpret model-written prose as CAD
+truth. The API retains all evidence and uncertainties; concise primary answers and
+contextual Limits retain full technical data in Evidence. Shared optional scroll
+navigation belongs to the design system and changes no business logic or CAD
+authority. The existing composer, backend acquisition and lifecycle remain unchanged.

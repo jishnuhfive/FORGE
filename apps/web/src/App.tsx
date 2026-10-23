@@ -1,4 +1,4 @@
-import { Suspense, lazy, useState, useSyncExternalStore } from 'react';
+import { Suspense, lazy, useRef, useState, useSyncExternalStore } from 'react';
 import {
   Button,
   Skeleton,
@@ -82,6 +82,7 @@ export function Workspace() {
 }
 
 function WorkspaceContent() {
+  const workspace = useRef<HTMLDivElement | null>(null);
   const client = useOnshapeContext();
   const route = useSyncExternalStore(subscribe, snapshot);
   const { preferences, setPreferences, storageAvailable } = usePreferences();
@@ -119,6 +120,7 @@ function WorkspaceContent() {
           </Suspense>
         ) : (
           <Shell
+            workspaceRef={workspace}
             capability={
               mode === 'modify' && writeReady
                 ? 'Approval required'
@@ -152,6 +154,7 @@ function WorkspaceContent() {
               </main>
             ) : (
               <Tabs
+                scrollContainerRef={workspace}
                 label="Engineering mode"
                 value={mode}
                 onValueChange={(value) => {

@@ -215,7 +215,8 @@ parent viewport access or permanent animation. Backdrop SVG support is progressi
 unsupported engines retain the complete baseline material.
 
 `AnswerContent` is a pure presentation view shared by real analysis and the DEV lab.
-Uncertainties precede a collapsed Evidence control. Equal evidence statuses share a
+Contextual Limits precede a collapsed Evidence control; full technical limits stay
+inside it. Equal evidence statuses share a
 single heading; original statements and safe escaped text remain intact. Evidence
 rows mount on expansion and disappear on collapse. Captured time stays inside the
 disclosure. No response schema, API request, provider, grounding or lifecycle code
@@ -237,6 +238,25 @@ become a feature sequence and count line. Any unmatched qualification, unknown
 inventory count or ambiguous evidence keeps prose. The exact full answer remains
 inside expanded Evidence; additional paragraphs stay visible. Names remain escaped
 DOM text. Evidence statuses, mass caveats and selection ownership are unchanged.
+
+The authorized Phase 14 polish adds `ai/friendly.ts`, a conservative display grammar
+for exact canonical inventory/order/terminal/activity, dependency limitations,
+selected ownership and read-only capability replies. It never summarizes model
+prose into CAD facts or joins identities by labels. Ambiguous IDs/names/positions,
+statuses and unmatched wording keep the original answer. Full canonical answers,
+all uncertainties and secondary guidance remain inside Evidence. The primary answer
+shows only relevant known Limits; unrecognized limits remain visible. Empty inventory
+is a valid simple answer with no irrelevant suggestions in the primary view.
+
+The top mode bar optionally auto-hides within the existing workspace scroller:
+48 px downward travel hides it, 16 px upward travel reveals it, and the first 24 px
+always shows it. Direction hysteresis, one passive/rAF-throttled listener and
+visibility-only DOM updates avoid per-pixel React renders or layout measurements.
+Transform/opacity preserve layout space; reduced motion removes transitions.
+Tab focus reveals it immediately, and mode changes restore visibility. The bottom
+sticky composer and accepted visual system are unchanged. See the user-reported
+pre-polish validation and pending targeted visual recheck in
+[Phase 14](PHASE_14_ASK_FORGE_GRAPH_GROUNDING.md).
 
 A single workspace scroller contains the mode control and content; the shell header
 sits outside it. Flex sizing anchors the conversation composer near the bottom.

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import { Dialog, Dropdown, ForgeMark } from '@forge/design-system';
 import { Box, Eye, MoreHorizontal, Search } from 'lucide-react';
 import { openDeveloperTools } from '../onshape/developerAccess';
@@ -14,6 +14,7 @@ export function Shell({
   onNotify,
   brandMark,
   capability = 'Read-only',
+  workspaceRef,
 }: {
   children: ReactNode;
   context?: Context;
@@ -21,6 +22,7 @@ export function Shell({
   onNotify: (message: string) => void;
   brandMark?: ReactNode;
   capability?: 'Read-only' | 'Approval required';
+  workspaceRef?: RefObject<HTMLDivElement | null>;
 }) {
   const auth = useAuth();
   const [contextOpen, setContextOpen] = useState(false);
@@ -93,6 +95,7 @@ export function Shell({
       <div className="shell-layout">
         <div
           className="workspace-pane"
+          ref={workspaceRef}
           tabIndex={0}
           role="region"
           aria-label="Workspace content"
