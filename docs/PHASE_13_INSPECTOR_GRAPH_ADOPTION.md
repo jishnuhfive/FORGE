@@ -1,12 +1,15 @@
 # Phase 13 — CAD Inspector graph adoption
 
-**COMPLETE — HUMAN READ-ONLY VALIDATED — READY FOR FINAL MERGE REVIEW**
+**COMPLETE — HUMAN READ-ONLY VALIDATION PASSED — MERGED INTO MAIN**
 
 Started from clean `main` at `6f7d147dc4239dbe7b52c775eef9c4e2a7f12039`,
 matching fetched `origin/main`, on `phase13/inspector-graph-adoption`.
 Implementation commit: `7696aa0e51002725811379123f498cb91da1e3ff`.
-Phase 12 remains complete. Phase 13 human read-only validation is now complete;
-the branch awaits final merge review and has not been merged. Railway remains unhosted.
+Human-validation documentation commit: `bef41d2e13cca67e7436f06e4c09564e232867e8`.
+Phase 13 is complete: human read-only validation passed, and Phase 13 merged into
+main at `c200f0af5695a3c603074bdf3e640965a8d84171`. The non-fast-forward merge
+preserves both commits without squashing. Phase 12 remains complete.
+Railway remains unhosted.
 
 ## Consumer inventory and selection
 
@@ -225,5 +228,6 @@ These observations validate the reported Inspector behavior in the tested read-o
 workspaces. They do not establish atomic provider reads, general production readiness,
 graph adoption in AI/Tutor/Learn/Modify, topology continuity, feature ownership,
 dependency DAG correctness or engineering correctness. The known limitations above
-remain in force. Railway remains unhosted; no deployment, merge or CAD write is
-performed by this documentation-only closeout.
+remain in force. Railway remains unhosted. The human-validation documentation
+closeout performed no deployment, merge or CAD write; the subsequent Phase 13 merge
+is recorded above.

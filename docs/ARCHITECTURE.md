@@ -612,7 +612,12 @@ evidence inventory, schema, bounds, integration boundary and validation status.
 
 ## Phase 13 — direct CAD Inspector feature inventory
 
-**IMPLEMENTED — AUTOMATED GATE PASSED — AWAITING HUMAN READ-ONLY VALIDATION**
+**COMPLETE — HUMAN READ-ONLY VALIDATION PASSED — MERGED INTO MAIN**
+
+Phase 13 human read-only validation passed and the phase merged into main at
+`c200f0af5695a3c603074bdf3e640965a8d84171`, preserving implementation commit
+`7696aa0e51002725811379123f498cb91da1e3ff` and human-validation documentation commit
+`bef41d2e13cca67e7436f06e4c09564e232867e8` without squashing. Railway remains unhosted.
 
 Only the direct Inspector endpoint now calls `inspect_graph`. `acquire` retains the
 request-validated immutable WorkspaceReference independently of the acquired Snapshot;
@@ -627,3 +632,8 @@ unavailable Inspector response; there is no legacy Snapshot fallback. Authorizat
 stops preserve their fixed code while discarding earlier evidence. No extra acquisition,
 cache, persistence, endpoint, frontend exposure or authority is added. See
 [Phase 13 boundaries and equivalence review](PHASE_13_INSPECTOR_GRAPH_ADOPTION.md).
+
+Reads remain sequential/non-atomic. Graph adoption is limited to direct CAD Inspector
+feature inventory/order; AI/Tutor/Learn/Modify were not graph-migrated by Phase 13.
+No ownership inference, dependency DAG, topology continuity guarantee,
+engineering-correctness claim or new CAD authority is introduced.

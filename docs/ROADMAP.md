@@ -326,11 +326,14 @@ its subsequent separate authorization and implementation are recorded below.
 
 ## Phase 13 — first ForgeModelGraph consumer: CAD Inspector
 
-**COMPLETE — HUMAN READ-ONLY VALIDATED — READY FOR FINAL MERGE REVIEW**
+**COMPLETE — HUMAN READ-ONLY VALIDATION PASSED — MERGED INTO MAIN**
 
 Authorized from `main` at `6f7d147dc4239dbe7b52c775eef9c4e2a7f12039` on
 `phase13/inspector-graph-adoption`; implementation commit
-`7696aa0e51002725811379123f498cb91da1e3ff`. Only direct read-only Inspector feature
+`7696aa0e51002725811379123f498cb91da1e3ff` and human-validation documentation commit
+`bef41d2e13cca67e7436f06e4c09564e232867e8`. Human read-only validation passed.
+Phase 13 merged into main at `c200f0af5695a3c603074bdf3e640965a8d84171`,
+preserving both commits without squashing. Only direct read-only Inspector feature
 inventory/order adopts the graph, preserving an independent validated request
 context and same-Snapshot rich evidence. Public schema/UI, parts/bodies/physical
 presentation, provider reads and other consumers remain unchanged. Invalid graph
@@ -360,5 +363,7 @@ approval prompt or additional Onshape consent prompt. No Phase 9 write validatio
 was performed or required. This evidence does not establish atomic reads, general
 production readiness, graph adoption in AI/Tutor/Learn/Modify, topology continuity,
 feature ownership, dependency DAG correctness or engineering correctness. Known
-limitations remain; Railway remains unhosted. **The branch is not merged** and awaits
-final merge review. See the linked review for the complete human-observed record.
+limitations remain: reads are sequential/non-atomic, Phase 13 adds no CAD authority,
+ownership inference or dependency DAG, and gives no topology continuity guarantee
+or engineering-correctness claim. Railway remains unhosted. See the linked review
+for the complete human-observed record.
