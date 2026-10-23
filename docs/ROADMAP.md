@@ -300,19 +300,26 @@ completed; no production secrets, OAuth cutover or hosted validation have occurr
 
 ## Phase 12 — ForgeModelGraph foundation
 
-**IMPLEMENTED — AUTOMATED GATE PASSED — READY FOR REVIEW; NOT MERGED.**
+**COMPLETE — AUTOMATED GATE PASSED — MERGED INTO MAIN.**
+Merged at `e6a14d32a1a95d92fe9d03cf4edce71ee22a4640`, preserving the foundation
+commit `ee827e191dc8e9c85085363686b68990dcf2f442` and query review-fix commit
+`ee5040fd54bf6deca03974298542b6da4ac05c9b` without squashing.
+
 Starting from merged deployment main `8d72cafc5cf94b79a7e38e15f17e4bc7b37817c1`
 on `phase12/forge-model-graph`, this separately authorized product phase adds a
 versioned deterministic read-only internal structural graph over existing normalized
 workspace Part Studio evidence. Typed IDs, supported membership/order/reference
 edges, provenance, validation, bounded serialization and narrow queries are in scope.
 
-No live validation, deployment changes, new acquisition, public graph endpoint,
+No live Onshape validation was required or claimed for Phase 12. ForgeModelGraph
+remains an internal foundation without broad production consumer adoption.
+No deployment changes, new provider acquisition, public graph endpoint,
 OAuth scope, CAD-write/recovery authority or broad subsystem migration is included.
-Selection ownership, dependency DAGs, topology correspondence and engineering
-correctness remain unknown. See [the Phase 12 specification/review](PHASE_12_FORGE_MODEL_GRAPH.md).
+There is no selection ownership inference, dependency DAG, topology continuity
+guarantee or engineering-correctness claim. Railway remains not hosted. See
+[the Phase 12 specification/review](PHASE_12_FORGE_MODEL_GRAPH.md).
 After the narrow query review fix, the gate passed 127 focused graph tests,
 827 frontend / 2,612 API tests (including
-all PostgreSQL cases), 594 browser tests and all required format/lint/type/build /
-migration/Compose/audit checks. This is automated evidence only. Phase 13 adoption
-requires separate authorization; no Phase 13 work is started.
+all 42 PostgreSQL cases), 594 browser tests and all required format/lint/type/build /
+migration/Compose/audit checks. This is automated evidence only. **Phase 13 remains
+NOT STARTED**; adoption requires separate authorization.

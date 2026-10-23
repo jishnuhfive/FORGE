@@ -1,7 +1,29 @@
 # Phase 12 — ForgeModelGraph foundation
 
-**Status: IMPLEMENTED — FULL AUTOMATED GATE PASSED — READY FOR REVIEW.** No live
-Onshape validation is claimed. Deployment and Phase 9 recovery remain frozen.
+**PHASE 12 COMPLETE — MERGED INTO MAIN.** Full automated gate passed. No live
+Onshape validation was required or claimed for Phase 12. Deployment and Phase 9
+recovery remain frozen.
+
+## Final merge record
+
+Phase 12 merged into main at `e6a14d32a1a95d92fe9d03cf4edce71ee22a4640` through
+a clean, no-conflict, non-fast-forward merge. Both implementation commits remain
+preserved in history:
+
+- Foundation: `ee827e191dc8e9c85085363686b68990dcf2f442`.
+- Query review fix: `ee5040fd54bf6deca03974298542b6da4ac05c9b`.
+
+The merged tree was byte-equivalent to the validated `phase12/forge-model-graph`
+branch. Final merged-tree `make lint`, `make typecheck`, `make build`, `make audit`
+and all 127 focused graph tests passed. Main was pushed and verified clean and
+synchronized with origin. No live Onshape validation is claimed and no deployment
+was performed; Railway remains not hosted.
+
+ForgeModelGraph remains an internal foundation without broad production consumer
+adoption. There is no selection ownership inference, dependency DAG, topology
+continuity guarantee or engineering-correctness claim. The merge adds no CAD
+authority, OAuth scope or provider acquisition. **Phase 13 remains NOT STARTED**
+and requires separate authorization.
 
 ## Existing evidence inventory (recorded before graph design)
 
@@ -236,12 +258,13 @@ DAG, assemblies/mates, topology tracking, new geometry APIs or engineering
 certification. Selection-aware Modify and all future writes require separate
 acquisition/authority designs; this graph cannot replace a pinned approved baseline.
 
-## Automated gate and review — 2026-10-22
+## Original automated gate and review — 2026-10-22 (historical)
 
 Started from clean main and fetched origin/main at
 `8d72cafc5cf94b79a7e38e15f17e4bc7b37817c1`; work is isolated on
-`phase12/forge-model-graph`. This phase is not merged and has no live Onshape
-validation. Locked npm/uv installs passed without dependency or lockfile changes.
+`phase12/forge-model-graph`. At this historical gate, Phase 12 was not yet merged
+and no live Onshape validation was claimed. Locked npm/uv installs passed without
+dependency or lockfile changes.
 
 | Gate                                           | Final result                                                                          |
 | ---------------------------------------------- | ------------------------------------------------------------------------------------- |
@@ -271,7 +294,7 @@ artifacts are ignored and excluded from the commit. Source review found no raw
 provider-document access, authority/I/O imports, model-selected graph facts or new
 public endpoint. Secret-pattern review passed; this is not a security certification.
 
-## Narrow query review fix — 2026-10-22
+## Narrow query review fix — 2026-10-22 (historical, before final merge)
 
 Started with a clean `phase12/forge-model-graph` at
 `ee827e191dc8e9c85085363686b68990dcf2f442`, matching the fetched remote branch.
@@ -297,4 +320,5 @@ deployment, OAuth, CAD-write, recovery, dependency or lockfile changes are inclu
 Phase 11's merge is established by PR #5's merge commit in main; real Onshape human
 validation is not recorded as complete. The deployment foundation is merged but
 has no live Railway provisioning, production secrets, OAuth cutover or hosted
-validation. This Phase 12 branch remains unmerged and has no live Onshape validation.
+validation. At this historical review, the Phase 12 branch was not yet merged and
+no live Onshape validation was claimed.
