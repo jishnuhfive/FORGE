@@ -1,4 +1,4 @@
-"""Direct Inspector only: graph inventory, same-snapshot rich display evidence."""
+"""Graph inventory with same-Snapshot rich display evidence; no acquisition."""
 
 from forge_api.model_graph import GraphQuery, graph_from_snapshot
 
@@ -21,13 +21,21 @@ def inspect_graph(
     expected_context: WorkspaceReference,
     correlation: str,
 ) -> CadInspector:
+    return _inspect_graph(snapshot, expected_context, correlation)[0]
+
+
+def _inspect_graph(
+    snapshot: Snapshot | SectionState,
+    expected_context: WorkspaceReference,
+    correlation: str,
+) -> tuple[CadInspector, GraphQuery | None]:
     """Called only after acquisition's final session/grant validation.
 
     Failure discards evidence via the existing fixed-code unavailable response.
     Never fall back to legacy structural interpretation of a rejected Snapshot.
     """
     if isinstance(snapshot, SectionState):
-        return inspect(snapshot, correlation)
+        return inspect(snapshot, correlation), None
     # Preserve authorization failures, while discarding any earlier read evidence.
     denied = next(
         (
@@ -38,10 +46,11 @@ def inspect_graph(
         None,
     )
     if denied is not None:
-        return inspect(denied, correlation)
+        return inspect(denied, correlation), None
     try:
         graph = graph_from_snapshot(snapshot, expected_context)
-        ordered = GraphQuery(graph).ordered_features()
+        query = GraphQuery(graph)
+        ordered = query.ordered_features()
         provenance = next(p for p in graph.provenance if p.id == "features")
         document = snapshot.documents.get("features")
         data = document.normalized if document else None
@@ -79,8 +88,11 @@ def inspect_graph(
         )
     except ValueError:
         # Includes Pydantic validation errors. Do not log/serialize their inputs.
-        return inspect(
-            SectionState(status="provider_failure", code="invalid_response"),
-            correlation,
+        return (
+            inspect(
+                SectionState(status="provider_failure", code="invalid_response"),
+                correlation,
+            ),
+            None,
         )
-    return _project(snapshot, source, inventory)
+    return _project(snapshot, source, inventory), query

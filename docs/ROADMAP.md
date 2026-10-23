@@ -367,3 +367,31 @@ limitations remain: reads are sequential/non-atomic, Phase 13 adds no CAD author
 ownership inference or dependency DAG, and gives no topology continuity guarantee
 or engineering-correctness claim. Railway remains unhosted. See the linked review
 for the complete human-observed record.
+
+## Phase 14 — graph-grounded Ask Forge
+
+**IMPLEMENTED — AUTOMATED GATE PASSED — HUMAN READ-ONLY VALIDATION PENDING.**
+
+Authorized from clean synchronized main
+`204725ce141df6f2cccdaa7241f618b0989a7f62` on
+`phase14/ask-forge-graph-grounding`. Implementation migrates only normal read-only
+Ask Forge feature inventory/order to the existing graph, sharing one construction
+with its same-Snapshot rich Inspector projection. Bounded canonical AVAILABLE
+returned-order and completeness-proven terminal facts retain fixed semantics and
+the existing evidence limits. Graph/context/correspondence rejection fails closed.
+Direct Inspector remains the Phase 13 consumer; Tutor/Learn/Check my step/Modify
+remain unmigrated. Explicit sends, session/grant revalidation, at most four GETs,
+selection ownership UNKNOWN and zero-model-call write capability replies remain.
+
+Automated verification and human-validation status are recorded in
+[Phase 14](PHASE_14_ASK_FORGE_GRAPH_GROUNDING.md). Human read-only validation is
+pending. Focused tests (50), full frontend/API tests (827/2,762, including all 42
+PostgreSQL cases), format/lint/types, build, migrations, Compose and audits passed.
+The final complete `make test-e2e` passed all 594 cases with the normal four workers
+and zero retries after the user confirmed machine availability. Earlier loaded-host
+browser failures are retained in the Phase 14 record; no source, tests or time
+budgets were changed to obtain the pass. This phase must not merge automatically.
+PRECEDES is returned order,
+not dependency; no ownership inference, selected-face/edge ownership, dependency
+DAG, topology continuity, engineering correctness or new CAD authority is added.
+Reads remain sequential/non-atomic, CAD writes remain OFF and Railway remains unhosted.

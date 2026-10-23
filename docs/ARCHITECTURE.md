@@ -619,7 +619,7 @@ Phase 13 human read-only validation passed and the phase merged into main at
 `7696aa0e51002725811379123f498cb91da1e3ff` and human-validation documentation commit
 `bef41d2e13cca67e7436f06e4c09564e232867e8` without squashing. Railway remains unhosted.
 
-Only the direct Inspector endpoint now calls `inspect_graph`. `acquire` retains the
+Phase 13 made the direct Inspector endpoint call `inspect_graph`. `acquire` retains the
 request-validated immutable WorkspaceReference independently of the acquired Snapshot;
 unchanged `acquire_bound` finishes its session/grant revalidation before graph creation.
 `GraphQuery.ordered_features()` supplies feature identity/order/index, with checked
@@ -637,3 +637,32 @@ Reads remain sequential/non-atomic. Graph adoption is limited to direct CAD Insp
 feature inventory/order; AI/Tutor/Learn/Modify were not graph-migrated by Phase 13.
 No ownership inference, dependency DAG, topology continuity guarantee,
 engineering-correctness claim or new CAD authority is introduced.
+
+## Phase 14 — graph-grounded Ask Forge
+
+Normal read-only Ask Forge is the next graph consumer, through the existing explicit
+POST and authorized `acquire_bound`. After final session/grant validation, a private
+pure helper builds one graph from that exact normalized Snapshot and the independent
+validated request WorkspaceReference. It supplies both the Phase 13 feature projection
+and GraphQuery structural facts. Full inventory correspondence uses exact opaque
+provider IDs before truncation; rich parameters, parts, bodies, source/capture and
+physical evidence still come from the same Snapshot. Public Inspector/answer schemas
+and UI are unchanged.
+
+The AI projection adds at most 19 adjacent AVAILABLE returned-order facts, at most
+one completeness-proven terminal within the existing 20-feature cap, and a server-owned
+semantics fact. It never serializes graph nodes/edges, provider/context IDs or
+provenance to a model or browser. Canonical selection remains the only CAD-claim
+authority. The 65,536-byte evidence bound includes these facts and caveats; overflow
+fails closed. Graph or correspondence failure discards evidence with the existing
+unavailable behavior, never legacy structural fallback; authorization stops preserve
+their existing errors. Final agent revalidation and cancellation still prevent AI
+use of discarded evidence.
+
+PRECEDES means returned order, not dependency. No ownership inference, selected-face/
+edge ownership, dependency DAG, topology continuity or engineering correctness is
+introduced. Direct Inspector remains Phase 13; Tutor/Learn/Check my step/Modify are
+unmigrated. The recognized write-request capability path remains deterministic with
+zero model calls or writes. At most four sequential/non-atomic GETs, no extra provider
+read, persistence, scope, public graph API or new CAD authority. Railway remains
+unhosted. See [Phase 14](PHASE_14_ASK_FORGE_GRAPH_GROUNDING.md).

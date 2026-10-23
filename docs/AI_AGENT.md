@@ -79,7 +79,8 @@ Explicit Design send (disclosed hosted-service transfer)
   -> Forge agent -> AiProvider protocol, safe AgentTask only
   -> selected adapter requests inspect_current_cad({})
   -> adapter validates exactly one no-argument call
-  -> existing session-owned Phase 4 capture -> Phase 5 CadInspector
+  -> existing session-owned Phase 4 capture + final owner/grant check
+  -> ForgeModelGraph + same-Snapshot rich Inspector evidence (Phase 14)
   -> minimized untrusted evidence and canonical facts
   -> selected adapter generates strict ModelAnswer without further tools
   -> Forge resolves fact IDs -> normalized final answer/progress
@@ -102,6 +103,33 @@ authorized inspection, zero model requests, and a strict read-only public answer
 `ai/evidence.py` and `acquire_bound` retain the Phase 4/5 authorization/data boundary.
 Onshape independently authorizes every object using the session owner's grant.
 The model cannot redirect a read, choose another user/host or execute arbitrary code.
+
+### Phase 14 Ask Forge grounding
+
+Normal Design Ask Forge now consumes graph-backed feature inventory/order. Its
+pure internal projection shares one graph with Inspector presentation, joins rich
+evidence by exact same-Snapshot opaque provider ID, and retains the independently
+validated request context. Direct Inspector remains the Phase 13 consumer;
+Tutor/Learn/Check my step/Modify retain their existing paths.
+
+Only bounded human-readable canonical facts reach either model provider: adjacent
+AVAILABLE PRECEDES relationships, a terminal feature only when the existing query
+proves completeness/end rollback, and a fixed relationship-semantics boundary.
+PRECEDES is returned feature-list order, never dependency. Missing relationships
+prove nothing. Order and selection references establish no ownership. Names stay
+quoted untrusted data; model output can select IDs but cannot author verified facts.
+The semantics boundary also accompanies normal grounded public answers as a fixed
+uncertainty. The 20-feature/four-parameter AI cap and 65,536-byte total bound remain;
+no terminal outside that feature cap is exposed. Overflow fails unavailable rather
+than dropping caveats. No graph identities, provenance or bytes leave the backend.
+
+Graph/correspondence failures fail closed without legacy structural fallback;
+authorization-specific stops retain their existing handling. Selection ownership
+remains server-owned UNKNOWN. Recognized write requests still inspect once and
+return the deterministic read-only capability answer with zero model requests,
+zero CAD writes and no Modify invocation. No new CAD authority, topology continuity
+or engineering correctness is claimed. Reads remain sequential/non-atomic; Railway
+remains unhosted. See [Phase 14](PHASE_14_ASK_FORGE_GRAPH_GROUNDING.md).
 
 ## Server configuration
 

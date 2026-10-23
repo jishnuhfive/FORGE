@@ -667,3 +667,30 @@ inputs. Authorization stops discard partial evidence with their existing fixed c
 Other Inspector consumers retain their prior path. No acquisition, persistence,
 public graph API, frontend data, OAuth scope or write/recovery authority is added.
 See [Phase 13](PHASE_13_INSPECTOR_GRAPH_ADOPTION.md) for failure semantics and limits.
+
+## Phase 14 Ask Forge adoption
+
+Ask Forge constructs a graph only after its existing authorized acquisition returns,
+from the accepted normalized Snapshot and independently validated request context.
+Snapshot context cannot validate itself. The shared private pure projection checks
+full graph/Snapshot identity and order correspondence before caps, using exact opaque
+provider IDs for rich evidence. No additional provider read or authority is added.
+Authorization stops bypass graph construction; final session/grant checks and request
+cancellation continue to prevent use of discarded evidence.
+
+The model sees bounded quoted canonical statements, never graph serialization,
+node/edge/provider/context IDs, provenance or session/OAuth data. Only AVAILABLE
+PRECEDES edges yield order facts. UNKNOWN/missing relationships prove nothing;
+returned order is not dependency or ownership, and only completeness/end rollback
+can prove a terminal. The semantics caveat is fixed server text and part of the
+existing 65,536-byte bound. CAD names cannot change policy or create verified claims.
+Overflow or graph/correspondence rejection fails closed without legacy fallback or
+private errors. Existing authorization-specific failures remain distinct.
+
+Selected FACE/EDGE ownership stays UNKNOWN even with singleton inventory and a
+terminal feature. Recognized writes retain authorized inspection, zero model calls,
+zero CAD writes and no proposal/Modify invocation. Direct Inspector remains Phase 13;
+Tutor/Learn/Check my step/Modify remain unmigrated. No persistence, schema/migration,
+OAuth scope, public graph API, topology continuity, engineering correctness or new
+CAD authority is introduced. Reads remain sequential/non-atomic. Writes remain OFF;
+Railway remains unhosted. See [Phase 14](PHASE_14_ASK_FORGE_GRAPH_GROUNDING.md).
