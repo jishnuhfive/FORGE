@@ -110,7 +110,9 @@ existing four GETs. CAD writes remain OFF.
 
 ## Automated verification
 
-Frozen `npm ci` and `uv sync --locked` passed without dependency/lockfile changes.
+For the original implementation, frozen `npm ci` and `uv sync --locked` passed
+without dependency/lockfile changes. The later recovery audit updates are recorded
+below.
 The focused Phase 14 suite passed **50 tests**. The full `make test` passed
 **827 frontend / 2,762 API tests**, including all **42 PostgreSQL cases**, with
 no skips. Existing AI, Tutor, Learn/Check my step, Modify and recovery tests passed;
@@ -163,6 +165,78 @@ healthy and untouched. Scope review covers six backend files, one new test file
 and six documentation files. Changed-file secret-pattern review found no matches.
 All tests use invented fixtures and mocked CAD/model transports; no live provider
 validation or production readiness is claimed.
+
+## Browser recovery and fresh audit
+
+The continuation request described an uncommitted implementation, but inspection
+found a clean `phase14/ask-forge-graph-grounding` at
+`6b17074bfd12b1ad3d96563e92a79c5da39e29cd`, already matching its upstream and remote.
+The exact initial modified-file list was `[]`; the untracked-file list was `[]`.
+The 13 implementation files remained present. No reset, branch switch, stash,
+clean, discarded work, history rewrite or merge was performed.
+
+The original failure log and actual test bodies/helpers were inspected. The
+failure log referenced error contexts and traces, but those original artifacts
+were no longer present after subsequent Playwright runs; no original screenshot
+was available. The classification does not claim inspection of missing artifacts.
+
+| Project  | Exact original test title                                                     | Spec and failure location                                                                                                             | Relation to Phase 14                                                                                      |
+| -------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Chromium | Phase 6.5 material idle and interaction performance sample                    | `design.spec.ts:172`; assertion at `:226`: median 50.1 ms, required <35 ms                                                            | UI Lab material rendering and requestAnimationFrame sampling; no Phase 14 frontend/backend path           |
+| WebKit   | Phase 6 explicit send, grounded evidence, accessibility and overflow at 380px | `ai.spec.ts:90`; Design prompt visibility at helper `:63`, called at `:94`; 5 s expectation within 30 s test budget                   | Related Ask Forge consumer UI, unchanged and mocked; failure before send, with no graph backend execution |
+| WebKit   | sign in, account verification, disconnect, reconnect, and logout              | `auth.spec.ts:5`; page fixture setup exceeded 30 s before test body                                                                   | Synthetic auth routes; no Phase 14 graph path                                                             |
+| WebKit   | correct step: Forge verifies it and learner completion stays separate         | `bracket.spec.ts:86`; Beginner radio check at helper `:75`, called at `:89`, exceeded 30 s test budget                                | Unchanged Learn setup and mocked check-step routes; no Phase 14 graph path                                |
+| WebKit   | cooldown is explained, throttles the control and never auto-retries           | `bracket.spec.ts:198`; assertion at `:208`: aria-disabled stayed true after the 6500 ms wait; 5 s expectation within 30 s test budget | Unchanged frontend timer over a mocked 429 response; no Phase 14 graph path                               |
+
+All spec paths above are under `tests/e2e/`. No stale repository-owned browser
+services needed termination; unrelated user processes were left alone. A fresh
+disposable PostgreSQL instance used the repository's pinned image, a synthetic
+database and ephemeral storage, and was health-checked and migrated. Browser
+fixtures use mocked API routes rather than this database.
+
+The exact five scenarios passed targeted reruns in their original projects:
+**1 Chromium / 4 WebKit**. The targeted Chromium median was **16.7 ms** against
+the unchanged **<35 ms** requirement. Assertions, timeout limits, test bodies,
+retry policy and Playwright configuration remained unchanged. All five are
+classified **C: NONDETERMINISTIC** because outcomes changed without source
+changes. This establishes neither a host-load root cause nor reproduction on
+baseline. Per the requested decision rule, all five targeted passes proceeded
+directly to the complete browser suite; no baseline worktree was needed or created.
+That pre-dependency-update complete `make test-e2e` passed **594/594** with the
+normal four workers and zero retries.
+
+The fresh audit then found two development-only transitive dependencies requiring
+updates:
+
+- ESLint's `eslint-plugin-react-hooks` dependency Zod: **4.6.5 → 4.6.7** in
+  `package-lock.json`; [GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5)
+  lists 4.6.6 as the first patched release.
+- pip-audit's CacheControl file-cache dependency filelock: **4.0.9 → 4.2.1** in
+  `apps/api/uv.lock`; the [maintainer advisory](https://github.com/tox-dev/filelock/security/advisories/GHSA-v4x8-3wr5-3wq8)
+  lists 4.2.1 as the fix for CVE-2026-112940.
+
+Only those two existing lock entries changed; package manifests, dependency count,
+Phase 14 product code, tests and browser requirements did not change. Frozen
+`npm ci` and `uv sync --locked` installed the updated locks. Both dependency audits
+pass without suppressions. After both updates, a fresh complete gate passed:
+
+- **50** focused Phase 14 tests.
+- Formatting, lint and strict typing, including **170** mypy source files.
+- **827** frontend and **2,762** API tests, including all **42** PostgreSQL cases;
+  zero skips.
+- Build, migration drift and Compose checks; the existing bundle-size advisory
+  remains unchanged.
+- **594/594** browser tests in **4.0 minutes**, **198** per browser, using the
+  unchanged four-worker configuration, zero retries and zero skips.
+- npm and Python dependency audits: zero known vulnerabilities.
+
+Recovery changes are limited to the two lock entries and this verification
+record. There is no Phase 14 product or test change during recovery. Recovery
+logs and the initial file manifest are retained in ignored
+`.cache/phase14-recovery/`. The recovery's disposable database was removed after
+verification; the pre-existing database was left healthy and untouched. Human
+read-only validation remains prepared but unexecuted, with CAD writes OFF and
+Railway unhosted.
 
 ## Human read-only validation plan — prepared, not executed
 
