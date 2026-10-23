@@ -225,17 +225,18 @@ validation; this merge integrates it into the Phase 9 branch. See [PHASE_10_REVI
 complete; the real-Onshape human plan is not yet recorded as complete. Phase 10
 Learn remains independent of Modify and requires no write consent.
 
-## Phase 11 — NOT STARTED
-
-No Phase 11 implementation is included or authorized by this merge.
-
-## Phase 11 — Contextual AI tutor in Learn Mode (implemented on its branch, automated checks pass)
+## Phase 11 — Contextual AI tutor in Learn Mode (merged, automated checks pass; human validation not recorded)
 
 `phase11/contextual-ai-tutor`, from main after Phases 9 and 10. Ask Forge is explicit-send only, read-only and
 session-only; check results reach it only through a server-signed, session-bound evidence token; deterministic
-checkers keep all authority. Not merged and not human-validated; Phase 9 Gate B's provider-side audit remains
-deferred. See [PHASE_11_REVIEW.md](PHASE_11_REVIEW.md) and [PHASE_11_TUTOR_SPEC.md](PHASE_11_TUTOR_SPEC.md).
-Phase 12 is not started.
+checkers keep all authority. Implementation commit `7f86ba4` was merged into main
+through PR #5 at `56bf83b85eb33c6c2d6277b9a289ae1edab8b71c`. Subsequent full
+automated repository gates passed; real Onshape human validation is not recorded
+as complete. The historical review's unmerged status is superseded by that merge.
+Phase 9 Gate B's provider-side audit remains deferred. See
+[PHASE_11_REVIEW.md](PHASE_11_REVIEW.md) and [PHASE_11_TUTOR_SPEC.md](PHASE_11_TUTOR_SPEC.md).
+At the Phase 11 review, Phase 12 had not started; the separately authorized
+Phase 12 work is recorded below.
 
 ## Hackathon Modify A1 — deterministic core implemented on its branch
 
@@ -281,7 +282,7 @@ no serialization exception was introduced. See the
 
 ## Deployment track Phase 1 — production hosting foundation
 
-**DEPLOYMENT FOUNDATION IMPLEMENTED — NOT YET HOSTED.**
+**DEPLOYMENT FOUNDATION MERGED INTO MAIN — NOT YET HOSTED.**
 Authorized separately from product phases, starting at
 `c10744b10d897ab9bd4ebb8b650b5d8ce39c1a9f` on `deploy/railway-foundation`.
 One Railway service/image serves the SPA and FastAPI on one HTTPS origin; private
@@ -293,4 +294,25 @@ are authorized. [DEPLOYMENT.md](DEPLOYMENT.md) records the foundation and gates.
 
 Railway provisioning, runtime secrets, real migrations, callback/Action URL changes,
 real OAuth/AI/embedded validation and custom-domain transition are later authorized
-operations. This implementation does not deploy or merge into main.
+operations. The foundation merged into main at
+`8d72cafc5cf94b79a7e38e15f17e4bc7b37817c1`. Live Railway provisioning is not
+completed; no production secrets, OAuth cutover or hosted validation have occurred.
+
+## Phase 12 — ForgeModelGraph foundation
+
+**IMPLEMENTED — AUTOMATED GATE PASSED — READY FOR REVIEW; NOT MERGED.**
+Starting from merged deployment main `8d72cafc5cf94b79a7e38e15f17e4bc7b37817c1`
+on `phase12/forge-model-graph`, this separately authorized product phase adds a
+versioned deterministic read-only internal structural graph over existing normalized
+workspace Part Studio evidence. Typed IDs, supported membership/order/reference
+edges, provenance, validation, bounded serialization and narrow queries are in scope.
+
+No live validation, deployment changes, new acquisition, public graph endpoint,
+OAuth scope, CAD-write/recovery authority or broad subsystem migration is included.
+Selection ownership, dependency DAGs, topology correspondence and engineering
+correctness remain unknown. See [the Phase 12 specification/review](PHASE_12_FORGE_MODEL_GRAPH.md).
+After the narrow query review fix, the gate passed 127 focused graph tests,
+827 frontend / 2,612 API tests (including
+all PostgreSQL cases), 594 browser tests and all required format/lint/type/build /
+migration/Compose/audit checks. This is automated evidence only. Phase 13 adoption
+requires separate authorization; no Phase 13 work is started.
