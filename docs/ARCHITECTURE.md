@@ -592,3 +592,20 @@ fast path before AI fallback. `reconciled_current_state` proves present-state
 agreement without attributing the original write. Live fences retain the bounded
 reconciliation payload until safe closure; resolved status records expire after
 15 minutes. Consumed handles never regain approval power.
+
+## Phase 12 — deterministic model graph (implemented; automated gate passed)
+
+`forge_api.model_graph` adds an internal immutable `forge-model-graph-v1` contract,
+a pure builder and narrow typed queries over an existing normalized read Snapshot.
+It preserves IDs and returned feature order beneath the ID-removing Inspector,
+with explicit per-source capture/revision/completeness provenance. No additional
+provider acquisition, public endpoint or runtime subsystem migration is introduced.
+
+The graph separates requested workspace/Part Studio references, returned feature /
+part/body inventory and bounded browser selection observations. Requested context
+containment stays unknown. Feature order does not become dependency; selection
+references never gain inferred ownership or topology correspondence. Invalid or
+mixed-context/revision evidence rejects, and sequential-read consistency remains
+unverified. Deployment, authentication, CAD-write and recovery code are unchanged.
+See [PHASE_12_FORGE_MODEL_GRAPH.md](PHASE_12_FORGE_MODEL_GRAPH.md) for the prior
+evidence inventory, schema, bounds, integration boundary and validation status.

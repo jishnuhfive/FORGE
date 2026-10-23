@@ -638,3 +638,20 @@ startup only checks schema. No live migration, OAuth/AI/CAD call, recovery chang
 or CAD write is part of this phase. Ingress callback-log redaction, private-network
 configuration, backup restore verification and actual embedded cookie validation
 remain operational gates. See [DEPLOYMENT.md](DEPLOYMENT.md).
+
+## Phase 12 internal graph boundary
+
+The deterministic model graph is private, read-only and request-local. It consumes
+existing normalized evidence with an explicit expected context; it never acquires
+CAD, reads raw provider documents, persists data or exposes a new endpoint/model
+tool. Strict frozen schemas and semantic checks reject malformed, mixed-context,
+stale or revision-conflicting inputs; every fact retains bounded provenance and
+availability. Browser selection references remain unverified observations without
+feature/part/body ownership or inferred topology continuity.
+
+Graph JSON contains private opaque CAD references and sanitized display metadata;
+it must not be logged or treated as access/approval evidence. No credentials, raw
+provider payloads or model reasoning are included. Future consumers must preserve
+existing owner/session/lifecycle controls and further minimize AI context. This
+phase changes no deployment, OAuth, CSRF, write flag, safe-write predicate or recovery
+behavior. See [the graph contract](PHASE_12_FORGE_MODEL_GRAPH.md).

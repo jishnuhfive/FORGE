@@ -235,7 +235,8 @@ No Phase 11 implementation is included or authorized by this merge.
 session-only; check results reach it only through a server-signed, session-bound evidence token; deterministic
 checkers keep all authority. Not merged and not human-validated; Phase 9 Gate B's provider-side audit remains
 deferred. See [PHASE_11_REVIEW.md](PHASE_11_REVIEW.md) and [PHASE_11_TUTOR_SPEC.md](PHASE_11_TUTOR_SPEC.md).
-Phase 12 is not started.
+At the Phase 11 review, Phase 12 had not started; the separately authorized
+Phase 12 work is recorded below.
 
 ## Hackathon Modify A1 — deterministic core implemented on its branch
 
@@ -294,3 +295,21 @@ are authorized. [DEPLOYMENT.md](DEPLOYMENT.md) records the foundation and gates.
 Railway provisioning, runtime secrets, real migrations, callback/Action URL changes,
 real OAuth/AI/embedded validation and custom-domain transition are later authorized
 operations. This implementation does not deploy or merge into main.
+
+## Phase 12 — ForgeModelGraph foundation
+
+**IMPLEMENTED — AUTOMATED GATE PASSED — READY FOR REVIEW; NOT MERGED.**
+Starting from merged deployment main `8d72cafc5cf94b79a7e38e15f17e4bc7b37817c1`
+on `phase12/forge-model-graph`, this separately authorized product phase adds a
+versioned deterministic read-only internal structural graph over existing normalized
+workspace Part Studio evidence. Typed IDs, supported membership/order/reference
+edges, provenance, validation, bounded serialization and narrow queries are in scope.
+
+No live validation, deployment changes, new acquisition, public graph endpoint,
+OAuth scope, CAD-write/recovery authority or broad subsystem migration is included.
+Selection ownership, dependency DAGs, topology correspondence and engineering
+correctness remain unknown. See [the Phase 12 specification/review](PHASE_12_FORGE_MODEL_GRAPH.md).
+The gate passed 124 focused graph tests, 827 frontend / 2,609 API tests (including
+all PostgreSQL cases), 594 browser tests and all required format/lint/type/build /
+migration/Compose/audit checks. This is automated evidence only. Phase 13 adoption
+requires separate authorization; no Phase 13 work is started.
