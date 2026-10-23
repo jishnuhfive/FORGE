@@ -1,10 +1,12 @@
 # Phase 13 — CAD Inspector graph adoption
 
-**IMPLEMENTED — AUTOMATED GATE PASSED — AWAITING HUMAN READ-ONLY VALIDATION**
+**COMPLETE — HUMAN READ-ONLY VALIDATED — READY FOR FINAL MERGE REVIEW**
 
 Started from clean `main` at `6f7d147dc4239dbe7b52c775eef9c4e2a7f12039`,
 matching fetched `origin/main`, on `phase13/inspector-graph-adoption`.
-Phase 12 remains complete. Phase 13 is not complete until human read-only validation.
+Implementation commit: `7696aa0e51002725811379123f498cb91da1e3ff`.
+Phase 12 remains complete. Phase 13 human read-only validation is now complete;
+the branch awaits final merge review and has not been merged. Railway remains unhosted.
 
 ## Consumer inventory and selection
 
@@ -164,21 +166,64 @@ Future AI, Tutor, Learn, Modify, selection, dependencies, assemblies/mates, topo
 or public graph API adoption requires separate authorization. There is no runtime
 feature flag or retained second production implementation for the direct Inspector.
 
-## Human read-only validation plan
+## Human read-only validation record
 
-Use this branch with the existing read-only configuration and consent. Keep writes
-OFF; no Phase 9 write validation, new scope or consent prompt is required.
+The human reported completing the authorized validation in a **real Onshape workspace
+Part Studio**, using the **local HTTPS Forge development environment** on the
+**Phase 13 branch**. Validation was read-only and **CAD writes remained OFF**.
+The observations below are human-reported evidence, separate from the automated gate.
+No browser/platform/version was supplied; no broader live browser coverage is claimed.
 
-1. In a disposable/read-only-safe workspace Part Studio containing Sketch 1 →
-   Extrude 1 → Fillet 1, explicitly Refresh CAD. Compare prior behavior for feature
-   count, exact order, names, recognized types, suppression, parameter labels/values,
-   parts/bodies and physical evidence. No CAD edit is needed for this test.
-2. Open an empty workspace Part Studio and Refresh CAD. Verify no invented/stale
-   inventory; successful zero inventory is distinct from unavailable evidence.
-3. Move to another Part Studio/document and Refresh CAD. Verify old evidence clears
-   and fresh inventory reflects that context. A new account/session must not inherit it.
-4. Confirm no CAD mutation, feature mutation, write proposal or additional consent.
-   Record observed read-only results and browser/platform; keep private IDs out of
-   review notes. Report only fixed error codes if evidence is unavailable.
+### Normal Part Studio
 
-No live Onshape validation, deployment, merge or CAD write is performed by this phase.
+The Onshape model contained **Sketch Gate → Extrude 1 → Fillet 1** and **1 part**.
+After **Refresh CAD**, Forge Inspector showed **3 modeled features**, in this exact
+order, with these recognized types and suppression presentation:
+
+| Order | Feature name | Recognized type | Presentation |
+| ----- | ------------ | --------------- | ------------ |
+| 1     | Sketch Gate  | Sketch          | Active       |
+| 2     | Extrude 1    | Extrude         | Active       |
+| 3     | Fillet 1     | Fillet          | Active       |
+
+Feature parameter presentation remained normal when expanded. Inspector showed
+**1 part** and **1 SOLID body**. Physical evidence remained conservative: mass was
+unavailable, with no invented mass value. No ForgeModelGraph IDs, provider IDs,
+provenance, graph bytes or other graph internals were exposed.
+
+Onshape's larger visible **Features** count includes default geometry such as
+Origin/planes. It does not contradict Forge reporting the **three modeled features**.
+
+### Empty Part Studio
+
+After **Refresh CAD**, Inspector showed **0 features, 0 parts and 0 bodies**.
+Successful empty inventory was not presented as unavailable evidence. No previous
+Sketch/Extrude/Fillet inventory remained.
+
+### Context transitions
+
+Switching back to the modeled Part Studio and refreshing restored **3 features,
+1 part and 1 body**, with **Sketch Gate → Extrude 1 → Fillet 1** in order.
+Switching again to the empty Part Studio and refreshing restored **0 features,
+0 parts and 0 bodies**. No stale prior inventory persisted across these Part Studio
+transitions. These observations do not establish untested account/session transitions.
+
+### Read-only authority
+
+The human observed:
+
+- No CAD mutation.
+- No feature suppression/unsuppression.
+- No write proposal.
+- No approval prompt.
+- No additional Onshape consent prompt.
+- No Phase 9 write validation was performed or required.
+
+### Closeout scope
+
+These observations validate the reported Inspector behavior in the tested read-only
+workspaces. They do not establish atomic provider reads, general production readiness,
+graph adoption in AI/Tutor/Learn/Modify, topology continuity, feature ownership,
+dependency DAG correctness or engineering correctness. The known limitations above
+remain in force. Railway remains unhosted; no deployment, merge or CAD write is
+performed by this documentation-only closeout.
