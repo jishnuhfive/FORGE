@@ -255,7 +255,7 @@ visibility-only DOM updates avoid per-pixel React renders or layout measurements
 Transform/opacity preserve layout space; reduced motion removes transitions.
 Tab focus reveals it immediately, and mode changes restore visibility. The bottom
 sticky composer and accepted visual system are unchanged. See the user-reported
-pre-polish validation and pending targeted visual recheck in
+PASS for all eight human read-only checks and seven targeted post-polish UX visual checks in
 [Phase 14](PHASE_14_ASK_FORGE_GRAPH_GROUNDING.md).
 
 A single workspace scroller contains the mode control and content; the shell header

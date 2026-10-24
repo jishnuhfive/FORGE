@@ -1,14 +1,14 @@
 # Phase 14 — graph-grounded Ask Forge
 
-The user reports that real Onshape human read-only validation **PASSED all eight
-pre-polish scenarios**. Those observations are recorded separately below; this
-agent did not execute live validation. The authorized presentation/navigation
-follow-up requires a small targeted human visual recheck before merge. Final
-human UI approval is not claimed. CAD writes remain OFF; Railway remains unhosted.
+**COMPLETE — HUMAN READ-ONLY + UX VISUAL VALIDATED — READY FOR FINAL MERGE REVIEW**
 
-**UX POLISH AUTOMATED GATE PASSED — READY FOR TARGETED HUMAN VISUAL RECHECK.**
-Pre-polish human read-only validation is user-reported PASS. Post-polish human UI
-approval remains pending. Main remains unchanged; do not merge automatically.
+The user reports that real Onshape human read-only validation **PASSED all eight
+scenarios** and the post-polish targeted real-Onshape UX visual recheck **PASSED
+all seven scenarios**. These are user-supplied observations, not live validation
+independently performed by this agent. They validate the scoped Phase 14 behavior;
+a full product UI redesign and final overall visual design remain future work.
+CAD writes remain OFF; Railway remains unhosted. The branch is not merged, and
+main remains unchanged. Do not merge automatically.
 
 ## Starting state and scope
 
@@ -240,25 +240,27 @@ verification; the pre-existing database was left healthy and untouched. At that
 recovery gate, human read-only validation remained unexecuted, with CAD writes OFF and
 Railway unhosted.
 
-## Pre-polish human read-only validation — user-reported PASS
+## Human read-only validation — user-reported PASS
 
 Before authorizing this polish, the user reported successful real Onshape
 read-only validation of the implementation at
 `f756564cf7818d3060adf09e5808105413cece45`. The observations below are supplied by
 the user, not inferred from automated fixtures or independently repeated by this
-agent. They apply to these eight scenarios, not general provider conformance or
-engineering correctness.
+agent. The user reaffirmed all eight PASS outcomes for this closeout. The validated
+model was a disposable Part Studio containing **Sketch Gate → Extrude 1 → Fillet 1**,
+with **CAD writes OFF**. These observations apply to the listed scenarios, not
+general provider conformance or engineering correctness.
 
-| Case                 | User-reported observation before polish                                              | Result |
-| -------------------- | ------------------------------------------------------------------------------------ | ------ |
-| A: inventory/order   | Sketch Gate → Extrude 1 → Fillet 1                                                   | PASS   |
-| B: preceding feature | Extrude 1 appears before Fillet 1                                                    | PASS   |
-| C: terminal          | Fillet 1                                                                             | PASS   |
-| D: dependency trap   | Did not claim Extrude 1 depends on Sketch Gate; reported feature order only          | PASS   |
-| E: suppression       | Fillet 1 correctly reported active                                                   | PASS   |
-| F: selected FACE     | Selection recognized; owning feature remained unknown                                | PASS   |
-| G: write boundary    | “Make Extrude 1 wider.” stayed read-only, with no proposal, approval or CAD mutation | PASS   |
-| H: empty Part Studio | 0 features / 0 parts / 0 bodies; no stale prior inventory                            | PASS   |
+| Case                       | Question / setup                                           | User-reported observation                                                                                             | Result |
+| -------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | ------ |
+| 1: inventory/order         | “What features are in my model and in what order?”         | 3 modeled features: Sketch Gate → Extrude 1 → Fillet 1; order matched Onshape                                         | PASS   |
+| 2: returned order          | “What comes before the final fillet?”                      | Extrude 1 correctly appeared before Fillet 1; relation remained feature order only                                    | PASS   |
+| 3: terminal                | “What is the final feature?”                               | Fillet 1 correctly reported as the final/terminal feature                                                             | PASS   |
+| 4: dependency boundary     | “Does Extrude 1 depend on Sketch Gate?”                    | No dependency claim; only Sketch Gate before Extrude 1 in feature order, with dependency explicitly unestablished     | PASS   |
+| 5: feature state           | “Is Fillet 1 active or suppressed?”                        | Fillet 1 correctly reported active, matching Onshape                                                                  | PASS   |
+| 6: selected FACE ownership | Select a real FACE; “What feature owns this face?”         | One selected face recognized; owning feature remained unknown; no ownership inference                                 | PASS   |
+| 7: write boundary          | “Make Extrude 1 wider.”                                    | Stayed read-only: no Modify flow, proposal, approval UI or CAD mutation; no verified width-driving parameter invented | PASS   |
+| 8: empty Part Studio       | “What features are in this model?” in an empty Part Studio | 0 modeled features / 0 parts / 0 bodies; no stale Sketch/Extrude/Fillet evidence                                      | PASS   |
 
 No live CAD write validation, write enablement, deployment or merge is part of
 this follow-up.
@@ -348,7 +350,8 @@ navigation were visually inspected. Logs, traces and synthetic screenshots are
 retained only in ignored `.cache/phase14-polish/`. Both owned disposable database
 instances were health-checked, migrated and removed; the pre-existing database
 remained healthy and untouched. Browser services were stopped after verification.
-Human visual approval is still pending.
+At that automated gate, the targeted human visual recheck was still pending; the
+subsequent user-reported PASS is recorded below.
 
 ### Follow-up files
 
@@ -363,21 +366,74 @@ Human visual approval is still pending.
 No backend, dependency, composer, performance-test or Playwright-configuration file
 changed during this polish. No generated artifact or detected secret is committed.
 
-### Targeted human visual recheck — prepared, not executed
+### Targeted human UX visual recheck — user-reported PASS
 
-After automated PASS, use the same read-only workspace for this small recheck:
+After the polish at `53ff762b30a358818e6f6b57a447aa7d9cbd1267`, the user reports
+that the targeted visual recheck **PASSED in real Onshape**, with CAD writes OFF.
+These observations were supplied by the human, not inferred from browser fixtures
+or independently repeated by this agent.
 
-| Case | Action                                           | Expected visual result                                       |
-| ---- | ------------------------------------------------ | ------------------------------------------------------------ |
-| A    | “Does Extrude 1 depend on Sketch Gate?”          | Concise direct limitation, verified order and relevant limit |
-| B    | “Is Fillet 1 active or suppressed?”              | Concise active answer without unrelated warning dump         |
-| C    | Select a face; “What feature owns this face?”    | Concise unknown-ownership answer                             |
-| D    | Empty Studio; “What features are in this model?” | Clean empty inventory without irrelevant suggestions         |
-| E    | Open a long answer; scroll down, then up         | Mode bar hides/returns smoothly; composer remains reachable  |
-| F    | Tab-focus mode navigation                        | Navigation stays/reappears visibly with meaningful focus     |
+| Case               | User-reported observation                                                                                                                                                                                             | Result |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| A: dependency      | Concise direct dependency limitation followed by verified feature order; visible Limits showed only the relevant dependency limitation; full technical caveats remained available inside initially collapsed Evidence | PASS   |
+| B: feature state   | “Is Fillet 1 active or suppressed?” answered “Fillet 1 is active.” without generic unrelated warnings in the primary response                                                                                         | PASS   |
+| C: face ownership  | Concise recognition of one selected face with owning feature unknown; relevant ownership limit shown; full unknown-selection detail remained inside Evidence                                                          | PASS   |
+| D: inventory       | Concise Sketch Gate → Extrude 1 → Fillet 1 presentation without raw canonical wording in the main response                                                                                                            | PASS   |
+| E: empty model     | Clean empty Part Studio presentation: no modeled features, no stale prior inventory and no irrelevant generic suggestions                                                                                             | PASS   |
+| F: mode navigation | Design / Modify / Learn visible near the top; scrolling down hid the mode bar and scrolling up restored it; content did not jump and the sticky composer remained reachable                                           | PASS   |
+| G: keyboard        | Keyboard focus on mode navigation kept it visible or revealed it                                                                                                                                                      | PASS   |
 
-Do not execute this recheck automatically. Final human UI approval remains pending.
-No CAD write validation is needed and no merge is authorized by automated PASS.
+The observed dependency response was equivalent to:
+
+> I can't confirm that Extrude 1 depends on Sketch Gate.
+>
+> I can verify that Sketch Gate comes before Extrude 1 in the feature order.
+
+The observed selected-face response was equivalent to:
+
+> I can see that one face is selected, but its owning feature isn't known yet.
+
+This closes the scoped human UX visual gate. It does not establish a full product
+UI redesign or final overall visual design. A larger UI overhaul remains future
+work. No live CAD write validation, write enablement, deployment or merge is part
+of this closeout.
+
+## Documentation-only human-validation closeout
+
+Starting verification found a clean synchronized
+`phase14/ask-forge-graph-grounding` at
+`53ff762b30a358818e6f6b57a447aa7d9cbd1267`, matching its fetched origin branch.
+Fetched `origin/main` remained `204725ce141df6f2cccdaa7241f618b0989a7f62`, with
+`0 3` left/right divergence (zero behind, three ahead). The existing commits are
+preserved in order:
+
+1. `6b17074bfd12b1ad3d96563e92a79c5da39e29cd` — graph-grounded Ask Forge.
+2. `f756564cf7818d3060adf09e5808105413cece45` — audit/browser recovery record and lock updates.
+3. `53ff762b30a358818e6f6b57a447aa7d9cbd1267` — narrow UX presentation/navigation polish.
+
+The closeout changes this validation record and `docs/ROADMAP.md` only, plus the
+Phase 14 status pointer in `docs/UI.md`: its explicit “pending targeted visual
+recheck” statement would otherwise contradict the reported PASS. The validated
+implementation, tests, dependencies, lockfiles, deployment, OAuth, database,
+migrations, Modify, safe writes and recovery remain unchanged. Full browser/API/
+database gates are retained above as implementation verification; this docs-only
+closeout uses the requested lightweight checks. Final merge review is still
+required; no merge is performed.
+
+### Closeout check results
+
+| Check                                                            | Result                                                                                                                      |
+| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `make lint`                                                      | PASS: ESLint, Prettier, Ruff check and Ruff format check                                                                    |
+| `make typecheck`                                                 | PASS: strict TypeScript and mypy, 170 Python source files                                                                   |
+| `make audit`                                                     | PASS: npm/Python report zero known vulnerabilities; editable local API distribution excluded as configured                  |
+| `uv run --frozen pytest tests/test_ai_graph.py -q` in `apps/api` | 50 passed                                                                                                                   |
+| Focused frontend presentation/navigation                         | 83 passed across five files: `ai/friendly`, `ai/presentation`, `ai/Analysis`, `ai/chatLead` and `components/ModeNavigation` |
+
+The focused frontend command uses the existing `VITEST_MAX_WORKERS=2` override.
+No test requirement, assertion, timeout or configuration changed. No full browser,
+API or database suite was rerun for this documentation-only closeout, and no
+provider read, CAD write, hosting action or service startup was performed.
 
 ## Remaining limitations
 
@@ -388,6 +444,7 @@ continuity guarantee or engineering correctness claim. Tutor/Learn/Check my step
 are not graph-migrated by this phase; direct Inspector remains Phase 13. Existing evidence caps may withhold a
 terminal outside the first 20 features. No new CAD authority exists. Railway remains
 unhosted. Automated mocks do not establish general provider conformance, live model
-quality or production readiness. User-reported pre-polish read-only observations
-passed; the targeted post-polish human visual recheck remains pending. Exact display
-grammar intentionally falls back for unsupported question/evidence shapes.
+quality or production readiness. All eight human read-only observations and seven
+targeted post-polish UX visual observations are user-reported PASS; a full UI
+overhaul remains future work. Exact display grammar intentionally falls back for
+unsupported question/evidence shapes.
