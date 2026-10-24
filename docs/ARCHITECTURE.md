@@ -674,3 +674,23 @@ truth. The API retains all evidence and uncertainties; concise primary answers a
 contextual Limits retain full technical data in Evidence. Shared optional scroll
 navigation belongs to the design system and changes no business logic or CAD
 authority. The existing composer, backend acquisition and lifecycle remain unchanged.
+
+## Phase 15 — learner-requested Tutor graph grounding
+
+Only Tutor's optional current-CAD path now uses `acquire_bound` → the existing
+`ground(Snapshot, TutorRequest.context, correlation)` → `project`. The validated
+request context independently constrains the same acquired Snapshot; one graph
+supplies checked Inspector inventory and Phase 14 bounded canonical structural
+facts, with zero extra provider reads. Direct Inspector is the Phase 13 consumer,
+Design Ask Forge the Phase 14 consumer, Learn Tutor the Phase 15 consumer. Modify
+remains unmigrated; Check my step and signed check-token authority are unchanged.
+
+Server presentation separates historical check findings from current CAD facts,
+always retains ordering semantics, and replaces dependency/ownership prose with
+fixed general teaching. Only complete evidence can yield a terminal statement.
+PRECEDES is order, not dependency; no ownership inference, topology continuity,
+engineering correctness or new CAD authority follows. Combined check/application
+context and CAD evidence must fit the existing byte bound or fail closed.
+Reads remain sequential/non-atomic. No UI redesign, migration or deployment change;
+the full UI overhaul remains future work and Railway remains unhosted. See
+[Phase 15](PHASE_15_TUTOR_GRAPH_GROUNDING.md) for failures, limits and manual validation.

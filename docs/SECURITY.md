@@ -702,3 +702,35 @@ text, never HTML or policy. No model prose becomes a verified fact. Contextual
 Limits change prominence only: the full uncertainty array, canonical evidence,
 original answer and capture time remain accessible in Evidence. Selection UNKNOWN
 and read-only capability authority are unchanged; no CAD write path is added.
+
+## Phase 15 Tutor graph adoption
+
+Only explicit learner-requested Tutor CAD inspection adopts the Phase 14 shared
+grounding path. The same accepted Snapshot is constrained by independent validated
+`TutorRequest.context`, after existing acquisition lifecycle checks. No extra
+provider request, graph persistence, selected FACE/EDGE grounding or public graph
+data is added. Invalid graph/correspondence evidence fails closed, with no legacy
+interpretation or private validation details. Admission/provider throttle stops
+are forwarded distinctly before graph construction. Final session/grant checks
+and cancellation still prevent discarded evidence reaching the answer provider.
+
+Canonical AVAILABLE adjacent PRECEDES facts establish order only, not dependency
+or ownership. Missing/UNKNOWN relationships prove nothing; terminal facts require
+the existing completeness/end rollback proof. A fixed semantics caveat survives
+model selection. Conservative server presentation replaces relationship prose with
+general teaching and terminal prose with proven canonical text or fixed unknown
+copy. CAD strings stay quoted untrusted data; graph/provider/context IDs and
+provenance never reach Tutor model/browser payloads. Combined application/check
+context and CAD evidence must fit the existing evidence byte bound or fail closed.
+
+Check my step remains deterministic and unchanged, including the signed session-
+bound token, tamper/step rejection and authentic expiry behavior. Check findings
+and current CAD observations keep separate sources and capture times; a new CAD
+read never changes a historical verdict. No correctness, completion or investigation
+authority is granted to the Tutor. Existing explicit-send, auth/CSRF, quotas,
+provider, strict output, no-conversation-persistence and read-only controls remain.
+No new scope, CAD write, FeatureScript, Modify invocation, migration or deployment.
+Direct Inspector = Phase 13, Design Ask Forge = Phase 14, Learn Tutor = Phase 15;
+Modify remains unmigrated. No topology continuity, engineering correctness or new
+CAD authority; reads remain sequential/non-atomic. Full UI overhaul remains future
+work; Railway remains unhosted. See [Phase 15](PHASE_15_TUTOR_GRAPH_GROUNDING.md).

@@ -3,13 +3,16 @@
 import re
 from collections.abc import AsyncIterator, Awaitable, Callable
 
+from forge_api.ai import evidence as cad_evidence
 from forge_api.ai.evidence import FRESHNESS, UNITS, project
+from forge_api.ai.grounding import ORDER_SEMANTICS, GroundedCad
+from forge_api.ai.models import AiError
 from forge_api.ai.policy import REFUSAL, blocked
 from forge_api.ai.presentation import GENERAL_REPLY_NOTE, mentions_model
 from forge_api.integrations.onshape.inspector import CadInspector
 
 from .catalog import CATALOG
-from .context import build_context
+from .context import build_context, context_message
 from .evidence_token import VerifiedCheck
 from .models import LatestCheck, Observed, TutorAnswer, TutorModelAnswer, TutorRequest
 from .policy import boundary_response
@@ -27,6 +30,35 @@ DIMENSION_NOTE = (
     "Forge can't read your dimensions or units, so nothing here confirms a size."
 )
 STRENGTH_NOTE = "Forge doesn't verify strength, fit or safety."
+RELATIONSHIP_EXPLANATION = (
+    "In general CAD, a dependency means a feature uses another feature's profile "
+    "or geometry as an input. Forge can describe captured feature order, but that "
+    "does not establish dependency, ownership or other relationships in your model."
+)
+RELATIONSHIP_ACTION = (
+    "Examine the feature's inputs in Onshape; use Check my step for a new step result."
+)
+TERMINAL_UNKNOWN = (
+    "Forge hasn't established a final feature from complete evidence. The last "
+    "visible feature alone cannot prove the end of the feature list."
+)
+# Coarse presentation protection, not a dependency classifier. For relationship
+# questions OR relationship language in any model prose, substitute fixed general
+# teaching and keep current-model observations exclusively in canonical CAD rows.
+# This also catches a bare 'yes' to a dependency question and negative claims from
+# missing edges. It deliberately prefers less-specific teaching to an unsafe join.
+_RELATIONSHIP = re.compile(
+    r"\b(?:depend\w*|parent\w*|child\w*|own\w*|consum\w*|driv\w*|driven|"
+    r"caus\w*|topolog\w*|relationship\w*|relies|rely|belongs|"
+    r"uses?|using|inputs?|references?|linked|connected)\b|\bbased\s+on\b",
+    re.IGNORECASE,
+)
+_TERMINAL = re.compile(
+    r"\b(?:final|last|terminal)\s+(?:captured\s+|modeled\s+)?feature\b|"
+    r"\bfeature\b[^.?!]{0,60}\b(?:final|last|terminal)\b|"
+    r"\bend\s+of\s+(?:the\s+)?feature\s+(?:list|tree)\b",
+    re.IGNORECASE,
+)
 # Presentation guards, like the verdict guard below: the model may mention sizes or
 # strength in teaching, but the learner is always told Forge has verified neither.
 _DIMENSION = re.compile(
@@ -78,6 +110,7 @@ def resolve_tutor(
     facts: dict[str, object],
     used_cad: bool,
     captured_at: str | None,
+    question: str = "",
 ) -> TutorAnswer:
     from forge_api.ai.models import Fact
 
@@ -110,6 +143,11 @@ def resolve_tutor(
     )
     if used_cad:
         unknowns += [UNITS, FRESHNESS]
+        if "order_semantics" in facts:
+            unknowns.append(ORDER_SEMANTICS)
+    if len(unknowns) > 8:
+        # Never discard a check limitation or structural caveat to fit the UI.
+        raise AiError("evidence_unavailable")
     notes: list[str] = []
     if check is not None:
         notes.append(STALE_NOTE)
@@ -122,12 +160,27 @@ def resolve_tutor(
         notes.append(DIMENSION_NOTE)
     if _STRENGTH.search(prose):
         notes.append(STRENGTH_NOTE)
+    explanation = model.explanation.strip()
+    next_action = model.next_action.strip() or None
+    reasoning_question = model.reasoning_question.strip() or None
+    if "order_semantics" in facts:
+        if _RELATIONSHIP.search(question + " " + prose):
+            explanation = RELATIONSHIP_EXPLANATION
+            next_action = RELATIONSHIP_ACTION
+            reasoning_question = None
+        elif _TERMINAL.search(question + " " + prose):
+            terminal = facts.get("terminal_feature")
+            explanation = (
+                terminal.statement if isinstance(terminal, Fact) else TERMINAL_UNKNOWN
+            )
+            next_action = None
+            reasoning_question = None
     return TutorAnswer(
-        explanation=model.explanation.strip(),
-        reasoning_question=model.reasoning_question.strip() or None,
-        next_action=model.next_action.strip() or None,
+        explanation=explanation,
+        reasoning_question=reasoning_question,
+        next_action=next_action,
         observed=observed,
-        unknowns=unknowns[:8],
+        unknowns=unknowns,
         notes=notes[:6],
         latest_check=latest(check),
         used_cad=used_cad,
@@ -139,7 +192,7 @@ async def run_tutor(
     request: TutorRequest,
     check: VerifiedCheck | None,
     provider: TutorProvider,
-    read: Callable[[], Awaitable[CadInspector]],
+    read: Callable[[], Awaitable[CadInspector | GroundedCad]],
     ensure_active: Callable[[], Awaitable[None]],
     request_id: str,
 ) -> AsyncIterator[dict[str, object]]:
@@ -177,8 +230,16 @@ async def run_tutor(
         yield {"type": "progress", "stage": "inspecting"}
         evidence = await read()
         payload, projected = project(evidence, "none")
+        if (
+            len(payload.encode("utf-8")) + len(context_message(context).encode("utf-8"))
+            > cad_evidence.MAX_EVIDENCE_BYTES
+        ):
+            raise AiError("evidence_unavailable")
         facts = dict(projected)
-        captured_at = evidence.source.captured_at
+        inspector = (
+            evidence.inspector if isinstance(evidence, GroundedCad) else evidence
+        )
+        captured_at = inspector.source.captured_at
         await ensure_active()
     yield {"type": "progress", "stage": "reviewing"}
     model = await provider.answer(payload, request_id=request_id)
@@ -195,5 +256,6 @@ async def run_tutor(
             facts=facts,
             used_cad=wants_cad,
             captured_at=captured_at,
+            question=request.question,
         ).model_dump(),
     }

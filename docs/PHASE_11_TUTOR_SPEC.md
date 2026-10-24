@@ -1,5 +1,13 @@
 # Phase 11 specification — Contextual AI tutor in Learn Mode
 
+**Phase 15 superseding architectural note:** only the optional learner-requested
+current-CAD path in section 5 now reuses Phase 14's graph-backed `ground`/`project`
+over the same acquired Snapshot and independently validated Tutor request context.
+Check my step, signed check-token authority, provider configuration and UI contracts
+remain unchanged. Canonical returned-order facts do not prove dependency/ownership;
+server presentation protects that boundary and completeness-proven terminal claims.
+See [Phase 15](PHASE_15_TUTOR_GRAPH_GROUNDING.md) for current details and limits.
+
 Design reference for **Ask Forge**, a learner-requested AI explanation channel inside the Mounting
 Bracket guided lesson and its transfer challenge. Deterministic checkers remain the only authority
 for correctness. The tutor explains; it never verifies, grades, approves or edits.

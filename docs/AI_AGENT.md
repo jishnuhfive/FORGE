@@ -109,8 +109,9 @@ The model cannot redirect a read, choose another user/host or execute arbitrary 
 Normal Design Ask Forge now consumes graph-backed feature inventory/order. Its
 pure internal projection shares one graph with Inspector presentation, joins rich
 evidence by exact same-Snapshot opaque provider ID, and retains the independently
-validated request context. Direct Inspector remains the Phase 13 consumer;
-Tutor/Learn/Check my step/Modify retain their existing paths.
+validated request context. Direct Inspector remains the Phase 13 consumer.
+At Phase 14, Tutor/Learn/Check my step/Modify retained their existing paths;
+Phase 15's narrower Tutor adoption is recorded below.
 
 Only bounded human-readable canonical facts reach either model provider: adjacent
 AVAILABLE PRECEDES relationships, a terminal feature only when the existing query
@@ -539,6 +540,25 @@ settings and budgets. At most two rounds, no automatic retry or fallback. Round 
 `TutorModelAnswer`. The model never sets a status; `check_refs` and `fact_ids` select server-owned statements and
 invented ids are dropped. Requests to change CAD, use APIs or mark a step passed get fixed server replies with no
 model call. See [PHASE_11_TUTOR_SPEC.md](PHASE_11_TUTOR_SPEC.md).
+
+Phase 15 changes only learner-requested Tutor CAD grounding to reuse `GroundedCad`,
+`ground` and `project` from Phase 14 over the same accepted Snapshot and independently
+validated request context. Direct Inspector remains Phase 13, Design Ask Forge
+Phase 14 and Learn Tutor Phase 15; Modify remains unmigrated. Bounded AVAILABLE
+adjacent order and completeness-proven terminal facts retain quoted untrusted names.
+PRECEDES is returned order, not dependency or ownership; missing relationships prove
+nothing. A deterministic presentation guard replaces relationship prose with general
+teaching, and terminal prose uses only canonical proven evidence. Ordering semantics
+always accompanies a graph-backed answer. Combined application/check context and
+CAD evidence must fit the existing 65,536-byte bound, otherwise fail closed.
+
+Check my step remains deterministic and unchanged; signed check tokens remain its
+sole Tutor check authority. New CAD observations cannot update a historical check.
+There is no selected-face/edge Tutor grounding, ownership inference, dependency DAG,
+topology continuity, engineering correctness or new CAD authority. No persistence,
+scope, write, Modify, migration or deployment expansion; reads remain sequential/
+non-atomic, the full UI overhaul remains future work and Railway remains unhosted.
+See [Phase 15](PHASE_15_TUTOR_GRAPH_GROUNDING.md).
 
 ## Modify planner (B1)
 

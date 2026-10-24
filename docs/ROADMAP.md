@@ -441,3 +441,35 @@ PRECEDES is returned order,
 not dependency; no ownership inference, selected-face/edge ownership, dependency
 DAG, topology continuity, engineering correctness or new CAD authority is added.
 Reads remain sequential/non-atomic, CAD writes remain OFF and Railway remains unhosted.
+
+## Phase 15 — graph-grounded Learn Tutor
+
+**IMPLEMENTED — AUTOMATED GATE PASSED — HUMAN READ-ONLY VALIDATION PENDING**
+
+Implementation on `phase15/tutor-graph-grounding` from clean synchronized `main`
+`500e114b7356b90499988633dd7811c49b94937c`; human read-only validation pending.
+Only learner-requested contextual Tutor CAD grounding adopts the Phase 14 shared
+`GroundedCad`/`ground`/`project` path, using the same acquired Snapshot and independent
+validated request context. Direct Inspector is the Phase 13 consumer, Design Ask
+Forge Phase 14 and Learn Tutor Phase 15. Modify remains unmigrated. Check my step
+remains deterministic and unchanged, including signed check-token authority and
+historical-check/current-CAD separation.
+
+Bounded AVAILABLE adjacent order facts, complete-evidence terminal facts and fixed
+relationship caveats add zero provider reads. Server presentation prevents returned
+order from becoming a dependency/ownership claim. PRECEDES is returned order, not
+dependency; there is no dependency DAG, feature ownership inference, selected-face/
+edge Tutor grounding, topology continuity guarantee or engineering-correctness
+claim. Graph failure and combined evidence overflow fail closed. No new CAD authority,
+scope, persistence, write, migration, deployment or Tutor UI redesign is included.
+Reads remain sequential/non-atomic; the full UI overhaul remains future work.
+Railway remains unhosted. See [Phase 15](PHASE_15_TUTOR_GRAPH_GROUNDING.md) for
+automated verification and the prepared, unexecuted human read-only validation plan.
+
+The branch gate passed **69 focused Phase 15 / 226 existing targeted tests**,
+**869 frontend / 2,831 API tests** (including all **42 PostgreSQL cases**, no skips),
+and **633 browser tests** (211 in each engine, four workers, zero retries).
+Frozen installs, formatting, lint, strict types, build, migration drift, Compose and
+dependency audits passed. The isolated synthetic database was removed after checks;
+existing local data remain untouched. No real CAD write or hosted deployment was
+performed. Human read-only validation and merge remain separate later steps.
