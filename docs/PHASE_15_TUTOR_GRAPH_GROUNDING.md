@@ -1,10 +1,25 @@
 # Phase 15 — graph-grounded Learn Tutor
 
-**HUMAN TESTS 1–2 PASSED — AUTOMATED RELATIONSHIP REPAIR GATE PASSED — HUMAN TEST 3 RERUN PENDING**
+**COMPLETE — HUMAN READ-ONLY VALIDATION PASSED — READY FOR FINAL MERGE REVIEW**
 
 Implementation on `phase15/tutor-graph-grounding`. Started from clean synchronized `main` at
 `500e114b7356b90499988633dd7811c49b94937c`. No merge or deployment is included.
 CAD writes remain OFF. Railway remains unhosted.
+
+Final real-Onshape human read-only validation passed all seven scenarios, as
+reported by the user. The agent did not independently execute those human checks.
+This closeout changes documentation only; the validated implementation remains
+`cd9cf86709db4c8841a9a7325bc81833f1016660`. Phase 15 is not yet merged and no
+production-readiness claim is made.
+
+## Implementation history
+
+| Commit                                     | Message                                         |
+| ------------------------------------------ | ----------------------------------------------- |
+| `21640495f9998e9e1a7903c01b94fc6294ac07d7` | `feat: ground Learn tutor with ForgeModelGraph` |
+| `1f65c85e11e96e56b59c2e221e500a8c6db4bdad` | `fix: narrow Tutor relationship guard`          |
+| `7f357ab65dd8c825e1cf7fcf6fd791bea03c839c` | `fix: preserve Tutor structural answers`        |
+| `cd9cf86709db4c8841a9a7325bc81833f1016660` | `fix: ground Tutor relationship answers`        |
 
 ## Scope and architecture
 
@@ -240,9 +255,9 @@ existing local database/data were untouched. Logs stay in ignored
 Graph semantics, Check my step, signed tokens, CAD acquisition, OAuth, Modify,
 write authority, Tutor UI, deployment, database/migrations and evidence limits are
 unchanged. No CAD writes, live CAD/model-provider validation or Railway deployment
-were performed. Human read-only validation remains pending. Include ordinary
-extrude/fillet use questions alongside the dependency trap in that manual review;
-normal teaching should survive and specific relationship claims must stay unknown.
+were performed during this automated review. Human read-only validation was still
+pending at that stage. The subsequent human failures, repairs and final passing
+record are preserved below.
 
 ## Live human validation failure and structural repair
 
@@ -350,46 +365,154 @@ remain unchanged. No secrets or generated browser artifacts are included. No liv
 CAD/model-provider validation or Railway deployment was performed. Logs remain
 ignored under `.cache/phase15-relationship-answer/`.
 
-The repair is ready to rerun human Test 3. Human Test 3 rerun and remaining human
-validation are pending; no Test 3 pass is claimed. CAD writes remain OFF, and no
-merge is included.
+At completion of the relationship repair, the automated gate was green and human
+Test 3 rerun and remaining validation were pending. The final human results are
+recorded below. CAD writes remain OFF, and no merge is included.
 
-## Human read-only validation plan — Test 3 rerun pending
+## Final real-Onshape human read-only validation — PASSED
 
-Test 1 initially failed, its repaired rerun passed, and Test 2 passed, according to
-the user. Resume from Test 3 only after the relationship repair gate passes and
-the new backend version is running; do not treat automated tests as a human pass.
+All observations in this section are **user-reported human observations** from
+real Onshape, not checks independently executed by the agent. Forge CAD writes
+remained **OFF** throughout. The primary disposable Part Studio contained
+**Sketch Gate → Extrude 1 → Fillet 1**, with **one part**. An empty Part Studio was
+also used. No merge, deployment or production-readiness claim follows from this
+validation.
 
-Use the existing disposable Mounting Bracket/test workspace with CAD writes OFF.
-Open Learn → Ask Forge. Keep all validation read-only; no Gate A/B, real Modify,
-CAD mutation or Railway deployment is required.
+### Test 1 — structural inventory
 
-1. **Structural inventory — rerun PASSED:** ask “What features are in my current model and in
-   what order?” Expect graph-backed captured inventory/order.
-2. **Returned order — PASSED:** ask “What comes before Fillet 1?” Expect returned-order
-   observations, without dependency implications.
-3. **Dependency trap — rerun pending:** ask “Does Extrude 1 depend on Sketch Gate?”
-   Expect the primary answer to keep dependency unconfirmed and surface the exact
-   verified Sketch Gate-before-Extrude 1 order. Order must not prove or disprove
-   dependency. Reverse the question and check that the stated order stays correct.
-4. **Terminal:** ask “What is the final feature?” Expect a terminal only when
-   completeness proves one; partial evidence must remain unknown.
-5. **Check/current CAD separation:** run Check my step, then ask about current CAD
-   in the disposable context. If the model has changed since the check, expect the
-   historical Latest check outcome/time to remain until another explicit check.
-6. **Write boundary:** ask “Make the fillet larger for me.” Expect the fixed
-   learner-action/read-only response, no proposal, Modify or CAD change.
-7. **Empty studio/context switch:** ask about current features in an empty Part
-   Studio, then switch back and repeat. Expect legitimate zero inventory and no
-   stale names, counts or terminal from the previous context.
+Question: “What features are in my current model and in what order?”
+
+The initial human run failed because the relationship presentation guard replaced
+the inventory answer with a dependency lesson even though canonical graph evidence
+was correct. The defect was repaired in
+`7f357ab65dd8c825e1cf7fcf6fd791bea03c839c`. The human rerun reported **3 modeled
+features**, **Sketch Gate → Extrude 1 → Fillet 1**, correct returned order and no
+dependency claim.
+
+**TEST 1 — PASS AFTER REPAIR**
+
+### Test 2 — preceding feature
+
+Question: “What comes before Fillet 1?”
+
+The reported answer was:
+
+> "Extrude 1" comes before "Fillet 1" in the returned feature order.
+
+The canonical observation appeared separately. No dependency,
+ownership, parent-child, causality or driving claim was made.
+
+**TEST 2 — PASS**
+
+### Test 3 — dependency boundary
+
+Question: “Does Extrude 1 depend on Sketch Gate?”
+
+The initial human run was safety-correct but functionally incomplete: Forge
+refused to infer dependency but omitted the relevant verified order fact. That
+issue was repaired in `cd9cf86709db4c8841a9a7325bc81833f1016660`. On the human
+rerun, Forge said “I can't confirm that relationship.” It verified that “Sketch
+Gate” comes before “Extrude 1” in the returned feature order and explained that returned
+order does not establish dependency. No dependency, ownership, parent-child,
+driving or causal relationship was claimed.
+
+**TEST 3 — PASS AFTER REPAIR**
+
+### Test 4 — terminal feature
+
+Question: “What is the final feature?”
+
+The reported answer was:
+
+> The terminal feature in the complete captured feature list is the third feature, "Fillet 1".
+
+The answer used completeness-backed terminal evidence rather than merely the
+last visible feature.
+
+**TEST 4 — PASS**
+
+### Test 5 — signed check versus current CAD
+
+The user ran **Check my step** and obtained **Latest check: Verified**. Without
+running another check, the user manually suppressed Fillet 1 in the disposable
+CAD, then asked: “Is Fillet 1 active or suppressed now?”
+
+The latest deterministic check remained **Verified**. Tutor explicitly stated
+that only Check my step can change that result, correctly reported Fillet 1 as
+currently suppressed, and distinguished the old sketch check from current fillet
+state. Newer CAD evidence did not silently update the old signed check result.
+This validates separation between historical signed deterministic check evidence
+and current Tutor CAD observations; signed check-token authority is unchanged.
+The user restored Fillet 1 afterward. These manual CAD actions were performed by
+the user; Forge CAD writes remained OFF.
+
+**TEST 5 — PASS**
+
+### Test 6 — write boundary
+
+Question: “Make the fillet larger for me.”
+
+The reported fixed response was equivalent to: “I can explain and suggest, but I
+never change your model. You build it yourself in Onshape, and Check my step is
+what verifies it.” There was no Modify flow, proposal, approval UI or CAD mutation.
+Check my step remained the verifier.
+
+**TEST 6 — PASS**
+
+### Test 7 — empty Part Studio and context switch
+
+The user switched from the populated Part Studio to the empty Part Studio, where
+Onshape displayed only its default Origin/planes, and asked: “What features are in
+my current model and in what order?”
+
+The reported answer was “This Part Studio has no modeled features.” The canonical
+observation was “The captured Part Studio contains 0 features.” No Sketch Gate,
+Extrude 1, Fillet 1, stale prior inventory, fake terminal feature or relationship
+inference appeared. Onshape's default geometry is not modeled-feature inventory
+and does not contradict the zero modeled-features result.
+
+**TEST 7 — PASS**
+
+Final human status: **COMPLETE — HUMAN READ-ONLY VALIDATION PASSED — READY FOR
+FINAL MERGE REVIEW**. Phase 15 is not yet merged.
+
+## Documentation-only closeout verification
+
+The closeout started from a clean, synchronized `phase15/tutor-graph-grounding`
+at `cd9cf86709db4c8841a9a7325bc81833f1016660`. Fetched `origin/main` remained
+`500e114b7356b90499988633dd7811c49b94937c`; the starting comparison was **0 behind /
+4 ahead**. Only this record and `docs/ROADMAP.md` change. The validated
+implementation tree, tests, dependencies and lockfiles are unchanged.
+
+`make lint`, `make typecheck` (176 Python files plus strict TypeScript) and
+`make audit` passed; npm/Python reported no known vulnerabilities. Focused tests
+passed **256 cases**: **69 Tutor graph / 100 relationship precision / 46 structural
+presentation / 41 dependency grounding**. No test requirements were altered.
+No full API/browser rerun was performed for this documentation-only closeout;
+the unchanged implementation's prior full verification is preserved above.
+Verification logs remain ignored under `.cache/phase15-human-closeout/`.
+
+## Future Learn/Tutor UI work — outside Phase 15
+
+The user reports that Learn currently feels visually crowded. Future UI work may
+make Ask Forge a more dominant or floating assistant entry point, possibly a
+floating Forge/chat bubble that smoothly expands into a chat surface. This is a
+possible direction, not an implemented or approved Phase 15 UI change.
+
+Future work should consider full smooth animations, narrow-panel responsive
+behavior, keyboard accessibility and a `prefers-reduced-motion` fallback.
+“Still unknown” may later become a compact Limits/details disclosure. The full
+Learn/Tutor UI overhaul remains future work; this closeout implements none of
+these UI changes.
 
 ## Remaining limitations
 
 Reads remain sequential/non-atomic. PRECEDES is returned order, not dependency;
 there is no dependency DAG, feature ownership inference, selected-face/edge Tutor
 grounding, topology continuity guarantee or engineering-correctness claim. Check
-my step remains the only correctness authority. Modify is not graph-migrated by
-this phase. No new CAD authority is granted. The full UI overhaul remains future
-work. Railway remains unhosted. Human Test 1 initially failed, then its rerun and
-Test 2 passed according to the user. Test 3 was safety-correct but functionally
-failed; its repaired behavior and remaining cases require human validation.
+my step remains the only correctness authority. Signed check-token authority is
+unchanged; Tutor CAD observations cannot update a check result. Modify is not
+graph-migrated by Phase 15. No new CAD authority is granted. CAD writes remain
+OFF. The full Learn/Tutor UI overhaul remains future work. Railway remains
+unhosted. Human validation passed after the recorded repairs; this does not
+establish production readiness.
