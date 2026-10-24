@@ -370,13 +370,14 @@ for the complete human-observed record.
 
 ## Phase 14 — graph-grounded Ask Forge
 
-**COMPLETE — HUMAN READ-ONLY + UX VISUAL VALIDATED — READY FOR FINAL MERGE REVIEW**
+**COMPLETE — HUMAN READ-ONLY + UX VISUAL VALIDATED — MERGED INTO MAIN**
 
 Real Onshape human read-only validation passed all eight scenarios, and the
 post-polish targeted real-Onshape UX visual recheck passed all seven scenarios,
-as reported by the user. CAD writes remained OFF. The branch is not merged;
-main remains unchanged. A larger UI overhaul and final overall visual design
-remain future work.
+as reported by the user. Phase 14 was merged into `main` at
+`c70c649b64a40ae6cd941854f018f5fb789579b8`, preserving all four Phase 14 commits
+without squashing or rewriting. CAD writes remain OFF. A larger UI overhaul and
+final overall visual design remain future work; no production readiness is claimed.
 
 Authorized from clean synchronized main
 `204725ce141df6f2cccdaa7241f618b0989a7f62` on
@@ -404,7 +405,7 @@ PostgreSQL cases), format/lint/types, build, migrations, Compose and audits pass
 The final complete `make test-e2e` passed all 594 cases with the normal four workers
 and zero retries after the user confirmed machine availability. Earlier loaded-host
 browser failures are retained in the Phase 14 record; no source, tests or time
-budgets were changed to obtain the pass. This phase must not merge automatically.
+budgets were changed to obtain the pass.
 The follow-up changes concise answer formatting, contextual Limits/detail hierarchy
 and auto-hiding mode navigation only; the eight semantic outcomes and all backend
 authority boundaries are preserved. Its final gate passed 83 focused frontend
@@ -418,13 +419,23 @@ revealing/retaining navigation. Relevant Limits stayed visible while full
 technical caveats remained in Evidence. The complete seven-case UX record is in
 the same Phase 14 record, alongside the earlier automated results.
 
-The human-validation closeout is documentation only; the validated implementation
+The pre-merge human-validation closeout was documentation only; the validated implementation
 at `53ff762b30a358818e6f6b57a447aa7d9cbd1267` and its two preceding Phase 14
 commits are preserved. The closeout passed lint, strict typing, dependency audits
 (zero known vulnerabilities), all 50 graph regressions and all 83 focused
-presentation/navigation tests. No full
-browser/API/database rerun is required for these documentation changes. Final
-merge review remains required; no merge is performed.
+presentation/navigation tests. No full browser/API/database rerun was required
+for those documentation changes. At that closeout, final merge review was still
+required and no merge was performed.
+
+The subsequent non-fast-forward merge preserved the exact validated tree at
+`587001f485a28fe2dcda724c1ef32b6a50c56d26` and all four commits:
+`6b17074bfd12b1ad3d96563e92a79c5da39e29cd`,
+`f756564cf7818d3060adf09e5808105413cece45`,
+`53ff762b30a358818e6f6b57a447aa7d9cbd1267` and
+`587001f485a28fe2dcda724c1ef32b6a50c56d26`. Merged-tree lint, strict typing,
+build, audits, all 50 graph regressions and 83 focused presentation/navigation
+tests passed before pushing main. Phase 14 and deployment branches were retained;
+no Railway deployment or Phase 15 work was performed.
 
 PRECEDES is returned order,
 not dependency; no ownership inference, selected-face/edge ownership, dependency

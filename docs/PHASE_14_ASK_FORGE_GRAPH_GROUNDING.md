@@ -1,20 +1,22 @@
 # Phase 14 — graph-grounded Ask Forge
 
-**COMPLETE — HUMAN READ-ONLY + UX VISUAL VALIDATED — READY FOR FINAL MERGE REVIEW**
+**COMPLETE — HUMAN READ-ONLY + UX VISUAL VALIDATED — MERGED INTO MAIN**
 
 The user reports that real Onshape human read-only validation **PASSED all eight
 scenarios** and the post-polish targeted real-Onshape UX visual recheck **PASSED
 all seven scenarios**. These are user-supplied observations, not live validation
 independently performed by this agent. They validate the scoped Phase 14 behavior;
 a full product UI redesign and final overall visual design remain future work.
-CAD writes remain OFF; Railway remains unhosted. The branch is not merged, and
-main remains unchanged. Do not merge automatically.
+Phase 14 was merged into `main` at
+`c70c649b64a40ae6cd941854f018f5fb789579b8`, preserving all four Phase 14 commits.
+CAD writes remain OFF; Railway remains unhosted. No production readiness is claimed.
 
 ## Starting state and scope
 
 Started from clean `main`, matching fetched `origin/main`, at the required
-`204725ce141df6f2cccdaa7241f618b0989a7f62`. Work is isolated on
-`phase14/ask-forge-graph-grounding`; do not merge automatically.
+`204725ce141df6f2cccdaa7241f618b0989a7f62`. Work was isolated on
+`phase14/ask-forge-graph-grounding`; merging was deferred until human validation
+and final merge review.
 
 Before this phase, normal Ask Forge used `acquire_bound` → normalized Snapshot →
 legacy `inspect` → minimized canonical facts → model fact-ID selection → server
@@ -417,8 +419,8 @@ recheck” statement would otherwise contradict the reported PASS. The validated
 implementation, tests, dependencies, lockfiles, deployment, OAuth, database,
 migrations, Modify, safe writes and recovery remain unchanged. Full browser/API/
 database gates are retained above as implementation verification; this docs-only
-closeout uses the requested lightweight checks. Final merge review is still
-required; no merge is performed.
+closeout used the requested lightweight checks. At that pre-merge closeout, final
+merge review was still required; no merge was performed.
 
 ### Closeout check results
 
@@ -434,6 +436,27 @@ The focused frontend command uses the existing `VITEST_MAX_WORKERS=2` override.
 No test requirement, assertion, timeout or configuration changed. No full browser,
 API or database suite was rerun for this documentation-only closeout, and no
 provider read, CAD write, hosting action or service startup was performed.
+
+## Merge into main
+
+Phase 14 was merged into `main` with the non-fast-forward merge commit
+`c70c649b64a40ae6cd941854f018f5fb789579b8` after human read-only and targeted UX
+visual validation passed as reported by the user. The merge completed without
+conflicts, and its tree was byte-equivalent to the validated branch at
+`587001f485a28fe2dcda724c1ef32b6a50c56d26`. All four Phase 14 commits remain in
+main history, without squashing or rewriting:
+
+1. `6b17074bfd12b1ad3d96563e92a79c5da39e29cd` — graph-grounded Ask Forge.
+2. `f756564cf7818d3060adf09e5808105413cece45` — browser/audit recovery and dependency lock updates.
+3. `53ff762b30a358818e6f6b57a447aa7d9cbd1267` — UX presentation/navigation polish.
+4. `587001f485a28fe2dcda724c1ef32b6a50c56d26` — human-validation documentation.
+
+Merged-tree lint, strict typing, build and audits passed, along with all 50 graph
+regressions and 83 focused presentation/navigation tests. Main was pushed and
+verified synchronized with origin. The Phase 14 and deployment branches were
+retained. No Railway deployment, CAD write, OAuth/safe-write/recovery authority
+change, full UI redesign or Phase 15 work was performed. Earlier merge-pending
+statements describe the historical pre-merge gates, not the current Phase 14 status.
 
 ## Remaining limitations
 
