@@ -50,6 +50,7 @@ from forge_api.tutor.models import TutorAnswer, TutorModelAnswer, TutorRequest
 from forge_api.tutor.policy import CANNOT_CHANGE, TUTOR_POLICY
 from forge_api.tutor.providers import TutorTask
 from forge_api.tutor.service import (
+    CAD_OBSERVATIONS_ONLY,
     DIMENSION_NOTE,
     RELATIONSHIP_ACTION,
     RELATIONSHIP_EXPLANATION,
@@ -371,7 +372,9 @@ def test_relationship_prose_cannot_promote_order_to_dependency(
     field: str, claim: str
 ) -> None:
     answer, _ = evaluate(
-        model_source(), model(**{field: claim}, fact_ids=["order_1_2"])
+        model_source(),
+        model(**{field: claim}, fact_ids=["order_1_2"]),
+        question="Does Extrude 1 depend on Sketch Gate?",
     )
     assert answer.explanation == RELATIONSHIP_EXPLANATION
     assert (
@@ -380,6 +383,19 @@ def test_relationship_prose_cannot_promote_order_to_dependency(
     assert claim not in answer.model_dump_json()
     assert "returned feature order" in answer.observed[0].statement
     assert "In general CAD" in answer.explanation and "your model" in answer.explanation
+    incidental, _ = evaluate(
+        model_source(),
+        model(**{field: claim}, fact_ids=["order_1_2"]),
+        question="Why did I use an extrude here?",
+    )
+    assert claim not in incidental.model_dump_json()
+    assert incidental.explanation == (
+        CAD_OBSERVATIONS_ONLY
+        if field == "explanation"
+        else "An extrude gives a sketch depth. Think about what feature follows it."
+    )
+    if field != "explanation":
+        assert getattr(incidental, field) is None
 
 
 def test_dependency_question_blocks_even_a_bare_yes_and_still_teaches() -> None:
@@ -407,6 +423,7 @@ def test_general_dependency_teaching_is_separated_from_current_model_observation
             explanation=teaching,
             fact_ids=["order_1_2"],
         ),
+        question="Explain the CAD concepts behind this step.",
     )
     assert "In general CAD, a dependency means" in answer.explanation
     assert "does not establish dependency" in answer.explanation

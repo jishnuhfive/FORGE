@@ -1,6 +1,6 @@
 # Phase 15 — graph-grounded Learn Tutor
 
-**IMPLEMENTED — AUTOMATED GATE PASSED — HUMAN READ-ONLY VALIDATION PENDING**
+**HUMAN TEST 1 INITIALLY FAILED — AUTOMATED REPAIR GATE PASSED — HUMAN REVALIDATION PENDING**
 
 Implementation on `phase15/tutor-graph-grounding`. Started from clean synchronized `main` at
 `500e114b7356b90499988633dd7811c49b94937c`. No merge or deployment is included.
@@ -83,8 +83,11 @@ model-authored relationship claims. Explicit dependency/ownership questions stil
 receive fixed safe teaching, even if the model says only yes. Ordinary educational
 questions containing use, input, references, connected or based on retain normal
 teaching. Each of the three model prose fields is checked independently: clearly
-general CAD teaching is allowed, while named/current-model dependency, ownership,
-driving, consumption or input claims receive the fixed relationship explanation.
+general CAD teaching is allowed. Only explicit learner relationship intent selects
+the fixed relationship explanation. Incidental named/current-model dependency,
+ownership, driving, consumption or input prose is discarded by field; safe teaching
+can remain. An unsupported main explanation receives fixed conservative copy,
+without turning an unrelated question into a dependency lesson.
 General wording cannot exempt a later specific-model claim or infer an absent
 dependency from a missing relationship. Exact closed lack-of-proof caveats are
 allowed; an arbitrary occurrence of unknown is not a bypass.
@@ -96,10 +99,23 @@ read, model/browser field or authority is added. This remains a conservative
 presentation safeguard, not complete natural-language understanding or a dependency
 classifier. Questions without CAD inspection keep their existing behavior.
 
-For final-feature language, server presentation uses the canonical terminal
-statement when proven, otherwise a fixed explanation that the final feature is
-unestablished. It does not repeat model-invented terminal prose. Existing verdict,
-dimension and strength/safety guards still apply.
+Simple inventory/order and preceding-feature questions now have deterministic
+server-owned primary answers from the existing canonical catalog, independent of
+model prose or selected IDs. A closed statement grammar decodes JSON-quoted
+`feature_N` names by captured index. Counts require the verified `features` fact;
+arrows and preceding answers require the matching verified adjacent `order_*`
+facts. No names or ordinal positions create a missing order link. UNKNOWN/missing
+links yield an inventory plus an order limitation, not a negative relationship.
+Duplicate names are indexed for inventory and ambiguous for name-only lookup.
+Complete zero count is a legitimate empty studio; partial inventory does not
+invent total count or terminal. Whole entries may be omitted with explicit copy
+to fit the unchanged public explanation bound; evidence limits are unchanged.
+
+For final-feature questions, server presentation uses the canonical terminal
+statement when proven, otherwise the existing fixed unknown explanation. Incidental
+model terminal claims cannot redirect unrelated questions. Existing verdict,
+dimension and strength/safety guards still apply. Canonical observed rows, signed
+check authority, freshness and ordering limitations are unchanged.
 
 ## Check authority and staleness
 
@@ -214,7 +230,66 @@ were performed. Human read-only validation remains pending. Include ordinary
 extrude/fillet use questions alongside the dependency trap in that manual review;
 normal teaching should survive and specific relationship claims must stay unknown.
 
-## Human read-only validation plan — prepared, not executed
+## Live human validation failure and structural repair
+
+**Human validation Test 1 initially FAILED.** The user reports that real Learn →
+Ask Forge was asked exactly “What features are in my current model and in what
+order?” in a Part Studio containing **Sketch Gate → Extrude 1 → Fillet 1**, all
+active. Canonical graph observations were correct, but the primary answer and next
+action were incorrectly replaced by the fixed dependency lesson. This is a
+presentation regression, not evidence that graph acquisition/order was wrong.
+
+The exact implementation path was `guard_relationships(question, all three prose
+fields, cad_names)` → one boolean → unconditional replacement of all prose with
+`RELATIONSHIP_EXPLANATION` / `RELATIONSHIP_ACTION`. The original pre-guard live
+model text was not supplied and Tutor does not persist conversations. No claim is
+made about its exact wording. Controlled tests use the exact reported question,
+three active features and a specific unsupported dependency sentence in each
+model field. All three reproduced the erroneous dependency replacement before
+the repair. These are synthetic reproductions, separate from the human report.
+
+The completed repair separates learner relationship intent from incidental prose
+rejection and adds the bounded canonical structural presentation described above.
+The original four uncommitted files were preserved when work resumed; no reset,
+checkout or discarded work was used. Work remained on `phase15/tutor-graph-grounding`
+above `1f65c85e11e96e56b59c2e221e500a8c6db4bdad`; main remained
+`500e114b7356b90499988633dd7811c49b94937c`. No merge is included.
+
+The repair gate passed **46 structural/live-regression cases**, **100 relationship
+precision cases**, all **69 Phase 15 cases**, and **226 existing Tutor/token/check/
+Phase 14 cases**. Existing safety assertions were retained: fixed relationship
+answers explicitly ask relationship questions, and additional non-relationship
+cases require field rejection without a topic change. General-teaching cases ask
+educational questions explicitly. No safety assertion, timeout or evidence bound
+was weakened to obtain a pass.
+
+Frozen installs, formatting, lint and strict typing (175 Python files) passed.
+The complete `make test` passed **869 frontend / 2,977 API tests**, including all
+**42 PostgreSQL cases**, with no skips. Build passed with the unchanged bundle-size
+advisory. Focused Tutor browser verification passed **27 cases**, nine per
+Chromium/Firefox/WebKit, with the unchanged four workers and zero retries.
+Migration drift, Compose and both dependency audits passed; no known vulnerabilities
+were reported. The health-checked, migrated disposable synthetic database was
+removed, leaving the existing local database/data untouched. Logs remain under
+ignored `.cache/phase15-structural/`.
+
+Scope review covers three Tutor backend files, three test files and six current
+documentation files. Graph semantics, acquisition/read counts, checks/tokens,
+OAuth, Modify, CAD-write authority, UI layout, database/migrations, deployment,
+dependencies/lockfiles and evidence limits remain unchanged. No generated browser
+artifacts or credential-pattern matches were included. No live CAD read/write,
+model-provider repair validation or Railway deployment was performed.
+
+The automated repair gate is green and the implementation is ready to **restart
+human read-only validation from Test 1**. The initial human failure remains part
+of this record; no human validation pass or successful real-provider repair check
+is claimed.
+
+## Human read-only validation plan — restart pending
+
+Test 1 of the earlier plan was run and failed as recorded above. Other live cases
+have not been reported as passed. Restart validation from Test 1 after the repair
+gate, using the new backend version; do not treat automated tests as a human pass.
 
 Use the existing disposable Mounting Bracket/test workspace with CAD writes OFF.
 Open Learn → Ask Forge. Keep all validation read-only; no Gate A/B, real Modify,
@@ -244,4 +319,5 @@ there is no dependency DAG, feature ownership inference, selected-face/edge Tuto
 grounding, topology continuity guarantee or engineering-correctness claim. Check
 my step remains the only correctness authority. Modify is not graph-migrated by
 this phase. No new CAD authority is granted. The full UI overhaul remains future
-work. Railway remains unhosted. Human read-only validation is still pending.
+work. Railway remains unhosted. Human Test 1 initially failed; repaired behavior
+still requires fresh human read-only validation.

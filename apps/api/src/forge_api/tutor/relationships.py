@@ -88,21 +88,14 @@ def _specific_model(text: str, cad_names: tuple[str, ...]) -> bool:
     )
 
 
-def guard_relationships(
-    question: str, prose: tuple[str, ...], cad_names: tuple[str, ...]
-) -> bool:
-    """Separate explicit relationship intent from claims in each model prose field.
-
-    Known display names only identify model-specific prose; they never prove a
-    join, grant authority, or become policy/regex syntax. Generic teaching scope
-    cannot exempt a named/current-model claim later in the same paragraph.
-    """
+def relationship_question(question: str, cad_names: tuple[str, ...]) -> bool:
+    """Only learner intent may select the fixed relationship lesson."""
     specific_question = _specific_model(question, cad_names)
     if _RELATIONSHIP.search(question) and (
         specific_question or not _GENERAL_QUESTION.fullmatch(question)
     ):
         return True
-    if (
+    return bool(
         specific_question
         and _QUESTION_FORM.search(question)
         and not _PERSONAL_QUESTION.search(question)
@@ -116,18 +109,24 @@ def guard_relationships(
                 >= 2
             )
         )
-    ):
-        return True
-    for field in prose:
-        for paragraph in field.splitlines():
-            general = False
-            for sentence in re.split(r"(?<=[.!?])\s+", paragraph.strip()):
-                general = general or bool(_GENERAL_TEACHING.search(sentence))
-                if _LACK_OF_PROOF.fullmatch(sentence):
-                    continue
-                specific = _specific_model(sentence, cad_names)
-                if _RELATIONSHIP.search(sentence) and (specific or not general):
-                    return True
-                if specific and _RELATIONAL_USE.search(sentence):
-                    return True
+    )
+
+
+def unsafe_relationship_prose(prose: str, cad_names: tuple[str, ...]) -> bool:
+    """A model field may be discarded, but cannot change the learner's intent.
+
+    Names are literal data, never join evidence or regex syntax. General scope
+    cannot exempt a later named/current-model claim in the same paragraph.
+    """
+    for paragraph in prose.splitlines():
+        general = False
+        for sentence in re.split(r"(?<=[.!?])\s+", paragraph.strip()):
+            general = general or bool(_GENERAL_TEACHING.search(sentence))
+            if _LACK_OF_PROOF.fullmatch(sentence):
+                continue
+            specific = _specific_model(sentence, cad_names)
+            if _RELATIONSHIP.search(sentence) and (specific or not general):
+                return True
+            if specific and _RELATIONAL_USE.search(sentence):
+                return True
     return False

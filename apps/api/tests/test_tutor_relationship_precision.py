@@ -8,7 +8,8 @@ from test_tutor_graph import catalog, evaluate, model
 
 from forge_api.ai.grounding import ORDER_SEMANTICS
 from forge_api.integrations.onshape.models import FeatureSummaryList
-from forge_api.tutor.service import RELATIONSHIP_EXPLANATION
+from forge_api.tutor.relationships import unsafe_relationship_prose
+from forge_api.tutor.service import CAD_OBSERVATIONS_ONLY, RELATIONSHIP_EXPLANATION
 
 TEACHING = (
     "An extrude adds depth to a profile. Use it when the shape has a constant "
@@ -102,11 +103,24 @@ def test_current_model_claims_still_guard_all_prose_fields(
     field: str, claim: str
 ) -> None:
     answer, _ = evaluate(
-        model_source(), model(**{field: claim}, fact_ids=["order_1_2"])
+        model_source(),
+        model(**{field: claim}, fact_ids=["order_1_2"]),
+        question="Does Extrude 1 depend on Sketch Gate?",
     )
     assert answer.explanation == RELATIONSHIP_EXPLANATION
     assert claim not in answer.model_dump_json()
     assert "returned feature order" in answer.observed[0].statement
+    incidental, _ = evaluate(
+        model_source(),
+        model(**{field: claim}, fact_ids=["order_1_2"]),
+        question="Why did I use an extrude here?",
+    )
+    assert claim not in incidental.model_dump_json()
+    assert incidental.explanation != RELATIONSHIP_EXPLANATION
+    if field == "explanation":
+        assert incidental.explanation == CAD_OBSERVATIONS_ONLY
+    else:
+        assert getattr(incidental, field) is None
 
 
 @pytest.mark.parametrize("field", ["explanation", "next_action", "reasoning_question"])
@@ -127,7 +141,9 @@ def test_explicit_general_teaching_remains_model_teaching(
     field: str, teaching: str
 ) -> None:
     reply = model(**{field: teaching}, fact_ids=["order_1_2"])
-    answer, _ = evaluate(model_source(), reply)
+    answer, _ = evaluate(
+        model_source(), reply, question="Explain the CAD concepts behind this step."
+    )
     assert getattr(answer, field) == teaching
     assert answer.explanation != RELATIONSHIP_EXPLANATION
     assert ORDER_SEMANTICS in answer.unknowns
@@ -146,8 +162,19 @@ def test_explicit_general_teaching_remains_model_teaching(
     ],
 )
 def test_general_prefix_or_unknown_word_cannot_hide_specific_claim(text: str) -> None:
-    answer, _ = evaluate(model_source(), model(explanation=text))
+    answer, _ = evaluate(
+        model_source(),
+        model(explanation=text),
+        question="Does Extrude 1 depend on Sketch Gate?",
+    )
     assert answer.explanation == RELATIONSHIP_EXPLANATION
+    incidental, _ = evaluate(
+        model_source(),
+        model(explanation=text),
+        question="Explain the CAD concepts behind this step.",
+    )
+    assert incidental.explanation == CAD_OBSERVATIONS_ONLY
+    assert text not in incidental.model_dump_json()
 
 
 def test_ordinary_model_advice_uses_use_input_references_and_based_on() -> None:
@@ -155,7 +182,11 @@ def test_ordinary_model_advice_uses_use_input_references_and_based_on() -> None:
         "Use Extrude 1 to explore depth. Enter an input in the dialog. "
         "Consult the help references. Based on your goal, try a rounded corner."
     )
-    answer, _ = evaluate(model_source(), model(explanation=text))
+    answer, _ = evaluate(
+        model_source(),
+        model(explanation=text),
+        question="Explain the CAD concepts behind this step.",
+    )
     assert answer.explanation == text
 
 
@@ -165,7 +196,11 @@ def test_generic_type_used_as_feature_name_does_not_hijack_teaching(name: str) -
     data = cast(FeatureSummaryList, source.documents["features"].normalized)
     data.items[0].name = name
     teaching = "In general, an extrude uses a sketch profile as input."
-    answer, _ = evaluate(source, model(explanation=teaching))
+    answer, _ = evaluate(
+        source,
+        model(explanation=teaching),
+        question="Explain the CAD concepts behind this step.",
+    )
     assert answer.explanation == teaching
 
 
@@ -175,8 +210,20 @@ def test_named_inputs_are_data_and_specific_claims_still_guard(name: str) -> Non
     data = cast(FeatureSummaryList, source.documents["features"].normalized)
     data.items[0].name = name
     claim = f"In general, a feature uses {name} as its input."
-    answer, _ = evaluate(source, model(explanation=claim))
+    answer, _ = evaluate(
+        source,
+        model(explanation=claim),
+        question="Does Extrude 1 depend on Sketch Gate?",
+    )
     assert answer.explanation == RELATIONSHIP_EXPLANATION
+    assert unsafe_relationship_prose(claim, (name,))
+    incidental, _ = evaluate(
+        source,
+        model(explanation=claim),
+        question="Explain the CAD concepts behind this step.",
+    )
+    assert incidental.explanation == CAD_OBSERVATIONS_ONLY
+    assert claim not in incidental.model_dump_json()
 
 
 def test_original_general_explanation_and_unknown_caveat_remain_allowed() -> None:
@@ -184,5 +231,9 @@ def test_original_general_explanation_and_unknown_caveat_remain_allowed() -> Non
         "In general CAD, a dependency means one feature uses another's geometry. "
         "That relationship is unknown for this model."
     )
-    answer, _ = evaluate(model_source(), model(explanation=text))
+    answer, _ = evaluate(
+        model_source(),
+        model(explanation=text),
+        question="Explain the CAD concepts behind this step.",
+    )
     assert answer.explanation == text

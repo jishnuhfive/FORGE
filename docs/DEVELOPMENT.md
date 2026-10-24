@@ -895,3 +895,16 @@ suite (including isolated PostgreSQL), plus
 `npm exec playwright test tests/e2e/tutor.spec.ts` after building for browser-visible
 output verification. No UI, graph, acquisition, token or evidence-limit change is
 part of this refinement.
+
+For the live inventory regression repair, first run
+`uv run --frozen pytest tests/test_tutor_structural.py`, then the precision,
+Phase 15 and existing Tutor/token/check/Phase 14 suites above. The new tests use
+the exact reported question and controlled incidental relationship prose, including
+an HTTP route case with three active features and four GETs. Existing fixed-answer
+assertions now explicitly ask relationship questions; extra non-relationship cases
+require unsafe fields to be discarded. General-teaching cases explicitly ask for
+teaching rather than relying on the inventory default. No existing safety assertion
+or bound is removed. Run the full API suite with isolated PostgreSQL, format/lint/
+strict typing, build/audit and focused Tutor browser tests. Human Test 1 failed;
+do not claim live repair success from these automated fixtures or restart human
+validation until the repair gate passes. See the Phase 15 record.

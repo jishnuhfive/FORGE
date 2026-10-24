@@ -686,12 +686,15 @@ Design Ask Forge the Phase 14 consumer, Learn Tutor the Phase 15 consumer. Modif
 remains unmigrated; Check my step and signed check-token authority are unchanged.
 
 Server presentation separates historical check findings from current CAD facts,
-always retains ordering semantics, and replaces explicit relationship answers or
-unsupported model-specific claims with fixed general teaching. The precision
-refinement separates question intent from prose claims, preserving ordinary use/
-input questions and clearly general CAD explanations. Already-projected display
-names identify specific-model prose only; they prove no relationship. Only complete
-evidence can yield a terminal statement.
+always retains ordering semantics, and separates explicit relationship questions
+from incidental unsupported model prose. Only the former select fixed relationship
+teaching; unsafe incidental fields are discarded without redirecting the answer.
+Simple inventory/order and preceding-feature primary answers come from the existing
+canonical count, feature and AVAILABLE adjacent order facts, independent of model
+wording/selection. Closed JSON-name/statement grammar fails conservatively; missing
+links, partial inventories and duplicate labels cannot create joins. Whole-entry
+omission respects the existing reply bound. Only complete evidence can yield a
+terminal statement. Ordinary teaching, observed rows and check authority remain.
 PRECEDES is order, not dependency; no ownership inference, topology continuity,
 engineering correctness or new CAD authority follows. Combined check/application
 context and CAD evidence must fit the existing byte bound or fail closed.

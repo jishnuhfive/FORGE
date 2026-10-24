@@ -17,7 +17,9 @@ from .evidence_token import VerifiedCheck
 from .models import LatestCheck, Observed, TutorAnswer, TutorModelAnswer, TutorRequest
 from .policy import boundary_response
 from .providers import TutorProvider, TutorTask
-from .relationships import guard_relationships
+from .relationships import relationship_question, unsafe_relationship_prose
+from .structural import TERMINAL_UNKNOWN as TERMINAL_UNKNOWN
+from .structural import structural_answer, terminal_answer, terminal_question
 
 TOTAL_SECONDS = 120
 STATUS_NOTE = (
@@ -39,16 +41,7 @@ RELATIONSHIP_EXPLANATION = (
 RELATIONSHIP_ACTION = (
     "Examine the feature's inputs in Onshape; use Check my step for a new step result."
 )
-TERMINAL_UNKNOWN = (
-    "Forge hasn't established a final feature from complete evidence. The last "
-    "visible feature alone cannot prove the end of the feature list."
-)
-_TERMINAL = re.compile(
-    r"\b(?:final|last|terminal)\s+(?:captured\s+|modeled\s+)?feature\b|"
-    r"\bfeature\b[^.?!]{0,60}\b(?:final|last|terminal)\b|"
-    r"\bend\s+of\s+(?:the\s+)?feature\s+(?:list|tree)\b",
-    re.IGNORECASE,
-)
+CAD_OBSERVATIONS_ONLY = "Forge can't confirm more from the captured CAD evidence."
 # Presentation guards, like the verdict guard below: the model may mention sizes or
 # strength in teaching, but the learner is always told Forge has verified neither.
 _DIMENSION = re.compile(
@@ -155,21 +148,34 @@ def resolve_tutor(
     next_action = model.next_action.strip() or None
     reasoning_question = model.reasoning_question.strip() or None
     if "order_semantics" in facts:
-        if guard_relationships(
-            question,
-            (model.explanation, model.next_action, model.reasoning_question),
-            cad_names,
-        ):
+        structural = structural_answer(question, facts)
+        if structural is not None:
+            # The question, never incidental model prose, selects this answer.
+            explanation = structural
+            next_action = None
+            reasoning_question = None
+        elif relationship_question(question, cad_names):
             explanation = RELATIONSHIP_EXPLANATION
             next_action = RELATIONSHIP_ACTION
             reasoning_question = None
-        elif _TERMINAL.search(question + " " + prose):
-            terminal = facts.get("terminal_feature")
-            explanation = (
-                terminal.statement if isinstance(terminal, Fact) else TERMINAL_UNKNOWN
-            )
+        elif terminal_question(question):
+            explanation = terminal_answer(facts)
             next_action = None
             reasoning_question = None
+        else:
+            # Discard an unsupported field without turning an unrelated question
+            # into a relationship/terminal lesson. Other safe teaching can remain.
+            def unsafe(text: str) -> bool:
+                return unsafe_relationship_prose(text, cad_names) or terminal_question(
+                    text
+                )
+
+            if unsafe(model.explanation):
+                explanation = CAD_OBSERVATIONS_ONLY
+            if unsafe(model.next_action):
+                next_action = None
+            if unsafe(model.reasoning_question):
+                reasoning_question = None
     return TutorAnswer(
         explanation=explanation,
         reasoning_question=reasoning_question,

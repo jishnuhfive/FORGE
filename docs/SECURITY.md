@@ -721,9 +721,15 @@ model selection. Server presentation distinguishes explicit relationship intent
 and unsupported model-specific prose from ordinary educational use/input questions
 and general CAD teaching. A general prefix or unknown word cannot exempt a named/
 current-model claim. Already-projected names are escaped literal data, never proof
-or policy. Unsafe relationship prose receives fixed teaching; terminal prose uses
-proven canonical text or fixed unknown copy. CAD strings stay quoted untrusted
-data; graph/provider/context IDs and
+or policy. Only explicit learner relationship intent selects fixed teaching;
+incidental unsafe model fields are discarded without changing the question's
+topic. Simple structural primary answers use the canonical count/feature/AVAILABLE
+adjacent order catalog, never new model claims, inferred missing links or names
+as identities. Closed grammar rejects unmatched facts; partial evidence remains
+partial, duplicate-label lookup stays ambiguous, and zero inventory requires a
+verified zero count. Proven terminal text or existing unknown copy remains server-
+owned. Reply/evidence bounds and all check/CAD source separation remain unchanged.
+CAD strings stay JSON-quoted untrusted data; graph/provider/context IDs and
 provenance never reach Tutor model/browser payloads. Combined application/check
 context and CAD evidence must fit the existing evidence byte bound or fail closed.
 

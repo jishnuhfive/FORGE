@@ -485,3 +485,17 @@ Its gate passed **100 precision / 69 Phase 15 / 169 existing targeted cases**,
 **27 focused Tutor browser tests** with four workers and zero retries. Frozen
 installs, formatting, lint, strict typing, build, migration drift, Compose and
 audits passed. No scope expansion, CAD write, UI change, merge or deployment.
+
+**Subsequent live human validation Test 1 FAILED:** correct canonical graph
+inventory/order was shown, but the presentation guard replaced the primary
+inventory answer with a dependency lesson. The repair preserves the
+existing working edits, separates explicit relationship intent from incidental
+model prose, and makes simple structural primary presentation server-owned from
+canonical facts. The repair gate passed **46 structural / 100 precision / 69 Phase
+15 / 226 existing targeted cases**, **869 frontend / 2,977 API tests** (all **42
+PostgreSQL cases**, no skips) and **27 focused Tutor browser cases** with four
+workers and zero retries. Frozen installs, format/lint, strict types, build, drift,
+Compose and audits passed. Human validation has not passed; the implementation is
+ready to restart human read-only validation from Test 1. Graph semantics,
+acquisition, checks/tokens, OAuth, Modify, CAD-write authority,
+UI layout, database/migrations, deployment and evidence limits remain unchanged.
