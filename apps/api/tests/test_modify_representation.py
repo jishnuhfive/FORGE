@@ -610,6 +610,7 @@ def test_no_representation_log_after_head_or_flag_changes(
         else:
             client.compare(REF)
     assert "safe_edit_representation_coverage" not in caplog.text
+    assert "safe_edit_standard_parameter_coverage" not in caplog.text
     assert provider.writes == 0
 
 
@@ -670,6 +671,8 @@ def test_inspector_probe_reuses_reads_has_no_public_metadata_or_authority(
         "unknown_count",
         "replacement",
         "rename",
+        "standard_parameter_coverage",
+        "source_vocabulary_only_no_edit_authority",
     ):
         assert field not in response.text and all(
             field not in k.lower() for k in response.headers

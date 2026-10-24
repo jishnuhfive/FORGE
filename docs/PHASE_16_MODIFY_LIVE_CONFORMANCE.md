@@ -1,6 +1,6 @@
 # Phase 16 — controlled real Modify conformance
 
-**IN PROGRESS — AUTOMATED GATE PASSED; HUMAN LIVE VALIDATION PENDING**
+**IN PROGRESS — REAL-SHAPE REPAIR NO-GO; CAD WRITES OFF**
 
 Initial status: `IN PROGRESS — AUTOMATED CONFORMANCE PREPARATION`.
 
@@ -9,8 +9,9 @@ Branch: `phase16/modify-live-conformance`. On 2026-10-24, the starting working
 tree was clean, branch was `main`, fetch succeeded, and HEAD and `origin/main`
 both matched the required SHA. The audit below was completed before edits.
 
-This is preparation for a human-controlled conformance gate. **No Phase 16 live
-CAD reads, proposals, approvals or mutations have been performed.** Automated
+This is preparation for a human-controlled conformance gate. The human has now
+reported the writes-OFF read checkpoint below. **No Phase 16 proposal, approval or
+mutation has occurred.** The agent has not read the private fixture. Automated
 fixtures are synthetic and do not prove current Onshape feature serialization.
 The final question remains open: can the existing deterministic pipeline safely
 and exactly perform its five claimed operations on real current Onshape CAD?
@@ -301,7 +302,7 @@ stale check, fence, microversion guard, post-write verifier, recovery or A1/A2/B
 contract changed. No browser change, deployment, operator dotenv edit or live
 diagnostic invocation is included.
 
-### Exact human representation checkpoint — still pending
+### Original human representation checkpoint — completed; failed replacement conformance
 
 1. Privately confirm the ordinary disposable owned workspace/Part Studio fixture
    below and the correct connected account. Keep the exact identifiers private.
@@ -327,6 +328,162 @@ diagnostic invocation is included.
    no proposal or approval under this read-only task.
 7. Return diagnostics OFF after capture and keep writes OFF. Any later write trial
    requires a separate explicitly authorized human stage and exact fresh preview.
+
+## Real UI shape investigation — repair NO-GO
+
+This follow-up started from clean, fetched/synchronized
+`8aaf65c6c1b47447944e5a82977ee0dfd1fb432f` on the existing Phase 16 branch.
+The human checkpoint is recorded as:
+
+**STRUCTURAL ELIGIBILITY PASS**
+
+**REPLACEMENT CONFORMANCE FAIL — ADAPTER TOO NARROW**
+
+The human reports an ordinary owned disposable UI-created Sketch → NEW/SOLID/BLIND
+Extrude → terminal constant-radius Fillet, one SOLID body, NO_ERROR, complete
+inventory and matched source. Both standard features have usable identities/names
+and ordinary top-level structure. The probe returned
+`eligible_no_proposal_no_write`. There was no proposal, approval or mutation, and
+CAD writes remained OFF. These are human-reported observations, not an agent
+replay or a successful live Modify trial.
+
+For both replacement features, parameter count and unknown count exceeded the
+diagnostic cap of 20; malformed and duplicate-known flags were false. All existing
+required fields appeared once with the expected enum/query envelopes. Depth and
+radius were positive mm literals with string node IDs and explicit false
+isInteger, but `supported_fields_only=false`. Fillet tangent propagation was
+explicit Boolean true. Both registry shape checks, replacement and rename failed.
+The adapter correctly failed closed. Structural eligibility and a valid body do
+not establish complete replacement conformance.
+
+### Authoritative research and its limits
+
+Read-only research used the official public standard-library document linked by
+[FeatureScript documentation](https://cad.onshape.com/FsDoc/index.html), selecting
+the current public 3095 workspace. No private fixture, credentials, provider write
+or FeatureScript execution was used. Input declarations were inspected in:
+
+- [extrude.fs](https://cad.onshape.com/documents/12312312345abcabcabcdeff/w/a855e4161c814f2e9ab3698a/e/aff9bec3150a48098a8184ac)
+  and [extrudeCommon.fs](https://cad.onshape.com/documents/12312312345abcabcabcdeff/w/a855e4161c814f2e9ab3698a/e/779e4e2168dfbdd421cdf6ed):
+  body/domain/operation, bounds, direction, draft, second direction, thin, offset
+  and query predicates.
+- [boolean.fs](https://cad.onshape.com/documents/12312312345abcabcabcdeff/w/a855e4161c814f2e9ab3698a/e/4eea9f271b60454e84089e38):
+  NEW excludes the solid merge-scope precondition; separate surface-scope inputs
+  must not be confused with solid controls.
+- [fillet.fs](https://cad.onshape.com/documents/12312312345abcabcabcdeff/w/a855e4161c814f2e9ab3698a/e/841b26d2621a46bf98eda1d5)
+  and [edgeBlendCommon.fs](https://cad.onshape.com/documents/12312312345abcabcabcdeff/w/a855e4161c814f2e9ab3698a/e/ecf7740dba703fd61ba84038):
+  EDGE/FULL_ROUND, RADIUS/WIDTH, cross-section, asymmetry, partial/variable modes,
+  overflow and smoothing predicates. Tangent propagation and edge overflow have
+  UI defaults true; function-call defaults are not interchangeable with UI defaults.
+- [Official feature access guide](https://onshape-public.github.io/docs/api-adv/featureaccess/),
+  [Extrude help](https://cad.onshape.com/help/Content/PartStudio/extrude.htm) and
+  [Fillet help](https://cad.onshape.com/help/Content/PartStudio/fillet.htm).
+- The official published Python SDK's
+  [quantity schema](https://github.com/onshape-public/onshape-clients/blob/master/python/onshape_client/oas/models/btm_parameter_quantity147.py)
+  names `value`, `units` and `importMicroversion` in addition to the existing
+  quantity fields. This older generated SDK is vocabulary evidence only, not
+  proof of the current fixture's encoding or harmless replacement semantics.
+
+These sources establish semantic predicates and a finite discovery vocabulary.
+They do **not** establish the fixture's exact serialized inactive parameters,
+btTypes/envelopes, quantity extra fields or configuration/tolerance state. The
+official [defineFeature documentation](https://cad.onshape.com/FsDoc/library.html#defineFeature-function-map)
+explicitly distinguishes function-call defaults from UI defaults. Remembered UI
+values and disabled branches cannot be inferred from the presence of a source
+default. Anonymous access to a public feature-definition API was unauthorized;
+no authentication workaround or raw private capture was attempted.
+
+### Changes delivered and deliberately unresolved repair
+
+No optional parameter has been newly accepted by the write registry. No adapter,
+quantity bound, 20-parameter limit, 8 KiB write cap, query policy, planner, preview,
+approval, digest/expiry, claim/fence, stale check, provider guard, post-write exact
+verifier, uncertainty or recovery behavior changed. Full-definition copying and
+single-field mutation guarantees remain unchanged for previously supported shapes.
+All additional/richer shapes remain unsupported for rename and quantity replacement.
+This follow-up does not claim to have repaired current-UI replacement eligibility.
+
+The read-only diagnostic now emits a separate
+`safe_edit_standard_parameter_coverage` record from the same fresh responses,
+after matching-head and DEV/diagnostics-ON/writes-OFF guards. Its fixed purpose is
+`source_vocabulary_only_no_edit_authority`. Its closed source-input vocabulary
+classifies enum comparisons, Boolean values, query envelopes, array emptiness and
+quantity bookkeeping presence/type. Numeric values, unit strings, expressions,
+node/import IDs, query/array contents, unknown IDs/field names and arbitrary
+provider strings never escape. Existing representation reports and count caps are
+unchanged; registry-unknown parameters remain unknown in those reports even when
+the separate source catalog recognizes them. Recognition never supplies approval,
+eligibility or write authority. Non-source internal computed FS fields are excluded.
+
+Synthetic tests cover each diagnostic identifier, feature-specific vocabulary,
+wrong types, missing values, duplicate/unknown fields, count caps, quantity
+bookkeeping privacy, arrays, guarded logging and zero added requests. Inputs are
+invented source-classification cases, **not** fixtures claimed to match real UI
+serialization. Tests expressly retain rejection of every extra input. Existing
+assertions are preserved; two existing tests gain additional privacy/guard checks.
+
+An evidence-backed optional-parameter contract still requires the next sanitized
+read. Only after that can exact closed btTypes, disabled states, parameter envelopes
+and quantity bookkeeping be validated without guessing. The current >20 parameter
+evidence also conflicts with the existing adapter limit. This task does not silently
+increase it or transport/verification bounds merely to obtain a pass. A future
+repair must explicitly resolve that constraint within the authorized safety policy.
+
+### Automated verification of this diagnostic follow-up
+
+All commands passed on this follow-up. No adapter repair or live-conformance pass
+is implied by passing diagnostic regressions. Counts overlap.
+
+| Check                                                                          | Result                                                                                                                |
+| ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| New standard-parameter diagnostic cases                                        | 292 passed                                                                                                            |
+| New diagnostic + existing representation diagnostic                            | 390 passed                                                                                                            |
+| Focused Modify/planner/plan/write-client/diagnostic/recovery/fence regressions | 1,975 passed                                                                                                          |
+| `npm ci`; `uv sync --locked`                                                   | Passed; lockfiles unchanged                                                                                           |
+| `make format`; `make lint`                                                     | Passed                                                                                                                |
+| `make typecheck`                                                               | Passed; Python checked 181 source files; strict TypeScript passed                                                     |
+| `make build`                                                                   | Passed; existing bundle-size warning, no thresholds changed                                                           |
+| `make test`                                                                    | 869 frontend tests in 35 files; 3,537 API tests, including all 42 PostgreSQL cases; no skips                          |
+| Isolated PostgreSQL health, upgrade; `make migration-check`                    | Passed; no schema drift                                                                                               |
+| `make compose-check`                                                           | Passed                                                                                                                |
+| `make audit`                                                                   | No known JavaScript/Python dependency vulnerabilities; editable application distribution excluded by existing command |
+| Modify browser matrix                                                          | 45 passed across Chromium/Firefox/WebKit, four workers, zero retries                                                  |
+
+The test child disables operator dotenv loading, strips provider credentials and
+keeps real CAD writes OFF. Provider mutations in existing tests use only synthetic
+mock transports. PostgreSQL used a new named disposable tmpfs-backed container
+with synthetic credentials and a random loopback port; the existing application
+container/database were untouched. The task container was removed after checks.
+No real diagnostic invocation, private CAD read, proposal, approval, deployment,
+OAuth/URL/domain change, dependency change, timeout adjustment or weakened assertion
+was used. Diff/privacy review found only public-source vocabulary and synthetic
+canaries; all write-authority implementation files remain unchanged.
+
+### Exact next human writes-OFF checkpoint
+
+1. Keep the SAME ordinary disposable owned fixture. Do not modify its feature
+   definitions to fit the adapter. Keep local HTTPS/OAuth/URLs unchanged.
+2. Run the updated local API with `ENVIRONMENT=development`,
+   `FORGE_SAFE_EDIT_DIAGNOSTICS_ENABLED=true`, `FORGE_CAD_WRITES_ENABLED=false`.
+   Restart as needed to load this code; startup must reject writes ON.
+3. In CAD Inspector click **Refresh CAD exactly once**. Do not open a proposal,
+   approve, run a write script or request any mutation.
+4. Privately inspect both `safe_edit_representation_coverage` and the new
+   `safe_edit_standard_parameter_coverage` for both variants, especially
+   `noSketchGeometry=false`. Share only those minimized metadata objects. They
+   contain fixed source IDs and categories, never raw CAD. Do not paste full logs,
+   tokens, names, IDs, expressions, quantities, queries, network traces or JSON
+   feature definitions.
+5. The current adapter is expected to remain `unsupported_shape`. Stop there.
+   This is an evidence checkpoint, not the successful repair recheck requested
+   as the eventual gate. Record recognized input types/values, remaining
+   unrecognized/malformed/duplicate states and quantity bookkeeping categories.
+6. Return diagnostics OFF after capture; keep CAD writes OFF. No write can follow
+   until a narrow evidence-backed repair passes automation and a subsequent
+   writes-OFF recheck reports replacement AND rename exact_match for both features,
+   with no unknown, malformed or duplicate unsupported state.
+
+**PHASE 16 REAL-SHAPE REPAIR NO-GO**
 
 ## Graph boundary
 
@@ -434,10 +591,12 @@ administration is authorized here. Return writes OFF and investigate with eviden
 
 ## Live observations, repairs and final limitations
 
-Actual Phase 16 live observations: **NONE — human stage not started**.
-Representation-confirmed fixture: **NONE**. Exact private disposable target:
-**not yet identified**. Five-operation live verdict: **UNVERIFIED**.
-Adapter repairs: **NONE**; no evidence-backed live repair is claimed.
+Actual Phase 16 live write observations: **NONE — human write stage not started**.
+Human writes-OFF structural/representation observations are recorded above.
+Representation-confirmed fixture: **NONE**. The human reports a disposable owned
+fixture; its exact private identifiers are not recorded here. Five-operation live
+verdict: **UNVERIFIED**.
+Adapter repairs: **NONE**; the current-UI replacement repair remains NO-GO.
 
 Known limits remain the restricted studio/terminal-suppression policy, literal
 quantity bounds, synthetic replacement adapters, opaque query contents, 8 KiB write

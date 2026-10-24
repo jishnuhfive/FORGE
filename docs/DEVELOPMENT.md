@@ -661,7 +661,14 @@ expressions, names, node/geometry/CAD IDs, query contents, tokens and URLs never
 The representation hook rechecks DEV/diagnostics-ON/writes-OFF before projection
 and emission. `exact_match` means current adapter shape only, not write eligibility
 or provider conformance. Follow the [writes-OFF human checkpoint](PHASE_16_MODIFY_LIVE_CONFORMANCE.md)
-using Inspector Refresh only; actual human observation remains pending.
+using Inspector Refresh only. The human has since reported structural PASS and
+replacement FAIL for ordinary UI features. A separate
+`safe_edit_standard_parameter_coverage` record classifies the finite public
+standard-library input vocabulary, plus quantity `value`/`units`/import-marker
+presence/type, from those same responses. Recognition supplies no edit authority;
+the original adapter report and all rejection/count limits remain unchanged.
+Unknown strings, values, queries and identifiers still never log. Follow the
+Phase 16 record's next evidence checkpoint; the adapter repair remains NO-GO.
 It performs pinned GET reads without proposals or mutations, and adds no
 public diagnostic route/header. It is not invoked by Learn or AI. See
 [the investigation record](PHASE_9_REVIEW.md) before interpreting missing fields;

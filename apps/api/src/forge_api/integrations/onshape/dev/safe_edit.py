@@ -21,6 +21,7 @@ from forge_api.integrations.onshape.service import read_permission
 from forge_api.integrations.onshape.write_client import SafeEditClient
 
 from .modify_representation import RepresentationCoverage, representation_coverage
+from .standard_parameters import StandardCoverage, standard_parameter_coverage
 
 logger = logging.getLogger("forge.onshape.safe_edit")
 
@@ -261,6 +262,13 @@ class CoverageClient(SafeEditClient):
             body_coverage(bodies, microversion).model_dump_json(),
         )
 
+    def _standard_parameters(
+        self, data: JsonValue, *, source_matches: bool
+    ) -> StandardCoverage | None:
+        if not _diagnostics_enabled(self._diagnostic_settings):
+            return None
+        return standard_parameter_coverage(data, source_matches=source_matches)
+
     """Development-only, two fixed GET variants; no raw results leave this call."""
 
     def compare(self, context: WorkspaceReference) -> None:
@@ -268,7 +276,11 @@ class CoverageClient(SafeEditClient):
         scope = f"d/{context.documentId}/m/{marker}/e/{context.elementId}"
         reports: list[
             tuple[
-                str, StateCoverage, SuppressionCoverage, RepresentationCoverage | None
+                str,
+                StateCoverage,
+                SuppressionCoverage,
+                RepresentationCoverage | None,
+                StandardCoverage | None,
             ]
         ] = []
         for mode in ("true", "false"):
@@ -283,12 +295,15 @@ class CoverageClient(SafeEditClient):
                     report,
                     suppression_coverage(data, report),
                     self._representation(data, source_matches=report.source_matches),
+                    self._standard_parameters(
+                        data, source_matches=report.source_matches
+                    ),
                 )
             )
             del data
         if self.head(context) != marker:
             raise EditError("model_changed")
-        for mode, report, suppression, representation in reports:
+        for mode, report, suppression, representation, standard in reports:
             logger.warning(
                 "safe_edit_state_coverage noSketchGeometry=%s metadata=%s",
                 mode,
@@ -308,6 +323,13 @@ class CoverageClient(SafeEditClient):
                     "safe_edit_representation_coverage noSketchGeometry=%s metadata=%s",
                     mode,
                     representation.model_dump_json(),
+                )
+            if standard is not None and _diagnostics_enabled(self._diagnostic_settings):
+                logger.warning(
+                    "safe_edit_standard_parameter_coverage "
+                    "noSketchGeometry=%s metadata=%s",
+                    mode,
+                    standard.model_dump_json(),
                 )
 
 

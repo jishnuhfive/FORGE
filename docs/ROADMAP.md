@@ -587,7 +587,7 @@ READ-ONLY VALIDATED — MERGED INTO MAIN** at `36511d73a7fffd4b219497fe09d2c8d4f
 
 ## Phase 16 — controlled real Modify conformance
 
-**IN PROGRESS — AUTOMATED GATE PASSED; HUMAN LIVE VALIDATION PENDING**
+**IN PROGRESS — REAL-SHAPE REPAIR NO-GO; CAD WRITES OFF**
 
 Started from clean synchronized main `017f4ab7e556b2653661cbda77b7b6f22cdf1a1c`
 on `phase16/modify-live-conformance`. Scope is the existing SET_SUPPRESSED,
@@ -606,11 +606,22 @@ focused frontend cases, the full 869 frontend / 3,147 API tests (all 42 PostgreS
 cases, no skips), and 45 Modify browser cases across Chromium/Firefox/WebKit with
 four workers and zero retries. Frozen installs, format/lint, strict types, build,
 migration drift, Compose, audits and secret/privacy review passed. Counts overlap.
-Only tests and documentation changed; adapters and runtime authority are unchanged.
+Initial preparation changed only tests and documentation; adapters and runtime
+authority are unchanged.
 The isolated synthetic database was removed; application data were untouched.
 Actual current-UI feature representations and all five live operations remain
 UNVERIFIED. The ordinary disposable fixture and writes-OFF representation checkpoint
 must precede the separately human-approved live trials. No merge or deployment.
+
+The human subsequently reported structural eligibility PASS but replacement
+conformance FAIL for an ordinary UI Extrude/Fillet: both have >20 parameters and
+unrecognized quantity fields. The existing adapters correctly rejected them; no
+proposal or write occurred. Public standard-library research establishes input
+semantics, not the fixture's exact provider encoding. A separate closed-vocabulary
+DEV diagnostic now prepares the missing sanitized evidence without changing
+adapter eligibility or safety bounds. The real-shape repair remains NO-GO pending
+that writes-OFF checkpoint and an evidence-backed repair; passing diagnostic tests
+does not advance the live gate. See the Phase 16 record for sources and exact steps.
 
 ## Future target — Level-3 creation and advanced Learn
 

@@ -621,7 +621,14 @@ checks. No names, CAD/geometry/node IDs, expressions, query contents, arbitrary
 provider strings, tokens, URLs or raw JSON are emitted. The registry's pure parameter
 validator supplies only a shape-match Boolean; summaries grant no target, proposal,
 approval, payload or execution authority. No public payload/header/route, model input,
-analytics or persistence is added. Human writes-OFF observation is still pending.
+analytics or persistence is added. The human writes-OFF observation subsequently
+confirmed structural eligibility but failed current-UI replacement conformance.
+The additional `safe_edit_standard_parameter_coverage` log uses only a finite
+public-source vocabulary and closed type/value categories under the same guards
+and matching-head checks. It preserves the original report, read budget and caps;
+recognition never authorizes an edit. Quantity bookkeeping is reduced to
+presence/type/zero/empty classes, never raw values or import markers. Adapter
+acceptance remains unchanged and the repair remains NO-GO pending exact evidence.
 
 [Recovery controls](MODIFY_RECOVERY_HOTFIX.md) use the existing authenticated
 same-origin CSRF guard. Recovery returns only same-session consumed status handles
