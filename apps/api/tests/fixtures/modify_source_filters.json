@@ -1,0 +1,121 @@
+{
+  "provenance": "Synthetic SDK-shaped candidates derived from public FeatureScript 3095 predicates. NOT real REST captures or accepted contracts. Binary grouping, optional field presence and leaf states still require real closed evidence.",
+  "extrude": {
+    "filter": {
+      "btType": "BTAndFilter-110",
+      "operand1": {
+        "btType": "BTOrFilter-167",
+        "operand1": {
+          "btType": "BTAndFilter-110",
+          "operand1": {
+            "btType": "BTAndFilter-110",
+            "operand1": {
+              "btType": "BTAllowFlattenedGeometryFilter-2140",
+              "allowsFlattenedGeometry": true
+            },
+            "operand2": {
+              "btType": "BTSketchObjectFilter-184",
+              "isSketchObject": true
+            }
+          },
+          "operand2": {
+            "btType": "BTEntityTypeFilter-124",
+            "entityType": "FACE"
+          }
+        },
+        "operand2": {
+          "btType": "BTAndFilter-110",
+          "operand1": {
+            "btType": "BTAndFilter-110",
+            "operand1": {
+              "btType": "BTGeometryFilter-130",
+              "geometryType": "PLANE"
+            },
+            "operand2": {
+              "btType": "BTAllowFlattenedGeometryFilter-2140",
+              "allowsFlattenedGeometry": false
+            }
+          },
+          "operand2": {
+            "btType": "BTEntityTypeFilter-124",
+            "entityType": "FACE"
+          }
+        }
+      },
+      "operand2": {
+        "btType": "BTConstructionObjectFilter-113",
+        "isConstruction": false
+      }
+    },
+    "nodes": 13,
+    "depth": 5,
+    "signature": "and(or(and(and(allow_flattened_geometry,sketch_object),entity_type),and(and(geometry,allow_flattened_geometry),entity_type)),construction)",
+    "leaf_states": "5:allow_flattened_geometry=true;6:sketch_object=true,sketch_object_type=missing;7:entity_type=face;10:geometry=plane;11:allow_flattened_geometry=false;12:entity_type=face;13:construction=false"
+  },
+  "fillet": {
+    "filter": {
+      "btType": "BTAndFilter-110",
+      "operand1": {
+        "btType": "BTAndFilter-110",
+        "operand1": {
+          "btType": "BTAndFilter-110",
+          "operand1": {
+            "btType": "BTOrFilter-167",
+            "operand1": {
+              "btType": "BTAndFilter-110",
+              "operand1": {
+                "btType": "BTActiveSheetMetalFilter-2944",
+                "isFromActiveSheetMetal": false
+              },
+              "operand2": {
+                "btType": "BTOrFilter-167",
+                "operand1": {
+                  "btType": "BTAndFilter-110",
+                  "operand1": {
+                    "btType": "BTEntityTypeFilter-124",
+                    "entityType": "EDGE"
+                  },
+                  "operand2": {
+                    "btType": "BTEdgeTopologyFilter-122",
+                    "edgeTopology": "TWO_SIDED"
+                  }
+                },
+                "operand2": {
+                  "btType": "BTEntityTypeFilter-124",
+                  "entityType": "FACE"
+                }
+              }
+            },
+            "operand2": {
+              "btType": "BTAndFilter-110",
+              "operand1": {
+                "btType": "BTEntityTypeFilter-124",
+                "entityType": "EDGE"
+              },
+              "operand2": {
+                "btType": "BTSMDefinitionEntityTypeFilter-1651",
+                "smDefinitionEntityType": "VERTEX"
+              }
+            }
+          },
+          "operand2": {
+            "btType": "BTConstructionObjectFilter-113",
+            "isConstruction": false
+          }
+        },
+        "operand2": {
+          "btType": "BTSketchObjectFilter-184",
+          "isSketchObject": false
+        }
+      },
+      "operand2": {
+        "btType": "BTModifiableEntityOnlyFilter-1593",
+        "modifiableOnly": true
+      }
+    },
+    "nodes": 17,
+    "depth": 8,
+    "signature": "and(and(and(or(and(active_sheet_metal,or(and(entity_type,edge_topology),entity_type)),and(entity_type,sheet_metal_definition_entity_type)),construction),sketch_object),modifiable_entity_only)",
+    "leaf_states": "6:active_sheet_metal=false;9:entity_type=edge;10:edge_topology=two_sided,internal_edge=missing;11:entity_type=face;13:entity_type=edge;14:sheet_metal_definition_entity_type=vertex;15:construction=false;16:sketch_object=false,sketch_object_type=missing;17:modifiable_entity_only=true"
+  }
+}

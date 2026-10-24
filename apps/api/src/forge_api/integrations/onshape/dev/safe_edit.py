@@ -17,6 +17,7 @@ from forge_api.integrations.onshape.eligibility import (
     Primitive,
     primitive,
 )
+from forge_api.integrations.onshape.query_filter_evidence import leaf_states_text
 from forge_api.integrations.onshape.service import read_permission
 from forge_api.integrations.onshape.write_client import SafeEditClient
 
@@ -362,7 +363,8 @@ class CoverageClient(SafeEditClient):
                         "reason=%s filter_root=%s root_state=%s child_count=%s "
                         "max_depth=%s node_count=%s categories=%s malformed=%s "
                         "missing_operand=%s unexpected_fields=%s uninspected=%s "
-                        "truncated=%s",
+                        "truncated=%s signature=%s signature_truncated=%s "
+                        "leaf_states=%s",
                         shape.category,
                         shape.failure.parameter,
                         shape.failure.reason,
@@ -377,6 +379,9 @@ class CoverageClient(SafeEditClient):
                         str(query_filter.unexpected_fields).lower(),
                         str(query_filter.uninspected).lower(),
                         str(query_filter.truncated).lower(),
+                        "".join(query_filter.signature) or "unavailable",
+                        str(query_filter.signature_truncated).lower(),
+                        leaf_states_text(query_filter),
                     )
                 elif shape.common is not None:
                     logger.warning(

@@ -725,6 +725,15 @@ must never fall through. Suppression tests instead assert the independent minima
 attribute payload. Follow the final profile-repair checkpoint in the Phase 16
 record: one same-fixture writes-OFF Inspector refresh, no proposal or mutation.
 
+The next signature diagnostic extends only that rejection log with signature,
+signature_truncated and leaf_states. Signatures contain fixed subtype/operator
+tokens in operand order. Leaf states are finite official enum/Boolean labels,
+prefixed by a local preorder visit counter, never CAD identities. Missing/null /
+wrong_type/unknown_value are explicit; raw strings never pass through. Depth 8,
+visits 64, signature 4,096-character and whole-filter 16,384-character limits are
+tested. No real tree has been accepted. Follow the exact-signature checkpoint in
+the Phase 16 record: one same-fixture writes-OFF refresh, no proposals or writes.
+
 It performs pinned GET reads without proposals or mutations, and adds no
 public diagnostic route/header. It is not invoked by Learn or AI. See
 [the investigation record](PHASE_9_REVIEW.md) before interpreting missing fields;

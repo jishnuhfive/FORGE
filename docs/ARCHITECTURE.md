@@ -647,6 +647,14 @@ failed validation never falls through or mixes profiles. Filters reject in both.
 Suppression remains a separately guarded attribute-only transport with no full
 parameter definition. See the Phase 16 legacy bypass repair record.
 
+The subsequent exact-signature diagnostic retains rejection while replacing
+other_known with 29 exact closed subtype labels. Its finite token topology follows
+serialized operand positions; preorder counters bind closed leaf states to nodes.
+Only official enum/Boolean fields are projected, never identity-bearing payloads.
+Depth 8 / visits 64 remain; signatures cap at 4,096 characters and filter records
+at 16,384. Source-derived 3095 candidates match observed counts but do not prove
+real trees. No filter contract, graph authority or extra provider GET is added.
+
 [Recovery hotfix](MODIFY_RECOVERY_HOTFIX.md) adds session-owned server discovery,
 read-only single-terminal-suppression reconciliation and a deterministic planning
 fast path before AI fallback. `reconciled_current_state` proves present-state

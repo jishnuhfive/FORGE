@@ -700,6 +700,16 @@ independent terminal-Fillet contract. The finding preceded any real proposal,
 approval or mutation, with writes OFF. The current real fixture still lacks a
 proven filter contract; bounded diagnostic recognition is never write authority.
 
+The exact-signature continuation permits only finite subtype, topology-token
+and enum/Boolean-state projections in the same guarded DEV log. Arbitrary strings
+map to unknown / unknown_value, never pass through. Local preorder numbers 1–64
+are counters, not identities. Missing/null/wrong types are explicit; no defaults
+are inferred. Iterative raw traversal caps remain depth 8 / visits 64. Signature
+schema/emitter cap at 4,096 characters; schema-maximum log size stays below 16,384.
+Unknown/opaque family payloads and unknown fields remain untraversed. Every filter
+still rejects; legacy profile, suppression transport and all authority controls
+are unchanged. Real topology/leaf semantics require another writes-OFF checkpoint.
+
 [Recovery controls](MODIFY_RECOVERY_HOTFIX.md) use the existing authenticated
 same-origin CSRF guard. Recovery returns only same-session consumed status handles
 and safe previews, never approval digests or provider bindings. Reconciliation

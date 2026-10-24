@@ -51,3 +51,11 @@ query items contain only btType plus featureId (Extrude region) or queryString
 (Fillet individual query). Parameter nodeId strings and quantity isInteger=false
 remain supported by the existing metadata-preservation tests. Current-UI fields,
 filters and unknown nested fields cannot be smuggled into the minimal profile.
+
+`modify_source_filters.json` contains invented SDK-shaped candidates derived from
+public FeatureScript 3095 entities annotations. Expected signatures, preorder
+leaf states and 13/5 versus 17/8 node/depth counts are explicit. These match the
+human aggregate counts, not proven real REST topology/fields. Optional edge
+isInternalEdge and sketch objectType are deliberately absent and diagnosed as
+missing. Every candidate remains rejected in active, mismatched and inactive
+roles; no target filter acceptance or normalization is introduced.

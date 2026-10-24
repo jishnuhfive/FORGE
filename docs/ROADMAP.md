@@ -587,7 +587,7 @@ READ-ONLY VALIDATED — MERGED INTO MAIN** at `36511d73a7fffd4b219497fe09d2c8d4f
 
 ## Phase 16 — controlled real Modify conformance
 
-**IN PROGRESS — FINAL WRITES-OFF RECHECK NO-GO; QUERY FILTER EVIDENCE NEEDED**
+**IN PROGRESS — EXACT FILTER SIGNATURE EVIDENCE NEEDED**
 
 Started from clean synchronized main `017f4ab7e556b2653661cbda77b7b6f22cdf1a1c`
 on `phase16/modify-live-conformance`. Scope is the existing SET_SUPPRESSED,
@@ -631,6 +631,22 @@ Final security review confirmed complete replacement profiles, no ignored nested
 fields, attribute-only suppression and real writes OFF.
 No filter contract or real write conformance is claimed; the next human action
 remains one same-fixture writes-OFF Inspector refresh for bounded filter evidence.
+
+Latest human filter evidence confirms and roots, 13 visits/depth 5 (Extrude) and
+17/depth 8 (Fillet), but collapsed other_known labels and unordered categories
+cannot prove exact role-specific semantics. The diagnostic now distinguishes all
+37 concrete SDK types plus the abstract base, and emits closed ordered topology
+and finite enum/Boolean states. Depth 8 / visits 64 and existing DEV/writes-OFF
+privacy guards remain. Source-derived FeatureScript 3095 candidates have matching
+counts, but are synthetic, not real serialization proof. No filter acceptance,
+legacy-profile change, suppression authority or new provider GET is introduced.
+The diagnostic gate passed 217 new cases, 875 targeted cases, 4,548 focused cases,
+all 6,110 API / 869 frontend cases (including all 42 PostgreSQL cases, no skips),
+and 45 Modify browser cases across Chromium/Firefox/WebKit with four workers and
+zero retries. Frozen installs and format/lint/types/build/test/migration/Compose/
+audit gates passed; no dependency change or weakened bound. Real writes stayed OFF.
+One same-fixture writes-OFF Inspector refresh is required for closed signature and
+leaf-state evidence. All five live operations remain unproven.
 
 Previous DEFAULT repair passed 251 new-module cases plus 18 additional malformed
 variants (269 added cases), 3,757 focused cases, all 5,319 API / 869 frontend cases
