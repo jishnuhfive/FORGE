@@ -473,3 +473,15 @@ Frozen installs, formatting, lint, strict types, build, migration drift, Compose
 dependency audits passed. The isolated synthetic database was removed after checks;
 existing local data remain untouched. No real CAD write or hosted deployment was
 performed. Human read-only validation and merge remain separate later steps.
+
+The separately authorized relationship-guard precision refinement distinguishes
+explicit relationship questions and unsupported current-model prose from ordinary
+use/input questions and clearly general CAD teaching. It preserves the fixed
+dependency/ownership boundary and all Phase 15 authority limits; no graph semantics,
+acquisition, signed checks, UI or evidence limits change. See the Phase 15 record
+for its separate verification results. Human read-only validation remains pending.
+Its gate passed **100 precision / 69 Phase 15 / 169 existing targeted cases**,
+**869 frontend / 2,931 API tests** (all **42 PostgreSQL cases**, no skips) and
+**27 focused Tutor browser tests** with four workers and zero retries. Frozen
+installs, formatting, lint, strict typing, build, migration drift, Compose and
+audits passed. No scope expansion, CAD write, UI change, merge or deployment.

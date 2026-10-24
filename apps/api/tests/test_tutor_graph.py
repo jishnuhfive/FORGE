@@ -397,18 +397,20 @@ def test_dependency_question_blocks_even_a_bare_yes_and_still_teaches() -> None:
 def test_general_dependency_teaching_is_separated_from_current_model_observations() -> (
     None
 ):
+    teaching = (
+        "In general CAD, a dependency means one feature uses another's geometry. "
+        "Returned feature order does not establish dependency in this model."
+    )
     answer, _ = evaluate(
         model_source(),
         model(
-            explanation=(
-                "In general CAD, a dependency means one feature uses another's "
-                "geometry. That relationship is unknown for this model."
-            ),
+            explanation=teaching,
             fact_ids=["order_1_2"],
         ),
     )
     assert "In general CAD, a dependency means" in answer.explanation
     assert "does not establish dependency" in answer.explanation
+    assert answer.explanation == teaching
     assert all("returned feature order" in item.statement for item in answer.observed)
 
 

@@ -717,9 +717,13 @@ and cancellation still prevent discarded evidence reaching the answer provider.
 Canonical AVAILABLE adjacent PRECEDES facts establish order only, not dependency
 or ownership. Missing/UNKNOWN relationships prove nothing; terminal facts require
 the existing completeness/end rollback proof. A fixed semantics caveat survives
-model selection. Conservative server presentation replaces relationship prose with
-general teaching and terminal prose with proven canonical text or fixed unknown
-copy. CAD strings stay quoted untrusted data; graph/provider/context IDs and
+model selection. Server presentation distinguishes explicit relationship intent
+and unsupported model-specific prose from ordinary educational use/input questions
+and general CAD teaching. A general prefix or unknown word cannot exempt a named/
+current-model claim. Already-projected names are escaped literal data, never proof
+or policy. Unsafe relationship prose receives fixed teaching; terminal prose uses
+proven canonical text or fixed unknown copy. CAD strings stay quoted untrusted
+data; graph/provider/context IDs and
 provenance never reach Tutor model/browser payloads. Combined application/check
 context and CAD evidence must fit the existing evidence byte bound or fail closed.
 

@@ -547,8 +547,10 @@ validated request context. Direct Inspector remains Phase 13, Design Ask Forge
 Phase 14 and Learn Tutor Phase 15; Modify remains unmigrated. Bounded AVAILABLE
 adjacent order and completeness-proven terminal facts retain quoted untrusted names.
 PRECEDES is returned order, not dependency or ownership; missing relationships prove
-nothing. A deterministic presentation guard replaces relationship prose with general
-teaching, and terminal prose uses only canonical proven evidence. Ordering semantics
+nothing. A deterministic presentation guard separates explicit relationship intent
+and model-specific claims from ordinary tutoring and clearly general teaching.
+Unsafe claims receive fixed teaching; terminal prose uses only canonical proven
+evidence. Ordering semantics
 always accompanies a graph-backed answer. Combined application/check context and
 CAD evidence must fit the existing 65,536-byte bound, otherwise fail closed.
 

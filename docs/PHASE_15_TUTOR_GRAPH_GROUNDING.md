@@ -78,16 +78,23 @@ error handling retain their existing contracts. The shared ordering caveat alway
 appears in Still unknown after a graph-backed read, regardless of model selection.
 Internal graph terminology is not normal learner-facing copy.
 
-A conservative deterministic guard examines the learner's question and all three
-model prose fields for dependency/ownership/relationship language. It replaces
-that prose with fixed general teaching and an investigation suggestion, retaining
-only server-owned CAD observations. It catches even a bare yes to a dependency
-question and negative dependency claims inferred from absent relationships.
-General education remains explicit: a dependency in CAD means using another
-feature's profile or geometry as an input; captured order does not establish that
-relationship in this model. This is a presentation safeguard, not a natural-language
-dependency classifier. It may replace otherwise safe teaching with less-specific
-teaching. Questions without CAD inspection keep their existing behavior.
+The deterministic presentation guard separates learner relationship intent from
+model-authored relationship claims. Explicit dependency/ownership questions still
+receive fixed safe teaching, even if the model says only yes. Ordinary educational
+questions containing use, input, references, connected or based on retain normal
+teaching. Each of the three model prose fields is checked independently: clearly
+general CAD teaching is allowed, while named/current-model dependency, ownership,
+driving, consumption or input claims receive the fixed relationship explanation.
+General wording cannot exempt a later specific-model claim or infer an absent
+dependency from a missing relationship. Exact closed lack-of-proof caveats are
+allowed; an arbitrary occurrence of unknown is not a bypass.
+
+Only already-projected feature display names identify model-specific prose; they
+are escaped literal data, never relationship proof or regex/policy syntax. Generic
+CAD type names do not hijack general education. No additional evidence, provider
+read, model/browser field or authority is added. This remains a conservative
+presentation safeguard, not complete natural-language understanding or a dependency
+classifier. Questions without CAD inspection keep their existing behavior.
 
 For final-feature language, server presentation uses the canonical terminal
 statement when proven, otherwise a fixed explanation that the final feature is
@@ -135,7 +142,8 @@ sourced historical check status, tokens, lifecycle loss, no-inspection behavior,
 deterministic write boundaries, empty context transitions, malicious names,
 identity minimization, existing guards, byte bounds and cancellation.
 
-The branch's focused Phase 15 suite passed **69 tests**, followed by **226 existing
+The initial implementation at `21640495f9998e9e1a7903c01b94fc6294ac07d7`
+passed **69 focused Phase 15 tests**, followed by **226 existing
 Tutor/token/Check-my-step/Phase 14 tests**. Frozen `make setup` (`npm ci` and
 `uv sync --locked`) passed without dependency or lockfile changes. The complete
 repository gate passed on this branch:
@@ -165,6 +173,46 @@ files. Credential-pattern review found no matches; no browser artifacts or secre
 are included. Verification logs stay under ignored `.cache/phase15/`.
 No real OAuth, model-provider or Onshape call is part of automated validation.
 Passing tests does not establish production readiness or security certification.
+
+## Relationship-guard precision review — 2026-10-23
+
+Started with a clean `phase15/tutor-graph-grounding` at required HEAD
+`21640495f9998e9e1a7903c01b94fc6294ac07d7`; fetched `origin/main` remained
+`500e114b7356b90499988633dd7811c49b94937c`. No merge is included.
+
+The original combined question/prose regex treated ordinary use, input, references,
+connected and based-on wording as relationship intent. The initial 82-case
+reproduction had 34 failures, including normal questions and general teaching.
+The refined pure presentation helper now distinguishes question intent from
+model-authored claims as described above. It reads only already-projected feature
+names; there are no acquisition or model-payload changes. Explicit relationship
+questions and unsupported current-model claims still receive the same fixed safe
+explanation. General teaching is not itself added to verified observations.
+
+The new `test_tutor_relationship_precision.py` passes **100 cases** covering normal
+questions with actual graph-backed projection, explicit relationship questions,
+all three model prose fields, general dependency/sketch-input teaching, disguised
+specific claims, literal name escaping and generic feature labels. All **69 Phase
+15 tests** pass. Their existing general-teaching case retains every safety
+assertion and now additionally checks exact model-prose preservation; the original
+general explanation plus unknown caveat is separately covered by the new suite.
+Existing Tutor/token and Phase 14 graph suites pass **169 tests**.
+
+The precision-fix gate passed frozen installs, formatting, lint, strict typing
+(173 Python files), **869 frontend / 2,931 API tests**, including all **42 PostgreSQL
+cases**, with no skips; build (unchanged bundle-size advisory); **27 focused Tutor
+browser tests** across Chromium/Firefox/WebKit with unchanged four workers and zero
+retries; migration drift, Compose and dependency audits (no known vulnerabilities).
+The disposable synthetic PostgreSQL instance was healthy, migrated and removed;
+existing local database/data were untouched. Logs stay in ignored
+`.cache/phase15-precision/`.
+
+Graph semantics, Check my step, signed tokens, CAD acquisition, OAuth, Modify,
+write authority, Tutor UI, deployment, database/migrations and evidence limits are
+unchanged. No CAD writes, live CAD/model-provider validation or Railway deployment
+were performed. Human read-only validation remains pending. Include ordinary
+extrude/fillet use questions alongside the dependency trap in that manual review;
+normal teaching should survive and specific relationship claims must stay unknown.
 
 ## Human read-only validation plan — prepared, not executed
 

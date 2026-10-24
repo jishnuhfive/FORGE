@@ -17,6 +17,7 @@ from .evidence_token import VerifiedCheck
 from .models import LatestCheck, Observed, TutorAnswer, TutorModelAnswer, TutorRequest
 from .policy import boundary_response
 from .providers import TutorProvider, TutorTask
+from .relationships import guard_relationships
 
 TOTAL_SECONDS = 120
 STATUS_NOTE = (
@@ -41,17 +42,6 @@ RELATIONSHIP_ACTION = (
 TERMINAL_UNKNOWN = (
     "Forge hasn't established a final feature from complete evidence. The last "
     "visible feature alone cannot prove the end of the feature list."
-)
-# Coarse presentation protection, not a dependency classifier. For relationship
-# questions OR relationship language in any model prose, substitute fixed general
-# teaching and keep current-model observations exclusively in canonical CAD rows.
-# This also catches a bare 'yes' to a dependency question and negative claims from
-# missing edges. It deliberately prefers less-specific teaching to an unsafe join.
-_RELATIONSHIP = re.compile(
-    r"\b(?:depend\w*|parent\w*|child\w*|own\w*|consum\w*|driv\w*|driven|"
-    r"caus\w*|topolog\w*|relationship\w*|relies|rely|belongs|"
-    r"uses?|using|inputs?|references?|linked|connected)\b|\bbased\s+on\b",
-    re.IGNORECASE,
 )
 _TERMINAL = re.compile(
     r"\b(?:final|last|terminal)\s+(?:captured\s+|modeled\s+)?feature\b|"
@@ -111,6 +101,7 @@ def resolve_tutor(
     used_cad: bool,
     captured_at: str | None,
     question: str = "",
+    cad_names: tuple[str, ...] = (),
 ) -> TutorAnswer:
     from forge_api.ai.models import Fact
 
@@ -164,7 +155,11 @@ def resolve_tutor(
     next_action = model.next_action.strip() or None
     reasoning_question = model.reasoning_question.strip() or None
     if "order_semantics" in facts:
-        if _RELATIONSHIP.search(question + " " + prose):
+        if guard_relationships(
+            question,
+            (model.explanation, model.next_action, model.reasoning_question),
+            cad_names,
+        ):
             explanation = RELATIONSHIP_EXPLANATION
             next_action = RELATIONSHIP_ACTION
             reasoning_question = None
@@ -226,6 +221,7 @@ async def run_tutor(
     payload: str | None = None
     facts: dict[str, object] = {}
     captured_at: str | None = None
+    cad_names: tuple[str, ...] = ()
     if wants_cad:
         yield {"type": "progress", "stage": "inspecting"}
         evidence = await read()
@@ -240,6 +236,11 @@ async def run_tutor(
             evidence.inspector if isinstance(evidence, GroundedCad) else evidence
         )
         captured_at = inspector.source.captured_at
+        cad_names = tuple(
+            item.name
+            for item in inspector.features.items
+            if f"feature_{item.index}" in facts
+        )
         await ensure_active()
     yield {"type": "progress", "stage": "reviewing"}
     model = await provider.answer(payload, request_id=request_id)
@@ -257,5 +258,6 @@ async def run_tutor(
             used_cad=wants_cad,
             captured_at=captured_at,
             question=request.question,
+            cad_names=cad_names,
         ).model_dump(),
     }

@@ -883,3 +883,15 @@ continuity or engineering correctness. Reads remain sequential/non-atomic. The f
 UI overhaul remains future work and Railway remains unhosted. The prepared
 [human read-only plan](PHASE_15_TUTOR_GRAPH_GROUNDING.md) is manual; do not run Gate
 A/B, invoke real Modify, perform CAD writes or deploy Railway for this phase.
+
+For the narrow relationship-guard precision review, run
+`uv run --frozen pytest tests/test_tutor_relationship_precision.py` first, then all
+Phase 15 tests, existing Tutor tests and Phase 14 graph tests. The precision suite
+uses actual graph-backed projection and asserts ordinary teaching survives, all
+prose fields reject specific relationship claims, and general labels cannot hide
+named-model claims. The original general-teaching test retains its safety assertions
+and adds exact prose preservation. Run lint, strict typing, audits and the full API
+suite (including isolated PostgreSQL), plus
+`npm exec playwright test tests/e2e/tutor.spec.ts` after building for browser-visible
+output verification. No UI, graph, acquisition, token or evidence-limit change is
+part of this refinement.
