@@ -690,13 +690,17 @@ See the Phase 16 record for the next single-refresh checkpoint; do not enable wr
 For a rejected documented common field, that same failure line now appends only
 `common_field=parameterName|valueString|libraryRelationType present=true state=...`.
 Text states are nonempty_string or a closed wrong-primitive category; library
-states distinguish default, ignore_library_values, unknown_library_value,
+states distinguish ignore_library_values, unknown_library_value,
 empty_string, unrecognized_string or a wrong primitive. Values never log.
-Only absent/empty-string text placeholders validate; every present library state
-still rejects. Unknown field names do not enter this projection. The existing
+Only absent/empty-string text placeholders validate. Following the human
+ordinary-fixture observation, library metadata accepts only absence or the exact
+string DEFAULT; all other states still reject. Accepted DEFAULT does not emit a
+metadata failure, and the shared predicate continues to the next field. A later
+failure must still log; success requires the entire closed profile to pass.
+Unknown field names do not enter this projection. The existing
 source-vocabulary quantity `other_field_count` is unchanged and informational;
 the shared production predicate decides replacement/rename exact_match.
-No extra read or browser payload is added. Follow the common-metadata checkpoint
+No extra read or browser payload is added. Follow the final DEFAULT checkpoint
 in the Phase 16 record; actual ordinary-fixture conformance remains unproven.
 It performs pinned GET reads without proposals or mutations, and adds no
 public diagnostic route/header. It is not invoked by Learn or AI. See

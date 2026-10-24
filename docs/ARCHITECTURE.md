@@ -618,8 +618,14 @@ The subsequent targeted recheck isolated unexpected enum fields on Extrude
 `domain` and Fillet `filletType`. The current public OpenAPI base parameter schema
 adds `parameterName`, `valueString` and `libraryRelationType`. The closed current-UI
 validator now accepts only absent or exactly empty string placeholders for the
-first two. Nonempty text has unproven semantics; all present library states remain
-unsupported, including DEFAULT. The same production failure carries an optional
+first two. A further human refresh confirmed exact libraryRelationType=DEFAULT
+on those ordinary parameters. The same closed contract now accepts absence or
+that exact string, preserving it without interpretation. The official schema and
+observed ordinary fixture support this bounded state; public source does not
+establish universal provider-internal semantics. Every nondefault or malformed
+library state, nonempty text, nonempty import or configured wrapper still rejects.
+DEFAULT never proves unconfigured eligibility. The same production failure carries
+an optional
 closed field/presence/state projection, and only the guarded DEV log emits those
 labels. No raw metadata, extra GET, new authority path or payload normalization.
 The latest human result remains NO-GO pending the same-fixture writes-OFF recheck.

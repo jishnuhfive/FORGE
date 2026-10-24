@@ -587,7 +587,7 @@ READ-ONLY VALIDATED — MERGED INTO MAIN** at `36511d73a7fffd4b219497fe09d2c8d4f
 
 ## Phase 16 — controlled real Modify conformance
 
-**IN PROGRESS — TARGETED RECHECK NO-GO; COMMON METADATA RECHECK READY**
+**IN PROGRESS — TARGETED RECHECK NO-GO; DEFAULT LIBRARY RECHECK READY**
 
 Started from clean synchronized main `017f4ab7e556b2653661cbda77b7b6f22cdf1a1c`
 on `phase16/modify-live-conformance`. Scope is the existing SET_SUPPRESSED,
@@ -601,16 +601,26 @@ requires the passing gate, exact disposable target, representation review, exact
 preview and explicit human approval. Graph facts must never authorize a write;
 Modify is not graph-migrated in this phase.
 
-Latest human writes-OFF checkpoint: **TARGETED RECHECK — NO-GO**, with Extrude
-domain and Fillet filletType both failing unexpected_field. The common metadata
-repair aligns the shared validator with current official OpenAPI string fields
-only for absent/empty placeholders. Nonempty text and every present library
-relation remain rejected with closed DEV diagnostics. No live conformance or
-creation authority follows. The same disposable fixture must report shape,
-replacement and rename exact_match for both features on one further writes-OFF
-Inspector refresh; any failure stops advancement. See the Phase 16 record for
-the exact contract, research limitations and automated gate. Common-metadata
-preparation passed 405 new cases, 3,488 focused cases, all 5,050 API / 869 frontend
+Latest human writes-OFF checkpoint remains **NO-GO**: Extrude domain and Fillet
+filletType both reached libraryRelationType / DEFAULT as the first failure, with
+structural/source/body evidence good and zero proposals, approvals or mutations.
+Current authoritative schemas and the newly confirmed ordinary UI state justify
+accepting only that exact preserved string alongside the previously accepted
+absence. Nondefault/malformed states, nonempty text, imports and configured states
+remain rejected. This metadata does not prove eligibility or authorize a write.
+The same fixture must pass all four shape/representation conditions and the safe
+no-proposal/no-write probe on one final writes-OFF refresh. Any next failure stops
+advancement. See the Phase 16 record for research limits and the automated gate.
+
+The DEFAULT repair passed 251 new-module cases plus 18 additional malformed
+variants (269 added cases), 3,757 focused cases, all 5,319 API / 869 frontend cases
+(including all 42 PostgreSQL cases, no skips), and 45 Modify browser cases across
+Chromium/Firefox/WebKit with four workers and zero retries. Frozen installs,
+format/lint/types/build, migration/Compose and audits passed. Real writes stayed
+OFF and actual live write conformance remains unproven.
+
+Previous common-metadata preparation passed 405 new cases, 3,488 focused cases,
+all 5,050 API / 869 frontend
 cases (including all 42 PostgreSQL cases, no skips), and 45 Modify browser cases
 across Chromium/Firefox/WebKit with four workers and zero retries. Frozen installs,
 format/lint/types/build, migration/Compose and audits passed. Writes remain OFF;

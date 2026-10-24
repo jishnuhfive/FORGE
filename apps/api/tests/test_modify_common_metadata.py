@@ -53,7 +53,9 @@ WRONG_TEXT: list[tuple[Any, str]] = [
     (" ", "nonempty_string"),
 ]
 LIBRARY = [
-    ("DEFAULT", "default"),
+    ("default", "unrecognized_string"),
+    ("DEFAULT ", "unrecognized_string"),
+    (" DEFAULT", "unrecognized_string"),
     ("IGNORE_LIBRARY_VALUES", "ignore_library_values"),
     ("UNKNOWN", "unknown_library_value"),
     ("NONE", "unrecognized_string"),
@@ -97,7 +99,7 @@ def test_nonempty_or_malformed_text_rejects_through_shared_validator(
 
 @pytest.mark.parametrize("position,key", REPRESENTATIVES)
 @pytest.mark.parametrize("value,state", LIBRARY)
-def test_every_present_library_state_remains_unsupported(
+def test_nondefault_or_malformed_library_states_remain_unsupported(
     position: int, key: str, value: Any, state: str
 ) -> None:
     assert_common_rejection(position, key, "libraryRelationType", value, state)
@@ -225,7 +227,7 @@ def test_even_eligible_metadata_omission_is_an_unrelated_postwrite_effect(
         ("parameterName", "private-name\n#variable", "nonempty_string"),
         ("valueString", {"private-json": "private-value"}, "object"),
         ("libraryRelationType", "private-library", "unrecognized_string"),
-        ("libraryRelationType", "DEFAULT", "default"),
+        ("libraryRelationType", "IGNORE_LIBRARY_VALUES", "ignore_library_values"),
     ],
 )
 def test_only_closed_common_state_escapes_all_diagnostics_without_more_gets(

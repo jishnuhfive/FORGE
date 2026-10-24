@@ -1,6 +1,6 @@
 # Phase 16 — controlled real Modify conformance
 
-**IN PROGRESS — TARGETED RECHECK NO-GO; COMMON METADATA RECHECK READY**
+**IN PROGRESS — TARGETED RECHECK NO-GO; DEFAULT LIBRARY RECHECK READY**
 
 Initial status: `IN PROGRESS — AUTOMATED CONFORMANCE PREPARATION`.
 
@@ -1140,3 +1140,167 @@ In particular, a library state remains rejected even if named DEFAULT, until its
 harmless semantics and the fixture's closed state are proven. Automated repair
 PASS means ready for this writes-OFF recheck only. It is not live conformance,
 permission to enable writes, or permission for Phase 17.
+
+## DEFAULT library metadata repair after the common-metadata recheck
+
+**LATEST HUMAN WRITES-OFF RESULT — NO-GO, FIRST FAILURE IS NOW IDENTIFIED.**
+This supersedes the earlier checkpoint descriptions above. The same disposable
+ordinary UI Sketch → Extrude → Fillet fixture was refreshed exactly once with
+DEV, diagnostics ON and writes OFF. Structural/source/body checks remained good.
+The shared production predicate reported:
+
+- Extrude: `category=extrude parameter=domain reason=unexpected_field common_field=libraryRelationType present=true state=default`
+- Fillet: `category=fillet parameter=filletType reason=unexpected_field common_field=libraryRelationType present=true state=default`
+
+No subsequent predicate was reached for those features. Zero proposals, approvals
+or mutations occurred. The human has now confirmed the exact DEFAULT state on
+ordinary parameters; the prior repair correctly withheld acceptance before this
+fixture evidence existed. The agent has not read the private fixture or requested
+raw CAD/identifiers. Starting branch was clean and synchronized with origin at
+`cedb266f0aeb66a434da7e027c45111120173d5f` on
+`phase16/modify-live-conformance`. Real CAD writes stay OFF throughout this repair.
+
+### Authoritative library metadata research and its limits
+
+A new anonymous read of the current
+[official OpenAPI](https://cad.onshape.com/api/openapi) returned the same
+OpenAPI 3.0.1 / `1.222.91980-dcee49ea4d64` schema as the prior repair, SHA-256
+`6416eff28b497b1bfa5d7fbcc614d3e1a669966f2a4f5b1b5dd9ab808aea76fb`.
+`BTMParameter-1.libraryRelationType` references the string enum
+`GBTParameterLibraryRelationType`: exactly DEFAULT, IGNORE_LIBRARY_VALUES, UNKNOWN.
+The standard enum, quantity, Boolean, query-list and array parameter schemas inherit
+that base. There is no additional field or object wrapper to accept.
+The [official generated enum documentation](https://github.com/onshape-public/go-client/blob/master/onshape/docs/GBTParameterLibraryRelationType.md)
+and [generated Go enum definition](https://github.com/onshape-public/go-client/blob/master/onshape/model_gbt_parameter_library_relation_type.go)
+corroborate those three string values and reject other strings in decoding.
+Neither the live schema nor these generated files provides prose defining DEFAULT
+or saying it disables every possible provider library behavior. There is no
+OpenAPI default annotation proving absence semantically equivalent to presence.
+Existing acceptance of absence is retained, not newly inferred from the enum name.
+
+The current official public standard source was re-read through its view-only
+Feature Studio, at FeatureScript 3095:
+[Extrude source](https://cad.onshape.com/documents/12312312345abcabcabcdeff/w/a855e4161c814f2e9ab3698a/e/aff9bec3150a48098a8184ac),
+[Fillet source](https://cad.onshape.com/documents/12312312345abcabcabcdeff/w/a855e4161c814f2e9ab3698a/e/841b26d2621a46bf98eda1d5).
+Their feature predicates use semantic definition fields, including domain,
+bodyType, filletType and entities; neither source contains libraryRelationType.
+The [official Feature UI guide](https://cad.onshape.com/FsDoc/uispec.html) describes
+these definition/precondition inputs. This supports keeping REST base metadata
+separate from those semantic parameters. Absence in FeatureScript does **not**
+prove provider-internal behavior. The API's configured/reference parameter wrappers
+remain separate unsupported types; the library relation enum itself is not proof
+that a feature is unconfigured or unimported.
+
+The bounded conclusion combines schema type/inheritance, unchanged standard
+semantic predicates, the independently checked simple/unconfigured baseline and
+new real ordinary-fixture evidence: DEFAULT is the ordinary serialization state
+observed here, and can be carried through unchanged. It is inert **to Forge's
+semantic edit selection**, never interpreted, synthesized or used as authority.
+This is not a universal claim about every Onshape feature or provider internals.
+The other two enum values are distinct library-relation states, with no evidence
+supporting equivalence to this observed state; both remain unsupported. No claim
+that their exact configuration behavior is documented is made.
+
+### Narrow contract and preservation
+
+The only production change adds libraryRelationType to the finite shared current-UI
+base field set and accepts it only when the primitive is string and the value is
+exactly DEFAULT. Absence remains accepted under the old contract. No trimming,
+case folding, aliases or conversion; DEFAULT with whitespace, default, NONE,
+IGNORE_LIBRARY_VALUES, UNKNOWN, empty, null, Boolean, number, object, array and
+arbitrary strings all reject. Unknown library-related fields still reject.
+ParameterName/valueString remain absent or exactly empty string; importMicroversion
+remains absent/empty only. Nonempty imports, configured wrappers, nonempty feature
+namespace, richer modes and unknown fields/IDs retain all existing rejection.
+Original minimal A1 profiles and query-item schemas are unchanged.
+
+No diagnostic code or authority path changes. The existing shared predicate now
+continues beyond a valid DEFAULT to every remaining field/guard. A later failure
+still emits its fixed first-failure labels; exact_match derives only from complete
+production validation. Existing representation projection derives
+parameter_shape_matches_registry=true, replacement=exact_match and rename=exact_match
+from that same predicate. No hardcoded success, extra GET, raw metadata log,
+public/browser/model field, analytics or persistence is introduced.
+
+Existing full-definition copying changes only name, depth.expression or
+radius.expression. DEFAULT presence, value, key/parameter order, queries, node IDs
+and all unrelated fields are preserved exactly. Nothing regenerates, normalizes
+or removes library metadata. Fresh exact-effect comparison still covers the whole
+inventory/configuration: removing DEFAULT, changing it, adding an otherwise valid
+DEFAULT, or altering another feature's metadata cannot verify successfully.
+The planner, digest, approval, one-use claim, fences, stale-state/context/expiry
+checks, microversion guard, post-write reread, uncertainty/no-retry behavior,
+recovery and graph boundary remain unchanged. Metadata never grants write authority.
+
+### DEFAULT repair tests and gate
+
+The synthetic fixture adds only the two schema-defined constants actually reported
+by the human: Extrude domain and Fillet filletType DEFAULT. Other fields/identities
+remain invented. New tests independently apply absent/present DEFAULT across all
+88 known parameter occurrences, covering all five parameter families; reject all
+other metadata/library states; prove imports/configuration remain closed; exercise
+full copied provider payloads for both renames and both quantity edits; reject
+unapproved library metadata effects; and verify success versus a genuine later
+failure using the guarded four-GET diagnostic. Query items do not gain these fields.
+Existing nondefault rejection assertions remain; the previously intentional
+DEFAULT rejection is replaced by positive coverage and additional case/whitespace
+rejections. Richer-mode, recovery/fence and uncertainty regressions are unchanged.
+
+**DEFAULT library metadata repair automated gate — PASS, writes OFF.**
+
+| Verification                                                                                    | Result                                                                                  |
+| ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| New DEFAULT module                                                                              | **251 passed**                                                                          |
+| Additional strict malformed/case/whitespace rejection variants                                  | **18** (269 added cases total)                                                          |
+| Metadata + standard-shape + UI conformance subset                                               | **1,782 passed**                                                                        |
+| Focused Modify / registry / planner / diagnostics / preservation / recovery / fence regressions | **3,757 passed**                                                                        |
+| Full API suite                                                                                  | **5,319 passed**, including all **42 PostgreSQL** cases, no skips                       |
+| Full frontend suite                                                                             | **869 passed** in **35 files**, no skips                                                |
+| Modify browser matrix                                                                           | **45 passed**, Chromium / Firefox / WebKit, four workers, zero retries                  |
+| Frozen installs                                                                                 | npm ci, uv sync --locked passed; no dependency/lockfile changes                         |
+| Full commands                                                                                   | make format, lint, typecheck, build, test, migration-check, compose-check, audit passed |
+
+Strict Python checking passed across 188 source files; TypeScript checking passed.
+Audits found zero known vulnerabilities among audited dependencies (editable
+forge-api excluded by the existing audit command). Migration check found no new
+upgrade operations. The pre-existing bundle-size warning remains. No assertion,
+bound, timeout, retry count, threshold or authority control was weakened.
+
+All test CAD traffic was mocked, without real credentials or local application
+settings. The real local write flag was checked false. PostgreSQL ran in a fresh
+loopback-only random-port container with synthetic credentials and tmpfs storage;
+application PostgreSQL/data were untouched. That temporary container is removed
+after verification. No environment, secret, deployment or production setting is
+part of the diff. The latest human conformance result remains NO-GO, pending the
+final same-fixture writes-OFF refresh below. Counts overlap.
+
+### DEFAULT repair files
+
+- apps/api/src/forge_api/integrations/onshape/standard_edit_shapes.py
+- apps/api/tests/test_modify_common_metadata.py
+- apps/api/tests/test_modify_default_library_metadata.py
+- apps/api/tests/fixtures/modify_ui_parameters.json
+- apps/api/tests/fixtures/README.md
+- docs/PHASE_16_MODIFY_LIVE_CONFORMANCE.md
+- docs/ROADMAP.md
+- docs/ARCHITECTURE.md
+- docs/SECURITY.md
+- docs/DEVELOPMENT.md
+
+### Exact final human writes-OFF checkpoint
+
+Use this repair in ENVIRONMENT=development, diagnostics ON and CAD writes OFF.
+Use the SAME privately confirmed disposable fixture. Perform exactly one
+CAD Inspector → Refresh CAD; generate no proposal, approval or mutation.
+For **both** Extrude and Fillet require:
+
+- `safe_edit_standard_shape_validation ... outcome=exact_match`
+- `parameter_shape_matches_registry=true`
+- `replacement=exact_match`
+- `rename=exact_match`
+
+Also require `safe_edit_probe outcome=eligible_no_proposal_no_write`.
+If any new closed failure appears, STOP and report only the sanitized labels.
+Do not enable writes automatically. Even all these read checks passing does not
+prove a live write; a separately authorized controlled human stage still follows.
+No deployment, merge, production/OAuth/domain change or Phase 17 work is included.

@@ -211,6 +211,7 @@ BASE_FIELDS = frozenset(
         "importMicroversion",
         "parameterName",
         "valueString",
+        "libraryRelationType",
     }
 )
 QUANTITY_FIELDS = BASE_FIELDS | frozenset(
@@ -240,14 +241,16 @@ def _bookkeeping(param: dict[str, JsonValue], parameter: StandardId) -> None:
 
 
 def _common_metadata(param: dict[str, JsonValue], parameter: StandardId) -> None:
-    # Current /api/openapi BTMParameter-1 documents these fields, but gives no
-    # semantics for nonempty text or library DEFAULT. Only empty string defaults
-    # are supported. No inference from a field name or enum member is authority.
+    # Current OpenAPI types plus the human ordinary-UI checkpoint establish the
+    # exact DEFAULT serialization state. Preserve it without interpreting it or
+    # inferring imports/configuration eligibility. Nonempty text stays unproven.
     for field in ("parameterName", "valueString", "libraryRelationType"):
         if field not in param:
             continue
         value = param[field]
-        if field != "libraryRelationType" and value == "":
+        if type(value) is str and value == (
+            "DEFAULT" if field == "libraryRelationType" else ""
+        ):
             continue
         state: str
         if value is None:

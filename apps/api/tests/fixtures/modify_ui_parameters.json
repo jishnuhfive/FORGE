@@ -59,7 +59,8 @@
       "enumName": "OperationDomain",
       "value": "MODEL",
       "parameterName": "",
-      "valueString": ""
+      "valueString": "",
+      "libraryRelationType": "DEFAULT"
     },
     {
       "btType": "BTMParameterQueryList-148",
@@ -400,7 +401,8 @@
       "enumName": "FilletType",
       "value": "EDGE",
       "parameterName": "",
-      "valueString": ""
+      "valueString": "",
+      "libraryRelationType": "DEFAULT"
     },
     {
       "btType": "BTMParameterQueryList-148",

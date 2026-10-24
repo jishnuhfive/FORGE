@@ -29,7 +29,11 @@ The common-metadata repair adds invented empty `parameterName` / `valueString`
 placeholders to representative enums, quantities, Booleans, queries and arrays.
 Their string types come from the current official `/api/openapi` base parameter
 schema; the feature API guide documents omitted empty-string defaults. This is
-not evidence of the private fixture's values. Nonempty text and every present
-`libraryRelationType` remain unsupported pending semantic evidence. Tests exercise
-the empty placeholders on every known parameter independently and preserve the
-unchanged 8 KiB replacement limit. No imported/library/configured state is added.
+not evidence of the private fixture's text values. Nonempty text remains
+unsupported. The next human checkpoint confirmed `libraryRelationType=DEFAULT`
+on the ordinary Extrude domain and Fillet filletType parameters; those two exact
+schema-defined constants are now included. No other library state is accepted.
+This is preserved serialization metadata, never proof of configuration/import
+eligibility. Tests exercise the empty placeholders on every known parameter
+independently and preserve the unchanged 8 KiB replacement limit. No imported/
+configured behavior or nondefault library state is added.
