@@ -587,7 +587,7 @@ READ-ONLY VALIDATED — MERGED INTO MAIN** at `36511d73a7fffd4b219497fe09d2c8d4f
 
 ## Phase 16 — controlled real Modify conformance
 
-**IN PROGRESS — HUMAN CONFORMANCE NO-GO; TARGETED DIAGNOSTIC READY**
+**IN PROGRESS — TARGETED RECHECK NO-GO; COMMON METADATA RECHECK READY**
 
 Started from clean synchronized main `017f4ab7e556b2653661cbda77b7b6f22cdf1a1c`
 on `phase16/modify-live-conformance`. Scope is the existing SET_SUPPRESSED,
@@ -600,6 +600,21 @@ work is performed during preparation. The real flag stays OFF. Any later live wr
 requires the passing gate, exact disposable target, representation review, exact
 preview and explicit human approval. Graph facts must never authorize a write;
 Modify is not graph-migrated in this phase.
+
+Latest human writes-OFF checkpoint: **TARGETED RECHECK — NO-GO**, with Extrude
+domain and Fillet filletType both failing unexpected_field. The common metadata
+repair aligns the shared validator with current official OpenAPI string fields
+only for absent/empty placeholders. Nonempty text and every present library
+relation remain rejected with closed DEV diagnostics. No live conformance or
+creation authority follows. The same disposable fixture must report shape,
+replacement and rename exact_match for both features on one further writes-OFF
+Inspector refresh; any failure stops advancement. See the Phase 16 record for
+the exact contract, research limitations and automated gate. Common-metadata
+preparation passed 405 new cases, 3,488 focused cases, all 5,050 API / 869 frontend
+cases (including all 42 PostgreSQL cases, no skips), and 45 Modify browser cases
+across Chromium/Firefox/WebKit with four workers and zero retries. Frozen installs,
+format/lint/types/build, migration/Compose and audits passed. Writes remain OFF;
+this automated pass authorizes only the next human writes-OFF recheck.
 
 Preparation passed 129 new conformance cases, 1,585 focused backend cases, 108
 focused frontend cases, the full 869 frontend / 3,147 API tests (all 42 PostgreSQL

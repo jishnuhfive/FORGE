@@ -1,6 +1,6 @@
 # Phase 16 — controlled real Modify conformance
 
-**IN PROGRESS — HUMAN CONFORMANCE NO-GO; TARGETED DIAGNOSTIC READY**
+**IN PROGRESS — TARGETED RECHECK NO-GO; COMMON METADATA RECHECK READY**
 
 Initial status: `IN PROGRESS — AUTOMATED CONFORMANCE PREPARATION`.
 
@@ -975,3 +975,168 @@ physical geometry equivalence, engineering certification or production readiness
 Phase 9 Gate B provider-side rejection audit remains deferred; this preparation
 does not close it. Phase 16 remains incomplete until controlled human evidence
 answers the conformance question. Phase 17 must wait for that separate decision.
+
+## Common parameter metadata repair after the targeted recheck
+
+**TARGETED RECHECK — NO-GO.** This is the latest human result, superseding any
+prior preparation verdict. On the same disposable ordinary UI fixture, with
+writes OFF and diagnostics ON, the shared validator reported:
+
+- `category=extrude parameter=domain reason=unexpected_field`
+- `category=fillet parameter=filletType reason=unexpected_field`
+
+Structural/source/body evidence remained good. Zero proposals, approvals or
+mutations occurred. These labels do not identify the extra field or its value.
+The agent has neither requested nor read private CAD, identifiers or credentials.
+Repair starting HEAD was clean and synchronized with the remote branch at
+`4365437a7b4247f425cae981b1be735536685341`. Branch remains
+`phase16/modify-live-conformance`; initial Phase 16 main is recorded above.
+
+### Current official schema research
+
+Read-only anonymous GET of the current
+[official OpenAPI specification](https://cad.onshape.com/api/openapi), discovered
+from the [official explorer](https://cad.onshape.com/glassworks/explorer/), returned
+OpenAPI 3.0.1, info.version `1.222.91980-dcee49ea4d64`, on 2026-10-24.
+The downloaded public schema SHA-256 was
+`6416eff28b497b1bfa5d7fbcc614d3e1a669966f2a4f5b1b5dd9ab808aea76fb`.
+The public download stays in ignored local cache; no CAD API was called.
+
+`components.schemas.BTMParameter-1.properties` lists exactly btType,
+importMicroversion, libraryRelationType, nodeId, parameterId, parameterName and
+valueString. The last two have string types but no semantic descriptions.
+`BTMParameterEnum-145.allOf` references that base and adds enumName, namespace,
+value and an importMicroversion override. The import field is a writeOnly string
+with import-microversion semantics, not a display placeholder.
+`GBTParameterLibraryRelationType` lists DEFAULT, IGNORE_LIBRARY_VALUES and UNKNOWN;
+it supplies no explanation proving any state harmless for this fixture.
+Boolean, quantity, query-list and array parameter schemas also inherit the base.
+Query items are a different schema and gain none of these parameter-only fields.
+
+The [official feature API guide](https://onshape-public.github.io/docs/api-adv/featureaccess/)
+documents omitted string defaults as empty strings, typed enumName/value and
+quantity expression semantics. It warns its examples are v9 and actual encoding
+can change. Therefore it supports the narrow empty-placeholder interpretation,
+not arbitrary nonempty text or a library default. The current schema establishes
+field names/types/inheritance; it does not prove the real fixture's values.
+The official generated Go base/enum documentation corroborates the schema but
+is not substituted for the current live OpenAPI response.
+
+### Common metadata classification and closed acceptance
+
+| Additional base field | Classification                                                          | Exact accepted state           | Rejected state / reason                                                                                                                   |
+| --------------------- | ----------------------------------------------------------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| parameterName         | A only for an empty serialization placeholder; C for nonempty semantics | absent or string exactly empty | nonempty strings, including whitespace; null, Boolean, number, array or object                                                            |
+| valueString           | A only for an empty serialization placeholder; C for nonempty semantics | absent or string exactly empty | every nonempty string and wrong primitive; never interpreted as an expression or alternate value                                          |
+| libraryRelationType   | B: potentially library-controlled; fixture state/harmlessness unproven  | absent only                    | every present state, including documented DEFAULT, IGNORE_LIBRARY_VALUES, UNKNOWN, legacy-looking NONE, empty, unknown or wrong primitive |
+
+This is a deliberately narrow repair, not acceptance of all documented metadata.
+No aliases, arbitrary fields, configured wrappers, external references, nonempty
+imports, enum namespaces or richer modes gain authority. Existing node validation,
+all 50/38 known-ID rules and mandatory guards are unchanged. Original minimal A1
+profiles are unchanged. Unknown fields/IDs still fail closed.
+
+The shared production validator validates these placeholders without modifying
+input. It copies no metadata into its failure detail: unsupported common metadata
+raises the existing generic unsupported_target error and unexpected_field reason
+plus a separate strict frozen known-field/presence/closed-state object. DEV uses
+that very exception, not a second parser or eligibility path. It appends only:
+
+`common_field=parameterName|valueString|libraryRelationType present=true state=...`
+
+Text classifications are nonempty_string or null/boolean/number/array/object.
+Library classifications are default, ignore_library_values, unknown_library_value,
+empty_string, unrecognized_string or those wrong-primitive classes. No value,
+object key, arbitrary identifier or unknown field name can enter the projection.
+There are no additional documented common fields in this base schema, so no
+speculative other_documented_common acceptance or diagnostic is introduced.
+Existing first-failure ordering is retained; the first rejected common field
+uses fixed field order, then later checks remain unreachable until it validates.
+
+All old DEV/diagnostics-ON/writes-OFF, complete/source-matched evidence,
+matching-head and per-record emission guards remain. No extra GET: compare still
+uses four, and the complete Inspector probe thirteen. No model, public/browser,
+analytics, database, proposal or approval metadata is added. Real local writes
+remain OFF; no live validation, deployment, merge or OAuth/domain change occurs.
+
+### Preservation and automated coverage
+
+Complete fresh definitions are deep-copied by the existing registry; only name,
+depth.expression or radius.expression changes. No value is regenerated, normalized
+or dropped. Field/parameter order, query contents, node IDs, metadata presence and
+all unrelated fields remain exact. Existing transport serialization and its 8 KiB
+bound remain unchanged. Fresh exact-effect verification still compares the whole
+expected result; even removing an eligible empty metadata field fails verification.
+No planner/approval/claim/fence/staleness/microversion/recovery code changes.
+Graph facts and model suggestions still cannot authorize a write.
+
+The updated synthetic fixture adds only invented empty metadata on representative
+enums, quantities, Booleans, query lists and arrays. It adds no library state and
+contains no private capture. A new test module covers the placeholders on all 88
+known parameter occurrences, every wrong primitive/nonempty text, all present
+library categories, aliases/config/import/unknown-field rejection, shared failure
+parity, exact rename/depth/radius deltas, fresh post-write rejection of metadata
+omission, closed schema and log privacy. All old assertions and bounds remain.
+
+### Common metadata repair gate — PASS (writes OFF)
+
+| Verification                                                                     | Result                                                                                     |
+| -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| New metadata module                                                              | **405 passed**, included below                                                             |
+| Initial metadata + UI + shared-failure subset                                    | **1,513 passed**                                                                           |
+| Focused Modify / planner / registry / diagnostics / recovery / fence regressions | **3,488 passed**                                                                           |
+| Full API suite                                                                   | **5,050 passed**, including all **42 PostgreSQL** cases, no skips                          |
+| Full frontend suite                                                              | **869 passed** in **35 files**, no skips                                                   |
+| Modify browser matrix                                                            | **45 passed**, Chromium / Firefox / WebKit, four workers, zero retries                     |
+| Frozen installs                                                                  | npm ci and uv sync --locked passed; no dependency/lockfile changes                         |
+| Required quality commands                                                        | make format, lint, typecheck, build, test, migration-check, compose-check and audit passed |
+
+Strict Python checking passed across 187 source files; TypeScript checking passed.
+The existing build bundle-size warning remains; no threshold, assertion, timeout,
+safety bound or approval behavior was changed. npm audit found zero vulnerabilities;
+pip-audit reported none among audited dependencies (editable forge-api excluded).
+Migration checking found no new upgrade operations.
+
+All CAD transport in tests was mocked. Credentials/local application settings were
+excluded from test settings; the real local write flag was checked false before
+and after verification. PostgreSQL 18.6 ran on a fresh loopback-only random port
+with synthetic credentials and tmpfs storage; that temporary container was removed.
+Existing application PostgreSQL was left running and untouched. No app database
+reset, private CAD capture, deployment, proposal, approval or real mutation occurred.
+
+Diff/privacy review found only the twelve files listed below. No secrets, local
+environment files, provider authority code or production settings are included.
+The current human conformance result remains **TARGETED RECHECK — NO-GO**.
+
+### Common metadata repair files
+
+- apps/api/src/forge_api/integrations/onshape/standard_edit_shapes.py
+- apps/api/src/forge_api/integrations/onshape/standard_shape_contract.py
+- apps/api/src/forge_api/integrations/onshape/dev/standard_shape_failure.py
+- apps/api/src/forge_api/integrations/onshape/dev/safe_edit.py
+- apps/api/tests/test_modify_common_metadata.py
+- apps/api/tests/fixtures/modify_ui_parameters.json
+- apps/api/tests/fixtures/README.md
+- docs/PHASE_16_MODIFY_LIVE_CONFORMANCE.md
+- docs/ROADMAP.md
+- docs/ARCHITECTURE.md
+- docs/SECURITY.md
+- docs/DEVELOPMENT.md
+
+### Exact next human writes-OFF checkpoint
+
+Keep ENVIRONMENT=development, diagnostics ON and CAD writes OFF. Use the SAME
+privately confirmed disposable Sketch → Extrude → Fillet fixture. Perform one
+CAD Inspector → Refresh CAD. Do not generate a proposal, approve or mutate CAD.
+For **each** Extrude and Fillet, require all three:
+
+- `safe_edit_standard_shape_validation ... outcome=exact_match`
+- representation replacement `exact_match`
+- representation rename `exact_match`
+
+If either feature fails, STOP. If a common metadata failure remains, only its
+known field/presence/state labels are needed; do not share raw values or CAD.
+In particular, a library state remains rejected even if named DEFAULT, until its
+harmless semantics and the fixture's closed state are proven. Automated repair
+PASS means ready for this writes-OFF recheck only. It is not live conformance,
+permission to enable writes, or permission for Phase 17.

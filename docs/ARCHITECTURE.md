@@ -614,6 +614,16 @@ bracketing. No second validator, extra provider read, public/browser payload,
 persistence, AI input or write authority is introduced. The next human checkpoint
 remains a single writes-OFF Inspector refresh, not an automatic write trial.
 
+The subsequent targeted recheck isolated unexpected enum fields on Extrude
+`domain` and Fillet `filletType`. The current public OpenAPI base parameter schema
+adds `parameterName`, `valueString` and `libraryRelationType`. The closed current-UI
+validator now accepts only absent or exactly empty string placeholders for the
+first two. Nonempty text has unproven semantics; all present library states remain
+unsupported, including DEFAULT. The same production failure carries an optional
+closed field/presence/state projection, and only the guarded DEV log emits those
+labels. No raw metadata, extra GET, new authority path or payload normalization.
+The latest human result remains NO-GO pending the same-fixture writes-OFF recheck.
+
 [Recovery hotfix](MODIFY_RECOVERY_HOTFIX.md) adds session-owned server discovery,
 read-only single-terminal-suppression reconciliation and a deterministic planning
 fast path before AI fallback. `reconciled_current_state` proves present-state

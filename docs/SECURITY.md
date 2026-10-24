@@ -656,6 +656,20 @@ persistence, proposal, approval or mutation exists. Production errors remain gen
 the closed detail does not alter claims, fences, stale rejection, microversion
 protection, post-write verification, uncertainty, recovery or global bounds.
 
+The common-metadata follow-up accepts only absent/empty-string `parameterName`
+and `valueString` on the closed current-UI parameter profiles, as documented
+serialization defaults. It does not accept arbitrary provider text. Nonempty text,
+wrong primitive types and every present `libraryRelationType` reject; the schema
+alone does not prove DEFAULT harmless. Imports/configured wrappers and unknown
+fields still reject. The production exception may carry a strict frozen
+`CommonMetadataFailure` with only one of the three documented field names,
+presence=true and a closed primitive/enum-state label. DEV logs that projection
+under the existing guards, never values, object keys or unknown strings. There
+is no public/browser/model/analytics/persistent projection and no extra GET.
+Accepted placeholders remain in the complete copied definition; omission or any
+unrelated post-write delta still fails exact verification. No authority or fence
+control changes. The human targeted recheck remains NO-GO until rechecked.
+
 [Recovery controls](MODIFY_RECOVERY_HOTFIX.md) use the existing authenticated
 same-origin CSRF guard. Recovery returns only same-session consumed status handles
 and safe previews, never approval digests or provider bindings. Reconciliation

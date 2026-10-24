@@ -687,6 +687,17 @@ and writes OFF, and require complete/source-matched pinned evidence and a matchi
 head. There are no extra GETs. Group new lines with existing per-variant metadata;
 they diagnose the current-UI parameter contract only, not approval/write eligibility.
 See the Phase 16 record for the next single-refresh checkpoint; do not enable writes.
+For a rejected documented common field, that same failure line now appends only
+`common_field=parameterName|valueString|libraryRelationType present=true state=...`.
+Text states are nonempty_string or a closed wrong-primitive category; library
+states distinguish default, ignore_library_values, unknown_library_value,
+empty_string, unrecognized_string or a wrong primitive. Values never log.
+Only absent/empty-string text placeholders validate; every present library state
+still rejects. Unknown field names do not enter this projection. The existing
+source-vocabulary quantity `other_field_count` is unchanged and informational;
+the shared production predicate decides replacement/rename exact_match.
+No extra read or browser payload is added. Follow the common-metadata checkpoint
+in the Phase 16 record; actual ordinary-fixture conformance remains unproven.
 It performs pinned GET reads without proposals or mutations, and adds no
 public diagnostic route/header. It is not invoked by Learn or AI. See
 [the investigation record](PHASE_9_REVIEW.md) before interpreting missing fields;

@@ -137,9 +137,36 @@ class ShapeFailure(Closed):
     reason: FailureReason
 
 
+class CommonMetadataFailure(Closed):
+    """Known field and primitive/state only; never retain the provider value."""
+
+    field: Literal["parameterName", "valueString", "libraryRelationType"]
+    present: Literal[True] = True
+    state: Literal[
+        "empty_string",
+        "nonempty_string",
+        "default",
+        "ignore_library_values",
+        "unknown_library_value",
+        "unrecognized_string",
+        "null",
+        "boolean",
+        "number",
+        "array",
+        "object",
+    ]
+
+
 class ShapeValidationError(EditError):
     """Production keeps its generic EditError; internal detail is closed and safe."""
 
-    def __init__(self, parameter: FailureParameter, reason: FailureReason) -> None:
+    def __init__(
+        self,
+        parameter: FailureParameter,
+        reason: FailureReason,
+        *,
+        common: CommonMetadataFailure | None = None,
+    ) -> None:
         super().__init__("unsupported_target", 422)
         self.failure = ShapeFailure(parameter=parameter, reason=reason)
+        self.common = common

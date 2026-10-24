@@ -17,6 +17,7 @@ from pydantic import JsonValue
 from forge_api.cad_edits.plans import valid_quantity
 
 from .standard_shape_contract import (
+    CommonMetadataFailure,
     FailureParameter,
     FailureReason,
     ShapeValidationError,
@@ -202,19 +203,24 @@ UI_REQUIRED = MappingProxyType(
         ),
     }
 )
-QUANTITY_FIELDS = frozenset(
+BASE_FIELDS = frozenset(
     {
         "btType",
         "parameterId",
         "nodeId",
         "importMicroversion",
+        "parameterName",
+        "valueString",
+    }
+)
+QUANTITY_FIELDS = BASE_FIELDS | frozenset(
+    {
         "expression",
         "isInteger",
         "value",
         "units",
     }
 )
-BASE_FIELDS = frozenset({"btType", "parameterId", "nodeId", "importMicroversion"})
 NUMBER = r"[0-9]{1,6}(?:\.[0-9]{1,6})?"
 
 
@@ -231,6 +237,48 @@ def _bookkeeping(param: dict[str, JsonValue], parameter: StandardId) -> None:
     # a nonempty reference or try to interpret configuration/tolerance metadata.
     if "importMicroversion" in param and param["importMicroversion"] != "":
         _reject(parameter, "bookkeeping_import_microversion")
+
+
+def _common_metadata(param: dict[str, JsonValue], parameter: StandardId) -> None:
+    # Current /api/openapi BTMParameter-1 documents these fields, but gives no
+    # semantics for nonempty text or library DEFAULT. Only empty string defaults
+    # are supported. No inference from a field name or enum member is authority.
+    for field in ("parameterName", "valueString", "libraryRelationType"):
+        if field not in param:
+            continue
+        value = param[field]
+        if field != "libraryRelationType" and value == "":
+            continue
+        state: str
+        if value is None:
+            state = "null"
+        elif type(value) is bool:
+            state = "boolean"
+        elif isinstance(value, (int, float)):
+            state = "number"
+        elif isinstance(value, list):
+            state = "array"
+        elif isinstance(value, dict):
+            state = "object"
+        elif field == "libraryRelationType":
+            state = {
+                "DEFAULT": "default",
+                "IGNORE_LIBRARY_VALUES": "ignore_library_values",
+                "UNKNOWN": "unknown_library_value",
+                "": "empty_string",
+            }.get(value, "unrecognized_string")
+        else:
+            state = "nonempty_string"
+        # Construct exclusively from constant labels, never raw strings. Keeping
+        # the closed model on the production exception makes DEV use the exact
+        # same first failure without another parser or provider read.
+        raise ShapeValidationError(
+            parameter,
+            "unexpected_field",
+            common=CommonMetadataFailure.model_validate(
+                {"field": field, "present": True, "state": state}
+            ),
+        ) from None
 
 
 def _quantity_value(
@@ -337,6 +385,7 @@ def _validate(
     if param.get("btType") != rule.bt_type:
         _reject(parameter, "wrong_bt_type")
     _bookkeeping(param, parameter)
+    _common_metadata(param, parameter)
     if rule.boolean is not None:
         if set(param) - (BASE_FIELDS | {"value"}):
             _reject(parameter, "unexpected_field")

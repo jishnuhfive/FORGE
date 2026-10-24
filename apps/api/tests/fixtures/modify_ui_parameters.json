@@ -5,14 +5,18 @@
       "parameterId": "bodyType",
       "nodeId": "n0",
       "enumName": "ExtendedToolBodyType",
-      "value": "SOLID"
+      "value": "SOLID",
+      "parameterName": "",
+      "valueString": ""
     },
     {
       "btType": "BTMParameterEnum-145",
       "parameterId": "operationType",
       "nodeId": "n1",
       "enumName": "NewBodyOperationType",
-      "value": "NEW"
+      "value": "NEW",
+      "parameterName": "",
+      "valueString": ""
     },
     {
       "btType": "BTMParameterQueryList-148",
@@ -24,14 +28,18 @@
           "queryString": "synthetic-profile-query",
           "nodeId": "q2"
         }
-      ]
+      ],
+      "parameterName": "",
+      "valueString": ""
     },
     {
       "btType": "BTMParameterEnum-145",
       "parameterId": "endBound",
       "nodeId": "n3",
       "enumName": "BoundingType",
-      "value": "BLIND"
+      "value": "BLIND",
+      "parameterName": "",
+      "valueString": ""
     },
     {
       "btType": "BTMParameterQuantity-147",
@@ -40,14 +48,18 @@
       "expression": "20 mm",
       "isInteger": false,
       "value": 0,
-      "units": ""
+      "units": "",
+      "parameterName": "",
+      "valueString": ""
     },
     {
       "btType": "BTMParameterEnum-145",
       "parameterId": "domain",
       "nodeId": "n5",
       "enumName": "OperationDomain",
-      "value": "MODEL"
+      "value": "MODEL",
+      "parameterName": "",
+      "valueString": ""
     },
     {
       "btType": "BTMParameterQueryList-148",
@@ -130,7 +142,9 @@
       "btType": "BTMParameterBoolean-144",
       "parameterId": "hasDraft",
       "nodeId": "n17",
-      "value": false
+      "value": false,
+      "parameterName": "",
+      "valueString": ""
     },
     {
       "btType": "BTMParameterQuantity-147",
@@ -356,7 +370,9 @@
           "queryString": "synthetic-edge-query",
           "nodeId": "q0"
         }
-      ]
+      ],
+      "parameterName": "",
+      "valueString": ""
     },
     {
       "btType": "BTMParameterQuantity-147",
@@ -365,20 +381,26 @@
       "expression": "2 mm",
       "isInteger": false,
       "value": 0,
-      "units": ""
+      "units": "",
+      "parameterName": "",
+      "valueString": ""
     },
     {
       "btType": "BTMParameterBoolean-144",
       "parameterId": "tangentPropagation",
       "nodeId": "n2",
-      "value": true
+      "value": true,
+      "parameterName": "",
+      "valueString": ""
     },
     {
       "btType": "BTMParameterEnum-145",
       "parameterId": "filletType",
       "nodeId": "n3",
       "enumName": "FilletType",
-      "value": "EDGE"
+      "value": "EDGE",
+      "parameterName": "",
+      "valueString": ""
     },
     {
       "btType": "BTMParameterQueryList-148",
@@ -403,14 +425,18 @@
       "parameterId": "blendControlType",
       "nodeId": "n7",
       "enumName": "BlendControlType",
-      "value": "RADIUS"
+      "value": "RADIUS",
+      "parameterName": "",
+      "valueString": ""
     },
     {
       "btType": "BTMParameterEnum-145",
       "parameterId": "crossSection",
       "nodeId": "n8",
       "enumName": "FilletCrossSection",
-      "value": "CIRCULAR"
+      "value": "CIRCULAR",
+      "parameterName": "",
+      "valueString": ""
     },
     {
       "btType": "BTMParameterQuantity-147",
@@ -577,7 +603,9 @@
       "btType": "BTMParameterArray-2025",
       "parameterId": "vertexSettings",
       "nodeId": "n31",
-      "items": []
+      "items": [],
+      "parameterName": "",
+      "valueString": ""
     },
     {
       "btType": "BTMParameterArray-2025",

@@ -355,6 +355,17 @@ class CoverageClient(SafeEditClient):
                         "category=%s outcome=exact_match",
                         shape.category,
                     )
+                elif shape.common is not None:
+                    logger.warning(
+                        "safe_edit_standard_shape_failure "
+                        "category=%s parameter=%s reason=%s "
+                        "common_field=%s present=true state=%s",
+                        shape.category,
+                        shape.failure.parameter,
+                        shape.failure.reason,
+                        shape.common.field,
+                        shape.common.state,
+                    )
                 else:
                     logger.warning(
                         "safe_edit_standard_shape_failure "

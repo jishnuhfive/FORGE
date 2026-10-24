@@ -24,3 +24,12 @@ definition and reject unknown fields/IDs, enabled richer modes, malformed data,
 stale evidence and any unrelated post-write change. The original minimal fixture
 and all of its assertions remain unchanged. The same real disposable UI fixture
 must still pass the separate human writes-OFF recheck before any write trial.
+
+The common-metadata repair adds invented empty `parameterName` / `valueString`
+placeholders to representative enums, quantities, Booleans, queries and arrays.
+Their string types come from the current official `/api/openapi` base parameter
+schema; the feature API guide documents omitted empty-string defaults. This is
+not evidence of the private fixture's values. Nonempty text and every present
+`libraryRelationType` remain unsupported pending semantic evidence. Tests exercise
+the empty placeholders on every known parameter independently and preserve the
+unchanged 8 KiB replacement limit. No imported/library/configured state is added.
