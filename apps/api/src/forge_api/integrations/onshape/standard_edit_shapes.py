@@ -14,8 +14,14 @@ from typing import Literal, NoReturn
 
 from pydantic import JsonValue
 
-from forge_api.cad_edits.domain import EditError
 from forge_api.cad_edits.plans import valid_quantity
+
+from .standard_shape_contract import (
+    FailureParameter,
+    FailureReason,
+    ShapeValidationError,
+    StandardId,
+)
 
 QuantityKind = Literal["length", "offset", "angle", "fraction", "open_fraction"]
 SequenceKind = Literal["entities", "edges", "empty_queries", "empty_items"]
@@ -47,7 +53,7 @@ ENTITIES = ParameterRule("BTMParameterQueryList-148", sequence="entities")
 EDGES = ParameterRule("BTMParameterQueryList-148", sequence="edges")
 EMPTY_ARRAY = ParameterRule("BTMParameterArray-2025", sequence="empty_items")
 
-EXTRUDE_RULES = MappingProxyType(
+EXTRUDE_RULES: Mapping[StandardId, ParameterRule] = MappingProxyType(
     {
         "bodyType": _enum("ExtendedToolBodyType", "SOLID"),
         "operationType": _enum("NewBodyOperationType", "NEW"),
@@ -95,13 +101,13 @@ EXTRUDE_RULES = MappingProxyType(
         "startOffsetDistance": _quantity("offset"),
         "startOffsetEntity": EMPTY_QUERY,
         "startOffsetOppositeDirection": _boolean(False),
-        "defaultScope": _boolean(True),
+        "defaultScope": _boolean(False),
         "booleanScope": EMPTY_QUERY,
         "defaultSurfaceScope": _boolean(True),
         "booleanSurfaceScope": EMPTY_QUERY,
     }
 )
-FILLET_RULES = MappingProxyType(
+FILLET_RULES: Mapping[StandardId, ParameterRule] = MappingProxyType(
     {
         "entities": EDGES,
         "radius": _quantity(),
@@ -145,7 +151,7 @@ FILLET_RULES = MappingProxyType(
         "smoothCornerExceptions": EMPTY_QUERY,
     }
 )
-UI_RULES: Mapping[str, Mapping[str, ParameterRule]] = MappingProxyType(
+UI_RULES: Mapping[str, Mapping[StandardId, ParameterRule]] = MappingProxyType(
     {
         "extrude": EXTRUDE_RULES,
         "fillet": FILLET_RULES,
@@ -212,52 +218,54 @@ BASE_FIELDS = frozenset({"btType", "parameterId", "nodeId", "importMicroversion"
 NUMBER = r"[0-9]{1,6}(?:\.[0-9]{1,6})?"
 
 
-def _reject() -> NoReturn:
-    raise EditError("unsupported_target", 422)
+def _reject(parameter: FailureParameter, reason: FailureReason) -> NoReturn:
+    raise ShapeValidationError(parameter, reason) from None
 
 
-def _bookkeeping(param: dict[str, JsonValue]) -> None:
+def _bookkeeping(param: dict[str, JsonValue], parameter: StandardId) -> None:
     if "nodeId" in param and (
         not isinstance(param["nodeId"], str) or not 1 <= len(param["nodeId"]) <= 256
     ):
-        _reject()
+        _reject(parameter, "bookkeeping_node_id")
     # An absent/empty import marker denotes no imported definition. Never accept
     # a nonempty reference or try to interpret configuration/tolerance metadata.
     if "importMicroversion" in param and param["importMicroversion"] != "":
-        _reject()
+        _reject(parameter, "bookkeeping_import_microversion")
 
 
-def _quantity_value(param: dict[str, JsonValue], kind: QuantityKind) -> None:
-    if (
-        set(param) - QUANTITY_FIELDS
-        or ("isInteger" in param and param["isInteger"] is not False)
-        or (
-            "value" in param
-            and (type(param["value"]) not in (int, float) or param["value"] != 0)
-        )
-        or ("units" in param and param["units"] != "")
+def _quantity_value(
+    param: dict[str, JsonValue], kind: QuantityKind, parameter: StandardId
+) -> None:
+    if set(param) - QUANTITY_FIELDS:
+        _reject(parameter, "unexpected_field")
+    if "isInteger" in param and param["isInteger"] is not False:
+        _reject(parameter, "wrong_is_integer")
+    if "value" in param and (
+        type(param["value"]) not in (int, float) or param["value"] != 0
     ):
-        _reject()
+        _reject(parameter, "wrong_quantity_value")
+    if "units" in param and param["units"] != "":
+        _reject(parameter, "wrong_quantity_units")
     expression = param.get("expression")
     if not isinstance(expression, str):
-        _reject()
+        _reject(parameter, "wrong_quantity_expression")
     if kind == "length":
         try:
             valid_quantity(expression)
         except ValueError:
-            _reject()
+            _reject(parameter, "wrong_quantity_expression")
     elif kind == "offset":
         if expression not in ("0 mm", "0 in"):
             try:
                 valid_quantity(expression)
             except ValueError:
-                _reject()
+                _reject(parameter, "wrong_quantity_expression")
     else:
         match = re.fullmatch(
             f"({NUMBER})" + (" deg" if kind == "angle" else ""), expression
         )
         if match is None:
-            _reject()
+            _reject(parameter, "wrong_quantity_expression")
         number = Decimal(match[1])
         if not (
             0 < number < 90
@@ -266,17 +274,17 @@ def _quantity_value(param: dict[str, JsonValue], kind: QuantityKind) -> None:
             if kind == "open_fraction"
             else 0 <= number <= 1
         ):
-            _reject()
+            _reject(parameter, "wrong_quantity_expression")
 
 
-def _entity_query(raw: JsonValue, *, allow_region: bool) -> bool:
+def _entity_query(raw: JsonValue, parameter: StandardId, *, allow_region: bool) -> None:
     if not isinstance(raw, dict):
-        return False
+        _reject(parameter, "query_item_wrong_type")
     bt = raw.get("btType")
     if bt not in ("BTMIndividualQuery-138", "BTMIndividualSketchRegionQuery-140"):
-        return False
+        _reject(parameter, "query_item_wrong_type")
     if bt == "BTMIndividualSketchRegionQuery-140" and not allow_region:
-        return False
+        _reject(parameter, "query_item_wrong_type")
     base = {"btType", "nodeId", "importMicroversion", "queryString", "deterministicIds"}
     null_fields = {
         "query",
@@ -295,11 +303,11 @@ def _entity_query(raw: JsonValue, *, allow_region: bool) -> bool:
         )
     )
     if set(raw) - allowed or any(raw.get(k) is not None for k in null_fields):
-        return False
+        _reject(parameter, "query_item_unexpected_field")
     try:
-        _bookkeeping(raw)
-    except EditError:
-        return False
+        _bookkeeping(raw, parameter)
+    except ShapeValidationError:
+        _reject(parameter, "query_item_bookkeeping")
     query = raw.get("queryString", "")
     ids = raw.get("deterministicIds", [])
     if (
@@ -308,57 +316,66 @@ def _entity_query(raw: JsonValue, *, allow_region: bool) -> bool:
         or not isinstance(ids, list)
         or len(ids) > 2000
     ):
-        return False
+        _reject(parameter, "query_item_identity")
     if any(not isinstance(i, str) or not 1 <= len(i) <= 256 for i in ids):
-        return False
+        _reject(parameter, "query_item_identity")
     if bt == "BTMIndividualSketchRegionQuery-140":
         feature_id = raw.get("featureId")
-        return (
+        if not (
             isinstance(feature_id, str)
             and 1 <= len(feature_id) <= 256
             and ("filterInnerLoops" not in raw or type(raw["filterInnerLoops"]) is bool)
-        )
-    return bool(query.strip() or ids)
+        ):
+            _reject(parameter, "query_item_identity")
+    elif not (query.strip() or ids):
+        _reject(parameter, "query_item_identity")
 
 
-def _validate(param: dict[str, JsonValue], rule: ParameterRule) -> None:
+def _validate(
+    param: dict[str, JsonValue], rule: ParameterRule, parameter: StandardId
+) -> None:
     if param.get("btType") != rule.bt_type:
-        _reject()
-    _bookkeeping(param)
+        _reject(parameter, "wrong_bt_type")
+    _bookkeeping(param, parameter)
     if rule.boolean is not None:
-        if (
-            set(param) - (BASE_FIELDS | {"value"})
-            or type(param.get("value")) is not bool
-            or param["value"] not in rule.boolean
-        ):
-            _reject()
+        if set(param) - (BASE_FIELDS | {"value"}):
+            _reject(parameter, "unexpected_field")
+        if type(param.get("value")) is not bool or param["value"] not in rule.boolean:
+            _reject(parameter, "wrong_boolean")
     elif rule.enum is not None:
-        if (
-            set(param) - (BASE_FIELDS | {"enumName", "namespace", "value"})
-            or ("namespace" in param and param["namespace"] != "")
-            or param.get("enumName") != rule.enum[0]
-            or param.get("value") != rule.enum[1]
-        ):
-            _reject()
+        if set(param) - (BASE_FIELDS | {"enumName", "namespace", "value"}):
+            _reject(parameter, "unexpected_field")
+        if "namespace" in param and param["namespace"] != "":
+            _reject(parameter, "wrong_enum_namespace")
+        if param.get("enumName") != rule.enum[0]:
+            _reject(parameter, "wrong_enum_name")
+        if param.get("value") != rule.enum[1]:
+            _reject(parameter, "wrong_enum_value")
     elif rule.quantity is not None:
-        _quantity_value(param, rule.quantity)
+        _quantity_value(param, rule.quantity, parameter)
     else:
         field = "items" if rule.sequence == "empty_items" else "queries"
         value = param.get(field)
-        if set(param) - (BASE_FIELDS | {field}) or not isinstance(value, list):
-            _reject()
+        if set(param) - (BASE_FIELDS | {field}):
+            _reject(parameter, "unexpected_field")
+        if not isinstance(value, list):
+            _reject(
+                parameter,
+                "array_not_empty" if field == "items" else "query_wrong_envelope",
+            )
         if rule.sequence in ("entities", "edges"):
-            if (
-                not value
-                or len(value) > 2000
-                or not all(
-                    _entity_query(q, allow_region=rule.sequence == "entities")
-                    for q in value
+            if not value:
+                _reject(parameter, "query_empty")
+            if len(value) > 2000:
+                _reject(parameter, "query_wrong_envelope")
+            for query in value:
+                _entity_query(
+                    query, parameter, allow_region=rule.sequence == "entities"
                 )
-            ):
-                _reject()
         elif value != []:
-            _reject()
+            _reject(
+                parameter, "array_not_empty" if field == "items" else "query_nonempty"
+            )
 
 
 def ui_quantity_parameter(
@@ -367,18 +384,37 @@ def ui_quantity_parameter(
     feature_type = feature.get("featureType")
     rules = UI_RULES.get(feature_type) if isinstance(feature_type, str) else None
     raw = feature.get("parameters")
-    if rules is None or not isinstance(raw, list) or not raw or len(raw) > len(rules):
-        _reject()
-    params: dict[str, dict[str, JsonValue]] = {}
+    if rules is None:
+        _reject("feature", "wrong_bt_type")
+    if not isinstance(raw, list) or not raw:
+        _reject("parameters", "missing_required")
+    if len(raw) > len(rules):
+        _reject("parameters", "too_many_parameters")
+    params: dict[StandardId, dict[str, JsonValue]] = {}
     for item in raw:
         if not isinstance(item, dict):
-            _reject()
-        key = item.get("parameterId")
-        if not isinstance(key, str) or key in params or key not in rules:
-            _reject()
-        _validate(item, rules[key])
+            _reject("parameters", "wrong_bt_type")
+        raw_key = item.get("parameterId")
+        # Select the constant catalog key, never include arbitrary input text
+        # in the closed failure detail (including malformed/unknown IDs).
+        key = next((key for key in rules if key == raw_key), None)
+        if key is None:
+            _reject("unknown_parameter", "unknown_parameter")
+        if key in params:
+            _reject("duplicate_parameter", "duplicate_parameter")
+        _validate(item, rules[key], key)
         params[key] = item
     assert isinstance(feature_type, str)
-    if not UI_REQUIRED[feature_type] <= params.keys() or parameter_id not in params:
-        _reject()
+    missing = next(
+        (
+            key
+            for key in rules
+            if key in UI_REQUIRED[feature_type] and key not in params
+        ),
+        None,
+    )
+    if missing is not None:
+        _reject(missing, "missing_required")
+    if parameter_id not in params:
+        _reject("required_parameter", "missing_required")
     return params[parameter_id]

@@ -549,6 +549,7 @@ def test_runtime_guards_prevent_projection_credentials_and_provider_io(
         raise AssertionError("guarded diagnostic executed")
 
     monkeypatch.setattr(safe_edit, "representation_coverage", forbidden)
+    monkeypatch.setattr(safe_edit, "shape_validation_coverage", forbidden)
     monkeypatch.setattr(
         harness.runtime.tokens, "get_valid_onshape_access_token", forbidden
     )
@@ -611,6 +612,7 @@ def test_no_representation_log_after_head_or_flag_changes(
             client.compare(REF)
     assert "safe_edit_representation_coverage" not in caplog.text
     assert "safe_edit_standard_parameter_coverage" not in caplog.text
+    assert "safe_edit_standard_shape_" not in caplog.text
     assert provider.writes == 0
 
 
@@ -665,6 +667,7 @@ def test_inspector_probe_reuses_reads_has_no_public_metadata_or_authority(
         len(calls) == 13
     )  # Existing Inspector + compare + structural/body probe budget.
     assert caplog.text.count("safe_edit_representation_coverage noSketchGeometry=") == 2
+    assert caplog.text.count("safe_edit_standard_shape_failure category=") == 4
     for field in (
         "safe_edit_representation",
         "parameter_shape_matches_registry",
@@ -673,6 +676,8 @@ def test_inspector_probe_reuses_reads_has_no_public_metadata_or_authority(
         "rename",
         "standard_parameter_coverage",
         "source_vocabulary_only_no_edit_authority",
+        "standard_shape_failure",
+        "standard_shape_validation",
     ):
         assert field not in response.text and all(
             field not in k.lower() for k in response.headers

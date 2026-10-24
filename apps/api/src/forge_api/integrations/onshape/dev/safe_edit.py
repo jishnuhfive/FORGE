@@ -22,6 +22,7 @@ from forge_api.integrations.onshape.write_client import SafeEditClient
 
 from .modify_representation import RepresentationCoverage, representation_coverage
 from .standard_parameters import StandardCoverage, standard_parameter_coverage
+from .standard_shape_failure import ShapeValidation, shape_validation_coverage
 
 logger = logging.getLogger("forge.onshape.safe_edit")
 
@@ -269,6 +270,18 @@ class CoverageClient(SafeEditClient):
             return None
         return standard_parameter_coverage(data, source_matches=source_matches)
 
+    def _shape_validation(
+        self, data: JsonValue, *, source_matches: bool
+    ) -> tuple[ShapeValidation, ...] | None:
+        if (
+            not _diagnostics_enabled(self._diagnostic_settings)
+            or not source_matches
+            or not isinstance(data, dict)
+            or data.get("isComplete") is not True
+        ):
+            return None
+        return shape_validation_coverage(data)
+
     """Development-only, two fixed GET variants; no raw results leave this call."""
 
     def compare(self, context: WorkspaceReference) -> None:
@@ -281,6 +294,7 @@ class CoverageClient(SafeEditClient):
                 SuppressionCoverage,
                 RepresentationCoverage | None,
                 StandardCoverage | None,
+                tuple[ShapeValidation, ...] | None,
             ]
         ] = []
         for mode in ("true", "false"):
@@ -298,12 +312,13 @@ class CoverageClient(SafeEditClient):
                     self._standard_parameters(
                         data, source_matches=report.source_matches
                     ),
+                    self._shape_validation(data, source_matches=report.source_matches),
                 )
             )
             del data
         if self.head(context) != marker:
             raise EditError("model_changed")
-        for mode, report, suppression, representation, standard in reports:
+        for mode, report, suppression, representation, standard, shapes in reports:
             logger.warning(
                 "safe_edit_state_coverage noSketchGeometry=%s metadata=%s",
                 mode,
@@ -331,6 +346,23 @@ class CoverageClient(SafeEditClient):
                     mode,
                     standard.model_dump_json(),
                 )
+            for shape in shapes or ():
+                if not _diagnostics_enabled(self._diagnostic_settings):
+                    break
+                if shape.failure is None:
+                    logger.warning(
+                        "safe_edit_standard_shape_validation "
+                        "category=%s outcome=exact_match",
+                        shape.category,
+                    )
+                else:
+                    logger.warning(
+                        "safe_edit_standard_shape_failure "
+                        "category=%s parameter=%s reason=%s",
+                        shape.category,
+                        shape.failure.parameter,
+                        shape.failure.reason,
+                    )
 
 
 def probe(

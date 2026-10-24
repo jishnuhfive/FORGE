@@ -1,6 +1,6 @@
 # Phase 16 — controlled real Modify conformance
 
-**IN PROGRESS — REAL-SHAPE AUTOMATED REPAIR PASSED; WRITES-OFF RECHECK PENDING**
+**IN PROGRESS — HUMAN CONFORMANCE NO-GO; TARGETED DIAGNOSTIC READY**
 
 Initial status: `IN PROGRESS — AUTOMATED CONFORMANCE PREPARATION`.
 
@@ -553,25 +553,26 @@ only be absent/empty. All other parameter-level fields reject.
 
 The exact optional IDs and states are:
 
-| Extrude IDs                                                                                                                                                                                                                                                                                                                          | Kind / allowed state                          | Semantics                                                                                       |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| bodyType                                                                                                                                                                                                                                                                                                                             | Enum ExtendedToolBodyType / SOLID             | Excludes surface/thin geometry.                                                                 |
-| operationType                                                                                                                                                                                                                                                                                                                        | Enum NewBodyOperationType / NEW               | Excludes Boolean merge/removal.                                                                 |
-| endBound                                                                                                                                                                                                                                                                                                                             | Enum BoundingType / BLIND                     | Excludes richer end bounds.                                                                     |
-| domain                                                                                                                                                                                                                                                                                                                               | Enum OperationDomain / MODEL                  | Excludes flat/sheet-metal operation domain.                                                     |
-| surfaceOperationType                                                                                                                                                                                                                                                                                                                 | Enum NewSurfaceOperationType / NEW            | Inactive surface input; surface geometry excluded.                                              |
-| flatOperationType                                                                                                                                                                                                                                                                                                                    | Enum FlatOperationType / REMOVE               | Inactive flat input; MODEL domain required.                                                     |
-| secondDirectionBound                                                                                                                                                                                                                                                                                                                 | Enum BoundingType / BLIND                     | Inactive second direction; no richer latent bound.                                              |
-| startOffsetBound                                                                                                                                                                                                                                                                                                                     | Enum StartOffsetType / BLIND                  | Inactive offset; no entity-offset mode.                                                         |
-| oppositeDirection, symmetric, hasDraft, draftPullDirection, hasSecondDirection, hasSecondDirectionDraft, secondDirectionDraftPullDirection, hasOffset, offsetOppositeDirection, hasSecondDirectionOffset, secondDirectionOffsetOppositeDirection, hasExtrudeDirection, startOffset, startOffsetOppositeDirection, midplane, flipWall | Boolean false                                 | Ordinary first direction only; richer modes disabled and inactive direction controls preserved. |
-| secondDirectionOppositeDirection                                                                                                                                                                                                                                                                                                     | Boolean true                                  | Source/UI default of an inactive second direction; not a second end.                            |
-| defaultScope, defaultSurfaceScope                                                                                                                                                                                                                                                                                                    | Boolean true                                  | Human-confirmed ordinary values; NEW/SOLID plus empty queries prevents merge behavior.          |
-| entities                                                                                                                                                                                                                                                                                                                             | Nonempty Query                                | Existing ordinary profile selection, copied unchanged.                                          |
-| surfaceEntities, wallShape, endBoundEntityFace, endBoundEntityBody, endBoundEntityVertex, secondDirectionBoundEntityFace, secondDirectionBoundEntityBody, secondDirectionBoundEntityVertex, extrudeDirection, startOffsetEntity, booleanScope, booleanSurfaceScope                                                                   | Empty Query                                   | No inactive geometry, custom direction, offset/bound reference or merge scope.                  |
-| depth                                                                                                                                                                                                                                                                                                                                | Positive length Quantity                      | Only this expression may be changed by SET_EXTRUDE_DEPTH.                                       |
-| thickness, thickness1, thickness2, secondDirectionDepth                                                                                                                                                                                                                                                                              | Positive length Quantity                      | Inactive because SOLID and no second direction are explicit.                                    |
-| draftAngle, secondDirectionDraftAngle                                                                                                                                                                                                                                                                                                | Angle Quantity, literal `deg`, 0 < angle < 90 | Bounded dormant draft values; draft guards must be false.                                       |
-| offsetDistance, secondDirectionOffsetDistance, startOffsetDistance                                                                                                                                                                                                                                                                   | Nonnegative length Quantity                   | Positive supported length or exactly `0 mm` / `0 in`; offset guards must be false.              |
+| Extrude IDs                                                                                                                                                                                                                                                                                                                          | Kind / allowed state                          | Semantics                                                                                                  |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| bodyType                                                                                                                                                                                                                                                                                                                             | Enum ExtendedToolBodyType / SOLID             | Excludes surface/thin geometry.                                                                            |
+| operationType                                                                                                                                                                                                                                                                                                                        | Enum NewBodyOperationType / NEW               | Excludes Boolean merge/removal.                                                                            |
+| endBound                                                                                                                                                                                                                                                                                                                             | Enum BoundingType / BLIND                     | Excludes richer end bounds.                                                                                |
+| domain                                                                                                                                                                                                                                                                                                                               | Enum OperationDomain / MODEL                  | Excludes flat/sheet-metal operation domain.                                                                |
+| surfaceOperationType                                                                                                                                                                                                                                                                                                                 | Enum NewSurfaceOperationType / NEW            | Inactive surface input; surface geometry excluded.                                                         |
+| flatOperationType                                                                                                                                                                                                                                                                                                                    | Enum FlatOperationType / REMOVE               | Inactive flat input; MODEL domain required.                                                                |
+| secondDirectionBound                                                                                                                                                                                                                                                                                                                 | Enum BoundingType / BLIND                     | Inactive second direction; no richer latent bound.                                                         |
+| startOffsetBound                                                                                                                                                                                                                                                                                                                     | Enum StartOffsetType / BLIND                  | Inactive offset; no entity-offset mode.                                                                    |
+| oppositeDirection, symmetric, hasDraft, draftPullDirection, hasSecondDirection, hasSecondDirectionDraft, secondDirectionDraftPullDirection, hasOffset, offsetOppositeDirection, hasSecondDirectionOffset, secondDirectionOffsetOppositeDirection, hasExtrudeDirection, startOffset, startOffsetOppositeDirection, midplane, flipWall | Boolean false                                 | Ordinary first direction only; richer modes disabled and inactive direction controls preserved.            |
+| secondDirectionOppositeDirection                                                                                                                                                                                                                                                                                                     | Boolean true                                  | Source/UI default of an inactive second direction; not a second end.                                       |
+| defaultScope                                                                                                                                                                                                                                                                                                                         | Boolean false                                 | Corrected by the final human recheck below; NEW excludes solid merge scope and booleanScope remains empty. |
+| defaultSurfaceScope                                                                                                                                                                                                                                                                                                                  | Boolean true                                  | Inactive surface scope; SOLID plus empty queries excludes surface merge behavior.                          |
+| entities                                                                                                                                                                                                                                                                                                                             | Nonempty Query                                | Existing ordinary profile selection, copied unchanged.                                                     |
+| surfaceEntities, wallShape, endBoundEntityFace, endBoundEntityBody, endBoundEntityVertex, secondDirectionBoundEntityFace, secondDirectionBoundEntityBody, secondDirectionBoundEntityVertex, extrudeDirection, startOffsetEntity, booleanScope, booleanSurfaceScope                                                                   | Empty Query                                   | No inactive geometry, custom direction, offset/bound reference or merge scope.                             |
+| depth                                                                                                                                                                                                                                                                                                                                | Positive length Quantity                      | Only this expression may be changed by SET_EXTRUDE_DEPTH.                                                  |
+| thickness, thickness1, thickness2, secondDirectionDepth                                                                                                                                                                                                                                                                              | Positive length Quantity                      | Inactive because SOLID and no second direction are explicit.                                               |
+| draftAngle, secondDirectionDraftAngle                                                                                                                                                                                                                                                                                                | Angle Quantity, literal `deg`, 0 < angle < 90 | Bounded dormant draft values; draft guards must be false.                                                  |
+| offsetDistance, secondDirectionOffsetDistance, startOffsetDistance                                                                                                                                                                                                                                                                   | Nonnegative length Quantity                   | Positive supported length or exactly `0 mm` / `0 in`; offset guards must be false.                         |
 
 | Fillet IDs                                                                                                                                     | Kind / allowed state                    | Semantics                                                                                                      |
 | ---------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
@@ -680,7 +681,7 @@ occurred during this continuation.
 
 Actual five-operation write conformance remains UNVERIFIED.
 
-### Exact next writes-OFF recheck
+### Previous writes-OFF recheck — completed, still NO-GO
 
 1. Keep the SAME ordinary disposable owned Sketch → Extrude → Fillet fixture.
    Do not change its definitions to fit the parser.
@@ -699,6 +700,155 @@ Actual five-operation write conformance remains UNVERIFIED.
 6. Even a successful read recheck authorizes no write. Controlled live validation
    still requires the separate human stage, exact disposable target, fresh exact
    preview and explicit approval for each operation, one at a time.
+
+## Targeted validator diagnosis after the final writes-OFF recheck
+
+Starting branch HEAD was clean and synchronized at
+`87051c1d7b4ef82b2b952f2246fb6e51547ca400`.
+
+**FINAL WRITES-OFF RECHECK — STILL NO-GO**
+
+The human refreshed CAD Inspector once on the same disposable ordinary fixture
+with development/diagnostics ON and CAD writes OFF. Inventory was complete and
+source-matched, one SOLID body had NO_ERROR, and the structural probe returned
+eligible_no_proposal_no_write. Both replacements and renames nevertheless remained
+unsupported_shape. Structural eligibility PASS does not override the adapter.
+Zero proposal, approval or mutation occurred. No live conformance is claimed.
+
+### Confirmed Extrude correction; Fillet remains unresolved
+
+The final minimized evidence explicitly reports defaultScope=false. The previous
+validator and synthetic fixture incorrectly required true. This latest observation
+supersedes the earlier reported scope state, without changing any CAD fixture.
+The current official public
+[boolean.fs](https://cad.onshape.com/documents/12312312345abcabcabcdeff/w/a855e4161c814f2e9ab3698a/e/4eea9f271b60454e84089e38)
+was reread through its read-only UI at FeatureScript 3095. Its
+booleanStepScopePredicate enters the merge-scope controls only for an operation
+other than NEW; the Merge with all UI annotation defaults false. False is therefore
+legitimate for this ordinary NEW feature. The contract now conservatively accepts
+only the observed explicit Boolean false, retaining NEW/SOLID/BLIND and empty
+booleanScope requirements. It does not permit both Boolean states or enable merge
+behavior. defaultSurfaceScope remains explicitly true. The synthetic fixture was
+corrected accordingly; tests still reject the opposite state and richer modes.
+
+Fillet's high-level metadata appears compatible, including defaultsChanged=true,
+variable/partial/asymmetry OFF, empty arrays/selections and ordinary overflow=true.
+That does not identify the exact failing predicate. No Fillet value, quantity,
+metadata, query or array acceptance rule has been broadened. The next human read
+must identify its first closed failure; no raw CAD or identifiers are needed.
+
+### One shared predicate and closed first-failure detail
+
+Production ui_quantity_parameter still raises EditError(code=unsupported_target,
+status=422) on rejection. Its internal ShapeValidationError subtype carries only a
+frozen, strict, extra-forbidden ShapeFailure: a fixed known UI parameter ID (or
+feature/parameters/unknown_parameter/duplicate_parameter/required_parameter) and a
+fixed reason code. Arbitrary provider IDs, field names and values cannot enter it.
+The canonical known catalog key is selected before validation; malformed/unknown
+IDs use a fixed sentinel. The shared StandardId literal vocabulary moved to an
+internal contract module and is reused by the existing source diagnostic.
+
+Existing Boolean predicates were split into explicit rejection sites without
+changing acceptance, other than the confirmed defaultScope correction. Query
+validation now raises the first fixed reason instead of returning an unlabelled
+false. The DEV diagnostic calls that exact production function and catches its
+closed failure; it contains no second validator and cannot authorize an edit.
+First failure follows original parameter order, then the existing predicate order.
+Missing required inputs are reported deterministically after present inputs are
+validated. Production exception text, public responses and operation support stay
+generic and unchanged; the new detail is not persisted or passed to AI.
+
+Only fixed reason codes escape: wrong_bt_type, unexpected_field,
+bookkeeping_node_id, bookkeeping_import_microversion, wrong_boolean,
+wrong_enum_namespace, wrong_enum_name, wrong_enum_value, wrong_quantity_expression,
+wrong_quantity_value, wrong_quantity_units, wrong_is_integer, query_wrong_envelope,
+query_empty, query_nonempty, query_item_wrong_type, query_item_unexpected_field,
+query_item_bookkeeping, query_item_identity, array_not_empty, missing_required,
+unknown_parameter, duplicate_parameter and too_many_parameters. No raw value or
+expression, query, identifier, node, name, coordinate, enum text, token, URL,
+microversion or raw JSON is logged.
+
+After complete/source-matched pinned evidence and the unchanged head bracket,
+local logs add only one of these fixed forms per recognized feature/read variant:
+
+```text
+safe_edit_standard_shape_failure category=fillet parameter=radius reason=wrong_quantity_units
+safe_edit_standard_shape_validation category=extrude outcome=exact_match
+```
+
+These are examples, not observations of the private fixture's failure. Only the
+closed category, parameter and reason (or category/outcome on pass) appear. Group
+each line with the preceding existing coverage lines to identify the read variant;
+the new line carries no extra context. An exact_match here means only the current-UI
+parameter predicate, not complete target eligibility, approval or write conformance.
+The separate original minimal A1 profile may pass its representation summary while
+failing the stricter current-UI predicate; that is not a grant of new authority.
+
+Projection and every individual log emission recheck development, diagnostics ON
+and writes OFF. Incomplete/source-mismatched or changed-head evidence cannot emit
+these new lines. They reuse the existing response with zero extra provider GETs:
+four reads in compare and the same 13-read Inspector probe budget. No public route,
+browser payload/header, proposal, approval, model input, persistent record or CAD
+mutation is added. No planner/approval/claim/fence/stale/microversion/post-write
+verification/uncertainty/recovery implementation or bounds change.
+
+### Targeted automated verification
+
+All checks passed on this continuation. Counts overlap.
+
+| Check                                                                            | Result                                                                                              |
+| -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| New shared failure/guard/privacy tests                                           | 84 passed                                                                                           |
+| New failure tests + UI/representation/source diagnostics                         | 1,498 passed                                                                                        |
+| Focused Modify/planner/plan/write-client/diagnostic/recovery/fence regressions   | 3,083 passed                                                                                        |
+| Frozen `npm ci`; `uv sync --locked`                                              | Passed; lockfiles unchanged                                                                         |
+| `make format`; `make lint`                                                       | Passed                                                                                              |
+| `make typecheck`                                                                 | Strict TypeScript passed; Python checked 186 source files                                           |
+| `make audit`                                                                     | No known JavaScript/Python dependency vulnerabilities; existing editable application exclusion only |
+| Broader `make test` after production-validator refactor                          | 869 frontend tests in 35 files; 4,645 API tests including all 42 PostgreSQL cases; no skips         |
+| `make build`                                                                     | Passed; existing bundle-size warning, no threshold changes                                          |
+| Isolated PostgreSQL health/upgrade; `make migration-check`; `make compose-check` | Passed; no schema drift                                                                             |
+| Modify browser regression matrix                                                 | 45 passed across Chromium/Firefox/WebKit, four workers, zero retries                                |
+
+A static failure matrix exercises every rejection site and all 24 closed reasons,
+production/diagnostic parity, hostile-value log privacy, fixed first-failure
+ordering, defaultScope=false, unchanged richer-mode rejection, all flag/head/
+evidence guards and zero added GETs. Existing tests gain additional privacy,
+no-authority and read-budget assertions; none are weakened. Fillet's rule table is
+unchanged. Full-definition preservation, stale/fence/claim/recovery guarantees and
+no-retry uncertainty behavior pass their existing broader suites.
+
+Pytest disabled operator dotenv loading and stripped provider credentials; all
+provider mutations used mock transports and real CAD writes stayed OFF. PostgreSQL
+used a new pinned-image tmpfs-backed disposable task container with synthetic
+credentials and a random loopback port. It was removed after checks; application
+data/container were untouched. No real fixture read, proposal, approval, mutation,
+deployment, dependency or production-setting change was performed by this task.
+Diff/privacy review found only source vocabulary and synthetic test canaries.
+
+**PHASE 16 TARGETED SHAPE DIAGNOSTIC PASS — READY FOR WRITES-OFF RECHECK**
+
+This is an automated diagnostic pass. The human conformance result remains NO-GO.
+
+### Exact next targeted writes-OFF recheck
+
+1. Keep the SAME ordinary owned disposable fixture and existing local HTTPS/OAuth
+   configuration. Load this updated local API with ENVIRONMENT=development,
+   FORGE_SAFE_EDIT_DIAGNOSTICS_ENABLED=true and FORGE_CAD_WRITES_ENABLED=false.
+2. Click CAD Inspector → **Refresh CAD exactly once**. Do not prepare a Modify
+   proposal, approve, enable writes or run a mutation script.
+3. Privately inspect the new fixed standard_shape_failure/standard_shape_validation
+   lines, grouped with existing coverage for both variants, especially
+   noSketchGeometry=false. Record only category + known parameter + fixed reason,
+   or category + exact_match. Do not share full logs, raw CAD, identifiers, values,
+   payloads, expressions, query strings or tokens.
+4. If a feature fails, stop and report only its first minimized tuple. Do not
+   change the fixture or relax the parser to pass. The corrected Extrude may expose
+   another first failure; Fillet remains unresolved until this evidence arrives.
+5. Even if both current-UI predicates pass, require the existing replacement AND
+   rename summaries to be exact_match with no unsupported/unknown/malformed/
+   duplicate state. Keep CAD writes OFF. The separate human write stage still
+   requires exact fresh preview and explicit approval for each operation.
 
 ## Graph boundary
 
@@ -811,9 +961,9 @@ Human writes-OFF structural/representation observations are recorded above.
 Representation-confirmed fixture: **NONE**. The human reports a disposable owned
 fixture; its exact private identifiers are not recorded here. Five-operation live
 verdict: **UNVERIFIED**.
-Adapter repair: **closed current-UI parameter contracts implemented; automated
-gate passed; same-fixture human writes-OFF recheck pending**. No live write pass
-is claimed.
+Adapter state: **the human writes-OFF recheck remained NO-GO; confirmed Extrude
+scope correction implemented; Fillet awaits the shared first-failure diagnostic**.
+No live write pass is claimed.
 
 Known limits remain the restricted studio/terminal-suppression policy, literal
 quantity bounds, closed replacement profiles awaiting the real fixture recheck,

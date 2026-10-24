@@ -587,7 +587,7 @@ READ-ONLY VALIDATED — MERGED INTO MAIN** at `36511d73a7fffd4b219497fe09d2c8d4f
 
 ## Phase 16 — controlled real Modify conformance
 
-**IN PROGRESS — REAL-SHAPE AUTOMATED REPAIR PASSED; WRITES-OFF RECHECK PENDING**
+**IN PROGRESS — HUMAN CONFORMANCE NO-GO; TARGETED DIAGNOSTIC READY**
 
 Started from clean synchronized main `017f4ab7e556b2653661cbda77b7b6f22cdf1a1c`
 on `phase16/modify-live-conformance`. Scope is the existing SET_SUPPRESSED,
@@ -639,6 +639,23 @@ all required format/lint/type/build/migration/Compose/audit checks. Counts overl
 No existing assertion, timeout or threshold was weakened. CAD writes remain OFF.
 The same disposable fixture must now pass the entire strict replacement/rename
 contract on a human Inspector refresh before the separately approved live stage.
+
+That human refresh still rejected both replacements despite structural eligibility
+PASS and zero proposals/mutations. The final minimized evidence exposes a definite
+Extrude mismatch: defaultScope=false, while the prior contract required true. The
+current official standard source excludes merge-scope controls for NEW and uses a
+false UI default; the narrow contract and synthetic fixture now require observed
+false, retaining NEW/SOLID/BLIND and empty scope. Fillet acceptance is unchanged.
+A new guarded DEV first-failure log calls the same production validator and emits
+only a fixed category/known parameter/reason. It adds no reads, public payload,
+persistence or write authority. Actual conformance remains NO-GO pending the next
+same-fixture writes-OFF diagnosis; automated diagnostic success is not a live pass.
+
+Targeted diagnosis passed 84 new cases, 3,083 focused regressions, the full 869
+frontend / 4,645 API tests (all 42 PostgreSQL cases, no skips), 45 Modify browser
+cases and format/lint/type/audit plus build/migration/Compose checks. Counts overlap.
+All writes remain OFF. The next human refresh must identify Fillet's exact first
+closed failure rather than broaden its rule table from high-level metadata.
 
 ## Future target — Level-3 creation and advanced Learn
 

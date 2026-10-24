@@ -324,7 +324,7 @@
       "btType": "BTMParameterBoolean-144",
       "parameterId": "defaultScope",
       "nodeId": "n46",
-      "value": true
+      "value": false
     },
     {
       "btType": "BTMParameterQueryList-148",

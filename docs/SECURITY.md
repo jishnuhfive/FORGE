@@ -643,6 +643,19 @@ unchanged. Source diagnostics and graph facts still provide no approval or write
 authority. Actual current-fixture recheck and human live-write conformance remain
 pending; real writes remain OFF during implementation and automated verification.
 
+The subsequent human writes-OFF recheck still failed both replacements. Extrude's
+confirmed scope correction changes only defaultScope to the observed explicit
+false under NEW/SOLID/BLIND with empty scope; Fillet acceptance is not broadened.
+The shared production predicate now raises its generic EditError subtype with an
+internal strict frozen failure object limited to known parameter/sentinel and
+reason literals. It never includes raw field names, values or CAD/credential data.
+The DEV first-failure diagnostic calls that exact predicate, reuses complete
+source-matched pinned responses and logs only those closed labels after matching
+head and per-record flag guards. No new GET, public route/payload/header, AI input,
+persistence, proposal, approval or mutation exists. Production errors remain generic;
+the closed detail does not alter claims, fences, stale rejection, microversion
+protection, post-write verification, uncertainty, recovery or global bounds.
+
 [Recovery controls](MODIFY_RECOVERY_HOTFIX.md) use the existing authenticated
 same-origin CSRF guard. Recovery returns only same-session consumed status handles
 and safe previews, never approval digests or provider bindings. Reconciliation

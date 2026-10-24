@@ -676,6 +676,17 @@ unknowns. Total parameter count clipping at 20 is informational because all raw
 inputs are validated against the 50/38-input closed maps; malformed/duplicate or
 unsupported states still reject. Source recognition alone remains non-authoritative.
 Follow the Phase 16 record's same-fixture writes-OFF recheck before any live stage.
+The latest human recheck remained unsupported and exposed defaultScope=false;
+the corrected Extrude contract requires that exact observed state. Fillet rules
+remain unchanged. The opt-in probe now also emits
+`safe_edit_standard_shape_failure category=... parameter=... reason=...`, or
+`safe_edit_standard_shape_validation category=... outcome=exact_match`, from the
+same production current-UI predicate. Only known category/parameter/reason literals
+escape; no raw values or JSON. Projection and each log recheck DEV, diagnostics ON
+and writes OFF, and require complete/source-matched pinned evidence and a matching
+head. There are no extra GETs. Group new lines with existing per-variant metadata;
+they diagnose the current-UI parameter contract only, not approval/write eligibility.
+See the Phase 16 record for the next single-refresh checkpoint; do not enable writes.
 It performs pinned GET reads without proposals or mutations, and adds no
 public diagnostic route/header. It is not invoked by Learn or AI. See
 [the investigation record](PHASE_9_REVIEW.md) before interpreting missing fields;

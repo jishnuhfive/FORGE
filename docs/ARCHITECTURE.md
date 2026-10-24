@@ -604,6 +604,16 @@ new writes-OFF representation recheck before the separate controlled human live
 stage. All five live operations remain unproven; preparation grants no creation
 authority or deployment approval.
 
+The latest writes-OFF human recheck still rejected both replacements. Extrude now
+requires the source-compatible observed defaultScope=false; Fillet constraints
+are unchanged. Current-UI validation exposes only a closed internal first-failure
+object through an EditError subtype, keeping production errors generic. A guarded
+DEV projection invokes that same predicate on the existing complete/source-matched
+response and logs only category, known parameter and fixed reason after head
+bracketing. No second validator, extra provider read, public/browser payload,
+persistence, AI input or write authority is introduced. The next human checkpoint
+remains a single writes-OFF Inspector refresh, not an automatic write trial.
+
 [Recovery hotfix](MODIFY_RECOVERY_HOTFIX.md) adds session-owned server discovery,
 read-only single-terminal-suppression reconciliation and a deterministic planning
 fast path before AI fallback. `reconciled_current_state` proves present-state
