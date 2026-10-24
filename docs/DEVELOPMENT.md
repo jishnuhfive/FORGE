@@ -784,6 +784,15 @@ All browser provider outcomes are intercepted synthetic fixtures. See [B2](HACKA
 
 ## Modify recovery hotfix
 
+For Phase 16 run `test_modify_conformance.py` alongside all `test_modify*.py`,
+`test_safe_edit*.py`, `test_retained*.py` and `test_ai_write.py` regressions, including
+opt-in PostgreSQL cases against a separately disposable local service. Run focused
+frontend Modify tests, all standard gates and Modify browser cases in all three
+engines. Isolate tests from operator dotenv; keep the real write flag OFF. See
+[Phase 16](PHASE_16_MODIFY_LIVE_CONFORMANCE.md) for exact results and the later
+human-only fixture/representation/approval sequence. Do not enable real writes,
+clear application fences or contact private CAD as part of this automated gate.
+
 See [recovery contracts and live validation](MODIFY_RECOVERY_HOTFIX.md).
 `FORGE_MODIFY_REASONING_EFFORT` defaults to `high`; it affects only Modify planner
 fallback, independently of Design/Learn Groq effort. Supported explicit commands

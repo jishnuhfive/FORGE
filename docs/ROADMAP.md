@@ -584,3 +584,46 @@ authority is unchanged, and Tutor CAD observations cannot update a check result.
 Modify is not graph-migrated by Phase 15, and no new CAD authority is granted.
 CAD writes remain OFF and Railway remains unhosted. Phase 15 is **COMPLETE — HUMAN
 READ-ONLY VALIDATED — MERGED INTO MAIN** at `36511d73a7fffd4b219497fe09d2c8d4ff86bca5`.
+
+## Phase 16 — controlled real Modify conformance
+
+**IN PROGRESS — AUTOMATED GATE PASSED; HUMAN LIVE VALIDATION PENDING**
+
+Started from clean synchronized main `017f4ab7e556b2653661cbda77b7b6f22cdf1a1c`
+on `phase16/modify-live-conformance`. Scope is the existing SET_SUPPRESSED,
+SET_UNSUPPRESSED, RENAME_FEATURE, SET_EXTRUDE_DEPTH and SET_FILLET_RADIUS only.
+The [Phase 16 record](PHASE_16_MODIFY_LIVE_CONFORMANCE.md) audits current authority,
+synthetic representation assumptions, conformance tests, automated gate, ordinary
+disposable UI fixture and later human one-operation-at-a-time validation.
+No live conformance is claimed; no real CAD write, deployment or Phase 17 creation
+work is performed during preparation. The real flag stays OFF. Any later live write
+requires the passing gate, exact disposable target, representation review, exact
+preview and explicit human approval. Graph facts must never authorize a write;
+Modify is not graph-migrated in this phase.
+
+Preparation passed 129 new conformance cases, 1,585 focused backend cases, 108
+focused frontend cases, the full 869 frontend / 3,147 API tests (all 42 PostgreSQL
+cases, no skips), and 45 Modify browser cases across Chromium/Firefox/WebKit with
+four workers and zero retries. Frozen installs, format/lint, strict types, build,
+migration drift, Compose, audits and secret/privacy review passed. Counts overlap.
+Only tests and documentation changed; adapters and runtime authority are unchanged.
+The isolated synthetic database was removed; application data were untouched.
+Actual current-UI feature representations and all five live operations remain
+UNVERIFIED. The ordinary disposable fixture and writes-OFF representation checkpoint
+must precede the separately human-approved live trials. No merge or deployment.
+
+## Future target — Level-3 creation and advanced Learn
+
+The final target is Level-3 CAD creation plus advanced Learn Mode. Planned creation
+flow: natural-language requirement → engineering brief → semantic feature plan →
+human preview/approval → deterministic feature creation → reread → verify → bounded
+repair → editable parametric feature tree. Phase 17 may begin the creation kernel
+from an empty Part Studio only after Phase 16's separate real conformance gate and
+explicit phase authorization. Bounded repair never bypasses approval/write authority.
+
+Planned advanced Learn includes guided CAD projects, contextual Tutor, Check my step,
+mistake diagnosis, adaptive remediation, explanations of feature intent and
+constraints/dimensions, “teach me how this model was built,” project/challenge
+progression, and model-grounded lessons generated from current CAD. Existing Learn
+features do not establish this entire future capability. None is implemented by
+Phase 16, and Learn/graph facts gain no Modify approval or write authority.

@@ -586,6 +586,15 @@ Authority remains in component memory and the backend; see [B2](HACKATHON_MODIFY
 
 ## Modify recovery reliability hotfix
 
+Phase 16 audits the existing five-operation stack without changing runtime behavior;
+see [controlled conformance preparation](PHASE_16_MODIFY_LIVE_CONFORMANCE.md).
+Modify remains independent of ForgeModelGraph. Future graph-assisted understanding
+or target reasoning cannot replace fresh provider evidence, the supported registry,
+exact baseline/preview, explicit human approval, fresh pre-dispatch checks, provider
+microversion guard or fresh exact-effect verification. Current replacement adapters
+remain synthetic and require a writes-OFF current-UI representation checkpoint before
+the separate controlled human live stage. Preparation grants no creation authority.
+
 [Recovery hotfix](MODIFY_RECOVERY_HOTFIX.md) adds session-owned server discovery,
 read-only single-terminal-suppression reconciliation and a deterministic planning
 fast path before AI fallback. `reconciled_current_state` proves present-state

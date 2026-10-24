@@ -603,6 +603,15 @@ uncertain outcomes use authenticated GET status only. See [B2](HACKATHON_MODIFY_
 
 ## Modify recovery and deterministic planning
 
+[Phase 16 preparation](PHASE_16_MODIFY_LIVE_CONFORMANCE.md) preserves all existing
+write, approval, claim/fence, uncertainty and recovery controls. Real writes stay OFF
+through implementation and synthetic verification; no production/OAuth changes.
+The later human stage requires the passing automated gate, privately confirmed
+disposable owned target, current representation review and explicit approval of each
+exact preview. No live validation is claimed. Graph/model facts cannot authorize
+payload construction, approval or dispatch. Quantity/rename eligibility remains
+separate from the existing parameter-opaque terminal-suppression policy.
+
 [Recovery controls](MODIFY_RECOVERY_HOTFIX.md) use the existing authenticated
 same-origin CSRF guard. Recovery returns only same-session consumed status handles
 and safe previews, never approval digests or provider bindings. Reconciliation
