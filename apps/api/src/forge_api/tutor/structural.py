@@ -210,6 +210,63 @@ def structural_answer(question: str, facts: dict[str, object]) -> str | None:
     )
 
 
+def dependency_answer(question: str, facts: dict[str, object]) -> str | None:
+    """Surface exact adjacent order for a closed two-name dependency question.
+
+    Match every pair before choosing: duplicate names, ambiguous quoted labels or
+    names containing the question's delimiters cannot silently select an identity.
+    A canonical order fact, never name matches or indices alone, supplies direction.
+    Other relationship wording keeps the existing conservative teaching.
+    """
+    value = question.strip().casefold()
+    if value.endswith(("?", "!")):
+        value = value[:-1].rstrip()
+    features = _features(facts)
+    if not features or any(not item.name.strip() for item in features):
+        return None
+    labels = {
+        item.index: "(?:"
+        + "|".join(
+            re.escape(label.casefold())
+            for label in (item.name, quoted(item.name), f"'{item.name}'")
+        )
+        + ")"
+        for item in features
+    }
+    matching = [
+        (subject, target)
+        for subject in features
+        for target in features
+        if re.fullmatch(
+            rf"does\s+{labels[subject.index]}\s+depend\s+on\s+{labels[target.index]}",
+            value,
+        )
+    ]
+    if len(matching) != 1:
+        return None
+    subject, target = matching[0]
+    if _precedes(subject, target, facts):
+        before, after = subject, target
+    elif _precedes(target, subject, facts):
+        before, after = target, subject
+    else:
+        return None
+    answer = (
+        "I can't confirm that relationship.\n\n"
+        f"I can verify that {quoted(before.name)} comes before {quoted(after.name)} "
+        "in the returned feature order.\n\n"
+    )
+    limitation = "Returned feature order does not establish dependency in your model."
+    teaching = (
+        "In general CAD, a dependency means a feature uses another feature's "
+        "profile or geometry as an input. "
+    )
+    for conclusion in (teaching + limitation, limitation):
+        if len(answer + conclusion) <= MAX_EXPLANATION_CHARS:
+            return answer + conclusion
+    return None
+
+
 def terminal_question(text: str) -> bool:
     return bool(_TERMINAL.search(text))
 

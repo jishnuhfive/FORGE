@@ -464,7 +464,7 @@ claim. Graph failure and combined evidence overflow fail closed. No new CAD auth
 scope, persistence, write, migration, deployment or Tutor UI redesign is included.
 Reads remain sequential/non-atomic; the full UI overhaul remains future work.
 Railway remains unhosted. See [Phase 15](PHASE_15_TUTOR_GRAPH_GROUNDING.md) for
-automated verification and the prepared, unexecuted human read-only validation plan.
+automated verification and the current human read-only validation record.
 
 The branch gate passed **69 focused Phase 15 / 226 existing targeted tests**,
 **869 frontend / 2,831 API tests** (including all **42 PostgreSQL cases**, no skips),
@@ -495,7 +495,20 @@ canonical facts. The repair gate passed **46 structural / 100 precision / 69 Pha
 15 / 226 existing targeted cases**, **869 frontend / 2,977 API tests** (all **42
 PostgreSQL cases**, no skips) and **27 focused Tutor browser cases** with four
 workers and zero retries. Frozen installs, format/lint, strict types, build, drift,
-Compose and audits passed. Human validation has not passed; the implementation is
-ready to restart human read-only validation from Test 1. Graph semantics,
+Compose and audits passed. At that repair's completion human revalidation was
+pending. Graph semantics,
 acquisition, checks/tokens, OAuth, Modify, CAD-write authority,
 UI layout, database/migrations, deployment and evidence limits remain unchanged.
+
+**Subsequent human rerun Test 1 PASSED and Test 2 PASSED**, as reported by the
+user. **Test 3 was a safety pass / functional validation failure:** the dependency
+answer remained conservative but omitted the relevant verified order fact. The
+narrow repair adds server-owned adjacent canonical order for uniquely matched
+two-name dependency questions; order remains separate from dependency, in either
+question direction. Missing/malformed/ambiguous facts keep the existing fallback.
+The automated repair gate passed **41 new dependency-grounding cases**, the
+existing targeted suites, **869 frontend / 3,018 API tests** (all **42 PostgreSQL
+cases**, no skips) and **27 focused Tutor browser cases**. Frozen installs,
+format/lint, strict types, build, migration drift, Compose and audits passed.
+Human Test 3 rerun and remaining validation are pending; no Test 3 pass, merge or
+deployment is claimed. CAD writes remain OFF.

@@ -53,12 +53,20 @@ from forge_api.tutor.service import (
     CAD_OBSERVATIONS_ONLY,
     DIMENSION_NOTE,
     RELATIONSHIP_ACTION,
-    RELATIONSHIP_EXPLANATION,
     STALE_NOTE,
     STATUS_NOTE,
     STRENGTH_NOTE,
     TERMINAL_UNKNOWN,
     run_tutor,
+)
+
+GROUNDED_DEPENDENCY = (
+    "I can't confirm that relationship.\n\n"
+    'I can verify that "Sketch Gate" comes before "Extrude 1" '
+    "in the returned feature order.\n\n"
+    "In general CAD, a dependency means a feature uses another feature's profile "
+    "or geometry as an input. Returned feature order does not establish dependency "
+    "in your model."
 )
 
 
@@ -376,7 +384,7 @@ def test_relationship_prose_cannot_promote_order_to_dependency(
         model(**{field: claim}, fact_ids=["order_1_2"]),
         question="Does Extrude 1 depend on Sketch Gate?",
     )
-    assert answer.explanation == RELATIONSHIP_EXPLANATION
+    assert answer.explanation == GROUNDED_DEPENDENCY
     assert (
         answer.next_action == RELATIONSHIP_ACTION and answer.reasoning_question is None
     )
@@ -404,7 +412,7 @@ def test_dependency_question_blocks_even_a_bare_yes_and_still_teaches() -> None:
         model(explanation="Yes.", fact_ids=["order_1_2"]),
         question="Does Extrude 1 depend on Sketch Gate?",
     )
-    assert answer.explanation == RELATIONSHIP_EXPLANATION
+    assert answer.explanation == GROUNDED_DEPENDENCY
     assert "dependency means" in answer.explanation
     assert "does not establish" in answer.explanation
     assert '"Sketch Gate"' in answer.observed[0].statement

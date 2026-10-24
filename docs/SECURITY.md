@@ -721,14 +721,21 @@ model selection. Server presentation distinguishes explicit relationship intent
 and unsupported model-specific prose from ordinary educational use/input questions
 and general CAD teaching. A general prefix or unknown word cannot exempt a named/
 current-model claim. Already-projected names are escaped literal data, never proof
-or policy. Only explicit learner relationship intent selects fixed teaching;
+or policy. Only explicit learner relationship intent selects server-owned teaching;
 incidental unsafe model fields are discarded without changing the question's
 topic. Simple structural primary answers use the canonical count/feature/AVAILABLE
 adjacent order catalog, never new model claims, inferred missing links or names
 as identities. Closed grammar rejects unmatched facts; partial evidence remains
 partial, duplicate-label lookup stays ambiguous, and zero inventory requires a
 verified zero count. Proven terminal text or existing unknown copy remains server-
-owned. Reply/evidence bounds and all check/CAD source separation remain unchanged.
+owned. Closed two-name dependency questions can additionally surface their exact
+verified adjacent order without model-selected IDs. Every candidate name pair is
+checked; duplicate names, ambiguous quoting/delimiters, unmatched fact grammar or
+missing/UNKNOWN order retain the conservative fallback. No graph internals, index-
+only ordering or transitive order is used. Canonical direction stays the same for
+reverse dependency questions, with dependency explicitly unconfirmed. Ownership
+questions retain the existing safety response. Reply/evidence bounds and all
+check/CAD source separation remain unchanged.
 CAD strings stay JSON-quoted untrusted data; graph/provider/context IDs and
 provenance never reach Tutor model/browser payloads. Combined application/check
 context and CAD evidence must fit the existing evidence byte bound or fail closed.

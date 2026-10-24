@@ -10,7 +10,7 @@ from test_ai_graph import model_source
 from test_cad_inspector import snapshot
 from test_cad_read import FEATURES, REF, CadProvider, transport
 from test_groq import FakeGroq, groq_transport, inspection
-from test_tutor_graph import catalog, evaluate, model
+from test_tutor_graph import GROUNDED_DEPENDENCY, catalog, evaluate, model
 from test_tutor_route import answer_of, events, payload, tutor_answer
 
 from forge_api.ai.evidence import project
@@ -151,7 +151,9 @@ def test_explicit_relationship_intent_still_selects_fixed_safe_lesson(
     question: str,
 ) -> None:
     answer, _ = evaluate(model_source(), model(explanation="Yes."), question=question)
-    assert answer.explanation == RELATIONSHIP_EXPLANATION
+    assert answer.explanation == (
+        GROUNDED_DEPENDENCY if "depend on" in question else RELATIONSHIP_EXPLANATION
+    )
 
 
 @pytest.mark.parametrize(

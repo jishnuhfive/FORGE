@@ -19,7 +19,12 @@ from .policy import boundary_response
 from .providers import TutorProvider, TutorTask
 from .relationships import relationship_question, unsafe_relationship_prose
 from .structural import TERMINAL_UNKNOWN as TERMINAL_UNKNOWN
-from .structural import structural_answer, terminal_answer, terminal_question
+from .structural import (
+    dependency_answer,
+    structural_answer,
+    terminal_answer,
+    terminal_question,
+)
 
 TOTAL_SECONDS = 120
 STATUS_NOTE = (
@@ -155,7 +160,7 @@ def resolve_tutor(
             next_action = None
             reasoning_question = None
         elif relationship_question(question, cad_names):
-            explanation = RELATIONSHIP_EXPLANATION
+            explanation = dependency_answer(question, facts) or RELATIONSHIP_EXPLANATION
             next_action = RELATIONSHIP_ACTION
             reasoning_question = None
         elif terminal_question(question):

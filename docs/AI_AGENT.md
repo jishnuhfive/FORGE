@@ -549,14 +549,20 @@ adjacent order and completeness-proven terminal facts retain quoted untrusted na
 PRECEDES is returned order, not dependency or ownership; missing relationships prove
 nothing. A deterministic presentation guard separates explicit relationship intent
 and model-specific claims from ordinary tutoring and clearly general teaching.
-Explicit relationship intent receives fixed teaching; incidental unsafe prose is
-discarded by field without turning an unrelated question into a dependency lesson.
+Explicit relationship intent receives server-owned teaching; incidental unsafe
+prose is discarded by field without turning an unrelated question into a dependency lesson.
 Simple inventory/order and preceding-feature answers are server-owned presentation
 of canonical counts, feature facts and verified adjacent order facts. Names and
 positions cannot invent missing links; duplicates/partial evidence stay qualified.
 Terminal questions use only canonical proven evidence or fixed unknown copy.
-Ordering semantics
-always accompanies a graph-backed answer. Combined application/check context and
+Closed two-name dependency questions also surface an exact relevant verified
+adjacent canonical order, independently of model selection. Names must match
+uniquely across all candidate pairs and the order statement must match the closed
+grammar. Direction comes from that fact in either question direction; it never
+proves or disproves dependency. Ambiguous names, missing/malformed order and other
+relationship wording keep the conservative response. No graph-internal query,
+index-only ordering, transitive inference or evidence expansion is added.
+Ordering semantics always accompanies a graph-backed answer. Combined application/check context and
 CAD evidence must fit the existing 65,536-byte bound, otherwise fail closed.
 
 Check my step remains deterministic and unchanged; signed check tokens remain its

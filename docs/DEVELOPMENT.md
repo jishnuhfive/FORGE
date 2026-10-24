@@ -905,6 +905,18 @@ assertions now explicitly ask relationship questions; extra non-relationship cas
 require unsafe fields to be discarded. General-teaching cases explicitly ask for
 teaching rather than relying on the inventory default. No existing safety assertion
 or bound is removed. Run the full API suite with isolated PostgreSQL, format/lint/
-strict typing, build/audit and focused Tutor browser tests. Human Test 1 failed;
-do not claim live repair success from these automated fixtures or restart human
-validation until the repair gate passes. See the Phase 15 record.
+strict typing, build/audit and focused Tutor browser tests. Human Test 1 initially
+failed, then its rerun and Test 2 passed according to the user. Test 3 was safety-
+correct but functionally failed because the relevant canonical order was omitted.
+
+For the Test 3 relationship answer repair, first run
+`uv run --frozen pytest tests/test_tutor_dependency_grounding.py`, then structural,
+precision, all Phase 15 and existing Tutor/token/check/Phase 14 suites. The tests
+require exact canonical order without model-selected IDs in both dependency
+directions, conservative missing/malformed/ambiguous-name fallbacks, ownership
+safety and the unchanged four-GET HTTP path. Existing safety checks remain;
+expected primary text now includes relevant verified order for supported dependency
+questions. Run frozen setup, full API tests including isolated PostgreSQL,
+format/lint/strict types, build/audit and the focused Tutor browser suite. Do not
+resume human Test 3 until the repair gate passes or claim a human pass from these
+fixtures. See the Phase 15 record for the separate reported and automated results.

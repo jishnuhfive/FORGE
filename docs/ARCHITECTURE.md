@@ -687,8 +687,14 @@ remains unmigrated; Check my step and signed check-token authority are unchanged
 
 Server presentation separates historical check findings from current CAD facts,
 always retains ordering semantics, and separates explicit relationship questions
-from incidental unsupported model prose. Only the former select fixed relationship
-teaching; unsafe incidental fields are discarded without redirecting the answer.
+from incidental unsupported model prose. Only the former select server-owned
+relationship teaching; unsafe incidental fields are discarded without redirecting
+the answer. A closed two-name dependency question also surfaces the exact relevant
+canonical adjacent order, independently of model-selected IDs. Both names must
+match uniquely and the verified order statement must match the canonical grammar;
+reverse questions preserve the fact's direction. Ambiguous/malformed/missing facts
+keep the existing conservative fallback. Order never proves or disproves dependency;
+other relationship wording, including ownership, keeps the existing safety response.
 Simple inventory/order and preceding-feature primary answers come from the existing
 canonical count, feature and AVAILABLE adjacent order facts, independent of model
 wording/selection. Closed JSON-name/statement grammar fails conservatively; missing

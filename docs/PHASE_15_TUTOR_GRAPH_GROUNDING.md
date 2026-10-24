@@ -1,6 +1,6 @@
 # Phase 15 — graph-grounded Learn Tutor
 
-**HUMAN TEST 1 INITIALLY FAILED — AUTOMATED REPAIR GATE PASSED — HUMAN REVALIDATION PENDING**
+**HUMAN TESTS 1–2 PASSED — AUTOMATED RELATIONSHIP REPAIR GATE PASSED — HUMAN TEST 3 RERUN PENDING**
 
 Implementation on `phase15/tutor-graph-grounding`. Started from clean synchronized `main` at
 `500e114b7356b90499988633dd7811c49b94937c`. No merge or deployment is included.
@@ -80,11 +80,11 @@ Internal graph terminology is not normal learner-facing copy.
 
 The deterministic presentation guard separates learner relationship intent from
 model-authored relationship claims. Explicit dependency/ownership questions still
-receive fixed safe teaching, even if the model says only yes. Ordinary educational
-questions containing use, input, references, connected or based on retain normal
+receive server-owned safe teaching, even if the model says only yes. Ordinary
+educational questions containing use, input, references, connected or based on retain normal
 teaching. Each of the three model prose fields is checked independently: clearly
 general CAD teaching is allowed. Only explicit learner relationship intent selects
-the fixed relationship explanation. Incidental named/current-model dependency,
+the relationship explanation. Incidental named/current-model dependency,
 ownership, driving, consumption or input prose is discarded by field; safe teaching
 can remain. An unsupported main explanation receives fixed conservative copy,
 without turning an unrelated question into a dependency lesson.
@@ -110,6 +110,20 @@ Duplicate names are indexed for inventory and ambiguous for name-only lookup.
 Complete zero count is a legitimate empty studio; partial inventory does not
 invent total count or terminal. Whole entries may be omitted with explicit copy
 to fit the unchanged public explanation bound; evidence limits are unchanged.
+
+For the closed question form “Does [feature] depend on [feature]?”, the primary
+answer also includes their exact verified adjacent order without requiring the
+model to select an `order_X_Y` ID. All candidate pairs are matched against whole
+literal names, optionally JSON/single quoted, case-insensitively. A unique pair
+and the matching verified canonical order statement are both required. Duplicate
+names, ambiguous quotes or question delimiters, missing/malformed feature facts,
+missing/UNKNOWN order and nonadjacent pairs keep the existing conservative lesson.
+No presentation code queries graph internals, infers order from indices alone or
+chains adjacent facts into transitive order. Either question direction keeps the
+canonical order direction. Dependency stays unconfirmed, with an explicit caveat;
+other relationship forms, including ownership, keep the existing safety response.
+Long escaped names remain whole and quoted; optional general teaching is omitted
+if needed to preserve the unchanged explanation bound and dependency limitation.
 
 For final-feature questions, server presentation uses the canonical terminal
 statement when proven, otherwise the existing fixed unknown explanation. Incidental
@@ -280,27 +294,84 @@ dependencies/lockfiles and evidence limits remain unchanged. No generated browse
 artifacts or credential-pattern matches were included. No live CAD read/write,
 model-provider repair validation or Railway deployment was performed.
 
-The automated repair gate is green and the implementation is ready to **restart
-human read-only validation from Test 1**. The initial human failure remains part
-of this record; no human validation pass or successful real-provider repair check
-is claimed.
+At completion of that repair, the automated gate was green and the implementation
+was ready to **restart human read-only validation from Test 1**. The initial human
+failure remains part of this record. Later human results are recorded below;
+automated tests alone did not establish a human pass.
 
-## Human read-only validation plan — restart pending
+## Human Test 3 functional failure and relationship answer repair
 
-Test 1 of the earlier plan was run and failed as recorded above. Other live cases
-have not been reported as passed. Restart validation from Test 1 after the repair
-gate, using the new backend version; do not treat automated tests as a human pass.
+After the structural repair at `7f357ab65dd8c825e1cf7fcf6fd791bea03c839c`, the
+user reports **rerun Test 1 PASSED** and **Test 2 PASSED**. Test 1's initial failure
+and repair remain recorded above. These are user-reported human observations,
+not independent live checks repeated by the agent.
+
+For Test 3 the user asked exactly “Does Extrude 1 depend on Sketch Gate?” in the
+reported **Sketch Gate → Extrude 1 → Fillet 1** CAD. The fixed general dependency
+lesson did not invent a relationship, but omitted the independently available
+canonical Sketch Gate-before-Extrude 1 fact. **Test 3: SAFETY PASS / FUNCTIONAL
+VALIDATION FAIL.** Human validation stopped at this point.
+
+The relationship repair started from the required clean synchronized branch HEAD
+`7f357ab65dd8c825e1cf7fcf6fd791bea03c839c`; fetched main remained
+`500e114b7356b90499988633dd7811c49b94937c`. It reuses the existing canonical
+feature/order decoder and adjacent-fact validator described above. The answer
+keeps the requested relationship unconfirmed and independently states that
+“Sketch Gate” comes before “Extrude 1” in the returned feature order. Reverse
+questions preserve that same order without proving or disproving dependency.
+Fallbacks and all graph/read/check/token/write/UI/evidence boundaries remain.
+
+The focused synthetic reproduction failed before repair in all 15 combinations
+of question direction/quoting/case and unsafe model prose field. It does not
+capture or claim the exact live model output. New dependency-grounding tests also
+cover missing/UNKNOWN/unverified order, malformed IDs/statements/feature facts,
+duplicate/ambiguous/literal names, nonadjacent pairs, ownership safety, long escaped
+names within existing bounds and the real HTTP path with mocked transports and
+four GETs. Existing safety assertions are retained; expected server-owned primary
+copy now includes relevant verified order for supported dependency questions.
+
+The automated repair gate passed **41 new dependency-grounding / 46 structural /
+100 precision / 69 Phase 15 / 226 existing Tutor/token/check/Phase 14 cases**.
+Frozen installs, formatting, lint and strict types (176 Python files) passed.
+The complete repository test gate passed **869 frontend / 3,018 API tests**,
+including all **42 PostgreSQL cases**, with no skips. Build passed with the
+existing unchanged bundle-size advisory. Focused Tutor browser tests passed **27
+cases**, nine per Chromium/Firefox/WebKit, with unchanged four workers and zero
+retries. Migration drift, Compose and both dependency audits passed; no known
+vulnerabilities were reported. No assertion, timeout, threshold or bound was
+weakened. The health-checked, migrated disposable synthetic PostgreSQL container
+was removed; the pre-existing local database/data were untouched.
+
+Scope and credential-pattern review passed for two Tutor presentation files,
+four test files and six documentation files. Graph/PRECEDES semantics, provider
+acquisition/GET counts, checks/tokens/authority, OAuth, Modify, CAD writes, Tutor
+UI, database/migrations, deployment, dependencies/lockfiles and evidence limits
+remain unchanged. No secrets or generated browser artifacts are included. No live
+CAD/model-provider validation or Railway deployment was performed. Logs remain
+ignored under `.cache/phase15-relationship-answer/`.
+
+The repair is ready to rerun human Test 3. Human Test 3 rerun and remaining human
+validation are pending; no Test 3 pass is claimed. CAD writes remain OFF, and no
+merge is included.
+
+## Human read-only validation plan — Test 3 rerun pending
+
+Test 1 initially failed, its repaired rerun passed, and Test 2 passed, according to
+the user. Resume from Test 3 only after the relationship repair gate passes and
+the new backend version is running; do not treat automated tests as a human pass.
 
 Use the existing disposable Mounting Bracket/test workspace with CAD writes OFF.
 Open Learn → Ask Forge. Keep all validation read-only; no Gate A/B, real Modify,
 CAD mutation or Railway deployment is required.
 
-1. **Structural inventory:** ask “What features are in my current model and in
+1. **Structural inventory — rerun PASSED:** ask “What features are in my current model and in
    what order?” Expect graph-backed captured inventory/order.
-2. **Returned order:** ask “What comes before Fillet 1?” Expect returned-order
+2. **Returned order — PASSED:** ask “What comes before Fillet 1?” Expect returned-order
    observations, without dependency implications.
-3. **Dependency trap:** ask “Does Extrude 1 depend on Sketch Gate?” Expect general
-   teaching separated from order observations; no verified dependency claim.
+3. **Dependency trap — rerun pending:** ask “Does Extrude 1 depend on Sketch Gate?”
+   Expect the primary answer to keep dependency unconfirmed and surface the exact
+   verified Sketch Gate-before-Extrude 1 order. Order must not prove or disprove
+   dependency. Reverse the question and check that the stated order stays correct.
 4. **Terminal:** ask “What is the final feature?” Expect a terminal only when
    completeness proves one; partial evidence must remain unknown.
 5. **Check/current CAD separation:** run Check my step, then ask about current CAD
@@ -319,5 +390,6 @@ there is no dependency DAG, feature ownership inference, selected-face/edge Tuto
 grounding, topology continuity guarantee or engineering-correctness claim. Check
 my step remains the only correctness authority. Modify is not graph-migrated by
 this phase. No new CAD authority is granted. The full UI overhaul remains future
-work. Railway remains unhosted. Human Test 1 initially failed; repaired behavior
-still requires fresh human read-only validation.
+work. Railway remains unhosted. Human Test 1 initially failed, then its rerun and
+Test 2 passed according to the user. Test 3 was safety-correct but functionally
+failed; its repaired behavior and remaining cases require human validation.

@@ -4,7 +4,7 @@ from typing import cast
 
 import pytest
 from test_ai_graph import model_source
-from test_tutor_graph import catalog, evaluate, model
+from test_tutor_graph import GROUNDED_DEPENDENCY, catalog, evaluate, model
 
 from forge_api.ai.grounding import ORDER_SEMANTICS
 from forge_api.integrations.onshape.models import FeatureSummaryList
@@ -76,7 +76,9 @@ def test_normal_questions_keep_teaching_with_graph_evidence(question: str) -> No
 )
 def test_relationship_questions_still_guard_even_bare_yes(question: str) -> None:
     answer, _ = evaluate(model_source(), model(explanation="Yes."), question=question)
-    assert answer.explanation == RELATIONSHIP_EXPLANATION
+    assert answer.explanation == (
+        GROUNDED_DEPENDENCY if "depend on" in question else RELATIONSHIP_EXPLANATION
+    )
 
 
 @pytest.mark.parametrize("field", ["explanation", "next_action", "reasoning_question"])
@@ -107,7 +109,7 @@ def test_current_model_claims_still_guard_all_prose_fields(
         model(**{field: claim}, fact_ids=["order_1_2"]),
         question="Does Extrude 1 depend on Sketch Gate?",
     )
-    assert answer.explanation == RELATIONSHIP_EXPLANATION
+    assert answer.explanation == GROUNDED_DEPENDENCY
     assert claim not in answer.model_dump_json()
     assert "returned feature order" in answer.observed[0].statement
     incidental, _ = evaluate(
@@ -167,7 +169,7 @@ def test_general_prefix_or_unknown_word_cannot_hide_specific_claim(text: str) ->
         model(explanation=text),
         question="Does Extrude 1 depend on Sketch Gate?",
     )
-    assert answer.explanation == RELATIONSHIP_EXPLANATION
+    assert answer.explanation == GROUNDED_DEPENDENCY
     incidental, _ = evaluate(
         model_source(),
         model(explanation=text),
