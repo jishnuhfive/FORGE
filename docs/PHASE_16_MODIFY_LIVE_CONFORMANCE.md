@@ -1,6 +1,6 @@
 # Phase 16 — controlled real Modify conformance
 
-**IN PROGRESS — EXACT FILTER SIGNATURE EVIDENCE NEEDED**
+**IN PROGRESS — FLAT SHEET METAL LEAF EVIDENCE REFRESH NEEDED**
 
 Initial status: `IN PROGRESS — AUTOMATED CONFORMANCE PREPARATION`.
 
@@ -1912,3 +1912,171 @@ states enable comparison; they do not establish exact_match or authorize a write
 If truncated/uninspected/unexpected/malformed/missing flags or missing/unknown
 states remain, stop advancement and report only those closed results. No extra
 read, live write, merge, deployment, domain/OAuth/secret change or Phase 17 work.
+
+## Flat sheet metal leaf evidence continuation
+
+Starting clean synchronized branch: `phase16/modify-live-conformance`, HEAD and
+fetched `origin/phase16/modify-live-conformance` both
+`61cba7a25755dc63f8b20412fce1d752bd1097b8`
+(`test: expose closed Onshape filter signatures`). No operator dotenv was present;
+the inherited write flag was OFF/unset. CAD writes remain OFF. This patch makes no
+private CAD read, proposal, approval or mutation.
+
+### Latest human writes-OFF checkpoint
+
+The human reported one same-fixture Sketch 1 → Extrude 1 → Fillet 1 Inspector
+refresh. Both entities filters still rejected as `query_filter_unproven`.
+Extrude's signature was:
+
+```text
+and(or(and(and(flat_sheet_metal,sketch_object),entity_type),and(and(geometry,flat_sheet_metal),entity_type)),construction)
+```
+
+Extrude had root=and, child_count=2, depth=5, nodes=13, malformed=false,
+missing_operand=false, unexpected_fields=false, signature_truncated=false and
+uninspected=true. The only recognized opaque family was flat_sheet_metal. Its
+other closed leaf states were sketch_object=true,
+sketch_object_type=any_sketch_object, entity_type=face twice, geometry=plane and
+construction=false. Real `allows` presence/values were not supplied or inferred.
+
+Fillet's signature was unchanged, depth=8/nodes=17, all structural flags false,
+signature_truncated=false and uninspected=false. Its fully projected leaf states
+included active_sheet_metal=false, entity_type=edge/face/edge,
+edge_topology=two_sided, internal_edge=true,
+sheet_metal_definition_entity_type=vertex, construction=false,
+sketch_object=false, sketch_object_type=not_sketch_object and
+modifiable_entity_only=true. The human reported
+`safe_edit_probe outcome=eligible_no_proposal_no_write` and no proposal, approval
+or mutation. These human observations are distinct from automated fixtures.
+
+### Independently verified official schema
+
+Before code changes, the current public [OpenAPI](https://cad.onshape.com/api/openapi)
+was fetched with TLS verification: OpenAPI 3.0.1, API version
+`1.222.91980-dcee49ea4d64`, SHA-256
+`6416eff28b497b1bfa5d7fbcc614d3e1a669966f2a4f5b1b5dd9ab808aea76fb`.
+`BTFlatSheetMetalFilter-3018` inherits `BTQueryFilter-183`, which contributes only
+`btType`, and adds optional `allows: GBTFilterFlattenedGeometryOptions`. The subtype
+has no other schema-backed fields. The enum is exactly MODEL_ONLY, FLATTENED_ONLY,
+MODEL_AND_FLATTENED and UNKNOWN.
+
+The official Go SDK [model](https://raw.githubusercontent.com/onshape-public/go-client/386ba6fdf60a7de469253857e227064c7df33273/onshape/model_bt_flat_sheet_metal_filter_3018.go)
+and [enum](https://raw.githubusercontent.com/onshape-public/go-client/386ba6fdf60a7de469253857e227064c7df33273/onshape/model_gbt_filter_flattened_geometry_options.go)
+independently corroborate both fields, optionality and all four values. The
+official master SHA was checked during this continuation. No runtime schema
+request, dependency or additional provider GET is introduced.
+
+### Diagnostic mapping and privacy
+
+| Input state         | Closed `allows` state |
+| ------------------- | --------------------- |
+| MODEL_ONLY          | model_only            |
+| FLATTENED_ONLY      | flattened_only        |
+| MODEL_AND_FLATTENED | model_and_flattened   |
+| UNKNOWN             | unknown_value         |
+| absent              | missing               |
+| null                | null                  |
+| wrong primitive     | wrong_type            |
+| arbitrary string    | unknown_value         |
+
+One compile-time Literal field and three Literal states are added to the existing
+finite vocabulary (now 13 fields/47 states). The exact enum dictionary performs
+no runtime lowercasing or provider-text formatting. UNKNOWN deliberately maps to
+unknown_value for this subtype; mappings for every existing leaf are unchanged.
+Null/wrong types also retain malformed=true. Missing is distinct from a default.
+
+Only `btType` and `allows` form this subtype's diagnostic envelope. Any extra key
+sets unexpected_fields=true and uninspected=true through the existing shared
+logic; extra values, including trees/cycles, are not traversed. This envelope is
+diagnostic inspection only. Every present filter still rejects, including known,
+missing, malformed, unknown and extra-field cases. No raw type/enum string, ID,
+query, provider JSON, field name or arbitrary value is projected or logged.
+
+Depth <=8, visits <=64, signature <=4,096 characters, <=192 finite tokens,
+<=64 leaf records with <=2 fields each and whole filter logs <16,384 characters
+remain unchanged. Existing DEV/diagnostics-ON/writes-OFF, complete/source-matched,
+matching-head and per-record guards are untouched. Tests require exactly the
+same four GETs, zero writes and an unchanged input fingerprint.
+
+The source-derived synthetic Extrude/Fillet fixture remains unchanged. Separate
+synthetic candidates reproduce the human-reported Extrude topology but invent
+`allows` inputs for coverage; they are not real captures or semantic equivalence
+proof. Existing Fillet signature and leaf text are asserted unchanged. Legacy
+profiles, edit registry, suppression, approval, stale checks, claims, microversion
+guards, exact-effect verification, fences, recovery, uncertainty and retries are
+untouched. No final filter acceptance contract is implemented.
+
+### Verification
+
+All automated gates passed with real CAD writes OFF; counts overlap:
+
+| Check                                                          | Result                                                                 |
+| -------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| New flat-sheet-metal suite                                     | **42 passed**                                                          |
+| Signature suite / preserved query-filter suite                 | **225 passed / 411 passed**                                            |
+| Focused filter / shape / Modify diagnostics                    | **1,319 passed**                                                       |
+| Full API suite                                                 | **6,160 passed**, including all **42 PostgreSQL cases**, no skips      |
+| Frontend suite                                                 | **869 passed** in **35 files**, no skips                               |
+| Modify browser matrix                                          | **45 passed**, Chromium / Firefox / WebKit, four workers, zero retries |
+| Frozen installs                                                | npm ci / uv sync --locked passed; lockfiles unchanged                  |
+| Format / lint / strict types / test / build / audits / Compose | Passed                                                                 |
+| Disposable PostgreSQL migration / drift check                  | Passed; no new upgrade operations                                      |
+
+There are 50 additional collected cases: 42 targeted, seven from extending the
+existing closed-leaf matrix and one additional bounds case. All requested enum,
+missing, null, wrong-type, unknown-string, extra-field and hostile-log cases are
+covered. The bounds case exercises the new leaf at/over the unchanged depth/node
+caps. The existing signature and schema-maximum log-length checks still pass.
+
+Strict Python checking passed across 193 source files; TypeScript checking passed.
+An initial test annotation mismatch was corrected before the successful strict
+type gate. Audits found no known vulnerabilities among audited packages; the
+existing Python audit excludes the editable application. The pre-existing bundle
+size warning remains. No assertion, retry, timeout, threshold or safety bound was
+weakened. No dependency, schema migration or deployment configuration changed.
+
+Node 24/uv tools were obtained in a temporary directory because they were absent
+from the normal PATH. Tests used no operator dotenv or inherited service
+credentials. PostgreSQL used a fresh healthy loopback-only random-port tmpfs
+container with synthetic credentials; only this verification container was
+removed after the gate. Existing application data was not used or removed.
+Local Settings confirmed writes=false. Final diff/privacy review and secret
+pattern checks found no private CAD, credentials, keys or local environment data.
+Only the diagnostic module, two test modules and five documentation files change.
+
+Automated evidence is complete for this diagnostic patch. It does not establish
+real `allows` values, semantic filter equivalence, target-filter preservation or
+live write conformance. The next step remains the human writes-OFF refresh below.
+
+### Files changed
+
+- apps/api/src/forge_api/integrations/onshape/query_filter_evidence.py
+- apps/api/tests/test_modify_filter_signature.py
+- apps/api/tests/test_modify_flat_sheet_metal.py
+- docs/ARCHITECTURE.md
+- docs/SECURITY.md
+- docs/DEVELOPMENT.md
+- docs/ROADMAP.md
+- docs/PHASE_16_MODIFY_LIVE_CONFORMANCE.md
+
+### Exact next human checkpoint
+
+On this branch/commit, keep ENVIRONMENT=development,
+FORGE_SAFE_EDIT_DIAGNOSTICS_ENABLED=true and FORGE_CAD_WRITES_ENABLED=false. On the
+same privately confirmed disposable Sketch 1 → Extrude 1 → Fillet 1 fixture,
+perform **ONE CAD Inspector → Refresh CAD**. Generate no proposal, approval or
+mutation. Report only existing closed structural/source/probe summaries and
+Extrude/Fillet standard-shape failure lines grouped by the existing
+noSketchGeometry variant. Include closed signatures, leaf states, counts and
+flags; provide no private identifiers, raw enums/types, queries or provider JSON.
+
+Extrude must still reject as query_filter_unproven and show uninspected=false,
+signature_truncated=false, malformed=false, missing_operand=false,
+unexpected_fields=false and explicit closed `allows=...` states at both
+flat_sheet_metal visits. The signature/counts must remain the reported tree at
+depth 5/nodes 13. Fillet must retain its already complete depth 8/nodes 17 tree.
+The probe must remain eligible_no_proposal_no_write. Missing/null/wrong/unknown
+leaf states or any structural flag leave evidence incomplete; report only those
+closed results and stop advancement. Only after satisfactory human evidence may
+a later authorized task construct exact role-specific acceptance. Do not accept
+filters, enable writes, merge, deploy or begin Phase 17 in this continuation.

@@ -655,6 +655,13 @@ Depth 8 / visits 64 remain; signatures cap at 4,096 characters and filter record
 at 16,384. Source-derived 3095 candidates match observed counts but do not prove
 real trees. No filter contract, graph authority or extra provider GET is added.
 
+The flat-sheet-metal evidence continuation inspects only the official subtype's
+optional `allows` enum alongside `btType`. It projects fixed `allows` states;
+unknown extra fields set the existing unexpected/uninspected flags without
+traversing their values. This closes one diagnostic gap only: every filter still
+rejects as `query_filter_unproven`, and Fillet's existing projection is unchanged.
+The next gate remains one human writes-OFF Inspector refresh.
+
 [Recovery hotfix](MODIFY_RECOVERY_HOTFIX.md) adds session-owned server discovery,
 read-only single-terminal-suppression reconciliation and a deterministic planning
 fast path before AI fallback. `reconciled_current_state` proves present-state

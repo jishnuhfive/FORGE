@@ -67,6 +67,7 @@ LeafField = Literal[
     "sketch_object",
     "sketch_object_type",
     "modifiable_entity_only",
+    "allows",
 ]
 LeafState = Literal[
     "all_mesh",
@@ -85,12 +86,15 @@ LeafState = Literal[
     "extruded",
     "face",
     "false",
+    "flattened_only",
     "laminar",
     "line",
     "mate_connector",
     "mesh",
     "missing",
     "mixed_mesh",
+    "model_and_flattened",
+    "model_only",
     "not_sketch_object",
     "null",
     "one_sided",
@@ -220,6 +224,12 @@ GBTSKETCHOBJECTTYPE: dict[str, LeafState] = {
     "WHOLE_SKETCH": "whole_sketch",
     "UNKNOWN": "unknown_enum",
 }
+GBTFILTERFLATTENEDGEOMETRYOPTIONS: dict[str, LeafState] = {
+    "MODEL_ONLY": "model_only",
+    "FLATTENED_ONLY": "flattened_only",
+    "MODEL_AND_FLATTENED": "model_and_flattened",
+    "UNKNOWN": "unknown_value",
+}
 
 
 @dataclass(frozen=True)
@@ -256,6 +266,10 @@ LEAF_RULES: dict[FilterCategory, tuple[LeafRule, ...]] = {
         LeafRule("objectType", "sketch_object_type", GBTSKETCHOBJECTTYPE),
     ),
     "modifiable_entity_only": (LeafRule("modifiableOnly", "modifiable_entity_only"),),
+    # The base schema contributes only btType; this subtype adds only allows.
+    "flat_sheet_metal": (
+        LeafRule("allows", "allows", GBTFILTERFLATTENEDGEOMETRYOPTIONS),
+    ),
 }
 
 

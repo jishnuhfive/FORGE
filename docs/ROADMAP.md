@@ -648,6 +648,15 @@ audit gates passed; no dependency change or weakened bound. Real writes stayed O
 One same-fixture writes-OFF Inspector refresh is required for closed signature and
 leaf-state evidence. All five live operations remain unproven.
 
+The next human refresh reported the exact closed topology for both features.
+Fillet reached `uninspected=false`; Extrude's only remaining opaque family was
+`flat_sheet_metal`. The follow-up projects its official optional `allows` enum
+through fixed labels and checks the exact diagnostic field envelope. It adds no
+acceptance, read, approval or write authority. A further single same-fixture human
+writes-OFF Inspector refresh must show complete, well-formed Extrude evidence and
+explicit closed `allows` states before a later task can construct an exact
+role-specific filter acceptance contract. All live writes remain unproven/OFF.
+
 Previous DEFAULT repair passed 251 new-module cases plus 18 additional malformed
 variants (269 added cases), 3,757 focused cases, all 5,319 API / 869 frontend cases
 (including all 42 PostgreSQL cases, no skips), and 45 Modify browser cases across

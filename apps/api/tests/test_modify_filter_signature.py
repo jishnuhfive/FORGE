@@ -251,10 +251,17 @@ def test_malformed_operators_cannot_look_like_complete_signatures(
     assert "private-" not in summary.model_dump_json()
 
 
+@pytest.mark.parametrize(
+    "leaf",
+    [
+        SOURCE_TREES[0]["operand2"],
+        {"btType": "BTFlatSheetMetalFilter-3018", "allows": "MODEL_AND_FLATTENED"},
+    ],
+)
 def test_bounds_never_report_a_clipped_signature_as_complete(
-    monkeypatch: pytest.MonkeyPatch,
+    monkeypatch: pytest.MonkeyPatch, leaf: Any
 ) -> None:
-    leaf = SOURCE_TREES[0]["operand2"]
+    assert MAX_DEPTH == 8 and MAX_NODES == 64
     raw = deepcopy(leaf)
     for _ in range(MAX_DEPTH - 1):
         raw = {"btType": "BTNotFilter-165", "operand": raw}

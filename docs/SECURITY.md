@@ -710,6 +710,15 @@ Unknown/opaque family payloads and unknown fields remain untraversed. Every filt
 still rejects; legacy profile, suppression transport and all authority controls
 are unchanged. Real topology/leaf semantics require another writes-OFF checkpoint.
 
+The flat-sheet-metal continuation adds only a closed `allows` field projection:
+`model_only`, `flattened_only`, `model_and_flattened`, `unknown_value`, `missing`,
+`null` or `wrong_type`. Official UNKNOWN and arbitrary strings both become
+`unknown_value`; no provider text is logged. Its diagnostic envelope permits only
+`btType` and `allows`; extra keys trigger existing unexpected/uninspected flags
+without reading their values. This is diagnostic inspection, never acceptance.
+Existing log guards, bounds, four GETs, filter rejection and all CAD authority
+remain unchanged. No real writes or private fixture reads accompany the patch.
+
 [Recovery controls](MODIFY_RECOVERY_HOTFIX.md) use the existing authenticated
 same-origin CSRF guard. Recovery returns only same-session consumed status handles
 and safe previews, never approval digests or provider bindings. Reconciliation

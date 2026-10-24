@@ -734,6 +734,16 @@ visits 64, signature 4,096-character and whole-filter 16,384-character limits ar
 tested. No real tree has been accepted. Follow the exact-signature checkpoint in
 the Phase 16 record: one same-fixture writes-OFF refresh, no proposals or writes.
 
+The flat-sheet-metal follow-up projects only the official optional `allows` enum
+through finite labels. Absence is `allows=missing`; null/wrong primitives are
+`null`/`wrong_type`; UNKNOWN and arbitrary strings are `unknown_value`. Extra
+subtype fields must raise the existing unexpected/uninspected diagnostic flags.
+Run `tests/test_modify_flat_sheet_metal.py`, `tests/test_modify_filter_signature.py`,
+`tests/test_modify_query_filter_evidence.py`, standard-shape and Modify diagnostic
+regressions before the normal full gate. Synthetic allows inputs are not live
+evidence. Keep writes OFF and perform only the next single human Inspector refresh
+documented in the Phase 16 record; no role-specific filter acceptance is added.
+
 It performs pinned GET reads without proposals or mutations, and adds no
 public diagnostic route/header. It is not invoked by Learn or AI. See
 [the investigation record](PHASE_9_REVIEW.md) before interpreting missing fields;
