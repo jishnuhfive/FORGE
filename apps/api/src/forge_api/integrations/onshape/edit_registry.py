@@ -1,7 +1,8 @@
-"""Closed A1 adapters. This is the sole source of operation/parameter support.
+"""Closed Modify registry. This is the sole source of operation support.
 
 See docs/HACKATHON_MODIFY_A1.md for fixture provenance and deliberately narrow
-shapes. No aliases, tolerant quantity subclasses or general expressions.
+shapes and docs/PHASE_16_MODIFY_LIVE_CONFORMANCE.md for the explicit current-UI
+parameter contracts. No aliases, tolerant subclasses or general expressions.
 """
 
 from copy import deepcopy
@@ -27,6 +28,7 @@ from forge_api.cad_edits.plans import (
 )
 
 from .parameters import display_text
+from .standard_edit_shapes import ui_quantity_parameter
 
 
 @dataclass(frozen=True)
@@ -139,6 +141,16 @@ def quantity_parameter(
         or adapter.parameter_id is None
     ):
         raise EditError("unsupported_target", 422)
+    raw = feature.get("parameters")
+    if isinstance(raw, list):
+        for item in raw:
+            if not isinstance(item, dict):
+                continue
+            key = item.get("parameterId")
+            if not isinstance(key, str) or key not in adapter.allowed_parameters:
+                # A complete explicit UI mode contract is mandatory; a lone
+                # extra option never becomes a harmless inferred default.
+                return ui_quantity_parameter(feature, adapter.parameter_id)
     param = _parameters(feature, adapter).get(adapter.parameter_id, {})
     if (
         param.get("btType") != "BTMParameterQuantity-147"

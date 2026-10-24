@@ -13,6 +13,12 @@ projector and Phase 9 verifier are unchanged. Historical reviews are unchanged:
 **Gate A is proven; Gate B observed expected stale-write behavior, with provider-side
 rejection audit confirmation still deferred.**
 
+This document records the original minimal A1 representation contract. Phase 16
+adds separate closed current-UI parameter profiles after human writes-OFF evidence;
+see [the exact contracts, automated results and pending human recheck](PHASE_16_MODIFY_LIVE_CONFORMANCE.md).
+The five operations, semantic planner contract and all approval/execution authority
+below remain unchanged. Current-UI live writes are not yet validated.
+
 ## Semantic contract for Team B
 
 `forge_api.cad_edits.plans.SemanticPlan` is strict, frozen and extra-forbidden:

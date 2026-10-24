@@ -1,0 +1,619 @@
+{
+  "extrude": [
+    {
+      "btType": "BTMParameterEnum-145",
+      "parameterId": "bodyType",
+      "nodeId": "n0",
+      "enumName": "ExtendedToolBodyType",
+      "value": "SOLID"
+    },
+    {
+      "btType": "BTMParameterEnum-145",
+      "parameterId": "operationType",
+      "nodeId": "n1",
+      "enumName": "NewBodyOperationType",
+      "value": "NEW"
+    },
+    {
+      "btType": "BTMParameterQueryList-148",
+      "parameterId": "entities",
+      "nodeId": "n2",
+      "queries": [
+        {
+          "btType": "BTMIndividualQuery-138",
+          "queryString": "synthetic-profile-query",
+          "nodeId": "q2"
+        }
+      ]
+    },
+    {
+      "btType": "BTMParameterEnum-145",
+      "parameterId": "endBound",
+      "nodeId": "n3",
+      "enumName": "BoundingType",
+      "value": "BLIND"
+    },
+    {
+      "btType": "BTMParameterQuantity-147",
+      "parameterId": "depth",
+      "nodeId": "n4",
+      "expression": "20 mm",
+      "isInteger": false,
+      "value": 0,
+      "units": ""
+    },
+    {
+      "btType": "BTMParameterEnum-145",
+      "parameterId": "domain",
+      "nodeId": "n5",
+      "enumName": "OperationDomain",
+      "value": "MODEL"
+    },
+    {
+      "btType": "BTMParameterQueryList-148",
+      "parameterId": "surfaceEntities",
+      "nodeId": "n6",
+      "queries": []
+    },
+    {
+      "btType": "BTMParameterEnum-145",
+      "parameterId": "surfaceOperationType",
+      "nodeId": "n7",
+      "enumName": "NewSurfaceOperationType",
+      "value": "NEW"
+    },
+    {
+      "btType": "BTMParameterEnum-145",
+      "parameterId": "flatOperationType",
+      "nodeId": "n8",
+      "enumName": "FlatOperationType",
+      "value": "REMOVE"
+    },
+    {
+      "btType": "BTMParameterQueryList-148",
+      "parameterId": "wallShape",
+      "nodeId": "n9",
+      "queries": []
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "midplane",
+      "nodeId": "n10",
+      "value": false
+    },
+    {
+      "btType": "BTMParameterQuantity-147",
+      "parameterId": "thickness",
+      "nodeId": "n11",
+      "expression": "5 mm",
+      "isInteger": false,
+      "value": 0,
+      "units": ""
+    },
+    {
+      "btType": "BTMParameterQuantity-147",
+      "parameterId": "thickness1",
+      "nodeId": "n12",
+      "expression": "5 mm",
+      "isInteger": false,
+      "value": 0,
+      "units": ""
+    },
+    {
+      "btType": "BTMParameterQuantity-147",
+      "parameterId": "thickness2",
+      "nodeId": "n13",
+      "expression": "5 mm",
+      "isInteger": false,
+      "value": 0,
+      "units": ""
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "flipWall",
+      "nodeId": "n14",
+      "value": false
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "oppositeDirection",
+      "nodeId": "n15",
+      "value": false
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "symmetric",
+      "nodeId": "n16",
+      "value": false
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "hasDraft",
+      "nodeId": "n17",
+      "value": false
+    },
+    {
+      "btType": "BTMParameterQuantity-147",
+      "parameterId": "draftAngle",
+      "nodeId": "n18",
+      "expression": "3 deg",
+      "isInteger": false,
+      "value": 0,
+      "units": ""
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "draftPullDirection",
+      "nodeId": "n19",
+      "value": false
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "hasSecondDirection",
+      "nodeId": "n20",
+      "value": false
+    },
+    {
+      "btType": "BTMParameterEnum-145",
+      "parameterId": "secondDirectionBound",
+      "nodeId": "n21",
+      "enumName": "BoundingType",
+      "value": "BLIND"
+    },
+    {
+      "btType": "BTMParameterQuantity-147",
+      "parameterId": "secondDirectionDepth",
+      "nodeId": "n22",
+      "expression": "25 mm",
+      "isInteger": false,
+      "value": 0,
+      "units": ""
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "secondDirectionOppositeDirection",
+      "nodeId": "n23",
+      "value": true
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "hasSecondDirectionDraft",
+      "nodeId": "n24",
+      "value": false
+    },
+    {
+      "btType": "BTMParameterQuantity-147",
+      "parameterId": "secondDirectionDraftAngle",
+      "nodeId": "n25",
+      "expression": "3 deg",
+      "isInteger": false,
+      "value": 0,
+      "units": ""
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "secondDirectionDraftPullDirection",
+      "nodeId": "n26",
+      "value": false
+    },
+    {
+      "btType": "BTMParameterQueryList-148",
+      "parameterId": "endBoundEntityFace",
+      "nodeId": "n27",
+      "queries": []
+    },
+    {
+      "btType": "BTMParameterQueryList-148",
+      "parameterId": "endBoundEntityBody",
+      "nodeId": "n28",
+      "queries": []
+    },
+    {
+      "btType": "BTMParameterQueryList-148",
+      "parameterId": "endBoundEntityVertex",
+      "nodeId": "n29",
+      "queries": []
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "hasOffset",
+      "nodeId": "n30",
+      "value": false
+    },
+    {
+      "btType": "BTMParameterQuantity-147",
+      "parameterId": "offsetDistance",
+      "nodeId": "n31",
+      "expression": "0 mm",
+      "isInteger": false,
+      "value": 0,
+      "units": ""
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "offsetOppositeDirection",
+      "nodeId": "n32",
+      "value": false
+    },
+    {
+      "btType": "BTMParameterQueryList-148",
+      "parameterId": "secondDirectionBoundEntityFace",
+      "nodeId": "n33",
+      "queries": []
+    },
+    {
+      "btType": "BTMParameterQueryList-148",
+      "parameterId": "secondDirectionBoundEntityBody",
+      "nodeId": "n34",
+      "queries": []
+    },
+    {
+      "btType": "BTMParameterQueryList-148",
+      "parameterId": "secondDirectionBoundEntityVertex",
+      "nodeId": "n35",
+      "queries": []
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "hasSecondDirectionOffset",
+      "nodeId": "n36",
+      "value": false
+    },
+    {
+      "btType": "BTMParameterQuantity-147",
+      "parameterId": "secondDirectionOffsetDistance",
+      "nodeId": "n37",
+      "expression": "0 mm",
+      "isInteger": false,
+      "value": 0,
+      "units": ""
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "secondDirectionOffsetOppositeDirection",
+      "nodeId": "n38",
+      "value": false
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "hasExtrudeDirection",
+      "nodeId": "n39",
+      "value": false
+    },
+    {
+      "btType": "BTMParameterQueryList-148",
+      "parameterId": "extrudeDirection",
+      "nodeId": "n40",
+      "queries": []
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "startOffset",
+      "nodeId": "n41",
+      "value": false
+    },
+    {
+      "btType": "BTMParameterEnum-145",
+      "parameterId": "startOffsetBound",
+      "nodeId": "n42",
+      "enumName": "StartOffsetType",
+      "value": "BLIND"
+    },
+    {
+      "btType": "BTMParameterQuantity-147",
+      "parameterId": "startOffsetDistance",
+      "nodeId": "n43",
+      "expression": "0 mm",
+      "isInteger": false,
+      "value": 0,
+      "units": ""
+    },
+    {
+      "btType": "BTMParameterQueryList-148",
+      "parameterId": "startOffsetEntity",
+      "nodeId": "n44",
+      "queries": []
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "startOffsetOppositeDirection",
+      "nodeId": "n45",
+      "value": false
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "defaultScope",
+      "nodeId": "n46",
+      "value": true
+    },
+    {
+      "btType": "BTMParameterQueryList-148",
+      "parameterId": "booleanScope",
+      "nodeId": "n47",
+      "queries": []
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "defaultSurfaceScope",
+      "nodeId": "n48",
+      "value": true
+    },
+    {
+      "btType": "BTMParameterQueryList-148",
+      "parameterId": "booleanSurfaceScope",
+      "nodeId": "n49",
+      "queries": []
+    }
+  ],
+  "fillet": [
+    {
+      "btType": "BTMParameterQueryList-148",
+      "parameterId": "entities",
+      "nodeId": "n0",
+      "queries": [
+        {
+          "btType": "BTMIndividualQuery-138",
+          "queryString": "synthetic-edge-query",
+          "nodeId": "q0"
+        }
+      ]
+    },
+    {
+      "btType": "BTMParameterQuantity-147",
+      "parameterId": "radius",
+      "nodeId": "n1",
+      "expression": "2 mm",
+      "isInteger": false,
+      "value": 0,
+      "units": ""
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "tangentPropagation",
+      "nodeId": "n2",
+      "value": true
+    },
+    {
+      "btType": "BTMParameterEnum-145",
+      "parameterId": "filletType",
+      "nodeId": "n3",
+      "enumName": "FilletType",
+      "value": "EDGE"
+    },
+    {
+      "btType": "BTMParameterQueryList-148",
+      "parameterId": "side1Face",
+      "nodeId": "n4",
+      "queries": []
+    },
+    {
+      "btType": "BTMParameterQueryList-148",
+      "parameterId": "side2Face",
+      "nodeId": "n5",
+      "queries": []
+    },
+    {
+      "btType": "BTMParameterQueryList-148",
+      "parameterId": "centerFaces",
+      "nodeId": "n6",
+      "queries": []
+    },
+    {
+      "btType": "BTMParameterEnum-145",
+      "parameterId": "blendControlType",
+      "nodeId": "n7",
+      "enumName": "BlendControlType",
+      "value": "RADIUS"
+    },
+    {
+      "btType": "BTMParameterEnum-145",
+      "parameterId": "crossSection",
+      "nodeId": "n8",
+      "enumName": "FilletCrossSection",
+      "value": "CIRCULAR"
+    },
+    {
+      "btType": "BTMParameterQuantity-147",
+      "parameterId": "nonCircularRadius",
+      "nodeId": "n9",
+      "expression": "2 mm",
+      "isInteger": false,
+      "value": 0,
+      "units": ""
+    },
+    {
+      "btType": "BTMParameterQuantity-147",
+      "parameterId": "width",
+      "nodeId": "n10",
+      "expression": "4 mm",
+      "isInteger": false,
+      "value": 0,
+      "units": ""
+    },
+    {
+      "btType": "BTMParameterQuantity-147",
+      "parameterId": "rho",
+      "nodeId": "n11",
+      "expression": "0.5",
+      "isInteger": false,
+      "value": 0,
+      "units": ""
+    },
+    {
+      "btType": "BTMParameterQuantity-147",
+      "parameterId": "magnitude",
+      "nodeId": "n12",
+      "expression": "0.5",
+      "isInteger": false,
+      "value": 0,
+      "units": ""
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "defaultsChanged",
+      "nodeId": "n13",
+      "value": true
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "isAsymmetric",
+      "nodeId": "n14",
+      "value": false
+    },
+    {
+      "btType": "BTMParameterQuantity-147",
+      "parameterId": "otherRadius",
+      "nodeId": "n15",
+      "expression": "2 mm",
+      "isInteger": false,
+      "value": 0,
+      "units": ""
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "flipAsymmetric",
+      "nodeId": "n16",
+      "value": false
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "isPartial",
+      "nodeId": "n17",
+      "value": false
+    },
+    {
+      "btType": "BTMParameterEnum-145",
+      "parameterId": "startPartialType",
+      "nodeId": "n18",
+      "enumName": "EndTypePartialFillet",
+      "value": "PERCENTAGE"
+    },
+    {
+      "btType": "BTMParameterQuantity-147",
+      "parameterId": "startPartialOffset",
+      "nodeId": "n19",
+      "expression": "0 mm",
+      "isInteger": false,
+      "value": 0,
+      "units": ""
+    },
+    {
+      "btType": "BTMParameterQueryList-148",
+      "parameterId": "startPartialEntity",
+      "nodeId": "n20",
+      "queries": []
+    },
+    {
+      "btType": "BTMParameterQuantity-147",
+      "parameterId": "partialFirstEdgeTotalParameter",
+      "nodeId": "n21",
+      "expression": "0.01",
+      "isInteger": false,
+      "value": 0,
+      "units": ""
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "partialOppositeParameter",
+      "nodeId": "n22",
+      "value": true
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "useTrimmedFirstBound",
+      "nodeId": "n23",
+      "value": false
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "secondBound",
+      "nodeId": "n24",
+      "value": false
+    },
+    {
+      "btType": "BTMParameterEnum-145",
+      "parameterId": "endPartialType",
+      "nodeId": "n25",
+      "enumName": "EndTypePartialFillet",
+      "value": "PERCENTAGE"
+    },
+    {
+      "btType": "BTMParameterQuantity-147",
+      "parameterId": "endPartialOffset",
+      "nodeId": "n26",
+      "expression": "0 mm",
+      "isInteger": false,
+      "value": 0,
+      "units": ""
+    },
+    {
+      "btType": "BTMParameterQueryList-148",
+      "parameterId": "endPartialEntity",
+      "nodeId": "n27",
+      "queries": []
+    },
+    {
+      "btType": "BTMParameterQuantity-147",
+      "parameterId": "partialSecondEdgeTotalParameter",
+      "nodeId": "n28",
+      "expression": "0.99",
+      "isInteger": false,
+      "value": 0,
+      "units": ""
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "useTrimmedSecondBound",
+      "nodeId": "n29",
+      "value": false
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "isVariable",
+      "nodeId": "n30",
+      "value": false
+    },
+    {
+      "btType": "BTMParameterArray-2025",
+      "parameterId": "vertexSettings",
+      "nodeId": "n31",
+      "items": []
+    },
+    {
+      "btType": "BTMParameterArray-2025",
+      "parameterId": "pointOnEdgeSettings",
+      "nodeId": "n32",
+      "items": []
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "smoothTransition",
+      "nodeId": "n33",
+      "value": false
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "allowEdgeOverflow",
+      "nodeId": "n34",
+      "value": true
+    },
+    {
+      "btType": "BTMParameterQueryList-148",
+      "parameterId": "keepEdges",
+      "nodeId": "n35",
+      "queries": []
+    },
+    {
+      "btType": "BTMParameterBoolean-144",
+      "parameterId": "smoothCorners",
+      "nodeId": "n36",
+      "value": false
+    },
+    {
+      "btType": "BTMParameterQueryList-148",
+      "parameterId": "smoothCornerExceptions",
+      "nodeId": "n37",
+      "queries": []
+    }
+  ]
+}

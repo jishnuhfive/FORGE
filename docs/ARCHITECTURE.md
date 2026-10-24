@@ -586,14 +586,23 @@ Authority remains in component memory and the backend; see [B2](HACKATHON_MODIFY
 
 ## Modify recovery reliability hotfix
 
-Phase 16 audits the existing five-operation stack without changing runtime behavior;
+Phase 16 audits the existing five-operation stack and repairs representation
+conformance without changing approval/execution authority;
 see [controlled conformance preparation](PHASE_16_MODIFY_LIVE_CONFORMANCE.md).
 Modify remains independent of ForgeModelGraph. Future graph-assisted understanding
 or target reasoning cannot replace fresh provider evidence, the supported registry,
 exact baseline/preview, explicit human approval, fresh pre-dispatch checks, provider
-microversion guard or fresh exact-effect verification. Current replacement adapters
-remain synthetic and require a writes-OFF current-UI representation checkpoint before
-the separate controlled human live stage. Preparation grants no creation authority.
+microversion guard or fresh exact-effect verification. Following two human writes-OFF
+checkpoints, the registry delegates expanded standard definitions to a pure closed
+parameter validator: at most 50 known Extrude inputs or 38 known Fillet inputs,
+explicit simple-mode guards, exact types/values and empty inactive selections.
+The original minimal A1 profile stays separate. Unknown fields/IDs and richer
+active modes reject. Full definitions are copied and only the authorized name or
+depth/radius expression changes; fresh exact-effect verification is unchanged.
+DEV source recognition grants no authority. The same real fixture must pass the
+new writes-OFF representation recheck before the separate controlled human live
+stage. All five live operations remain unproven; preparation grants no creation
+authority or deployment approval.
 
 [Recovery hotfix](MODIFY_RECOVERY_HOTFIX.md) adds session-owned server discovery,
 read-only single-terminal-suppression reconciliation and a deterministic planning

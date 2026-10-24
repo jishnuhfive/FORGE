@@ -3,7 +3,7 @@
 The public standard library declares semantic inputs, not the exact provider JSON
 of a UI-created feature. This projection exposes only those fixed identifiers and
 closed shape categories so a human can resolve that gap without sharing CAD.
-See docs/PHASE_16_MODIFY_LIVE_CONFORMANCE.md for provenance and the NO-GO boundary.
+See docs/PHASE_16_MODIFY_LIVE_CONFORMANCE.md for provenance and authority boundaries.
 """
 
 from typing import Literal
@@ -114,8 +114,9 @@ StandardId = Literal[
 SourceKind = Literal["enum", "boolean", "length", "angle", "real", "query", "array"]
 State = Literal["missing", "null", "wrong_type", "empty", "nonempty"]
 
-# Fixed source input vocabulary, NOT an adapter allowlist. Neither enabled nor
-# disabled values here are writable. Internal computed FS fields are excluded.
+# Fixed source input vocabulary, NOT an adapter allowlist. Recognition here never
+# makes a value writable; the registry independently proves every accepted field.
+# Internal computed FS fields are excluded.
 EXTRUDE: dict[StandardId, SourceKind] = {
     "bodyType": "enum",
     "operationType": "enum",

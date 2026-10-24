@@ -667,8 +667,15 @@ replacement FAIL for ordinary UI features. A separate
 standard-library input vocabulary, plus quantity `value`/`units`/import-marker
 presence/type, from those same responses. Recognition supplies no edit authority;
 the original adapter report and all rejection/count limits remain unchanged.
-Unknown strings, values, queries and identifiers still never log. Follow the
-Phase 16 record's next evidence checkpoint; the adapter repair remains NO-GO.
+Unknown strings, values, queries and identifiers still never log. After the second
+human checkpoint, the registry adds finite current-UI contracts alongside the
+unchanged minimal A1 profile. Every present input must validate, and explicit mode
+guards are mandatory; omitted inactive children never insert defaults. Valid
+expanded shapes now report replacement/rename exact_match with zero registry
+unknowns. Total parameter count clipping at 20 is informational because all raw
+inputs are validated against the 50/38-input closed maps; malformed/duplicate or
+unsupported states still reject. Source recognition alone remains non-authoritative.
+Follow the Phase 16 record's same-fixture writes-OFF recheck before any live stage.
 It performs pinned GET reads without proposals or mutations, and adds no
 public diagnostic route/header. It is not invoked by Learn or AI. See
 [the investigation record](PHASE_9_REVIEW.md) before interpreting missing fields;

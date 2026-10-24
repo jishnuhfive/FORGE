@@ -587,7 +587,7 @@ READ-ONLY VALIDATED — MERGED INTO MAIN** at `36511d73a7fffd4b219497fe09d2c8d4f
 
 ## Phase 16 — controlled real Modify conformance
 
-**IN PROGRESS — REAL-SHAPE REPAIR NO-GO; CAD WRITES OFF**
+**IN PROGRESS — REAL-SHAPE AUTOMATED REPAIR PASSED; WRITES-OFF RECHECK PENDING**
 
 Started from clean synchronized main `017f4ab7e556b2653661cbda77b7b6f22cdf1a1c`
 on `phase16/modify-live-conformance`. Scope is the existing SET_SUPPRESSED,
@@ -619,9 +619,26 @@ unrecognized quantity fields. The existing adapters correctly rejected them; no
 proposal or write occurred. Public standard-library research establishes input
 semantics, not the fixture's exact provider encoding. A separate closed-vocabulary
 DEV diagnostic now prepares the missing sanitized evidence without changing
-adapter eligibility or safety bounds. The real-shape repair remains NO-GO pending
-that writes-OFF checkpoint and an evidence-backed repair; passing diagnostic tests
-does not advance the live gate. See the Phase 16 record for sources and exact steps.
+adapter eligibility or safety bounds. That initial repair was NO-GO pending the
+second writes-OFF checkpoint; passing diagnostic tests did not advance the live gate.
+
+The human has now supplied the second minimized checkpoint: complete/source-matched
+ordinary standard features, zero unknown/malformed/duplicate source inputs and
+explicit ordinary option states, including overflow=true with empty keepEdges.
+The narrow repair adds closed 50-input Extrude / 38-input Fillet contracts with
+explicit simple-mode guards, typed inactive inputs and exact definition copying.
+The original minimal profile remains separate. No unknown fields/IDs, active richer
+modes or arbitrary payloads are accepted. All authority/execution controls and
+transport/quantity limits remain intact. Automation and the same-fixture writes-OFF
+recheck must pass before the separate human live stage. See the Phase 16 record
+for exact contracts, sources, results and next steps. Phase 16 is not live-validated.
+
+The repair gate passed 1,024 new cases, 2,999 focused regressions, 869 frontend /
+4,561 API tests (all 42 PostgreSQL cases, no skips), 45 Modify browser cases and
+all required format/lint/type/build/migration/Compose/audit checks. Counts overlap.
+No existing assertion, timeout or threshold was weakened. CAD writes remain OFF.
+The same disposable fixture must now pass the entire strict replacement/rename
+contract on a human Inspector refresh before the separately approved live stage.
 
 ## Future target — Level-3 creation and advanced Learn
 

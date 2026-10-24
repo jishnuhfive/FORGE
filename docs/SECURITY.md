@@ -628,7 +628,20 @@ public-source vocabulary and closed type/value categories under the same guards
 and matching-head checks. It preserves the original report, read budget and caps;
 recognition never authorizes an edit. Quantity bookkeeping is reduced to
 presence/type/zero/empty classes, never raw values or import markers. Adapter
-acceptance remains unchanged and the repair remains NO-GO pending exact evidence.
+acceptance was unchanged during that evidence-gathering follow-up.
+
+After the second human writes-OFF checkpoint, the registry adds closed standard
+Extrude/Fillet replacement profiles. Expanded shapes require explicit simple-mode
+guards and validate every unique ID, exact btType, allowed value, quantity field
+and query/array envelope. The 50/38-input map cardinalities bound only this new
+profile; the original minimal profile and global feature/read/transport/quantity
+limits remain unchanged. Unknown fields, nonempty imports, configured/tolerant
+quantities and active richer modes reject. Empty/zero bookkeeping is preserved
+without normalization. Complete fresh definitions are copied; only the approved
+name or depth/radius expression changes. Full fresh exact-effect verification is
+unchanged. Source diagnostics and graph facts still provide no approval or write
+authority. Actual current-fixture recheck and human live-write conformance remain
+pending; real writes remain OFF during implementation and automated verification.
 
 [Recovery controls](MODIFY_RECOVERY_HOTFIX.md) use the existing authenticated
 same-origin CSRF guard. Recovery returns only same-session consumed status handles

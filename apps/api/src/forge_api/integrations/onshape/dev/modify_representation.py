@@ -14,6 +14,7 @@ from forge_api.cad_edits.plans import valid_quantity
 from ..edit_registry import quantity_parameter
 from ..eligibility import MISSING
 from ..parameters import display_text
+from ..standard_edit_shapes import QUANTITY_FIELDS, UI_RULES
 
 Category = Literal["sketch", "extrude", "fillet", "unsupported"]
 DefinitionType = Literal[
@@ -33,6 +34,7 @@ ParameterType = Literal[
     "query_list",
     "quantity",
     "boolean",
+    "array",
     "other",
     "missing",
     "null",
@@ -57,6 +59,7 @@ PARAMETER_TYPES: dict[str, ParameterType] = {
     "BTMParameterQueryList-148": "query_list",
     "BTMParameterQuantity-147": "quantity",
     "BTMParameterBoolean-144": "boolean",
+    "BTMParameterArray-2025": "array",
 }
 
 
@@ -141,7 +144,9 @@ def _type(value: object) -> ParameterType:
     return PARAMETER_TYPES.get(value, "other")
 
 
-def _quantity(param: dict[str, JsonValue]) -> QuantityShape:
+def _quantity(
+    param: dict[str, JsonValue], *, current_ui: bool = False
+) -> QuantityShape:
     expression = param.get("expression", MISSING)
     literal = False
     if isinstance(expression, str):
@@ -175,7 +180,11 @@ def _quantity(param: dict[str, JsonValue]) -> QuantityShape:
         if integer is True
         else "wrong_type",
         supported_fields_only=not set(param)
-        - {"btType", "parameterId", "expression", "nodeId", "isInteger"},
+        - (
+            QUANTITY_FIELDS
+            if current_ui
+            else {"btType", "parameterId", "expression", "nodeId", "isInteger"}
+        ),
     )
 
 
@@ -220,7 +229,9 @@ def _query(param: dict[str, JsonValue]) -> QueryShape:
     )
 
 
-def _parameter(key: ParameterId, matches: list[dict[str, JsonValue]]) -> ParameterShape:
+def _parameter(
+    key: ParameterId, matches: list[dict[str, JsonValue]], *, current_ui: bool = False
+) -> ParameterShape:
     # Duplicate details are only illustrative; registry rejection is never relaxed.
     param = matches[0] if matches else {}
     enum = ENUMS.get(key)
@@ -247,7 +258,9 @@ def _parameter(key: ParameterId, matches: list[dict[str, JsonValue]]) -> Paramet
         enum_name_matches=param.get("enumName") == enum[0]
         if matches and enum is not None
         else None,
-        quantity=_quantity(param) if matches and key in ("depth", "radius") else None,
+        quantity=_quantity(param, current_ui=current_ui)
+        if matches and key in ("depth", "radius")
+        else None,
         query=_query(param) if matches and key == "entities" else None,
         boolean_type_valid=type(boolean) is bool
         if matches and key == "tangentPropagation"
@@ -277,23 +290,6 @@ def _feature(raw: JsonValue, position: int, complete: bool) -> FeatureRepresenta
     raw_params = feature.get("parameters", MISSING)
     params = raw_params if isinstance(raw_params, list) else []
     vocabulary = VOCABULARY.get(category, ())
-    matches: dict[ParameterId, list[dict[str, JsonValue]]] = {k: [] for k in vocabulary}
-    unknown = 0
-    malformed = False
-    for param in params:
-        if not isinstance(param, dict):
-            malformed = True
-            continue
-        # Never return, log or preserve arbitrary strings in minimized metadata.
-        key = param.get("parameterId")
-        if not isinstance(key, str):
-            malformed = True
-            continue
-        known = next((k for k in vocabulary if k == key), None)
-        if known is not None:
-            matches[known].append(param)
-        else:
-            unknown += 1
     parameter_shape = False
     if category in ("extrude", "fillet"):
         try:
@@ -304,6 +300,32 @@ def _feature(raw: JsonValue, position: int, complete: bool) -> FeatureRepresenta
             parameter_shape = True
         except EditError:
             pass
+    current_ui = parameter_shape and any(
+        isinstance(p, dict) and p.get("parameterId") not in vocabulary for p in params
+    )
+    registry_ids = UI_RULES.get(category, {}) if current_ui else vocabulary
+    matches: dict[ParameterId, list[dict[str, JsonValue]]] = {k: [] for k in vocabulary}
+    unknown = 0
+    malformed = False
+    seen: set[str] = set()
+    duplicate_known = False
+    for param in params:
+        if not isinstance(param, dict):
+            malformed = True
+            continue
+        # Never return, log or preserve arbitrary strings in minimized metadata.
+        key = param.get("parameterId")
+        if not isinstance(key, str):
+            malformed = True
+            continue
+        known = next((k for k in vocabulary if k == key), None)
+        if key in UI_RULES.get(category, {}):
+            duplicate_known = duplicate_known or key in seen
+            seen.add(key)
+        if known is not None:
+            matches[known].append(param)
+        if key not in registry_ids:
+            unknown += 1
     ordinary = (
         feature.get("namespace") == ""
         and feature.get("subFeatures") == []
@@ -349,8 +371,11 @@ def _feature(raw: JsonValue, position: int, complete: bool) -> FeatureRepresenta
         unknown_present=unknown > 0,
         unknown_count=min(unknown, 20),
         unknown_count_capped=unknown > 20,
-        duplicate_known_present=any(len(v) > 1 for v in matches.values()),
-        parameters=tuple(_parameter(key, values) for key, values in matches.items()),
+        duplicate_known_present=duplicate_known,
+        parameters=tuple(
+            _parameter(key, values, current_ui=current_ui)
+            for key, values in matches.items()
+        ),
         parameter_shape_matches_registry=parameter_shape,
         replacement=replacement,
         rename="unsupported_shape"
