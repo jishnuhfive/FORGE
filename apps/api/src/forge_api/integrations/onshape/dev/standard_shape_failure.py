@@ -4,6 +4,7 @@ from pydantic import JsonValue
 
 from forge_api.cad_edits.domain import Closed, EditError
 
+from ..query_filter_evidence import QueryFilterSummary
 from ..standard_edit_shapes import ui_quantity_parameter
 from ..standard_shape_contract import (
     CommonMetadataFailure,
@@ -17,6 +18,7 @@ class ShapeValidation(Closed):
     category: ShapeCategory
     failure: ShapeFailure | None
     common: CommonMetadataFailure | None = None
+    query_filter: QueryFilterSummary | None = None
 
 
 def diagnose_ui_shape(
@@ -26,7 +28,10 @@ def diagnose_ui_shape(
         ui_quantity_parameter(feature, "depth" if category == "extrude" else "radius")
     except ShapeValidationError as error:
         return ShapeValidation(
-            category=category, failure=error.failure, common=error.common
+            category=category,
+            failure=error.failure,
+            common=error.common,
+            query_filter=error.query_filter,
         )
     return ShapeValidation(category=category, failure=None)
 

@@ -16,6 +16,7 @@ from pydantic import JsonValue
 
 from forge_api.cad_edits.plans import valid_quantity
 
+from .query_filter_evidence import unproven_filter_summary
 from .standard_shape_contract import (
     CommonMetadataFailure,
     FailureParameter,
@@ -408,7 +409,16 @@ def _validate(
     else:
         field = "items" if rule.sequence == "empty_items" else "queries"
         value = param.get(field)
-        if set(param) - (BASE_FIELDS | {field}):
+        extra = set(param) - (BASE_FIELDS | {field})
+        if field == "queries" and extra == {"filter"}:
+            # Documented envelope field, but no real role-specific tree evidence.
+            # Always reject; the same closed production failure powers DEV logs.
+            raise ShapeValidationError(
+                parameter,
+                "query_filter_unproven",
+                query_filter=unproven_filter_summary(param["filter"]),
+            ) from None
+        if extra:
             _reject(parameter, "unexpected_field")
         if not isinstance(value, list):
             _reject(

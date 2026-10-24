@@ -1,6 +1,6 @@
 # Phase 16 — controlled real Modify conformance
 
-**IN PROGRESS — TARGETED RECHECK NO-GO; DEFAULT LIBRARY RECHECK READY**
+**IN PROGRESS — FINAL WRITES-OFF RECHECK NO-GO; QUERY FILTER EVIDENCE NEEDED**
 
 Initial status: `IN PROGRESS — AUTOMATED CONFORMANCE PREPARATION`.
 
@@ -1304,3 +1304,376 @@ If any new closed failure appears, STOP and report only the sanitized labels.
 Do not enable writes automatically. Even all these read checks passing does not
 prove a live write; a separately authorized controlled human stage still follows.
 No deployment, merge, production/OAuth/domain change or Phase 17 work is included.
+
+## Current query-list filter evidence investigation
+
+**FINAL WRITES-OFF RECHECK — STILL NO-GO.** This is the latest human result,
+superseding previous checkpoint descriptions. On the SAME disposable ordinary UI
+Sketch → Extrude → Fillet fixture, with DEV, diagnostics ON and writes OFF:
+
+- DEFAULT library metadata failures are gone.
+- Extrude: `category=extrude parameter=entities reason=unexpected_field`.
+- Fillet: `category=fillet parameter=entities reason=unexpected_field`.
+- Structural/source evidence remains good; zero proposals, approvals or mutations.
+
+Starting branch was clean and synchronized with origin at required HEAD
+`8fd3847e8b45479f94419eeadb4a2196c26c2530`, on
+`phase16/modify-live-conformance`. Local CAD writes were verified OFF. No private
+CAD/identifiers were requested or read by the agent. These first-failure labels
+alone do not prove which extra field is present or reveal a filter tree.
+
+### Official schema and concrete filter families
+
+The current [official OpenAPI](https://cad.onshape.com/api/openapi) still returns
+OpenAPI 3.0.1 / `1.222.91980-dcee49ea4d64`, SHA-256
+`6416eff28b497b1bfa5d7fbcc614d3e1a669966f2a4f5b1b5dd9ab808aea76fb`.
+`BTMParameterQueryList-148` inherits BTMParameter-1 and adds optional filter,
+referencing BTQueryFilter-183, and optional queries, an array of
+BTMIndividualQueryBase-139. The [official generated query-list model](https://github.com/onshape-public/go-client/blob/master/onshape/docs/BTMParameterQueryList148.md)
+corroborates these fields. The base filter discriminator lists **37 concrete
+subtypes**, not one generic safe object. The evidence vocabulary is checked against
+that exact current list plus the abstract base; it is not a write allowlist.
+
+Relevant schema facts:
+
+| Concrete type                    | Declared subtype fields beyond btType              |
+| -------------------------------- | -------------------------------------------------- |
+| BTAndFilter-110 / BTOrFilter-167 | operand1, operand2, each another BTQueryFilter-183 |
+| BTNotFilter-165                  | operand, another BTQueryFilter-183                 |
+| BTEntityTypeFilter-124           | entityType                                         |
+| BTGeometryFilter-130             | geometryType                                       |
+| BTBodyTypeFilter-112             | bodyType                                           |
+| BTEdgeTopologyFilter-122         | edgeTopology, isInternalEdge                       |
+| BTConstructionObjectFilter-113   | isConstruction                                     |
+
+The [official AND](https://github.com/onshape-public/go-client/blob/master/onshape/docs/BTAndFilter110.md),
+[OR](https://github.com/onshape-public/go-client/blob/master/onshape/docs/BTOrFilter167.md)
+and [NOT](https://github.com/onshape-public/go-client/blob/master/onshape/docs/BTNotFilter165.md)
+models confirm fixed binary/unary operand slots, not arbitrary child arrays.
+Other concrete families include sketch, active-sheet-metal, modifiable-entity,
+reference and annotation filters. The SDK/schema does not establish which actual
+concrete tree the current UI fixture serialized, its leaf values, omitted fields,
+association order or whether otherwise equivalent Boolean forms are preserved.
+
+### FeatureScript 3095 selection intent
+
+The current public source captured in the prior source read was inspected for its
+actual query annotations, with the recorded FeatureScript 3095 headers:
+[Extrude](https://cad.onshape.com/documents/12312312345abcabcabcdeff/w/a855e4161c814f2e9ab3698a/e/aff9bec3150a48098a8184ac),
+[Fillet](https://cad.onshape.com/documents/12312312345abcabcabcdeff/w/a855e4161c814f2e9ab3698a/e/841b26d2621a46bf98eda1d5).
+The source establishes UI selection intent, not REST serialization evidence:
+
+- Ordinary solid Extrude entities: either sketch faces with flattened geometry
+  allowed, or planar faces with flattened geometry disallowed; both exclude
+  construction objects. It is not an unrestricted generic face query.
+- EDGE Fillet entities: inactive-sheet-metal two-sided edges or faces, or edges
+  corresponding to sheet-metal definition vertices; construction and sketch
+  objects are excluded and modifiability required. There is also a separate
+  edge-only additional box-selection annotation.
+- Extrude surfaceEntities selects sketch edges with modifiability/construction
+  restrictions; wallShape has separate planar-face versus sketch-edge branches.
+- Fillet side1Face/side2Face/centerFaces use face restrictions in FULL_ROUND;
+  keepEdges uses two-sided edge restrictions; smoothCornerExceptions uses vertices.
+  These cannot inherit an active entities filter by assumption.
+
+The [official Feature UI guide](https://cad.onshape.com/FsDoc/uispec.html) explains
+that annotations specify selection filters and that features must not rely on
+those filters alone to prove query results. Therefore UI filter metadata is not
+Forge target identity, engineering validation, AI permission or write authority.
+The optional schema field may also occur on an empty query list: the schema does
+not condition it on nonempty queries. Actual presence/tree shape for inactive
+roles remains unproven. No active or inactive filter profile is accepted here.
+
+### Closed production failure and DEV evidence only
+
+The task's evidence-needed path is followed. **No adapter acceptance is broadened.**
+Filter remains outside the accepted query-list envelope. When it is the only extra
+field on an otherwise recognized current-UI query parameter, the same production
+predicate raises generic unsupported_target / 422 with internal reason
+query_filter_unproven and a strict frozen QueryFilterSummary. Unknown sibling
+fields retain unexpected_field, and filter on quantities, arrays or query items
+retains their existing rejection. All present filter values, including null and
+malformed objects, still reject. Filter absence follows the unchanged old profile.
+
+The DEV first-failure projection consumes that exact production exception; no
+second filter-eligibility parser exists. It emits only:
+
+- filter_root / categories: entity_type, geometry, body_type, edge_topology,
+  construction, and, or, not, other_known or unknown.
+- root_state: object, null or wrong_type.
+- child_count: present recognized root operand slots, at most two.
+- max_depth: maximum visited level, root=1, capped at eight.
+- node_count: at most 64 visits, using an iterative bounded walk.
+- malformed, missing_operand, unexpected_fields, uninspected and truncated flags.
+
+Only SDK operand1/operand2/operand slots are traversed. No arrays, arbitrary keys
+or unknown/other-known payloads are recursively walked. Wide objects are flagged
+by bounded key checks; their values are not inspected. Leaf enum/geometry/Boolean
+values are never read. uninspected marks opaque families, not an assertion that
+other leaf values were validated. Clipped/opaque summaries are not exact trees.
+Raw SDK type strings, arbitrary enums, names, IDs, node/deterministic IDs, query
+strings, coordinates, tokens, URLs and provider JSON never enter the log model.
+Known-looking names do not imply a supported filter or successful validation.
+
+All existing DEV/diagnostics-ON/writes-OFF, completeness/source match, head bracket
+and per-record guards remain. No extra GET: compare stays four, the full probe
+thirteen. No public/browser/model payload, route, analytics or persistence changes.
+Approval, digest, claims, fences, stale/context/expiry checks, microversion guard,
+post-write reread, exact-effect comparison, uncertainty/no retry, recovery and the
+graph authority boundary are unchanged. Existing parameter-opaque terminal
+suppression remains separate from replacement/rename conformance.
+
+### Preservation and test scope
+
+The canonical synthetic fixture is not changed to invent a supposedly real tree.
+SDK-shaped trees in tests are clearly labeled **unproven rejection cases**.
+All filter-bearing replacement targets reject before proposal/dispatch or copying;
+positive acceptance/preservation for actual target filter trees is deferred until
+real sanitized evidence proves each exact role. No unsupported target is enabled
+merely to manufacture a passing preservation test.
+
+Existing full-definition copying and exact full-inventory verification are
+unchanged. Tests cover both renames and depth/radius edits while an unrelated
+feature's opaque filter remains exact, then prove removing/modifying that filter
+or adding a filter to the edited target cannot verify. This proves inventory
+preservation without granting replacement authority to an unproven filter target.
+Existing richer-mode, library/import, uncertainty, recovery and fence assertions
+are retained; the exhaustive failure matrix adds the new fixed rejection reason.
+
+### Query-filter evidence automated gate — PASS, writes OFF
+
+| Verification                                                                                    | Result                                                                                  |
+| ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| New filter evidence module tests                                                                | **411 passed**                                                                          |
+| Exhaustive shared-failure matrix                                                                | **85 passed**, including one added filter reason case                                   |
+| Initial filter/shape/UI conformance subset                                                      | **1,520 passed**                                                                        |
+| Focused Modify / registry / planner / diagnostics / preservation / recovery / fence regressions | **4,169 passed**                                                                        |
+| Full API suite                                                                                  | **5,731 passed**, including all **42 PostgreSQL** cases, no skips                       |
+| Full frontend suite                                                                             | **869 passed** in **35 files**, no skips                                                |
+| Modify browser matrix                                                                           | **45 passed**, Chromium / Firefox / WebKit, four workers, zero retries                  |
+| Frozen installs                                                                                 | npm ci and uv sync --locked passed; no dependency/lockfile changes                      |
+| Required commands                                                                               | make format, lint, typecheck, build, test, migration-check, compose-check, audit passed |
+
+There are 412 added cases total, counted within the overlapping suites above.
+Strict Python checking passed across 190 source files; TypeScript checking passed.
+The existing bundle-size warning remains. Audits found no known vulnerabilities
+among audited dependencies (editable forge-api excluded by the unchanged command).
+Migration check found no new upgrade operations. No assertion, timeout, threshold,
+retry count, transport bound or authority control was weakened.
+
+CAD test traffic was mocked, without real credentials/local application settings.
+The real local write flag remained false. PostgreSQL used a fresh loopback-only
+random-port container with synthetic credentials and tmpfs storage, removed after
+verification; application PostgreSQL/data were untouched. Diff/privacy review
+found only the files below, with no secret, environment, deployment, dependency or
+production authority changes. This passing automated gate does not establish any
+actual filter contract or live write conformance: **QUERY FILTER EVIDENCE NEEDED**.
+
+### Query-filter evidence files
+
+- apps/api/src/forge_api/integrations/onshape/query_filter_evidence.py
+- apps/api/src/forge_api/integrations/onshape/standard_shape_contract.py
+- apps/api/src/forge_api/integrations/onshape/standard_edit_shapes.py
+- apps/api/src/forge_api/integrations/onshape/dev/standard_shape_failure.py
+- apps/api/src/forge_api/integrations/onshape/dev/safe_edit.py
+- apps/api/tests/test_modify_query_filter_evidence.py
+- apps/api/tests/test_modify_shape_failure.py
+- apps/api/tests/fixtures/README.md
+- docs/PHASE_16_MODIFY_LIVE_CONFORMANCE.md
+- docs/ROADMAP.md
+- docs/ARCHITECTURE.md
+- docs/SECURITY.md
+- docs/DEVELOPMENT.md
+
+### Exact next query-filter evidence checkpoint
+
+Using this commit, retain ENVIRONMENT=development,
+FORGE_SAFE_EDIT_DIAGNOSTICS_ENABLED=true and FORGE_CAD_WRITES_ENABLED=false.
+Use the SAME privately confirmed disposable fixture. Perform **ONE CAD Inspector
+→ Refresh CAD**. Generate no proposal, approval or mutation. Report only the new
+safe_edit_standard_shape_failure lines for Extrude and Fillet, including their
+closed root/count/category/flag fields, alongside the existing structural/source
+and safe_edit_probe summaries. Do not provide raw filters, JSON, IDs, leaf values
+or query strings. Group records by the existing noSketchGeometry variant.
+
+Expected evidence if filter is the sole extra field is reason=query_filter_unproven
+plus the closed summary; it is a deliberate continued rejection, not exact_match.
+If unexpected_field remains, filter was not established as the sole cause: STOP
+and report that fixed failure. If any other closed failure appears, STOP and
+report it. Do not enable writes. Active/empty-role filter contracts and all real
+write conformance remain unproven; this diagnostic gate grants no live-write or
+Phase 17 creation authority, deployment or merge.
+
+## QUERY FILTER REPAIR SAFETY REVIEW — LEGACY BYPASS FOUND
+
+The final pre-commit safety review of the diagnostic preparation found a separate
+fail-open historical representation path. No diagnostic work was committed at
+that point; all 13 uncommitted files were preserved for this authorized repair.
+Starting committed HEAD remained `8fd3847e8b45479f94419eeadb4a2196c26c2530` on
+`phase16/modify-live-conformance`, matching origin. `git diff --check` passed.
+
+The old registry selected its minimal path when parameter IDs were a subset of
+the historical vocabulary. Its entities check required only a nonempty queries
+list, ignoring additional envelope/query-item fields such as entities.filter.
+Thus quantity replacement and full-definition rename could bypass the stricter
+current-UI predicate. **This was found before enabling writes: zero real proposals,
+approvals or mutations occurred.** The prior passing diagnostic tests did not
+cover this bypass; the preparation was correctly stopped without commit/push.
+
+### Complete, separate representation profiles
+
+Profile selection now examines the entire parameter-ID multiset. Exactly five
+unique Extrude IDs (bodyType, operationType, entities, endBound, depth), or exactly
+three unique Fillet IDs (entities, radius, tangentPropagation), select the strict
+historical validator. Every other collection goes whole to the existing closed
+current-UI validator. A failed historical validation rejects immediately, never
+falls through, strips a field, normalizes data or combines the two profiles.
+The registry also requires the exact BTMFeature-134 and supported featureType.
+Existing global fresh evidence still proves the ordinary top-level scope.
+
+The historical parameter contract is closed at every level:
+
+| Role               | Exact representation                                                                                           |
+| ------------------ | -------------------------------------------------------------------------------------------------------------- |
+| Extrude enums      | BTMParameterEnum-145, enumName/value: ExtendedToolBodyType/SOLID, NewBodyOperationType/NEW, BoundingType/BLIND |
+| entities           | BTMParameterQueryList-148, queries, no filter or unknown field                                                 |
+| Extrude query item | Exactly btType=BTMIndividualSketchRegionQuery-140 and a nonempty string featureId                              |
+| Fillet query item  | Exactly btType=BTMIndividualQuery-138 and a nonempty string queryString                                        |
+| depth/radius       | BTMParameterQuantity-147, expression in the unchanged bounded literal mm/in grammar; optional isInteger=false  |
+| tangentPropagation | Required BTMParameterBoolean-144 with actual Boolean value, either true or false                               |
+
+Each parameter has its exact parameterId and may preserve a string nodeId, as
+exercised by the existing A1 metadata-preservation tests. No current-UI common
+metadata, quantity value/units, query node/deterministic IDs or unknown nested
+fields are imported into this historical contract. Query lists are nonempty and
+capped at 2,000 (the existing current-UI bound); opaque query strings/reference
+strings are nonempty and capped at 8,192 characters, also subject to the unchanged
+8 KiB request limit. No query is evaluated or sent to the planner. Original
+feature/parameter/query data and order remain intact; the executor deep-copies
+the fresh definition and changes only the approved expression or name.
+
+Current-UI features retain their whole-feature validation. A filter-bearing UI
+feature reaches the shared closed query_filter_unproven rejection, not the legacy
+path. **No current-UI filter conformance is claimed.** The real fixture still needs
+filter evidence. The bounded diagnostic is preserved unchanged: depth <=8,
+visits <=64, fixed categories/counts/flags, no leaf values, IDs, queries or extra
+provider GET. The next checkpoint deliberately remains a rejection when a filter
+is encountered; the diagnostic does not prove its semantic contract.
+
+### Suppression remains independent
+
+Inspection of every write-client path confirms SET_SUPPRESSED/SET_UNSUPPRESSED use
+/features/updates and only BTMFeature-134, featureId and suppressed in the feature
+entry. They never transmit a parameter/query/filter tree. Replacement profiles do
+not gate this independent attribute transport. Existing terminal-Fillet, explicit
+Boolean state, supported scope, approval, fence and exact-effect rules remain.
+Regression tests verify both directions with a filter-bearing parameter definition
+that cannot be renamed or quantity-replaced, and reject nonterminal suppression.
+The original Phase 9 suppression entry point retains the same minimal payload.
+
+### Safety invariants before commit
+
+1. Full-definition rename/depth/radius dispatch without one complete recognized
+   parameter representation profile: **NO**. Discovery, planning, local transport
+   preflight, dispatch construction and exact-effect verification share change /
+   quantity_parameter; no alternate full-definition transport was found.
+2. Unknown nested parameter/query/filter fields ignored by the minimal profile:
+   **NO**. Every envelope has a finite exact field contract.
+3. Suppression sends full feature parameters: **NO**.
+4. CAD writes remain OFF: **YES**. Only isolated in-process synthetic mock clients
+   enable their test-only flag; real local settings remain false.
+
+Planner, approval, grant/session/context binding, expiry, one-use claims, stale
+rejection, pre-dispatch rereads, rejectMicroversionSkew, fresh post-write rereads,
+whole-inventory exact-effect comparison, fences, recovery, uncertainty, suffix
+stopping and no-retry behavior are unchanged. Graph facts authorize no writes.
+No live CAD access, real proposal/approval/mutation, deployment, merge, OAuth,
+domain, secret, dependency or lockfile change is part of this repair.
+
+### Profile safety repair verification
+
+**Automated profile-safety repair gate passed; current real filter conformance
+remains unproven.**
+
+| Check                                                                            | Result                                                                                  |
+| -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| New minimal-profile regression module                                            | **162 passed**                                                                          |
+| Preserved query-filter diagnostic module                                         | **411 passed**                                                                          |
+| Shared first-failure module                                                      | **85 passed**, including the added filter case                                          |
+| All focused Modify / safe-edit / retained / AI-write / standard-diagnostic cases | **4,331 passed**                                                                        |
+| Full API suite                                                                   | **5,893 passed**, including all **42 PostgreSQL cases**, no skips                       |
+| Frontend suite                                                                   | **869 passed** in **35 files**, no skips                                                |
+| Focused Modify browser matrix                                                    | **45 passed**, Chromium / Firefox / WebKit, four workers, zero retries                  |
+| Frozen installs                                                                  | npm ci and uv sync --locked passed; no dependency or lockfile changes                   |
+| Required commands                                                                | make format, lint, typecheck, build, test, migration-check, compose-check, audit passed |
+
+Counts overlap. There are **574 added cases** relative to the starting commit:
+162 safety cases plus the preserved 412 diagnostic cases. Strict Python checking
+passed across 191 source files, and TypeScript checking passed. Migration drift
+check reported no new upgrade operations. Both dependency audits reported no
+known vulnerabilities among audited packages; the unchanged Python audit excludes
+the editable forge-api distribution. The pre-existing bundle-size warning remains.
+
+Tests used synthetic fixtures, in-process mock CAD transport and isolated local
+settings. PostgreSQL used a fresh healthy loopback-only random-port tmpfs container
+with synthetic credentials; only that container was removed afterward. Existing
+application PostgreSQL and data were untouched. Privacy/diff review found no
+secret, raw CAD, environment, dependency, production configuration or unrelated
+file changes. The real local Settings flag was confirmed false again after the
+gate. All four security-review answers above were confirmed before commit.
+
+The old positive expectation for absent tangentPropagation is tightened to reject;
+its explicit true/false preservation assertions are retained. No safety assertion,
+transport limit, retry setting, timeout or test threshold is weakened. The
+historical JSON fixture is unchanged. New regression cases cover all historical
+parameters, nested unknown/filter fields, missing/duplicate/extra parameters,
+rename/quantity bypass, whole current-UI routing, direct transport preflight and
+both suppression payload directions. The preserved diagnostic tests cover privacy,
+bounds, guards, no extra GET and exact post-write effects.
+
+### Combined repair files
+
+Runtime:
+
+- apps/api/src/forge_api/integrations/onshape/edit_registry.py
+- apps/api/src/forge_api/integrations/onshape/query_filter_evidence.py
+- apps/api/src/forge_api/integrations/onshape/standard_edit_shapes.py
+- apps/api/src/forge_api/integrations/onshape/standard_shape_contract.py
+- apps/api/src/forge_api/integrations/onshape/dev/standard_shape_failure.py
+- apps/api/src/forge_api/integrations/onshape/dev/safe_edit.py
+
+Tests / fixture provenance:
+
+- apps/api/tests/test_modify_minimal_profile.py
+- apps/api/tests/test_modify_query_filter_evidence.py
+- apps/api/tests/test_modify_conformance.py
+- apps/api/tests/test_modify_representation.py
+- apps/api/tests/test_modify_shape_failure.py
+- apps/api/tests/fixtures/README.md
+
+Documentation:
+
+- docs/PHASE_16_MODIFY_LIVE_CONFORMANCE.md
+- docs/ROADMAP.md
+- docs/ARCHITECTURE.md
+- docs/SECURITY.md
+- docs/DEVELOPMENT.md
+- docs/HACKATHON_MODIFY_A1.md
+
+### Exact next human checkpoint after this repair
+
+Keep ENVIRONMENT=development, FORGE_SAFE_EDIT_DIAGNOSTICS_ENABLED=true and
+FORGE_CAD_WRITES_ENABLED=false. On the SAME privately confirmed disposable
+Sketch → Extrude → Fillet fixture, perform **ONE CAD Inspector → Refresh CAD**.
+Generate no proposal, approval or mutation. Report only the bounded
+safe_edit_standard_shape_failure lines for Extrude and Fillet, grouped by the
+existing noSketchGeometry variant, plus structural/source and safe_edit_probe
+summaries. Do not supply raw filters, provider JSON, IDs, leaf values or queries.
+
+A present filter is still expected to reject as query_filter_unproven and reveal
+only its closed structural summary. Unexpected_field means filter was not proven
+to be the sole extra envelope field; stop and report it. Any other new closed
+failure also stops advancement. This code does not add a filter acceptance
+contract; exact_match cannot be inferred from category recognition. No writes
+until exact_match and a separately authorized human-controlled preview/approval
+stage. Phase 17 creation remains future work.

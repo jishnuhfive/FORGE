@@ -587,7 +587,7 @@ READ-ONLY VALIDATED — MERGED INTO MAIN** at `36511d73a7fffd4b219497fe09d2c8d4f
 
 ## Phase 16 — controlled real Modify conformance
 
-**IN PROGRESS — TARGETED RECHECK NO-GO; DEFAULT LIBRARY RECHECK READY**
+**IN PROGRESS — FINAL WRITES-OFF RECHECK NO-GO; QUERY FILTER EVIDENCE NEEDED**
 
 Started from clean synchronized main `017f4ab7e556b2653661cbda77b7b6f22cdf1a1c`
 on `phase16/modify-live-conformance`. Scope is the existing SET_SUPPRESSED,
@@ -601,18 +601,38 @@ requires the passing gate, exact disposable target, representation review, exact
 preview and explicit human approval. Graph facts must never authorize a write;
 Modify is not graph-migrated in this phase.
 
-Latest human writes-OFF checkpoint remains **NO-GO**: Extrude domain and Fillet
-filletType both reached libraryRelationType / DEFAULT as the first failure, with
-structural/source/body evidence good and zero proposals, approvals or mutations.
-Current authoritative schemas and the newly confirmed ordinary UI state justify
-accepting only that exact preserved string alongside the previously accepted
-absence. Nondefault/malformed states, nonempty text, imports and configured states
-remain rejected. This metadata does not prove eligibility or authorize a write.
-The same fixture must pass all four shape/representation conditions and the safe
-no-proposal/no-write probe on one final writes-OFF refresh. Any next failure stops
-advancement. See the Phase 16 record for research limits and the automated gate.
+Latest human result: **FINAL WRITES-OFF RECHECK — STILL NO-GO**. DEFAULT
+metadata now passes; both Extrude and Fillet first fail on entities /
+unexpected_field. Structural/source evidence remains good; zero proposals,
+approvals or mutations. Current OpenAPI documents optional polymorphic filter
+metadata, but the real trees and inactive-role serialization are unknown. Only
+closed structural evidence is added to the shared production rejection; no
+filter acceptance or authority expansion. One more same-fixture writes-OFF
+Inspector refresh is needed. No live conformance is claimed.
+The diagnostic-only preparation passed 412 added cases (411 in the new module and
+one new shared-failure case), 4,169 focused cases, all 5,731 API / 869 frontend
+cases (all 42 PostgreSQL cases, no skips), and 45 Modify browser cases across
+Chromium/Firefox/WebKit with four workers and zero retries. Frozen installs,
+format/lint/types/build, migration/Compose and audits passed with real writes OFF.
+No filter acceptance was added; the verdict remains QUERY FILTER EVIDENCE NEEDED.
 
-The DEFAULT repair passed 251 new-module cases plus 18 additional malformed
+Final pre-commit review found a legacy minimal-profile nested-field bypass, before
+writes were enabled and with zero real proposals/approvals/mutations. The 13-file
+diagnostic work was preserved. Historical profiles now require complete exact
+ID multisets and closed parameter/query envelopes; other features validate whole
+through the current-UI contract, with no fallback or hybrid. Suppression retains
+its separate attribute-only payload and existing terminal-Fillet authority.
+The combined repair passed 162 new safety cases plus the preserved 412 diagnostic
+cases (574 added total), 4,331 focused cases, all 5,893 API / 869 frontend cases
+(including all 42 PostgreSQL cases, no skips), and 45 Modify browser cases across
+Chromium/Firefox/WebKit with four workers and zero retries. Frozen installs and
+all required format/lint/types/build/test/migration/Compose/audit gates passed.
+Final security review confirmed complete replacement profiles, no ignored nested
+fields, attribute-only suppression and real writes OFF.
+No filter contract or real write conformance is claimed; the next human action
+remains one same-fixture writes-OFF Inspector refresh for bounded filter evidence.
+
+Previous DEFAULT repair passed 251 new-module cases plus 18 additional malformed
 variants (269 added cases), 3,757 focused cases, all 5,319 API / 869 frontend cases
 (including all 42 PostgreSQL cases, no skips), and 45 Modify browser cases across
 Chromium/Firefox/WebKit with four workers and zero retries. Frozen installs,

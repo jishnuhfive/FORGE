@@ -675,6 +675,31 @@ unrelated post-write delta still fails exact verification, including adding,
 removing or changing DEFAULT on any feature. No authority or fence control changes.
 The human targeted recheck remains NO-GO until rechecked.
 
+The subsequent query-list investigation adds no filter acceptance. A documented
+filter field remains unsupported for every current-UI query role, including empty
+selections. Its shared production failure may contain a strict frozen summary of
+fixed SDK categories, binary/unary operand counts, visited depth/nodes and closed
+flags. Traversal stops at depth 8 or 64 nodes, examines only fixed operand slots,
+and never reads leaf values, IDs, query strings or unknown payloads. Unknown type
+strings map to unknown; other known opaque types map to other_known. No raw field
+name or value can escape. Public errors remain generic unsupported_target. DEV
+emission retains diagnostics-ON/writes-OFF, complete/source-matched evidence,
+matching-head and per-record guards, with zero extra GETs. The same production
+predicate supplies the failure; no second permissive parser or graph authority
+exists. All approval, fence, stale, microversion, uncertainty and recovery controls
+remain unchanged. Whole-inventory exact verification still rejects filter effects.
+
+A final pre-commit review found that the legacy subset-ID path ignored extra
+nested query fields. The Phase 16 safety repair requires complete historical
+parameter-ID multisets and exact closed parameter/query envelopes, including
+required Fillet tangentPropagation. Failed historical validation cannot fall
+through; all other features undergo whole current-UI validation. No unknown nested
+field is silently preserved into a replacement. Suppression still transmits only
+feature identity/type and the desired suppression attribute, under its existing
+independent terminal-Fillet contract. The finding preceded any real proposal,
+approval or mutation, with writes OFF. The current real fixture still lacks a
+proven filter contract; bounded diagnostic recognition is never write authority.
+
 [Recovery controls](MODIFY_RECOVERY_HOTFIX.md) use the existing authenticated
 same-origin CSRF guard. Recovery returns only same-session consumed status handles
 and safe previews, never approval digests or provider bindings. Reconciliation

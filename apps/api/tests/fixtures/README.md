@@ -37,3 +37,17 @@ This is preserved serialization metadata, never proof of configuration/import
 eligibility. Tests exercise the empty placeholders on every known parameter
 independently and preserve the unchanged 8 KiB replacement limit. No imported/
 configured behavior or nondefault library state is added.
+
+The latest real writes-OFF checkpoint still fails both entities envelopes.
+Current OpenAPI documents optional polymorphic filter metadata, but no actual
+serialized tree has been supplied. These fixtures remain filter-free synthetic
+profiles, not proof of the current real UI envelope. Query-filter test trees are
+invented SDK-shaped rejection cases only. No guessed filter is added or accepted.
+
+The legacy safety repair keeps this historical JSON unchanged but now validates
+its entire parameter and query envelopes. All five Extrude and all three Fillet
+parameters (including tangentPropagation) are required exactly once. Historical
+query items contain only btType plus featureId (Extrude region) or queryString
+(Fillet individual query). Parameter nodeId strings and quantity isInteger=false
+remain supported by the existing metadata-preservation tests. Current-UI fields,
+filters and unknown nested fields cannot be smuggled into the minimal profile.

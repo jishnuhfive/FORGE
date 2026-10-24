@@ -68,6 +68,7 @@ FAILURES = [
     ("enum_name", 2, "bodyType", "wrong_enum_name"),
     ("enum_value", 2, "bodyType", "wrong_enum_value"),
     ("query_extra", 3, "entities", "unexpected_field"),
+    ("query_filter", 3, "entities", "query_filter_unproven"),
     ("query_envelope", 3, "entities", "query_wrong_envelope"),
     ("query_empty", 3, "entities", "query_empty"),
     ("query_count", 3, "entities", "query_wrong_envelope"),
@@ -146,6 +147,10 @@ def broken(case: str, position: int, parameter: str) -> dict[str, Any]:
             "enum_name": ("enumName", "private-enum"),
             "enum_value": ("value", "private-enum-value"),
             "query_extra": ("private-field", "private-value"),
+            "query_filter": (
+                "filter",
+                {"btType": "BTEntityTypeFilter-124", "entityType": "private-value"},
+            ),
             "query_envelope": ("queries", None),
             "query_empty": ("queries", []),
             "query_count": ("queries", [{}] * 2001),

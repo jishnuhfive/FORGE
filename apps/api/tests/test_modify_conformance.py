@@ -221,7 +221,7 @@ def test_standard_display_names_cannot_authorize_nonstandard_features(
 
 
 @pytest.mark.parametrize("tangent", [None, False, True])
-def test_supported_optional_tangent_variants_preserve_exact_definition(
+def test_required_tangent_variants_preserve_exact_definition_or_reject_absence(
     tangent: bool | None,
 ) -> None:
     features = inventory()["features"]
@@ -237,6 +237,11 @@ def test_supported_optional_tangent_variants_preserve_exact_definition(
             type="SET_FILLET_RADIUS", target=target().handle, quantity="3 mm"
         ),
     ):
+        if tangent is None:
+            with pytest.raises(EditError, match="unsupported_target"):
+                change(features, target(), operation)
+            assert fingerprint(features) == fingerprint(original)
+            continue
         updated, _ = change(features, target(), operation)
         expected = deepcopy(original[-1])
         if isinstance(operation, RenameFeature):

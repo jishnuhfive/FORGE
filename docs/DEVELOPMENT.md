@@ -702,6 +702,29 @@ source-vocabulary quantity `other_field_count` is unchanged and informational;
 the shared production predicate decides replacement/rename exact_match.
 No extra read or browser payload is added. Follow the final DEFAULT checkpoint
 in the Phase 16 record; actual ordinary-fixture conformance remains unproven.
+The next entities-envelope failure now distinguishes a documented filter from an
+unknown extra field. It emits reason=query_filter_unproven with only filter_root,
+root_state, child_count, max_depth, node_count, categories, malformed,
+missing_operand, unexpected_fields, uninspected and truncated. These are fixed
+SDK categories, bounded counts and flags, never raw provider JSON/values. AND/OR
+have only operand1/operand2; NOT has only operand. Depth counts root as 1 and caps
+at 8; node visits cap at 64. Counts describe inspected structure only. Unknown and
+other-known payloads are not traversed, and uninspected/truncated are not evidence
+of a complete tree. Leaf enum/geometry values are never read. All present filters
+still reject, including inactive roles and null/malformed filters. An unrelated
+extra envelope field retains unexpected_field without a filter summary. No extra
+GET or public payload. Follow the query-filter evidence checkpoint in Phase 16,
+with one same-fixture writes-OFF Refresh and sanitized labels only.
+
+The Phase 16 final safety review found and repaired a historical minimal-profile
+nested-field bypass before writes were enabled. Keep the historical and current-UI
+fixtures separate: all five/three historical IDs must be present exactly once,
+with closed nested envelopes. Fillet tangentPropagation is now required. Adding
+UI metadata/filter fields to a historical fixture must reject; failing a profile
+must never fall through. Suppression tests instead assert the independent minimal
+attribute payload. Follow the final profile-repair checkpoint in the Phase 16
+record: one same-fixture writes-OFF Inspector refresh, no proposal or mutation.
+
 It performs pinned GET reads without proposals or mutations, and adds no
 public diagnostic route/header. It is not invoked by Learn or AI. See
 [the investigation record](PHASE_9_REVIEW.md) before interpreting missing fields;

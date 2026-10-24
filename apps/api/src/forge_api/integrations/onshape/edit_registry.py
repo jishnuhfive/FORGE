@@ -87,8 +87,14 @@ def locate(
 def _parameters(
     feature: dict[str, JsonValue], adapter: EditAdapter
 ) -> dict[str, dict[str, JsonValue]]:
+    """Complete historical profile, deliberately separate from current UI.
+
+    Only fields exercised by the A1 fixture/metadata preservation tests belong
+    here. In particular, query filters and current-UI bookkeeping are forbidden.
+    A failed historical profile never falls through to another validator.
+    """
     raw = feature.get("parameters")
-    if not isinstance(raw, list) or not raw or len(raw) > 20:
+    if not isinstance(raw, list) or len(raw) != len(adapter.allowed_parameters):
         raise EditError("unsupported_target", 422)
     params: dict[str, dict[str, JsonValue]] = {}
     for param in raw:
@@ -101,14 +107,35 @@ def _parameters(
             or key not in adapter.allowed_parameters
         ):
             raise EditError("unsupported_target", 422)
+        if "nodeId" in param and not isinstance(param["nodeId"], str):
+            raise EditError("unsupported_target", 422)
         params[key] = param
+    if params.keys() != adapter.allowed_parameters:
+        raise EditError("unsupported_target", 422)
     entities = params.get("entities", {})
+    base = {"btType", "parameterId", "nodeId"}
+    queries = entities.get("queries")
     if (
         entities.get("btType") != "BTMParameterQueryList-148"
-        or not isinstance(entities.get("queries"), list)
-        or not entities["queries"]
+        or set(entities) - (base | {"queries"})
+        or not isinstance(queries, list)
+        or not 1 <= len(queries) <= 2000
     ):
         raise EditError("unsupported_target", 422)
+    query_type, query_field = (
+        ("BTMIndividualSketchRegionQuery-140", "featureId")
+        if adapter.parameter_id == "depth"
+        else ("BTMIndividualQuery-138", "queryString")
+    )
+    for query in queries:
+        if (
+            not isinstance(query, dict)
+            or set(query) != {"btType", query_field}
+            or query.get("btType") != query_type
+            or not isinstance(query.get(query_field), str)
+            or not 1 <= len(cast(str, query[query_field])) <= 8192
+        ):
+            raise EditError("unsupported_target", 422)
     if adapter.parameter_id == "depth":
         for key, enum, value in (
             ("bodyType", "ExtendedToolBodyType", "SOLID"),
@@ -118,14 +145,16 @@ def _parameters(
             p = params.get(key, {})
             if (
                 p.get("btType") != "BTMParameterEnum-145"
+                or set(p) - (base | {"enumName", "value"})
                 or p.get("enumName") != enum
                 or p.get("value") != value
             ):
                 raise EditError("unsupported_target", 422)
-    elif "tangentPropagation" in params:
+    else:
         p = params["tangentPropagation"]
         if (
             p.get("btType") != "BTMParameterBoolean-144"
+            or set(p) - (base | {"value"})
             or type(p.get("value")) is not bool
         ):
             raise EditError("unsupported_target", 422)
@@ -138,19 +167,25 @@ def quantity_parameter(
     adapter = SUPPORTED_EDITS[kind]
     if (
         feature.get("featureType") not in adapter.feature_types
+        or feature.get("btType") != "BTMFeature-134"
         or adapter.parameter_id is None
     ):
         raise EditError("unsupported_target", 422)
     raw = feature.get("parameters")
-    if isinstance(raw, list):
-        for item in raw:
-            if not isinstance(item, dict):
-                continue
-            key = item.get("parameterId")
-            if not isinstance(key, str) or key not in adapter.allowed_parameters:
-                # A complete explicit UI mode contract is mandatory; a lone
-                # extra option never becomes a harmless inferred default.
-                return ui_quantity_parameter(feature, adapter.parameter_id)
+    # Select by the complete ID multiset, never by subset membership. Either
+    # validate the entire historical shape or give the entire feature to UI.
+    # No field stripping, hybrid profile or fallback after historical failure.
+    if not (
+        isinstance(raw, list)
+        and len(raw) == len(adapter.allowed_parameters)
+        and all(
+            isinstance(item, dict) and isinstance(item.get("parameterId"), str)
+            for item in raw
+        )
+        and {cast(dict[str, JsonValue], item)["parameterId"] for item in raw}
+        == adapter.allowed_parameters
+    ):
+        return ui_quantity_parameter(feature, adapter.parameter_id)
     param = _parameters(feature, adapter).get(adapter.parameter_id, {})
     if (
         param.get("btType") != "BTMParameterQuantity-147"

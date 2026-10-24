@@ -630,6 +630,23 @@ closed field/presence/state projection, and only the guarded DEV log emits those
 labels. No raw metadata, extra GET, new authority path or payload normalization.
 The latest human result remains NO-GO pending the same-fixture writes-OFF recheck.
 
+The next human checkpoint progressed past DEFAULT but failed on both entities
+envelopes. The current SDK documents optional polymorphic query-list filters;
+FeatureScript predicates establish different selection intent for active and
+inactive roles, not the actual serialized trees. No filter shape is accepted.
+The production rejection now carries only bounded structural filter evidence when
+filter is the only extra envelope field. DEV logs that same closed object under
+all existing guards, with no additional GET or public/model data. Recognition is
+not eligibility. The phase remains NO-GO pending one writes-OFF evidence refresh.
+
+Final diagnostic safety review found a legacy minimal-profile bypass before any
+real write. Full-definition rename/quantity paths now require either a complete
+closed historical profile (including all nested query envelopes) or whole-feature
+current-UI validation. Exact parameter-ID multisets select the historical path;
+failed validation never falls through or mixes profiles. Filters reject in both.
+Suppression remains a separately guarded attribute-only transport with no full
+parameter definition. See the Phase 16 legacy bypass repair record.
+
 [Recovery hotfix](MODIFY_RECOVERY_HOTFIX.md) adds session-owned server discovery,
 read-only single-terminal-suppression reconciliation and a deterministic planning
 fast path before AI fallback. `reconciled_current_state` proves present-state

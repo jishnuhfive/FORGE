@@ -355,6 +355,29 @@ class CoverageClient(SafeEditClient):
                         "category=%s outcome=exact_match",
                         shape.category,
                     )
+                elif shape.query_filter is not None:
+                    query_filter = shape.query_filter
+                    logger.warning(
+                        "safe_edit_standard_shape_failure category=%s parameter=%s "
+                        "reason=%s filter_root=%s root_state=%s child_count=%s "
+                        "max_depth=%s node_count=%s categories=%s malformed=%s "
+                        "missing_operand=%s unexpected_fields=%s uninspected=%s "
+                        "truncated=%s",
+                        shape.category,
+                        shape.failure.parameter,
+                        shape.failure.reason,
+                        query_filter.root,
+                        query_filter.root_state,
+                        query_filter.root_child_count,
+                        query_filter.max_depth,
+                        query_filter.node_count,
+                        ",".join(query_filter.categories),
+                        str(query_filter.malformed).lower(),
+                        str(query_filter.missing_operand).lower(),
+                        str(query_filter.unexpected_fields).lower(),
+                        str(query_filter.uninspected).lower(),
+                        str(query_filter.truncated).lower(),
+                    )
                 elif shape.common is not None:
                     logger.warning(
                         "safe_edit_standard_shape_failure "

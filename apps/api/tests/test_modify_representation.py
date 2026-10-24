@@ -316,7 +316,7 @@ def test_query_shape_only_never_query_contents(
 
 
 @pytest.mark.parametrize("value", [MISSING, False, True, None, 0, "private-bool"])
-def test_optional_tangent_boolean_metadata(value: Any) -> None:
+def test_tangent_boolean_metadata_and_required_replacement_state(value: Any) -> None:
     data = inventory()
     params = data["features"][-1]["parameters"]
     if value is MISSING:
@@ -330,9 +330,7 @@ def test_optional_tangent_boolean_metadata(value: Any) -> None:
         None if value is MISSING else type(value) is bool
     )
     assert tangent["boolean_value"] is (value if type(value) is bool else None)
-    assert (result["replacement"] == "exact_match") is (
-        value is MISSING or type(value) is bool
-    )
+    assert (result["replacement"] == "exact_match") is (type(value) is bool)
 
 
 def test_counts_and_collections_are_bounded_and_report_truncation() -> None:

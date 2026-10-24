@@ -16,6 +16,9 @@ rejection audit confirmation still deferred.**
 This document records the original minimal A1 representation contract. Phase 16
 adds separate closed current-UI parameter profiles after human writes-OFF evidence;
 see [the exact contracts, automated results and pending human recheck](PHASE_16_MODIFY_LIVE_CONFORMANCE.md).
+Phase 16 safety review also closes the historical nested query envelopes and
+requires all three Fillet parameters, including tangentPropagation; the earlier
+optional-tangent behavior was incomplete. See the legacy bypass repair record.
 The five operations, semantic planner contract and all approval/execution authority
 below remain unchanged. Current-UI live writes are not yet validated.
 
@@ -134,7 +137,7 @@ capture**. Its narrow supported representations are:
   five parameter IDs are accepted. This follows the official
   [Extrude REST example](https://onshape-public.github.io/docs/api-adv/featureaccess/).
 - Fillet: one `BTMParameterQuantity-147`, `parameterId: radius`, string expression,
-  a nonempty entities query, and optional explicit Boolean tangentPropagation.
+  a nonempty entities query, and required explicit Boolean tangentPropagation.
   Only those three parameter IDs are accepted. The
   [official geometry documentation](https://cad.onshape.com/FsDoc/library.html#opFillet-Context-Id-map)
   establishes radius semantics; the feature guide documents REST quantity encoding.

@@ -4,6 +4,8 @@ from typing import Literal
 
 from forge_api.cad_edits.domain import Closed, EditError
 
+from .query_filter_evidence import QueryFilterSummary
+
 ShapeCategory = Literal["extrude", "fillet"]
 StandardId = Literal[
     "bodyType",
@@ -118,6 +120,7 @@ FailureReason = Literal[
     "wrong_quantity_units",
     "wrong_is_integer",
     "query_wrong_envelope",
+    "query_filter_unproven",
     "query_empty",
     "query_nonempty",
     "query_item_wrong_type",
@@ -166,7 +169,9 @@ class ShapeValidationError(EditError):
         reason: FailureReason,
         *,
         common: CommonMetadataFailure | None = None,
+        query_filter: QueryFilterSummary | None = None,
     ) -> None:
         super().__init__("unsupported_target", 422)
         self.failure = ShapeFailure(parameter=parameter, reason=reason)
         self.common = common
+        self.query_filter = query_filter
