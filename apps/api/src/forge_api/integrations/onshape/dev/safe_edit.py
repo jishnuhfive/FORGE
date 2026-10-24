@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, JsonValue
 from forge_api.auth.provider import ProviderError
 from forge_api.auth.runtime import AuthRuntime
 from forge_api.cad_edits.domain import EditError
+from forge_api.core.config import Settings
 from forge_api.integrations.onshape.contracts import WorkspaceReference
 from forge_api.integrations.onshape.eligibility import (
     MISSING,
@@ -19,7 +20,17 @@ from forge_api.integrations.onshape.eligibility import (
 from forge_api.integrations.onshape.service import read_permission
 from forge_api.integrations.onshape.write_client import SafeEditClient
 
+from .modify_representation import RepresentationCoverage, representation_coverage
+
 logger = logging.getLogger("forge.onshape.safe_edit")
+
+
+def _diagnostics_enabled(settings: Settings) -> bool:
+    return (
+        settings.environment == "development"
+        and settings.forge_safe_edit_diagnostics_enabled
+        and not settings.forge_cad_writes_enabled
+    )
 
 
 class PositionCoverage(BaseModel):
@@ -231,6 +242,19 @@ def coverage(data: JsonValue, marker: str, response_bytes: int) -> StateCoverage
 
 
 class CoverageClient(SafeEditClient):
+    def __init__(self, settings: Settings, transport: httpx.Client, token: str) -> None:
+        super().__init__(settings, transport, token)
+        self._diagnostic_settings = settings
+
+    def _representation(
+        self, data: JsonValue, *, source_matches: bool
+    ) -> RepresentationCoverage | None:
+        # Independent guard before projection, even for direct internal calls or
+        # mutable Settings that bypassed startup/probe admission. No IO here.
+        if not _diagnostics_enabled(self._diagnostic_settings):
+            return None
+        return representation_coverage(data, source_matches=source_matches)
+
     def _observe_body_evidence(self, bodies: JsonValue, microversion: str) -> None:
         logger.warning(
             "safe_edit_body_coverage metadata=%s",
@@ -242,18 +266,29 @@ class CoverageClient(SafeEditClient):
     def compare(self, context: WorkspaceReference) -> None:
         marker = self.head(context)
         scope = f"d/{context.documentId}/m/{marker}/e/{context.elementId}"
-        reports: list[tuple[str, StateCoverage, SuppressionCoverage]] = []
+        reports: list[
+            tuple[
+                str, StateCoverage, SuppressionCoverage, RepresentationCoverage | None
+            ]
+        ] = []
         for mode in ("true", "false"):
             data, size = self._exchange_measured(
                 "GET",
                 f"/partstudios/{scope}/features?includeGeometryIds=false&noSketchGeometry={mode}&rollbackBarIndex=-1",
             )
             report = coverage(data, marker, size)
-            reports.append((mode, report, suppression_coverage(data, report)))
+            reports.append(
+                (
+                    mode,
+                    report,
+                    suppression_coverage(data, report),
+                    self._representation(data, source_matches=report.source_matches),
+                )
+            )
             del data
         if self.head(context) != marker:
             raise EditError("model_changed")
-        for mode, report, suppression in reports:
+        for mode, report, suppression, representation in reports:
             logger.warning(
                 "safe_edit_state_coverage noSketchGeometry=%s metadata=%s",
                 mode,
@@ -264,6 +299,16 @@ class CoverageClient(SafeEditClient):
                 mode,
                 suppression.model_dump_json(),
             )
+            # Check again immediately before logging: an intervening flag change
+            # cannot emit representation metadata from a now-disabled diagnostic.
+            if representation is not None and _diagnostics_enabled(
+                self._diagnostic_settings
+            ):
+                logger.warning(
+                    "safe_edit_representation_coverage noSketchGeometry=%s metadata=%s",
+                    mode,
+                    representation.model_dump_json(),
+                )
 
 
 def probe(
@@ -274,11 +319,7 @@ def probe(
 ) -> None:
     # Defense in depth if mutable test settings or a direct internal call bypass
     # startup validation. This never calls the mutation method or writes records.
-    if (
-        auth.settings.environment != "development"
-        or not auth.settings.forge_safe_edit_diagnostics_enabled
-        or auth.settings.forge_cad_writes_enabled
-    ):
+    if not _diagnostics_enabled(auth.settings):
         return
     if read_permission(auth, user_id) is not True:
         logger.warning("safe_edit_probe outcome=read_permission_unknown_or_missing")

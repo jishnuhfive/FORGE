@@ -128,7 +128,7 @@ must be justified by the actual evidence, validated deterministically, preserve
 unrelated fields exactly, add redacted/synthetic shape regressions and rerun the
 automated gate with writes OFF. Review the repaired preview before human approval.
 
-## Automated preparation changes and gate
+## Initial automated preparation changes and gate (63d79e8)
 
 Production adapters, planner, routes, frontend, storage, recovery, flags, safety
 bounds and dependencies remain unchanged. Added `test_modify_conformance.py` covers:
@@ -200,6 +200,133 @@ gate. Private Onshape reads/writes/model calls: **0 / 0 / 0**. Live conformance:
 Pre-live automated verdict:
 `PHASE 16 AUTOMATED GATE PASS — READY FOR CONTROLLED HUMAN LIVE VALIDATION`.
 This authorizes no automatic live action and does not complete Phase 16.
+
+## Writes-OFF representation probe preparation
+
+The initial safe-edit diagnostic reported structural/suppression/body eligibility
+but insufficient parameter detail to establish quantity/rename adapter shape
+conformance. This follow-up adds a request-local typed sanitizer in
+`dev/modify_representation.py` and extends the existing `dev/safe_edit.py` probe.
+It is **diagnostic only, DEV only, writes OFF only**, with no write authority.
+Actual human observation remains **PENDING**; no live CAD read or write was made
+to implement or test this addition.
+
+Startup validation still requires `ENVIRONMENT=development`,
+`FORGE_SAFE_EDIT_DIAGNOSTICS_ENABLED=true`, `FORGE_CAD_WRITES_ENABLED=false`.
+The existing probe checks those conditions before credentials/provider access.
+The representation hook independently checks them before projection and again
+before logging, including mutable-settings/direct-internal-call defense. Disabled,
+test/production or writes-ON settings cannot execute the representation projector
+through the probe/hook. Raw data are never logged on rejection or exception.
+
+`safe_edit_representation_coverage noSketchGeometry=true|false metadata=...`
+is local development logging only. Both reports reuse the **exact existing bounded
+feature-list responses** in `CoverageClient.compare()`, discard raw data, and emit
+only after its final matching-head check. No additional GET is introduced:
+comparison still uses four GETs (head, two feature variants, head), and the existing
+Inspector/probe integration still uses **13 GETs total** in its synthetic test.
+No provider POST/mutation, route, query option, response payload/header, AI input,
+analytics, persistence, database write, target, proposal, approval, write record,
+fence or OAuth scope is added. Existing auth/reads/response behavior is unchanged.
+
+All emitted models are strict, frozen and extra-forbidden, including nested data.
+Allowed output is limited to:
+
+- Positions 1–20; fixed sketch/extrude/fillet/unsupported and definition-type
+  categories; ordinary-top-level/identity/name-usability and source-match Booleans,
+  never identities, names or revision values.
+- Parameter collection presence/type; counts capped at 20 with explicit cap flags;
+  malformed/duplicate-known indicators. Unknown string IDs contribute only
+  `unknown_present` and a capped count, never their text. Non-string/missing IDs
+  and non-object items produce a malformed indicator.
+- Only the feature's five Extrude or three Fillet vocabulary IDs, including explicit
+  presence/missing, capped occurrences, duplicate indicator and fixed type category.
+- Only SOLID/NEW/BLIND/other enum categories and expected-enum-name match Booleans.
+  Quantity expressions become supported-bounds positive mm/in literal categories,
+  other/missing/wrong_type; nodeId becomes missing/string_present/wrong_type;
+  isInteger becomes missing/false/true/wrong_type. Unknown quantity fields yield
+  only a supported-fields Boolean.
+- Query envelope/type/empty-state categories, counts capped at 2000 with cap flags,
+  and unique closed item-type categories from the first 2000 items. No query is
+  evaluated. Tangent propagation reports presence, Boolean validity and only a
+  valid true/false value.
+- Per-feature `replacement` and `rename` summaries: exact_match,
+  unsupported_shape or unavailable. Missing/null definitions/parameter collections
+  or incomplete/source-mismatched inventories or unusable identities remain
+  unavailable; malformed/duplicate/unknown/richer
+  replacement shapes fail closed. Rename additionally requires a usable old name.
+
+The private pure `quantity_parameter()` registry validator supplies only the
+parameter-shape match Boolean; it is called without target resolution, payload
+construction or mutation. Sanitized definition flags and this Boolean determine
+the summary. A diagnostic exact_match describes the **current registry's shape**,
+not runtime target eligibility, body/model health, query semantics, permission,
+feature ownership, full transport preflight or proven provider write behavior.
+The current registry still treats individual query contents as opaque preserved
+JSON; item categories and clipped counts do not expand or tighten that contract.
+Only the existing runtime registry/fresh full evidence can decide later planning.
+Graph facts remain irrelevant to write authorization.
+
+Never emitted: feature/document/workspace/element/microversion/entity/geometry IDs,
+feature names, coordinates, quantity expressions, node IDs, raw query strings or
+objects, arbitrary enum/btType/parameter strings, provider JSON, tokens or URLs.
+Hostile synthetic values exercise these fields, including newline/URL-like content.
+
+Follow-up automated results, 2026-10-24:
+
+| Check                                                         | Result                                                                                                                                                                                                |
+| ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| New representation tests                                      | **98 passed** within the focused gate                                                                                                                                                                 |
+| Focused diagnostic/adapter/conformance gate                   | **807 passed**, zero failures/skips; includes safe-edit diagnostics, state/suppression/body coverage, 129 Phase 16 cases, 166 Modify adapter cases, Modify diagnostics and configuration tests        |
+| `make format` / `make lint`                                   | Passed                                                                                                                                                                                                |
+| `make typecheck`                                              | Passed; TypeScript and strict mypy over 179 source files                                                                                                                                              |
+| `make audit`                                                  | npm: zero vulnerabilities; pip-audit: no known vulnerabilities (editable API excluded as configured)                                                                                                  |
+| Privacy/authority/read-count review                           | Passed; hostile synthetic values cannot escape; guarded projection/credential/provider access and post-read flag changes tested; comparison remains 4 GETs and Inspector integration 13 GETs, no POST |
+| Diff / configured-sensitive-value / documentation-link review | Passed; real write flag remains OFF                                                                                                                                                                   |
+
+Tests use frozen uv execution, synthetic CAD/credentials and MockTransport only;
+operator dotenv/settings overrides are isolated in the pytest child. No real
+provider, proposal, approval or write was invoked. No database service or browser
+server was started for this follow-up. Full backend/frontend/browser/migration
+gates were not rerun: only the opt-in DEV diagnostic path changes, its Inspector
+integration is covered, and shared authority/product contracts remain unchanged.
+Earlier full-suite counts above are historical and are not represented as reruns
+of this follow-up. Existing assertions, timeouts and safety behavior were preserved.
+
+`PHASE 16 REPRESENTATION PROBE PASS — READY FOR WRITES-OFF HUMAN CHECKPOINT`
+
+This subsection's results supersede no earlier live limitation or historical
+automated count. No adapter, planner, approval, execution,
+stale check, fence, microversion guard, post-write verifier, recovery or A1/A2/B1/B2
+contract changed. No browser change, deployment, operator dotenv edit or live
+diagnostic invocation is included.
+
+### Exact human representation checkpoint — still pending
+
+1. Privately confirm the ordinary disposable owned workspace/Part Studio fixture
+   below and the correct connected account. Keep the exact identifiers private.
+2. Restart the existing local HTTPS/API workflow with exactly
+   `ENVIRONMENT=development`, `FORGE_SAFE_EDIT_DIAGNOSTICS_ENABLED=true`,
+   `FORGE_CAD_WRITES_ENABLED=false`. Preserve URLs, OAuth configuration, credentials,
+   local certificates and all other settings. Startup must reject writes ON.
+3. In the embedded Forge **CAD Inspector**, click **Refresh CAD** once. Do not open
+   a Modify proposal or send any approval. Allow the existing bounded reads to finish.
+4. Inspect only local `safe_edit_representation_coverage` metadata lines for both
+   read variants, especially `noSketchGeometry=false`. Confirm expected positions,
+   standard categories, complete inventory, no malformed/duplicate/unknown parameters,
+   correct enums, supported literal quantity/type/bookkeeping and nonempty query
+   envelopes. Both Extrude and Fillet must report replacement/rename exact_match;
+   present tangent propagation must be explicitly Boolean. Review any query-item
+   `other`/malformed category rather than inferring query conformance from the summary.
+5. If unsupported_shape/unavailable, count-capped, mismatched variants or unexpected
+   categories appear, stop and report only the fixed sanitized metadata. Do not
+   paste raw logs, provider JSON, identifiers, names, quantities, query strings,
+   network captures or tokens; do not reshape the ordinary fixture to fit a parser.
+6. Record actual human shape observations separately before claiming representation
+   confirmation. Even exact_match proves no live mutation conformance and authorizes
+   no proposal or approval under this read-only task.
+7. Return diagnostics OFF after capture and keep writes OFF. Any later write trial
+   requires a separate explicitly authorized human stage and exact fresh preview.
 
 ## Graph boundary
 

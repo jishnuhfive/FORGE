@@ -612,6 +612,17 @@ exact preview. No live validation is claimed. Graph/model facts cannot authorize
 payload construction, approval or dispatch. Quantity/rename eligibility remains
 separate from the existing parameter-opaque terminal-suppression policy.
 
+The subsequent DEV representation diagnostic reuses existing bounded pinned feature
+responses; no additional provider request or mutation is introduced. Startup and
+probe admission require DEV/diagnostics-ON/writes-OFF; the new hook rechecks before
+projection and emission. Only strict frozen/extra-forbidden fixed categories,
+known adapter vocabulary and capped counts can reach local logs after matching-head
+checks. No names, CAD/geometry/node IDs, expressions, query contents, arbitrary
+provider strings, tokens, URLs or raw JSON are emitted. The registry's pure parameter
+validator supplies only a shape-match Boolean; summaries grant no target, proposal,
+approval, payload or execution authority. No public payload/header/route, model input,
+analytics or persistence is added. Human writes-OFF observation is still pending.
+
 [Recovery controls](MODIFY_RECOVERY_HOTFIX.md) use the existing authenticated
 same-origin CSRF guard. Recovery returns only same-session consumed status handles
 and safe previews, never approval digests or provider bindings. Reconciliation

@@ -652,6 +652,16 @@ missing and false remain distinct. Both flags remain false/true respectively
 `safe_edit_body_coverage` reports only returned-ID presence/match, fixed optional
 flag categories, bounded body count, body-type category and error category, after
 the pinned read passes head bracketing. It never emits the ID or raw body data.
+Phase 16 additionally emits `safe_edit_representation_coverage` for both existing
+feature read variants after matching-head checks, with **zero extra provider GETs**.
+Strict frozen metadata includes only positions/categories, capped counts, known
+adapter parameter IDs, duplicate/malformed/unknown indicators, closed enum/quantity/
+query/Boolean categories and replacement/rename shape summaries. Unknown IDs,
+expressions, names, node/geometry/CAD IDs, query contents, tokens and URLs never log.
+The representation hook rechecks DEV/diagnostics-ON/writes-OFF before projection
+and emission. `exact_match` means current adapter shape only, not write eligibility
+or provider conformance. Follow the [writes-OFF human checkpoint](PHASE_16_MODIFY_LIVE_CONFORMANCE.md)
+using Inspector Refresh only; actual human observation remains pending.
 It performs pinned GET reads without proposals or mutations, and adds no
 public diagnostic route/header. It is not invoked by Learn or AI. See
 [the investigation record](PHASE_9_REVIEW.md) before interpreting missing fields;
