@@ -5,6 +5,7 @@ import json
 from forge_api.integrations.onshape.inspector import CadInspector
 
 from .diagnostics import Reason
+from .grounding import MAX_AI_FEATURES, ORDER_SEMANTICS, GroundedCad
 from .models import AiAnswer, AiError, Fact, ModelAnswer, Selection
 from .presentation import (
     ASSUMPTIONS,
@@ -47,8 +48,12 @@ def fact(identifier: str, statement: str, status: str = "verified") -> Fact:
 
 
 def project(
-    inspector: CadInspector, selection: Selection
+    inspector: CadInspector | GroundedCad, selection: Selection
 ) -> tuple[str, dict[str, Fact]]:
+    structural_facts: tuple[Fact, ...] = ()
+    if isinstance(inspector, GroundedCad):
+        structural_facts = inspector.structural_facts
+        inspector = inspector.inspector
     if inspector.freshness == "stale" or inspector.source.consistency == "mismatch":
         raise AiError("evidence_unavailable")
     sections = [
@@ -72,7 +77,7 @@ def project(
         raise AiError("evidence_unavailable")
     # Keep the actual Phase 5 schema/semantics. Omit even random source identifiers.
     data = inspector.model_dump(mode="json", exclude={"source": {"request_id"}})
-    for name, limit in (("features", 20), ("parts", 20), ("bodies", 20)):
+    for name, limit in (("features", MAX_AI_FEATURES), ("parts", 20), ("bodies", 20)):
         section = data[name]
         original = len(section["items"])
         section["items"] = section["items"][:limit]
@@ -92,6 +97,7 @@ def project(
         fact("units", UNITS, "unverified"),
     ]
     facts.extend(selection_facts(selection))
+    facts.extend(structural_facts)
     physical = inspector.physical
     facts.append(
         fact(
@@ -290,6 +296,8 @@ def resolve(
             "invalid_response", reason=Reason.CANONICAL_RESPONSE_VALIDATION_FAILED
         ) from None
     uncertainties = [FRESHNESS, UNITS, VALIDATION]
+    if "order_semantics" in facts:
+        uncertainties.append(ORDER_SEMANTICS)
     if any(i.startswith("parameter_") for i in ids):
         uncertainties.append(PARAMETER_CAVEAT)
     try:

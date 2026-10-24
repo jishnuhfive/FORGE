@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { PromptComposer } from '../components/PromptComposer';
 import type { OnshapeClientContext } from '../onshape/model';
 import { modelSummary, responseTitle } from './presentation';
+import { contextualLimits, friendlyAnswer } from './friendly';
 import { AiError, askForge, messages, stages } from './api';
 import type {
   Answer,
@@ -28,15 +29,26 @@ function Evidence({
   items,
   capturedAt,
   fullAnswer,
+  uncertainties,
+  supplementary,
 }: {
   items: Answer['evidence'];
   capturedAt: string | null;
   fullAnswer?: string;
+  uncertainties: string[];
+  supplementary?: Answer;
 }) {
   const [open, setOpen] = useState(false);
   const id = useId();
   const valid = items.filter((item) => item.statement.trim());
-  if (valid.length === 0) return null;
+  const limits = uncertainties.filter((item) => item.trim());
+  const extra =
+    supplementary &&
+    (supplementary.discussion.trim() ||
+      supplementary.assumptions.length ||
+      supplementary.follow_up_questions.length);
+  if (!valid.length && !limits.length && !fullAnswer?.trim() && !extra)
+    return null;
   const groups = (
     ['verified', 'unknown', 'unverified', 'assumption'] as const
   ).map((status) => ({
@@ -54,9 +66,11 @@ function Evidence({
         onClick={() => setOpen((value) => !value)}
       >
         <span>{open ? 'Hide evidence' : 'Evidence'}</span>
-        <span className="evidence-count" aria-hidden="true">
-          {valid.length}
-        </span>
+        {valid.length > 0 && (
+          <span className="evidence-count" aria-hidden="true">
+            {valid.length}
+          </span>
+        )}
         <ChevronRight
           className={open ? 'disclosure-icon is-open' : 'disclosure-icon'}
           size={12}
@@ -65,29 +79,42 @@ function Evidence({
       </Button>
       {open && (
         <div id={id} className="evidence-content">
-          <ul className="ai-evidence" aria-label="Evidence">
-            {groups.flatMap((group) =>
-              group.items.map((item, index) => (
-                <li key={item.id}>
-                  {index === 0 && (
-                    <span
-                      className={`evidence-status evidence-status--${group.status}`}
-                    >
-                      <span aria-hidden="true">{symbols[group.status]}</span>
-                      <Badge>{group.status}</Badge>
-                    </span>
-                  )}
-                  <span>{item.statement}</span>
-                </li>
-              )),
-            )}
-          </ul>
+          {valid.length > 0 && (
+            <ul className="ai-evidence" aria-label="Evidence">
+              {groups.flatMap((group) =>
+                group.items.map((item, index) => (
+                  <li key={item.id}>
+                    {index === 0 && (
+                      <span
+                        className={`evidence-status evidence-status--${group.status}`}
+                      >
+                        <span aria-hidden="true">{symbols[group.status]}</span>
+                        <Badge>{group.status}</Badge>
+                      </span>
+                    )}
+                    <span>{item.statement}</span>
+                  </li>
+                )),
+              )}
+            </ul>
+          )}
+          {limits.length > 0 && (
+            <section className="evidence-original">
+              <h3>Technical limits</h3>
+              <ul>
+                {limits.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </section>
+          )}
           {fullAnswer && (
             <div className="evidence-original">
               <h3>Full answer</h3>
               <p className="draft-text">{fullAnswer}</p>
             </div>
           )}
+          {supplementary && <Supplementary result={supplementary} />}
           {capturedAt && (
             <p className="small muted">
               Evidence captured{' '}
@@ -103,52 +130,16 @@ function Evidence({
   );
 }
 
-function Uncertainties({
-  items,
-  previous,
-}: {
-  items: string[];
-  previous: readonly string[];
-}) {
-  const [open, setOpen] = useState(false);
+function Limits({ items }: { items: string[] }) {
   if (!items.length) return null;
-  const fresh = items.filter((item) => !previous.includes(item));
-  const repeated = items.filter((item) => previous.includes(item));
   return (
-    <section className="answer-uncertainty">
-      <h3>Uncertainties</h3>
-      {fresh.length > 0 && (
-        <ul>
-          {fresh.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      )}
-      {repeated.length > 0 && (
-        <>
-          <Button
-            variant="ghost"
-            className="uncertainty-repeat"
-            aria-expanded={open}
-            onClick={() => setOpen((value) => !value)}
-          >
-            {repeated.length} unchanged{' '}
-            {repeated.length === 1 ? 'limit' : 'limits'}
-            <ChevronRight
-              className={open ? 'disclosure-icon is-open' : 'disclosure-icon'}
-              size={12}
-              aria-hidden="true"
-            />
-          </Button>
-          {open && (
-            <ul>
-              {repeated.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          )}
-        </>
-      )}
+    <section className="answer-limits" aria-label="Limits">
+      <h3>Limits</h3>
+      <ul>
+        {items.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
     </section>
   );
 }
@@ -156,13 +147,15 @@ function Uncertainties({
 /** Formatting only. Request, policy and grounding stay in their existing boundaries. */
 export function AnswerContent({
   result,
-  previousUncertainties = [],
+  prompt = '',
 }: {
   result: Answer;
-  previousUncertainties?: readonly string[];
+  prompt?: string;
 }) {
-  const summary = modelSummary(result);
-  const title = summary ? 'Current model' : responseTitle(result);
+  const friendly = friendlyAnswer(result, prompt);
+  const summary = friendly ? null : modelSummary(result);
+  const title =
+    friendly?.title ?? (summary ? 'Current model' : responseTitle(result));
   return (
     <>
       <h2 className={title ? 'response-heading' : 'sr-only'}>
@@ -171,14 +164,48 @@ export function AnswerContent({
       {/* A friendly lead-in for answers that report on the model. Greetings and
           refusals carry no evidence and keep their own plain text. Presentation
           only: it states nothing about the model. */}
-      {result.evidence.length > 0 && (
+      {!friendly && result.evidence.length > 0 && (
         <p className="chat-lead">
           {summary
             ? 'Here’s what I can see in your Part Studio.'
             : 'Here’s what I found.'}
         </p>
       )}
-      {summary ? (
+      {friendly ? (
+        <div className="answer-text">
+          {friendly.paragraphs.map((text, index) => (
+            <p key={index} className="draft-text">
+              {text}
+            </p>
+          ))}
+          {friendly.sequence && friendly.sequence.length > 0 && (
+            <div className="feature-sequence" aria-label="Feature order">
+              {friendly.sequence.map((name, index) => (
+                <span key={index}>
+                  {index > 0 && (
+                    <ArrowRight size={12} aria-label="followed by" />
+                  )}
+                  <span>{name}</span>
+                </span>
+              ))}
+            </div>
+          )}
+          {friendly.counts && (
+            <p className="model-facts">
+              {friendly.counts.map((item, index) => (
+                <span key={item.label}>
+                  {index > 0 && (
+                    <span className="fact-separator" aria-hidden="true">
+                      ·
+                    </span>
+                  )}
+                  <strong>{item.value}</strong> {item.label}
+                </span>
+              ))}
+            </p>
+          )}
+        </div>
+      ) : summary ? (
         <div className="model-overview">
           {summary.features.length > 0 && (
             <div
@@ -238,15 +265,29 @@ export function AnswerContent({
           </div>
         )
       )}
-      <Uncertainties
-        items={result.uncertainties}
-        previous={previousUncertainties}
-      />
+      <Limits items={contextualLimits(result, prompt)} />
       <Evidence
         items={result.evidence}
         capturedAt={result.captured_at}
-        fullAnswer={summary ? result.answer : undefined}
+        fullAnswer={friendly || summary ? result.answer : undefined}
+        uncertainties={result.uncertainties}
+        supplementary={friendly ? result : undefined}
       />
+      {!friendly && <Supplementary result={result} />}
+      {!friendly &&
+        result.evidence.length > 0 &&
+        result.follow_up_questions.length === 0 && (
+          <p className="chat-lead muted small">
+            Ask me about any feature, or what to check next.
+          </p>
+        )}
+    </>
+  );
+}
+
+function Supplementary({ result }: { result: Answer }) {
+  return (
+    <>
       {result.discussion.trim() &&
         result.discussion.trim() !== result.answer.trim() && (
           <section className="answer-guidance">
@@ -264,12 +305,6 @@ export function AnswerContent({
           </ul>
         </section>
       )}
-      {result.evidence.length > 0 &&
-        result.follow_up_questions.length === 0 && (
-          <p className="chat-lead muted small">
-            Ask me about any feature, or what to check next.
-          </p>
-        )}
       {result.follow_up_questions.length > 0 && (
         <section className="answer-guidance">
           <h3>To explore next</h3>
@@ -427,12 +462,7 @@ export function Analysis({
               <span className="sr-only">You</span>
               <p className="draft-text">{exchange.prompt}</p>
             </div>
-            <AnswerContent
-              result={exchange.result}
-              previousUncertainties={exchanges
-                .slice(0, index)
-                .flatMap((item) => item.result.uncertainties)}
-            />
+            <AnswerContent result={exchange.result} prompt={exchange.prompt} />
           </article>
         ))}
         {stage && exchanges.length > 0 && (

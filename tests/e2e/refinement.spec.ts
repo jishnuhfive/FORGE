@@ -147,12 +147,10 @@ for (const width of [320, 380, 480]) {
     await expect(frame.locator('.feature-sequence')).toHaveText(
       'Sketch 1Extrude 1',
     );
-    await expect(frame.locator('.model-facts')).toContainText(
-      '6 returned faces',
+    await expect(frame.locator('.model-facts')).toHaveText(
+      '2 features·1 part·1 body',
     );
-    await expect(frame.locator('.topology-note')).toHaveText(
-      'Edges unknown · Vertices unknown',
-    );
+    await expect(frame.locator('.topology-note')).toHaveCount(0);
     expect(asks).toHaveLength(1);
     expect(asks[0]?.selection).toBe('EDGE');
     await capture('answer');
@@ -164,6 +162,17 @@ for (const width of [320, 380, 480]) {
     await expect(
       frame.getByRole('list', { name: 'Evidence' }).locator('li'),
     ).toHaveCount(8);
+    // The concise inventory keeps body topology in Evidence, without losing
+    // either the observed face count or the unknown edge/vertex counts.
+    await expect(
+      frame
+        .getByRole('list', { name: 'Evidence' })
+        .getByText(
+          syntheticOverview.evidence.find((item) => item.id === 'body_1')!
+            .statement,
+          { exact: true },
+        ),
+    ).toBeVisible();
     await expect(frame.locator('.evidence-original p')).toHaveText(
       syntheticOverview.answer,
     );

@@ -1,12 +1,14 @@
 import { useRef } from 'react';
 import type { CSSProperties } from 'react';
 import { GlassSurface } from './glass';
+import { useScrollNavigation } from './useScrollNavigation';
 import type {
   ButtonHTMLAttributes,
   ComponentPropsWithRef,
   HTMLAttributes,
   InputHTMLAttributes,
   ReactNode,
+  RefObject,
 } from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import * as TabsPrimitive from '@radix-ui/react-tabs';
@@ -155,12 +157,16 @@ export function Tabs({
   value,
   onValueChange,
   items,
+  scrollContainerRef,
 }: {
   label: string;
   value: string;
   onValueChange: (value: string) => void;
   items: { id: string; label: string; icon?: ReactNode; content: ReactNode }[];
+  scrollContainerRef?: RefObject<HTMLElement | null>;
 }) {
+  const navigation = useRef<HTMLDivElement | null>(null);
+  useScrollNavigation(scrollContainerRef, navigation, value);
   return (
     <TabsPrimitive.Root
       value={value}
@@ -170,6 +176,8 @@ export function Tabs({
       <TabsPrimitive.List asChild aria-label={label}>
         <GlassSurface
           className="tabs-list"
+          ref={navigation}
+          data-scroll-navigation={scrollContainerRef ? '' : undefined}
           style={
             {
               '--selected-index': Math.max(

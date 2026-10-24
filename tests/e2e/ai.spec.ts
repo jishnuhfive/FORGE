@@ -108,7 +108,7 @@ for (const width of [320, 380, 480])
     ).toBeVisible();
     await expect(h.frame.getByText('unknown', { exact: true })).toBeVisible();
     await expect(
-      h.frame.getByRole('heading', { name: 'Uncertainties' }),
+      h.frame.getByRole('heading', { name: 'Technical limits' }),
     ).toBeVisible();
     expect(h.asks).toHaveLength(1);
     expect(h.asks[0]?.selection).toBe('unknown');
@@ -363,13 +363,18 @@ test('Phase 6 disconnect clears the old conversation and unsupported write stays
     .getByLabel('Design prompt')
     .fill('Make this model 20 mm wider.');
   await h.frame.getByRole('button', { name: 'Send prompt' }).click();
-  await expect(h.frame.getByText(/currently read-only/)).toBeVisible();
-  await expect(h.frame.getByText(/width-driving dimension/)).toBeVisible();
-  await expect(h.frame.getByText(/performed no CAD writes/)).toBeVisible();
+  await expect(h.frame.getByText(/Forge is read-only here/)).toBeVisible();
+  await expect(
+    h.frame.getByText(/which parameter controls the width/),
+  ).toBeVisible();
+  await expect(h.frame.getByText(/performed no CAD writes/)).toHaveCount(0);
   await expect(h.frame.getByRole('alert')).toHaveCount(0);
   await expect(h.frame.getByRole('list', { name: 'Evidence' })).toHaveCount(0);
   await h.frame.getByRole('button', { name: 'Evidence' }).click();
   await expect(h.frame.getByText('unknown', { exact: true })).toBeVisible();
+  await expect(h.frame.getByRole('list', { name: 'Evidence' })).toContainText(
+    'Forge performed no CAD writes for this request.',
+  );
   await expect(
     h.frame.getByRole('heading', { name: 'Assumptions' }),
   ).toHaveCount(0);

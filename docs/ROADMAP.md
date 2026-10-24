@@ -367,3 +367,66 @@ limitations remain: reads are sequential/non-atomic, Phase 13 adds no CAD author
 ownership inference or dependency DAG, and gives no topology continuity guarantee
 or engineering-correctness claim. Railway remains unhosted. See the linked review
 for the complete human-observed record.
+
+## Phase 14 — graph-grounded Ask Forge
+
+**COMPLETE — HUMAN READ-ONLY + UX VISUAL VALIDATED — READY FOR FINAL MERGE REVIEW**
+
+Real Onshape human read-only validation passed all eight scenarios, and the
+post-polish targeted real-Onshape UX visual recheck passed all seven scenarios,
+as reported by the user. CAD writes remained OFF. The branch is not merged;
+main remains unchanged. A larger UI overhaul and final overall visual design
+remain future work.
+
+Authorized from clean synchronized main
+`204725ce141df6f2cccdaa7241f618b0989a7f62` on
+`phase14/ask-forge-graph-grounding`. Implementation migrates only normal read-only
+Ask Forge feature inventory/order to the existing graph, sharing one construction
+with its same-Snapshot rich Inspector projection. Bounded canonical AVAILABLE
+returned-order and completeness-proven terminal facts retain fixed semantics and
+the existing evidence limits. Graph/context/correspondence rejection fails closed.
+Direct Inspector remains the Phase 13 consumer; Tutor/Learn/Check my step/Modify
+remain unmigrated. Explicit sends, session/grant revalidation, at most four GETs,
+selection ownership UNKNOWN and zero-model-call write capability replies remain.
+
+Automated verification and human-validation status are recorded in
+[Phase 14](PHASE_14_ASK_FORGE_GRAPH_GROUNDING.md). The user reported PASS for all
+eight real Onshape read-only scenarios on the pre-polish implementation, using a
+disposable Part Studio containing Sketch Gate → Extrude 1 → Fillet 1, plus an
+empty Part Studio. The recorded checks cover inventory/order, returned order,
+terminal feature, explicitly unestablished dependency, active feature state,
+unknown ownership of a selected real FACE, read-only write rejection without
+invented width parameters, and empty counts without stale evidence. These are
+human-supplied observations, not live checks independently repeated by the agent.
+The pre-polish implementation's
+focused tests (50), full frontend/API tests (827/2,762, including all 42
+PostgreSQL cases), format/lint/types, build, migrations, Compose and audits passed.
+The final complete `make test-e2e` passed all 594 cases with the normal four workers
+and zero retries after the user confirmed machine availability. Earlier loaded-host
+browser failures are retained in the Phase 14 record; no source, tests or time
+budgets were changed to obtain the pass. This phase must not merge automatically.
+The follow-up changes concise answer formatting, contextual Limits/detail hierarchy
+and auto-hiding mode navigation only; the eight semantic outcomes and all backend
+authority boundaries are preserved. Its final gate passed 83 focused frontend
+tests, 50 graph regressions, 51 focused browser cases, 869 frontend / 2,762 API
+tests (including all 42 PostgreSQL cases), all standard quality targets and all
+633 browser cases with four workers and zero retries/skips. The user subsequently
+reported PASS for concise dependency and active-state answers, selected-face
+unknown ownership, inventory and empty-model presentation, scrolling mode-bar
+visibility without content jumps or loss of composer access, and keyboard focus
+revealing/retaining navigation. Relevant Limits stayed visible while full
+technical caveats remained in Evidence. The complete seven-case UX record is in
+the same Phase 14 record, alongside the earlier automated results.
+
+The human-validation closeout is documentation only; the validated implementation
+at `53ff762b30a358818e6f6b57a447aa7d9cbd1267` and its two preceding Phase 14
+commits are preserved. The closeout passed lint, strict typing, dependency audits
+(zero known vulnerabilities), all 50 graph regressions and all 83 focused
+presentation/navigation tests. No full
+browser/API/database rerun is required for these documentation changes. Final
+merge review remains required; no merge is performed.
+
+PRECEDES is returned order,
+not dependency; no ownership inference, selected-face/edge ownership, dependency
+DAG, topology continuity, engineering correctness or new CAD authority is added.
+Reads remain sequential/non-atomic, CAD writes remain OFF and Railway remains unhosted.

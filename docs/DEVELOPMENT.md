@@ -826,3 +826,37 @@ projection; the production UI and API schema need no changes. Use a disposable s
 PostgreSQL instance for migration/integration checks; retain existing local data.
 No new environment variable, dependency, scope or migration is required. Human work is
 read-only; follow [the Phase 13 plan](PHASE_13_INSPECTOR_GRAPH_ADOPTION.md), with writes OFF.
+
+## Phase 14 Ask Forge graph verification
+
+Run `uv run --frozen pytest tests/test_ai_graph.py` from `apps/api` first, followed
+by the existing AI/provider/selection/write/presentation and graph/Inspector suites.
+Then run `make format`, `make lint`, `make typecheck`, `make test`, `make build`,
+`make test-e2e`, `make migration-check`, `make compose-check` and `make audit`.
+Use frozen `make setup` installs and an isolated synthetic PostgreSQL database;
+set FORGE_TEST_DATABASE_URL for the full API suite and DATABASE_URL only to that
+disposable database for migration checks. Health-check, migrate and remove only
+resources created for this verification; retain existing databases/services.
+
+Coverage includes one accepted Snapshot/one graph/four GETs, independent context,
+same-Snapshot rich evidence and duplicate names, bounded AVAILABLE order/terminal
+facts, missing/UNKNOWN relationships, quoted malicious names, identity minimization,
+byte bounds, authorization/revocation/cancellation, singleton selection UNKNOWN and
+the deterministic zero-model-call write capability path. Tutor/Learn/Check my step
+and Modify keep their existing tests and acquisition paths. Direct Inspector remains
+Phase 13. No new dependency, environment variable, migration or public API is needed.
+PRECEDES is returned order, not dependency; there is no ownership inference,
+topology continuity, engineering correctness or new CAD authority. Reads remain
+sequential/non-atomic; Railway remains unhosted. User-reported pre-polish human
+read-only validation passed; the small post-polish visual recheck in
+[the Phase 14 record](PHASE_14_ASK_FORGE_GRAPH_GROUNDING.md) remains manual.
+Do not execute it automatically or enable writes.
+
+For the UX follow-up, run the focused `ai/friendly`, `ai/presentation`,
+`ai/Analysis`, `ai/chatLead` and `components/ModeNavigation` Vitest files first.
+Build the production frontend, then run `tests/e2e/phase14-polish.spec.ts`, the
+real-panel refinement cases in `tests/e2e/refinement.spec.ts` and the unchanged
+material performance sample in `tests/e2e/design.spec.ts` across all
+three projects before the complete normal quality gate. Browser workers, retries,
+assertion budgets and the <35 ms median threshold remain unchanged. New browser
+fixtures mock all CAD/auth/model transports and are not live human validation.

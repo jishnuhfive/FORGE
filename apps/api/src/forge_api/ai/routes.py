@@ -18,11 +18,11 @@ from forge_api.auth.routes import Runtime, active_session
 from forge_api.auth.security import csrf_token
 from forge_api.db.models import OnshapeAuthorization
 from forge_api.integrations.onshape.client import ReadError, bounded_json
-from forge_api.integrations.onshape.inspector import CadInspector, inspect
 from forge_api.integrations.onshape.routes import acquire_bound
 from forge_api.integrations.onshape.service import ReadGate
 
 from .diagnostics import Reason, Stage, emit_diagnostic
+from .grounding import GroundedCad, ground
 from .models import AiError, AiRequest
 from .providers import create_provider
 from .service import TOTAL_SECONDS, run_agent
@@ -91,7 +91,7 @@ async def ask(request: Request, auth: Runtime) -> Response:
             raise asyncio.CancelledError
         await run_in_threadpool(active)
 
-    def read_bound() -> CadInspector:
+    def read_bound() -> GroundedCad:
         with auth.sessions() as db:
             current = active_session(request, auth, db)
             if current is None or current.user_id != user_id:
@@ -107,9 +107,9 @@ async def ask(request: Request, auth: Runtime) -> Response:
                 cad_gate,
                 cad_transport,
             )
-            return inspect(result, correlation)
+            return ground(result, value.context, correlation)
 
-    async def read() -> CadInspector:
+    async def read() -> GroundedCad:
         # The existing synchronous CAD transport completes at most four bounded
         # reads if cancelled mid-read. Cancellation prevents subsequent AI calls.
         return await asyncio.to_thread(read_bound)
