@@ -1,18 +1,20 @@
 # Phase 15 — graph-grounded Learn Tutor
 
-**COMPLETE — HUMAN READ-ONLY VALIDATION PASSED — READY FOR FINAL MERGE REVIEW**
+**COMPLETE — HUMAN READ-ONLY VALIDATED — MERGED INTO MAIN**
 
-Implementation on `phase15/tutor-graph-grounding`. Started from clean synchronized `main` at
-`500e114b7356b90499988633dd7811c49b94937c`. No merge or deployment is included.
-CAD writes remain OFF. Railway remains unhosted.
+Implemented on `phase15/tutor-graph-grounding` from clean synchronized `main` at
+`500e114b7356b90499988633dd7811c49b94937c`. Merged into main at
+`36511d73a7fffd4b219497fe09d2c8d4ff86bca5`, preserving all five Phase 15 commits
+without squashing. CAD writes remain OFF. Railway remains unhosted.
 
 Final real-Onshape human read-only validation passed all seven scenarios, as
 reported by the user. The agent did not independently execute those human checks.
-This closeout changes documentation only; the validated implementation remains
-`cd9cf86709db4c8841a9a7325bc81833f1016660`. Phase 15 is not yet merged and no
-production-readiness claim is made.
+The human-validation closeout was documentation only; the validated implementation
+remains `cd9cf86709db4c8841a9a7325bc81833f1016660`. The merged tree is identical to
+the validated branch at `dc383b9314d3e7c5798e0e295abd856b90530f23`. No deployment
+or production-readiness claim is made.
 
-## Implementation history
+## Phase 15 commit history
 
 | Commit                                     | Message                                         |
 | ------------------------------------------ | ----------------------------------------------- |
@@ -20,6 +22,7 @@ production-readiness claim is made.
 | `1f65c85e11e96e56b59c2e221e500a8c6db4bdad` | `fix: narrow Tutor relationship guard`          |
 | `7f357ab65dd8c825e1cf7fcf6fd791bea03c839c` | `fix: preserve Tutor structural answers`        |
 | `cd9cf86709db4c8841a9a7325bc81833f1016660` | `fix: ground Tutor relationship answers`        |
+| `dc383b9314d3e7c5798e0e295abd856b90530f23` | `docs: record Phase 15 human validation`        |
 
 ## Scope and architecture
 
@@ -375,8 +378,8 @@ All observations in this section are **user-reported human observations** from
 real Onshape, not checks independently executed by the agent. Forge CAD writes
 remained **OFF** throughout. The primary disposable Part Studio contained
 **Sketch Gate → Extrude 1 → Fillet 1**, with **one part**. An empty Part Studio was
-also used. No merge, deployment or production-readiness claim follows from this
-validation.
+also used. These human observations are separate from the subsequent Git merge;
+they do not establish deployment or production readiness.
 
 ### Test 1 — structural inventory
 
@@ -473,16 +476,17 @@ and does not contradict the zero modeled-features result.
 
 **TEST 7 — PASS**
 
-Final human status: **COMPLETE — HUMAN READ-ONLY VALIDATION PASSED — READY FOR
-FINAL MERGE REVIEW**. Phase 15 is not yet merged.
+Current Phase 15 status: **COMPLETE — HUMAN READ-ONLY VALIDATED — MERGED INTO
+MAIN**, at `36511d73a7fffd4b219497fe09d2c8d4ff86bca5`.
 
 ## Documentation-only closeout verification
 
-The closeout started from a clean, synchronized `phase15/tutor-graph-grounding`
+The pre-merge human-validation closeout, committed as
+`dc383b9314d3e7c5798e0e295abd856b90530f23`, started from a clean, synchronized `phase15/tutor-graph-grounding`
 at `cd9cf86709db4c8841a9a7325bc81833f1016660`. Fetched `origin/main` remained
 `500e114b7356b90499988633dd7811c49b94937c`; the starting comparison was **0 behind /
-4 ahead**. Only this record and `docs/ROADMAP.md` change. The validated
-implementation tree, tests, dependencies and lockfiles are unchanged.
+4 ahead**. At that closeout, only this record and `docs/ROADMAP.md` changed. The
+validated implementation tree, tests, dependencies and lockfiles were unchanged.
 
 `make lint`, `make typecheck` (176 Python files plus strict TypeScript) and
 `make audit` passed; npm/Python reported no known vulnerabilities. Focused tests
@@ -492,14 +496,25 @@ No full API/browser rerun was performed for this documentation-only closeout;
 the unchanged implementation's prior full verification is preserved above.
 Verification logs remain ignored under `.cache/phase15-human-closeout/`.
 
+## Merge into main
+
+Merge commit `36511d73a7fffd4b219497fe09d2c8d4ff86bca5` preserved all five Phase
+15 commits with no conflicts. Its tree matched the validated branch exactly.
+The merged-tree gate passed lint, strict types, build, audits and all **256 focused
+Phase 15 tests**. Build retained the existing bundle-size advisory. Main was pushed
+and verified synchronized with origin, with a clean working tree. The Phase 15
+and deployment branches were retained. No Railway deployment or Onshape write
+was performed; CAD writes remained OFF. The merge introduced no implementation
+or authority changes beyond the validated branch.
+
 ## Future Learn/Tutor UI work — outside Phase 15
 
 The user reports that Learn currently feels visually crowded. Future UI work may
 make Ask Forge a more dominant or floating assistant entry point, possibly a
-floating Forge/chat bubble that smoothly expands into a chat surface. This is a
+floating Forge/chat bubble or icon that expands into a chat surface. This is a
 possible direction, not an implemented or approved Phase 15 UI change.
 
-Future work should consider full smooth animations, narrow-panel responsive
+Future work should consider smooth open/close animations, narrow-panel responsive
 behavior, keyboard accessibility and a `prefers-reduced-motion` fallback.
 “Still unknown” may later become a compact Limits/details disclosure. The full
 Learn/Tutor UI overhaul remains future work; this closeout implements none of

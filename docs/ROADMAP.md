@@ -444,12 +444,14 @@ Reads remain sequential/non-atomic, CAD writes remain OFF and Railway remains un
 
 ## Phase 15 — graph-grounded Learn Tutor
 
-**COMPLETE — HUMAN READ-ONLY VALIDATION PASSED — READY FOR FINAL MERGE REVIEW**
+**COMPLETE — HUMAN READ-ONLY VALIDATED — MERGED INTO MAIN**
 
 Implementation on `phase15/tutor-graph-grounding` from clean synchronized `main`
 `500e114b7356b90499988633dd7811c49b94937c`. Final real-Onshape human read-only
 validation passed, as reported by the user; the agent did not independently
-execute those checks. Phase 15 is not yet merged.
+execute those checks. Phase 15 merged into main at
+`36511d73a7fffd4b219497fe09d2c8d4ff86bca5`, preserving all five Phase 15 commits
+without squashing.
 Only learner-requested contextual Tutor CAD grounding adopts the Phase 14 shared
 `GroundedCad`/`ground`/`project` path, using the same acquired Snapshot and independent
 validated request context. Direct Inspector is the Phase 13 consumer, Design Ask
@@ -475,7 +477,7 @@ Frozen installs, formatting, lint, strict types, build, migration drift, Compose
 dependency audits passed. The isolated synthetic database was removed after checks;
 existing local data remain untouched. No real CAD write or hosted deployment was
 performed during that automated gate. Human validation subsequently passed as
-recorded below; merge remains a separate later step.
+recorded below; the subsequent merge is also recorded below.
 
 The separately authorized relationship-guard precision refinement distinguishes
 explicit relationship questions and unsupported current-model prose from ordinary
@@ -537,13 +539,15 @@ The user restored Fillet 1 after Test 5. Only the user performed that manual CAD
 change; Forge's write flag remained OFF. Onshape's default Origin/planes in the
 empty Part Studio are not modeled-feature inventory and do not contradict zero
 modeled features. Full questions, observations, initial failures, repair SHAs and
-all four implementation commits/messages are preserved in the
+all five Phase 15 commits/messages are preserved in the
 [Phase 15 record](PHASE_15_TUTOR_GRAPH_GROUNDING.md).
 
-This documentation-only closeout leaves the validated implementation at
-`cd9cf86709db4c8841a9a7325bc81833f1016660`. No implementation, test, dependency,
-lockfile, OAuth, database, migration, Modify, deployment or safe-write change is
-included. No merge or production-readiness claim is made.
+The pre-merge documentation-only human-validation closeout was committed as
+`dc383b9314d3e7c5798e0e295abd856b90530f23`, leaving the validated implementation
+at `cd9cf86709db4c8841a9a7325bc81833f1016660`. That closeout included no
+implementation, test, dependency, lockfile, OAuth, database, migration, Modify,
+deployment or safe-write change. No merge was performed at that closeout;
+production readiness was not claimed.
 
 Closeout checks passed: `make lint`, `make typecheck`, `make audit` (no known
 vulnerabilities) and **256 focused Phase 15 tests** across graph, relationship
@@ -551,12 +555,23 @@ precision, structural presentation and dependency grounding. The unchanged
 implementation's full API/browser verification remains recorded above; no full
 API/browser rerun was performed for this documentation-only closeout.
 
+### Phase 15 merge into main
+
+Merge commit `36511d73a7fffd4b219497fe09d2c8d4ff86bca5` preserved all five Phase
+15 commits without conflicts or squashing. Its tree was identical to the validated
+branch at `dc383b9314d3e7c5798e0e295abd856b90530f23`. Merged-tree lint, strict
+types, build, audits and **256 focused Phase 15 tests** passed. Main was pushed and
+verified synchronized with origin; the working tree was clean. The Phase 15 and
+deployment branches were retained. The merge introduced no changes beyond the
+validated branch. No Railway deployment or Onshape write was performed during
+the merge. CAD writes remained OFF; this does not establish production readiness.
+
 ### Future Learn/Tutor UI work only
 
 Learn currently feels visually crowded, according to the user. A future direction
 may make Ask Forge a more dominant/floating assistant entry point: a floating
-Forge/chat bubble that smoothly expands into a chat surface. Future UI work should
-consider full smooth animations, narrow-panel responsiveness, keyboard accessibility,
+Forge/chat bubble or icon that expands into a chat surface. Future UI work should
+consider smooth open/close animations, narrow-panel responsiveness, keyboard accessibility,
 `prefers-reduced-motion` fallback and a compact Limits/details disclosure for
 “Still unknown.” None of these UI changes is implemented in Phase 15 or this
 closeout; the full Learn/Tutor UI overhaul remains future work.
@@ -568,4 +583,4 @@ is added. Check my step remains the only correctness authority, signed check-tok
 authority is unchanged, and Tutor CAD observations cannot update a check result.
 Modify is not graph-migrated by Phase 15, and no new CAD authority is granted.
 CAD writes remain OFF and Railway remains unhosted. Phase 15 is **COMPLETE — HUMAN
-READ-ONLY VALIDATION PASSED — READY FOR FINAL MERGE REVIEW**, not yet merged.
+READ-ONLY VALIDATED — MERGED INTO MAIN** at `36511d73a7fffd4b219497fe09d2c8d4ff86bca5`.
