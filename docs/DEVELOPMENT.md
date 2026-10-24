@@ -860,3 +860,63 @@ material performance sample in `tests/e2e/design.spec.ts` across all
 three projects before the complete normal quality gate. Browser workers, retries,
 assertion budgets and the <35 ms median threshold remain unchanged. New browser
 fixtures mock all CAD/auth/model transports and are not live human validation.
+
+## Phase 15 Tutor graph verification
+
+From `apps/api`, run `uv run --frozen pytest tests/test_tutor_graph.py` first,
+then the existing `test_tutor_core.py`, `test_tutor_route.py`, `test_tutor_eval.py`,
+`test_step_checks.py`, `test_transfer_step_checks.py`, `test_step_check_route.py`
+and Phase 14 `test_ai_graph.py`. Check/token implementations and their tests remain
+unchanged. Follow with frozen `make setup`, `make format`, `make lint`,
+`make typecheck`, `make test`, `make build`, `make test-e2e`,
+`make migration-check`, `make compose-check` and `make audit`. Run all PostgreSQL
+cases by setting FORGE_TEST_DATABASE_URL for the complete API suite. Use only a
+disposable synthetic database for DATABASE_URL/migration checks; health-check,
+migrate and remove the instance you created, preserving existing local services.
+
+Only learner-requested Tutor CAD grounding is migrated: direct Inspector is Phase
+13, Design Ask Forge Phase 14, Learn Tutor Phase 15; Modify remains unmigrated.
+Check my step remains deterministic and unchanged, including signed token authority.
+No dependency, OAuth scope, migration, UI redesign, deployment or new CAD authority
+is added. PRECEDES means returned order, not dependency or ownership; no topology
+continuity or engineering correctness. Reads remain sequential/non-atomic. The full
+UI overhaul remains future work and Railway remains unhosted. The prepared
+[human read-only plan](PHASE_15_TUTOR_GRAPH_GROUNDING.md) is manual; do not run Gate
+A/B, invoke real Modify, perform CAD writes or deploy Railway for this phase.
+
+For the narrow relationship-guard precision review, run
+`uv run --frozen pytest tests/test_tutor_relationship_precision.py` first, then all
+Phase 15 tests, existing Tutor tests and Phase 14 graph tests. The precision suite
+uses actual graph-backed projection and asserts ordinary teaching survives, all
+prose fields reject specific relationship claims, and general labels cannot hide
+named-model claims. The original general-teaching test retains its safety assertions
+and adds exact prose preservation. Run lint, strict typing, audits and the full API
+suite (including isolated PostgreSQL), plus
+`npm exec playwright test tests/e2e/tutor.spec.ts` after building for browser-visible
+output verification. No UI, graph, acquisition, token or evidence-limit change is
+part of this refinement.
+
+For the live inventory regression repair, first run
+`uv run --frozen pytest tests/test_tutor_structural.py`, then the precision,
+Phase 15 and existing Tutor/token/check/Phase 14 suites above. The new tests use
+the exact reported question and controlled incidental relationship prose, including
+an HTTP route case with three active features and four GETs. Existing fixed-answer
+assertions now explicitly ask relationship questions; extra non-relationship cases
+require unsafe fields to be discarded. General-teaching cases explicitly ask for
+teaching rather than relying on the inventory default. No existing safety assertion
+or bound is removed. Run the full API suite with isolated PostgreSQL, format/lint/
+strict typing, build/audit and focused Tutor browser tests. Human Test 1 initially
+failed, then its rerun and Test 2 passed according to the user. Test 3 was safety-
+correct but functionally failed because the relevant canonical order was omitted.
+
+For the Test 3 relationship answer repair, first run
+`uv run --frozen pytest tests/test_tutor_dependency_grounding.py`, then structural,
+precision, all Phase 15 and existing Tutor/token/check/Phase 14 suites. The tests
+require exact canonical order without model-selected IDs in both dependency
+directions, conservative missing/malformed/ambiguous-name fallbacks, ownership
+safety and the unchanged four-GET HTTP path. Existing safety checks remain;
+expected primary text now includes relevant verified order for supported dependency
+questions. Run frozen setup, full API tests including isolated PostgreSQL,
+format/lint/strict types, build/audit and the focused Tutor browser suite. Do not
+resume human Test 3 until the repair gate passes or claim a human pass from these
+fixtures. See the Phase 15 record for the separate reported and automated results.

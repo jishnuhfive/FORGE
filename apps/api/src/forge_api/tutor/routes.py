@@ -22,12 +22,13 @@ from starlette.concurrency import run_in_threadpool
 from starlette.responses import StreamingResponse
 
 from forge_api.ai.diagnostics import Reason, Stage, emit_diagnostic
+from forge_api.ai.grounding import GroundedCad, ground
 from forge_api.ai.models import AiError
 from forge_api.auth.routes import Runtime, active_session
 from forge_api.auth.security import csrf_token
 from forge_api.db.models import OnshapeAuthorization
 from forge_api.integrations.onshape.client import ReadError, bounded_json
-from forge_api.integrations.onshape.inspector import CadInspector, inspect
+from forge_api.integrations.onshape.models import SectionState
 from forge_api.integrations.onshape.routes import acquire_bound
 from forge_api.integrations.onshape.service import ReadGate
 
@@ -131,7 +132,7 @@ async def tutor(request: Request, auth: Runtime) -> Response:
             raise asyncio.CancelledError
         await run_in_threadpool(active)
 
-    def read_bound() -> CadInspector:
+    def read_bound() -> GroundedCad:
         # The model can only ask for this fixed call. The context came from the
         # validated request body, never from the model.
         assert value.context is not None
@@ -150,9 +151,19 @@ async def tutor(request: Request, auth: Runtime) -> Response:
                 cad_gate,
                 cad_transport,
             )
-            return inspect(result, correlation)
+            states = (
+                [result]
+                if isinstance(result, SectionState)
+                else result.sections.values()
+            )
+            # Keep admission/provider throttling distinct from invalid graph
+            # evidence, and discard any earlier partial read on a throttle stop.
+            for state in states:
+                if state.code in ("request_in_progress", "rate_limited"):
+                    raise AiError(state.code, state.retry_after_seconds)
+            return ground(result, value.context, correlation)
 
-    async def read() -> CadInspector:
+    async def read() -> GroundedCad:
         return await asyncio.to_thread(read_bound)
 
     async def events() -> AsyncIterator[str]:

@@ -1,4 +1,4 @@
-"""Private, pure Ask Forge projection. Graphs and identities never leave here."""
+"""Private, pure CAD grounding for Design and Tutor; identities never leave here."""
 
 from dataclasses import dataclass
 

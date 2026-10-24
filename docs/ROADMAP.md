@@ -441,3 +441,131 @@ PRECEDES is returned order,
 not dependency; no ownership inference, selected-face/edge ownership, dependency
 DAG, topology continuity, engineering correctness or new CAD authority is added.
 Reads remain sequential/non-atomic, CAD writes remain OFF and Railway remains unhosted.
+
+## Phase 15 — graph-grounded Learn Tutor
+
+**COMPLETE — HUMAN READ-ONLY VALIDATION PASSED — READY FOR FINAL MERGE REVIEW**
+
+Implementation on `phase15/tutor-graph-grounding` from clean synchronized `main`
+`500e114b7356b90499988633dd7811c49b94937c`. Final real-Onshape human read-only
+validation passed, as reported by the user; the agent did not independently
+execute those checks. Phase 15 is not yet merged.
+Only learner-requested contextual Tutor CAD grounding adopts the Phase 14 shared
+`GroundedCad`/`ground`/`project` path, using the same acquired Snapshot and independent
+validated request context. Direct Inspector is the Phase 13 consumer, Design Ask
+Forge Phase 14 and Learn Tutor Phase 15. Modify remains unmigrated. Check my step
+remains deterministic and unchanged, including signed check-token authority and
+historical-check/current-CAD separation.
+
+Bounded AVAILABLE adjacent order facts, complete-evidence terminal facts and fixed
+relationship caveats add zero provider reads. Server presentation prevents returned
+order from becoming a dependency/ownership claim. PRECEDES is returned order, not
+dependency; there is no dependency DAG, feature ownership inference, selected-face/
+edge Tutor grounding, topology continuity guarantee or engineering-correctness
+claim. Graph failure and combined evidence overflow fail closed. No new CAD authority,
+scope, persistence, write, migration, deployment or Tutor UI redesign is included.
+Reads remain sequential/non-atomic; the full UI overhaul remains future work.
+Railway remains unhosted. See [Phase 15](PHASE_15_TUTOR_GRAPH_GROUNDING.md) for
+automated verification and the current human read-only validation record.
+
+The branch gate passed **69 focused Phase 15 / 226 existing targeted tests**,
+**869 frontend / 2,831 API tests** (including all **42 PostgreSQL cases**, no skips),
+and **633 browser tests** (211 in each engine, four workers, zero retries).
+Frozen installs, formatting, lint, strict types, build, migration drift, Compose and
+dependency audits passed. The isolated synthetic database was removed after checks;
+existing local data remain untouched. No real CAD write or hosted deployment was
+performed during that automated gate. Human validation subsequently passed as
+recorded below; merge remains a separate later step.
+
+The separately authorized relationship-guard precision refinement distinguishes
+explicit relationship questions and unsupported current-model prose from ordinary
+use/input questions and clearly general CAD teaching. It preserves the fixed
+dependency/ownership boundary and all Phase 15 authority limits; no graph semantics,
+acquisition, signed checks, UI or evidence limits change. See the Phase 15 record
+for its separate verification results. Human validation was pending at that stage.
+Its gate passed **100 precision / 69 Phase 15 / 169 existing targeted cases**,
+**869 frontend / 2,931 API tests** (all **42 PostgreSQL cases**, no skips) and
+**27 focused Tutor browser tests** with four workers and zero retries. Frozen
+installs, formatting, lint, strict typing, build, migration drift, Compose and
+audits passed. No scope expansion, CAD write, UI change, merge or deployment.
+
+**Subsequent live human validation Test 1 FAILED:** correct canonical graph
+inventory/order was shown, but the presentation guard replaced the primary
+inventory answer with a dependency lesson. The repair preserves the
+existing working edits, separates explicit relationship intent from incidental
+model prose, and makes simple structural primary presentation server-owned from
+canonical facts. The repair gate passed **46 structural / 100 precision / 69 Phase
+15 / 226 existing targeted cases**, **869 frontend / 2,977 API tests** (all **42
+PostgreSQL cases**, no skips) and **27 focused Tutor browser cases** with four
+workers and zero retries. Frozen installs, format/lint, strict types, build, drift,
+Compose and audits passed. At that repair's completion human revalidation was
+pending. Graph semantics,
+acquisition, checks/tokens, OAuth, Modify, CAD-write authority,
+UI layout, database/migrations, deployment and evidence limits remain unchanged.
+
+**Subsequent human rerun Test 1 PASSED and Test 2 PASSED**, as reported by the
+user. **Test 3 was a safety pass / functional validation failure:** the dependency
+answer remained conservative but omitted the relevant verified order fact. The
+narrow repair adds server-owned adjacent canonical order for uniquely matched
+two-name dependency questions; order remains separate from dependency, in either
+question direction. Missing/malformed/ambiguous facts keep the existing fallback.
+The automated repair gate passed **41 new dependency-grounding cases**, the
+existing targeted suites, **869 frontend / 3,018 API tests** (all **42 PostgreSQL
+cases**, no skips) and **27 focused Tutor browser cases**. Frozen installs,
+format/lint, strict types, build, migration drift, Compose and audits passed.
+Human Test 3 rerun and remaining validation were pending at completion of that
+repair; the final passing human record follows. CAD writes remain OFF.
+
+### Final Phase 15 human read-only validation
+
+**All seven scenarios PASSED**, as user-reported real-Onshape human observations,
+not checks independently executed by the agent. The primary disposable Part
+Studio contained **Sketch Gate → Extrude 1 → Fillet 1**, with **one part**; an
+empty Part Studio was also used. Forge CAD writes remained **OFF** throughout.
+
+| Test | Result                | Reported observation                                                                                                                                  |
+| ---- | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | **PASS AFTER REPAIR** | Inventory rerun showed 3 modeled features in correct returned order, with no dependency claim; initial guard failure repaired in `7f357ab`.           |
+| 2    | **PASS**              | Extrude 1 comes before Fillet 1; canonical observation shown separately, with no dependency, ownership, parent-child, causal or driving claim.        |
+| 3    | **PASS AFTER REPAIR** | Dependency stayed unconfirmed while Sketch Gate-before-Extrude 1 order was verified, with an explicit order/dependency caveat; repaired in `cd9cf86`. |
+| 4    | **PASS**              | Fillet 1 was identified as the third, terminal feature using completeness-backed evidence, not merely its visible position.                           |
+| 5    | **PASS**              | Latest check stayed Verified after manual Fillet 1 suppression; current CAD correctly showed suppressed and did not update the old sketch check.      |
+| 6    | **PASS**              | Fixed read-only teaching response; no Modify flow, proposal, approval UI or CAD mutation. Check my step remained the verifier.                        |
+| 7    | **PASS**              | Switching to the empty Part Studio yielded 0 modeled features, with no stale names, inventory, fake terminal or relationship inference.               |
+
+The user restored Fillet 1 after Test 5. Only the user performed that manual CAD
+change; Forge's write flag remained OFF. Onshape's default Origin/planes in the
+empty Part Studio are not modeled-feature inventory and do not contradict zero
+modeled features. Full questions, observations, initial failures, repair SHAs and
+all four implementation commits/messages are preserved in the
+[Phase 15 record](PHASE_15_TUTOR_GRAPH_GROUNDING.md).
+
+This documentation-only closeout leaves the validated implementation at
+`cd9cf86709db4c8841a9a7325bc81833f1016660`. No implementation, test, dependency,
+lockfile, OAuth, database, migration, Modify, deployment or safe-write change is
+included. No merge or production-readiness claim is made.
+
+Closeout checks passed: `make lint`, `make typecheck`, `make audit` (no known
+vulnerabilities) and **256 focused Phase 15 tests** across graph, relationship
+precision, structural presentation and dependency grounding. The unchanged
+implementation's full API/browser verification remains recorded above; no full
+API/browser rerun was performed for this documentation-only closeout.
+
+### Future Learn/Tutor UI work only
+
+Learn currently feels visually crowded, according to the user. A future direction
+may make Ask Forge a more dominant/floating assistant entry point: a floating
+Forge/chat bubble that smoothly expands into a chat surface. Future UI work should
+consider full smooth animations, narrow-panel responsiveness, keyboard accessibility,
+`prefers-reduced-motion` fallback and a compact Limits/details disclosure for
+“Still unknown.” None of these UI changes is implemented in Phase 15 or this
+closeout; the full Learn/Tutor UI overhaul remains future work.
+
+Reads remain sequential/non-atomic. PRECEDES is returned feature order, not
+dependency; no dependency DAG, feature ownership inference, selected-face/edge
+Tutor grounding, topology continuity guarantee or engineering-correctness claim
+is added. Check my step remains the only correctness authority, signed check-token
+authority is unchanged, and Tutor CAD observations cannot update a check result.
+Modify is not graph-migrated by Phase 15, and no new CAD authority is granted.
+CAD writes remain OFF and Railway remains unhosted. Phase 15 is **COMPLETE — HUMAN
+READ-ONLY VALIDATION PASSED — READY FOR FINAL MERGE REVIEW**, not yet merged.

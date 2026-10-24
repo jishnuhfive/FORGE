@@ -3,17 +3,28 @@
 import re
 from collections.abc import AsyncIterator, Awaitable, Callable
 
+from forge_api.ai import evidence as cad_evidence
 from forge_api.ai.evidence import FRESHNESS, UNITS, project
+from forge_api.ai.grounding import ORDER_SEMANTICS, GroundedCad
+from forge_api.ai.models import AiError
 from forge_api.ai.policy import REFUSAL, blocked
 from forge_api.ai.presentation import GENERAL_REPLY_NOTE, mentions_model
 from forge_api.integrations.onshape.inspector import CadInspector
 
 from .catalog import CATALOG
-from .context import build_context
+from .context import build_context, context_message
 from .evidence_token import VerifiedCheck
 from .models import LatestCheck, Observed, TutorAnswer, TutorModelAnswer, TutorRequest
 from .policy import boundary_response
 from .providers import TutorProvider, TutorTask
+from .relationships import relationship_question, unsafe_relationship_prose
+from .structural import TERMINAL_UNKNOWN as TERMINAL_UNKNOWN
+from .structural import (
+    dependency_answer,
+    structural_answer,
+    terminal_answer,
+    terminal_question,
+)
 
 TOTAL_SECONDS = 120
 STATUS_NOTE = (
@@ -27,6 +38,15 @@ DIMENSION_NOTE = (
     "Forge can't read your dimensions or units, so nothing here confirms a size."
 )
 STRENGTH_NOTE = "Forge doesn't verify strength, fit or safety."
+RELATIONSHIP_EXPLANATION = (
+    "In general CAD, a dependency means a feature uses another feature's profile "
+    "or geometry as an input. Forge can describe captured feature order, but that "
+    "does not establish dependency, ownership or other relationships in your model."
+)
+RELATIONSHIP_ACTION = (
+    "Examine the feature's inputs in Onshape; use Check my step for a new step result."
+)
+CAD_OBSERVATIONS_ONLY = "Forge can't confirm more from the captured CAD evidence."
 # Presentation guards, like the verdict guard below: the model may mention sizes or
 # strength in teaching, but the learner is always told Forge has verified neither.
 _DIMENSION = re.compile(
@@ -78,6 +98,8 @@ def resolve_tutor(
     facts: dict[str, object],
     used_cad: bool,
     captured_at: str | None,
+    question: str = "",
+    cad_names: tuple[str, ...] = (),
 ) -> TutorAnswer:
     from forge_api.ai.models import Fact
 
@@ -110,6 +132,11 @@ def resolve_tutor(
     )
     if used_cad:
         unknowns += [UNITS, FRESHNESS]
+        if "order_semantics" in facts:
+            unknowns.append(ORDER_SEMANTICS)
+    if len(unknowns) > 8:
+        # Never discard a check limitation or structural caveat to fit the UI.
+        raise AiError("evidence_unavailable")
     notes: list[str] = []
     if check is not None:
         notes.append(STALE_NOTE)
@@ -122,12 +149,44 @@ def resolve_tutor(
         notes.append(DIMENSION_NOTE)
     if _STRENGTH.search(prose):
         notes.append(STRENGTH_NOTE)
+    explanation = model.explanation.strip()
+    next_action = model.next_action.strip() or None
+    reasoning_question = model.reasoning_question.strip() or None
+    if "order_semantics" in facts:
+        structural = structural_answer(question, facts)
+        if structural is not None:
+            # The question, never incidental model prose, selects this answer.
+            explanation = structural
+            next_action = None
+            reasoning_question = None
+        elif relationship_question(question, cad_names):
+            explanation = dependency_answer(question, facts) or RELATIONSHIP_EXPLANATION
+            next_action = RELATIONSHIP_ACTION
+            reasoning_question = None
+        elif terminal_question(question):
+            explanation = terminal_answer(facts)
+            next_action = None
+            reasoning_question = None
+        else:
+            # Discard an unsupported field without turning an unrelated question
+            # into a relationship/terminal lesson. Other safe teaching can remain.
+            def unsafe(text: str) -> bool:
+                return unsafe_relationship_prose(text, cad_names) or terminal_question(
+                    text
+                )
+
+            if unsafe(model.explanation):
+                explanation = CAD_OBSERVATIONS_ONLY
+            if unsafe(model.next_action):
+                next_action = None
+            if unsafe(model.reasoning_question):
+                reasoning_question = None
     return TutorAnswer(
-        explanation=model.explanation.strip(),
-        reasoning_question=model.reasoning_question.strip() or None,
-        next_action=model.next_action.strip() or None,
+        explanation=explanation,
+        reasoning_question=reasoning_question,
+        next_action=next_action,
         observed=observed,
-        unknowns=unknowns[:8],
+        unknowns=unknowns,
         notes=notes[:6],
         latest_check=latest(check),
         used_cad=used_cad,
@@ -139,7 +198,7 @@ async def run_tutor(
     request: TutorRequest,
     check: VerifiedCheck | None,
     provider: TutorProvider,
-    read: Callable[[], Awaitable[CadInspector]],
+    read: Callable[[], Awaitable[CadInspector | GroundedCad]],
     ensure_active: Callable[[], Awaitable[None]],
     request_id: str,
 ) -> AsyncIterator[dict[str, object]]:
@@ -173,12 +232,26 @@ async def run_tutor(
     payload: str | None = None
     facts: dict[str, object] = {}
     captured_at: str | None = None
+    cad_names: tuple[str, ...] = ()
     if wants_cad:
         yield {"type": "progress", "stage": "inspecting"}
         evidence = await read()
         payload, projected = project(evidence, "none")
+        if (
+            len(payload.encode("utf-8")) + len(context_message(context).encode("utf-8"))
+            > cad_evidence.MAX_EVIDENCE_BYTES
+        ):
+            raise AiError("evidence_unavailable")
         facts = dict(projected)
-        captured_at = evidence.source.captured_at
+        inspector = (
+            evidence.inspector if isinstance(evidence, GroundedCad) else evidence
+        )
+        captured_at = inspector.source.captured_at
+        cad_names = tuple(
+            item.name
+            for item in inspector.features.items
+            if f"feature_{item.index}" in facts
+        )
         await ensure_active()
     yield {"type": "progress", "stage": "reviewing"}
     model = await provider.answer(payload, request_id=request_id)
@@ -195,5 +268,7 @@ async def run_tutor(
             facts=facts,
             used_cad=wants_cad,
             captured_at=captured_at,
+            question=request.question,
+            cad_names=cad_names,
         ).model_dump(),
     }
