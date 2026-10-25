@@ -3,10 +3,10 @@ import { ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../auth/context';
 import { Analysis } from '../ai/Analysis';
+import { Create } from '../create/Create';
 import { PromptComposer } from '../components/PromptComposer';
 import { useOnshapeContext } from '../onshape/store';
 import { revisionId } from '../onshape/model';
-import { Creation } from '../creation/Creation';
 
 export function Design({
   preview = false,
@@ -16,7 +16,8 @@ export function Design({
   onSubmit?: (text: string) => void;
 }) {
   const [draft, setDraft] = useState('');
-  const [creationOpen, setCreationOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [createBusy, setCreateBusy] = useState(false);
   const client = useOnshapeContext();
   const auth = useAuth();
   const contextLabel = client.context
@@ -50,51 +51,57 @@ export function Design({
             : client.selection.entities[0]?.type === 'edge'
               ? 'EDGE'
               : 'unknown';
+    const key = context
+      ? [
+          context.documentId,
+          context.revision.kind,
+          revisionId(context),
+          context.elementId,
+          context.server,
+          context.microversionId ?? '',
+          auth.me.csrf_token,
+        ].join(':')
+      : '';
     return (
       <div className="feature design-feature">
         <h1 className="sr-only">Design workspace</h1>
-        {context?.revision.kind === 'workspace' &&
-          context.server === 'https://cad.onshape.com' &&
-          (!context.elementType || context.elementType === 'partStudio') &&
-          auth.me.connection === 'connected' &&
-          auth.me.csrf_token && (
-            <details
-              onToggle={(event) => setCreationOpen(event.currentTarget.open)}
-            >
-              <summary>Create editable CAD</summary>
-              {creationOpen && (
-                <Creation
-                  key={[
-                    context.documentId,
-                    revisionId(context),
-                    context.elementId,
-                    auth.me.csrf_token,
-                  ].join(':')}
-                  context={{
-                    documentId: context.documentId,
-                    workspaceId: context.revision.workspaceId,
-                    elementId: context.elementId,
-                  }}
-                  csrf={auth.me.csrf_token}
-                />
-              )}
-            </details>
-          )}
         {available && context && auth.me.csrf_token ? (
-          <Analysis
-            key={[
-              context.documentId,
-              context.revision.kind,
-              revisionId(context),
-              context.elementId,
-              context.server,
-              context.microversionId ?? '',
-              auth.me.csrf_token,
-            ].join(':')}
-            context={context}
-            csrf={auth.me.csrf_token}
-            selection={selection}
-          />
+          <>
+            <div className="design-mode" role="group" aria-label="Design mode">
+              <Button
+                variant={creating ? 'secondary' : 'primary'}
+                aria-pressed={!creating}
+                disabled={createBusy}
+                onClick={() => setCreating(false)}
+              >
+                Ask
+              </Button>
+              <Button
+                variant={creating ? 'primary' : 'secondary'}
+                aria-pressed={creating}
+                onClick={() => setCreating(true)}
+              >
+                Create
+              </Button>
+            </div>
+            {/* Ask stays mounted; Create unmounts, so Ask is locked while it is busy. */}
+            <div hidden={creating}>
+              <Analysis
+                key={key}
+                context={context}
+                csrf={auth.me.csrf_token}
+                selection={selection}
+              />
+            </div>
+            {creating && (
+              <Create
+                key={key}
+                context={context}
+                csrf={auth.me.csrf_token}
+                onBusyChange={setCreateBusy}
+              />
+            )}
+          </>
         ) : (
           <p role="status" className="notice">
             Open a current workspace Part Studio inside Onshape with a connected

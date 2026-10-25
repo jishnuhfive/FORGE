@@ -109,6 +109,10 @@ def test_approved_plan_is_one_use_and_failure_retains_fence(
         value = preview.json()
         handle = value["proposal_id"]
         assert p.writes == 0
+        assert [e["step_id"] for e in value["explanations"]] == [
+            s["id"] for s in value["plan"]["steps"]
+        ]
+        assert {e["authority"] for e in value["explanations"]} == {"none"}
         if mode == "disabled":
             harness.runtime.settings.forge_cad_writes_enabled = False
         if mode == "stale":
@@ -127,6 +131,7 @@ def test_approved_plan_is_one_use_and_failure_retains_fence(
         else:
             assert response.status_code == 200, response.text
             result = response.json()
+            assert len(result["steps"]) == 2
             assert result["state"] == (
                 "verified_success"
                 if mode == "ok"

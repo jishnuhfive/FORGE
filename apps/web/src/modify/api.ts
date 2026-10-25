@@ -362,7 +362,7 @@ export function contextBody(context: OnshapeClientContext) {
     revisionKind: 'workspace',
   };
 }
-async function readJson(response: Response): Promise<unknown> {
+export async function readJson(response: Response): Promise<unknown> {
   if (
     response.headers.get('content-type')?.split(';')[0] !== 'application/json'
   )

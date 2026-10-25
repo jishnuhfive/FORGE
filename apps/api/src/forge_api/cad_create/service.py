@@ -23,6 +23,7 @@ from forge_api.integrations.onshape.contracts import WorkspaceReference
 
 from .compile import compile_brief
 from .execution import ExecutionResult, execute
+from .explain import explain_plan
 from .models import CreationPlan, PlateWithHolesBrief
 from .provider import CreationClient, feature
 
@@ -137,6 +138,7 @@ def prepare(
         "expires_at": approval.expires_at,
         "brief": brief.model_dump(mode="json"),
         "plan": plan.model_dump(mode="json"),
+        "explanations": [e.model_dump(mode="json") for e in explain_plan(plan)],
         "limitations": [
             (
                 "Top-plane rectangle and circle, additive blind Extrude only. "
@@ -279,6 +281,7 @@ def approve(
                 or fence.user_id != saved.binding.user
             ):
                 raise EditError("recovery_required") from None
+            steps = list(StoredCreation.model_validate_json(row.payload or "").steps)
             row.state = "execution_uncertain" if attempted else "rejected_stale"
             if not attempted:
                 db.execute(
@@ -287,4 +290,7 @@ def approve(
                         WriteFence.user_id == saved.binding.user,
                     )
                 )
-        return {"state": "execution_uncertain" if attempted else "rejected_stale"}
+        return {
+            "state": "execution_uncertain" if attempted else "rejected_stale",
+            "steps": steps,
+        }

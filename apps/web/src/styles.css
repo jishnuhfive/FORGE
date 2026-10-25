@@ -1977,3 +1977,137 @@ ul.compact-list {
   gap: var(--space-2);
   justify-items: start;
 }
+
+.design-mode {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+.design-mode .button {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.create-feature,
+.create-feature section,
+.create-feature li,
+.create-feature p,
+.create-feature dd {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.create-form {
+  display: grid;
+  gap: var(--space-3);
+}
+.create-form textarea {
+  width: 100%;
+  min-height: 64px;
+  box-sizing: border-box;
+}
+.create-stage {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.create-block {
+  display: grid;
+  gap: var(--space-3);
+  padding-block: var(--space-4);
+  border-top: 1px solid var(--border);
+}
+.create-block h2,
+.create-block h3 {
+  margin: 0;
+}
+.create-block-heading,
+.create-step-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.create-request {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+}
+.create-holes,
+.create-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.create-holes li {
+  display: grid;
+  gap: var(--space-1);
+  padding-block: var(--space-2);
+}
+.create-confirm {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control, 8px);
+}
+.create-confirm input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+}
+.create-confirm-note {
+  display: block;
+  margin-top: var(--space-1);
+}
+.create-steps li {
+  display: flex;
+  gap: var(--space-3);
+  padding-block: var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+.create-step-index {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  font-size: 12px;
+}
+.create-step-body {
+  flex: 1 1 0;
+  display: grid;
+  gap: var(--space-1);
+}
+.create-step-heading h3 {
+  flex: 1 1 140px;
+  font-size: var(--text-body);
+}
+.create-why summary {
+  cursor: pointer;
+  min-height: 24px;
+}
+.create-approve {
+  display: grid;
+  gap: var(--space-3);
+}
+.create-brief .context-list {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+}
+.create-brief .context-list > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin: 0;
+}
+.create-brief .context-list dd {
+  margin: 0;
+  text-align: right;
+}

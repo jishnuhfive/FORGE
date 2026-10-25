@@ -14,7 +14,8 @@ endpoint. Execution dispatches reusable semantic operations through a provider a
 
 ## Implemented path
 
-Design → Create editable CAD → interpret request → review normalized brief → prepare
+Design → Create (Ask | Create; UI in `apps/web/src/create/`, see
+`SUBMISSION_CREATION_UI.md`) → interpret request → review normalized brief → prepare
 preview → confirm dimensions/ordered steps → approve once. Cancel invalidates pending
 approval. Context/session changes unmount the local flow; stale server evidence denies
 execution. Failure/uncertainty never triggers automatic approval retry.
