@@ -762,6 +762,17 @@ provider IO, persistence or public/model payloads. All role, legacy, approval,
 fence, microversion, verification, uncertainty/retry and recovery controls remain
 unchanged. Real writes remain OFF pending complete human evidence and later scope.
 
+The human explicitly authorized a separate 32 KiB full-definition payload budget
+after evidence-shaped complete replacements exceeded the inherited 8 KiB fence.
+Only the private validated rename/depth/radius executor path can select it, after
+fresh registry/change and preview checks; fields, URL patterns, diagnostics and
+model arguments cannot. Ordinary/suppression exchanges and public input limits
+retain 8 KiB. Preflight rejects oversized plans before dispatch; independent
+transport/final ceilings reject before streaming. No truncation, rebuilding or
+normalization is allowed. Writes-OFF, approval/claims/fences, stale/microversion,
+post-write exact verification, no retry and recovery remain unchanged. This byte
+repair does not accept any previously unproven current-UI role or feature shape.
+
 [Recovery controls](MODIFY_RECOVERY_HOTFIX.md) use the existing authenticated
 same-origin CSRF guard. Recovery returns only same-session consumed status handles
 and safe previews, never approval digests or provider bindings. Reconciliation

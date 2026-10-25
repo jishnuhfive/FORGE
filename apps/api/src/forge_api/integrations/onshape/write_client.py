@@ -17,6 +17,9 @@ from .edit_registry import change
 from .modify_evidence import ModifyEvidence, project_modify_evidence
 from .write_evidence import project_write_evidence
 
+MAX_REQUEST_BYTES = 8 * 1024
+MAX_FEATURE_REPLACEMENT_BYTES = 32 * 1024
+
 
 class SafeEditClient:
     def __init__(self, settings: Settings, transport: httpx.Client, token: str) -> None:
@@ -37,7 +40,28 @@ class SafeEditClient:
         content = (
             json.dumps(body, allow_nan=False).encode() if body is not None else None
         )
-        if content is not None and len(content) > 8192:
+        if content is not None and len(content) > MAX_REQUEST_BYTES:
+            raise EditError("invalid_request", 400)
+        return self._send_measured(method, path, content)
+
+    def _exchange_replacement(self, path: str, body: dict[str, object]) -> JsonValue:
+        """Only execute_operation's validated, fresh full-definition request.
+
+        No request field, URL pattern or planner argument selects this budget.
+        Suppression and ordinary exchanges keep their independent 8 KiB cap.
+        """
+        if not self._enabled:
+            raise EditError("write_disabled", 403)
+        content = json.dumps(body, allow_nan=False).encode()
+        if len(content) > MAX_FEATURE_REPLACEMENT_BYTES:
+            raise EditError("invalid_request", 400)
+        return self._send_measured("POST", path, content)[0]
+
+    def _send_measured(
+        self, method: str, path: str, content: bytes | None
+    ) -> tuple[JsonValue, int]:
+        # Final absolute ceiling, even if an internal caller is added later.
+        if content is not None and len(content) > MAX_FEATURE_REPLACEMENT_BYTES:
             raise EditError("invalid_request", 400)
         started = monotonic()
         remaining = self._deadline - started
@@ -165,7 +189,13 @@ class SafeEditClient:
             raise EditError("write_disabled", 403)
         baseline = evidence.baseline
         path, body, updated, suppression = self._operation_request(evidence, operation)
-        data = self._exchange("POST", path, body)  # Exactly once. Never retried.
+        # The larger budget is reached only after change()/preview and payload
+        # preflight. Both branches send exactly once, never retry.
+        data = (
+            self._exchange("POST", path, body)
+            if suppression
+            else self._exchange_replacement(path, body)
+        )
         if not isinstance(data, dict) or data.get("microversionSkew") is not False:
             raise EditError("verification_failed")
         if suppression:
@@ -239,10 +269,11 @@ class SafeEditClient:
         else:
             # updateFeatures documents parameter/suppression updates, not rename.
             # Use the documented full-definition replacement for name/quantity;
-            # preserve every fresh unrelated field, and retain the same 8 KiB cap.
+            # preserve every fresh unrelated field within the fixed 32 KiB cap.
             path = scope + "/featureid/" + quote(operation.target.feature_id, safe="")
             body.update({"btType": "BTFeatureDefinitionCall-1406", "feature": updated})
-        if len(json.dumps(body, allow_nan=False).encode()) > 8192:
+        limit = MAX_REQUEST_BYTES if suppression else MAX_FEATURE_REPLACEMENT_BYTES
+        if len(json.dumps(body, allow_nan=False).encode()) > limit:
             raise EditError("unsupported_target", 422)
         return path, body, updated, suppression
 

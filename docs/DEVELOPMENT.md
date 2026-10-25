@@ -785,6 +785,14 @@ single-refresh target is clean 13/13 Extrude and 8/8 Fillet, including complete
 real direction signature and explicit mesh/mate states. Keep diagnostics ON/writes
 OFF; first-failure dormant-role rejection remains expected. No proposal or write.
 
+The separately authorized Phase 16 payload repair uses two fixed server-owned
+limits: 8 KiB ordinary/suppression requests, 32 KiB validated full rename/depth /
+radius replacement requests. Count actual serialized bytes, including JSON escapes;
+never trim CAD metadata or filters to fit. Both preflight and transport enforce
+the bound. There is no setting or model/public request field selecting a budget.
+Keep CAD writes OFF during tests and implementation. Dormant-role acceptance and
+actual live wire-size/conformance validation remain separate pending work.
+
 It performs pinned GET reads without proposals or mutations, and adds no
 public diagnostic route/header. It is not invoked by Learn or AI. See
 [the investigation record](PHASE_9_REVIEW.md) before interpreting missing fields;

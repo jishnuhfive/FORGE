@@ -894,8 +894,8 @@ def test_unsuppress_requires_fresh_positive_result(
 def test_oversized_feature_fails_before_any_dispatch(harness: Harness) -> None:
     provider = PlanProvider()
     # Evidence remains within read caps but the unchanged full feature exceeds
-    # the inherited 8 KiB write cap. No partial reconstruction or retry is allowed.
-    provider.data["features"][-1]["syntheticMetadata"] = "x" * 9000
+    # the fixed 32 KiB replacement cap. No reconstruction or retry is allowed.
+    provider.data["features"][-1]["syntheticMetadata"] = "x" * 32768
     with running(harness, provider):
         req, preview = prepare(harness, ("RENAME_FEATURE", "SET_SUPPRESSED"))
         result = approve(harness, req, preview)

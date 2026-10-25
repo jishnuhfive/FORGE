@@ -164,8 +164,11 @@ fresh supported definition and change only name or the one expression. The parti
 update endpoint does not document rename, so A1 does not assume it does.
 
 All paths/methods/envelopes are private/server-built; feature IDs in the fixed
-replacement path are URL-encoded. The original 8 KiB request and 2 MiB response
-caps remain. Oversized definitions fail local preflight with zero POST; no partial
+replacement path are URL-encoded. A1 used an 8 KiB request / 2 MiB response cap.
+Phase 16 later separately authorizes a fixed 32 KiB full-replacement request cap;
+ordinary/suppression requests retain 8 KiB and responses retain 2 MiB. See the
+payload-budget repair in the Phase 16 record. Oversized definitions still fail
+local preflight with zero POST; no partial
 reconstruction occurs. Every mutation sets rejectMicroversionSkew=true using the
 immediately preceding verified microversion and captured serialization/library.
 Malformed/skewed acknowledgements, wrong identity, unchanged/missing revision or

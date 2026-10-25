@@ -587,7 +587,23 @@ READ-ONLY VALIDATED — MERGED INTO MAIN** at `36511d73a7fffd4b219497fe09d2c8d4f
 
 ## Phase 16 — controlled real Modify conformance
 
-**IN PROGRESS — EXACT FILTER SIGNATURE EVIDENCE NEEDED**
+**IN PROGRESS — PAYLOAD BUDGET REPAIR; CURRENT-UI QUERY CONTRACTS PENDING**
+
+Latest human checkpoint is complete for both variants: 13/13 Extrude and 8/8
+Fillet roles, clean evidence flags, one SOLID / NO_ERROR body, no proposals or
+mutations. Before accepting dormant roles, reconstructed complete replacement
+payloads exposed the inherited 8 KiB fence (14,771 / 10,782 bytes). The human
+explicitly authorized a separate bounded payload repair: only validated full
+rename/depth/radius replacements gain a fixed 32 KiB envelope; ordinary requests,
+suppression and public parsing remain at 8 KiB. Representation acceptance and all
+approval/stale/fence/microversion/verification/recovery controls are unchanged.
+The separate byte-budget gate passed 43 new cases, 5,426 focused cases, all 6,988
+API / 869 frontend cases (all 42 PostgreSQL cases, no skips), and 45 Modify browser
+cases across Chromium/Firefox/WebKit. Frozen installs and all required format /
+lint / types / build / test / migration / Compose / audit checks passed. Real
+writes remain OFF; only the explicitly authorized replacement-byte bound changes.
+Exact dormant-role production acceptance and the final writes-OFF exact-match
+checkpoint remain pending; no live-write success is claimed.
 
 Started from clean synchronized main `017f4ab7e556b2653661cbda77b7b6f22cdf1a1c`
 on `phase16/modify-live-conformance`. Scope is the existing SET_SUPPRESSED,

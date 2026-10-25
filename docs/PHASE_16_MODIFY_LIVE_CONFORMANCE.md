@@ -1,6 +1,6 @@
 # Phase 16 — controlled real Modify conformance
 
-**IN PROGRESS — REMAINING QUERY LEAF/DEPTH EVIDENCE REFRESH REQUIRED**
+**IN PROGRESS — PAYLOAD BUDGET REPAIR; CURRENT-UI QUERY CONTRACTS PENDING**
 
 Initial status: `IN PROGRESS — AUTOMATED CONFORMANCE PREPARATION`.
 
@@ -2714,3 +2714,143 @@ malformed values, unexpected fields or clipping stop advancement; never guess a
 hidden tree/value. Only complete human evidence can
 support a later separately authorized dormant-role acceptance task. No merge,
 deployment, writes ON, live mutation trial or Phase 17 work is authorized here.
+
+## Separately authorized bounded full-definition payload repair
+
+Starting clean synchronized branch phase16/modify-live-conformance at
+`8a8c9ccba37dfb1c45be246455fd6199204cfae7`. The latest human checkpoint reports
+complete 13/13 Extrude and 8/8 Fillet query-role evidence in both Inspector variants,
+with all completeness/error flags clean, one SOLID / NO_ERROR body, and
+eligible_no_proposal_no_write. Zero proposals, approvals or mutations occurred.
+All supplied dormant-role topologies and typed leaf states remain available for
+the later production acceptance task; this separate repair does not accept them.
+
+### Concrete blocker and explicit authorization
+
+Before changing eligibility, synthetic complete definitions were reconstructed
+from the supplied sanitized role evidence and the existing 50/38-parameter test
+fixtures. No private provider JSON, identifiers or query content were requested.
+Their full replacement envelopes measured:
+
+| Feature | Existing json.dumps serialization | Compact serialization (comparison only) |
+| ------- | --------------------------------- | --------------------------------------- |
+| Extrude | 14,771 bytes                      | 13,723 bytes                            |
+| Fillet  | 10,782 bytes                      | 10,009 bytes                            |
+
+These are synthetic measured sizes, not claimed measurements of private live CAD.
+Both exceed the inherited 8,192-byte preflight and transport fences, even with
+compact formatting. In-process MockTransport probes proved rejection before any
+transport call. No real provider request was made. Removing preserved fields or
+filters would violate the full-definition contract, so the acceptance task stopped
+with NO-GO before source changes. The human then explicitly selected:
+**Authorize a separate payload-limit repair.** This authorization supersedes the
+previous unchanged-8-KiB requirement only for the narrow replacement path below.
+
+### Two fixed server-owned byte budgets
+
+- MAX_REQUEST_BYTES remains **8,192** for ordinary exchanges, suppression and the
+  original Phase 9 suppression path. Public request-body limits are unchanged.
+- MAX_FEATURE_REPLACEMENT_BYTES is **32,768**, only for the private validated
+  RENAME_FEATURE / SET_EXTRUDE_DEPTH / SET_FILLET_RADIUS execution path. This
+  bounded 32 KiB envelope contains both reconstructed full payloads with headroom
+  for preserved serialization metadata. It is not an Onshape/provider size claim
+  or permission to accept a larger/unknown feature representation.
+
+Payload preflight reconstructs the complete feature through the unchanged change /
+registry predicates and checks the exact preview before choosing its fixed budget.
+Oversized replacements fail unsupported_target / 422 before write_dispatch_started
+and provider dispatch; their plan fails without a live fence and its suffix stops.
+The private replacement exchange checks writes-enabled again, serializes the
+same body with the unchanged json.dumps/allow_nan=false/UTF-8 encoding, enforces
+32 KiB independently and makes exactly one fixed POST. The ordinary exchange
+checks 8 KiB before reaching the shared network implementation. A final absolute
+32 KiB guard also protects that implementation before opening a stream.
+
+No payload field, discriminator, URL pattern, external setting, user/model argument
+or diagnostic selects the larger budget. There is no global request-cap increase,
+configurable bypass, compacting workaround, feature reconstruction from defaults,
+query/filter stripping, normalization or automatic retry. Only the closed executor
+calls the private larger-body wrapper after fresh semantic/shape/preview checks.
+No new model tool, route or provider-payload authority is exposed.
+
+### Preserved safety and scope
+
+The historical and current-UI validators, exact active entities contracts,
+dormant-role rejection, planner, preview/digest, human approval, session/grant /
+context binding, expiry, stale baseline checks, one-use claims, execution fence,
+rejectMicroversionSkew, pre-dispatch freshness, fresh post-write reread, exact-effect
+verification, uncertainty/no-retry/suffix stopping and recovery are unchanged.
+Suppression still sends only BTMFeature-134 / featureId / suppressed. No parameter
+or filter definition enters its request even when the feature snapshot is large.
+Response limits remain 2 MiB; all network deadlines/timeouts and redirects remain
+unchanged. ForgeModelGraph and models gain no write or approval authority.
+
+The current observed dormant roles still fail closed as query_filter_unproven.
+This repair creates byte capacity only after a representation has independently
+passed. It does not grant current ordinary full-profile eligibility or establish
+live-write conformance. Every fresh real definition must still fit the fixed cap;
+actual live wire sizes have not been read or measured here. Larger definitions
+fail closed and must never be trimmed to fit. CAD writes remain OFF.
+
+### Payload-budget automated gate
+
+All checks passed with real CAD writes OFF; counts overlap:
+
+| Check                                                                   | Result                                                                                  |
+| ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| New byte-budget suite                                                   | **43 passed**                                                                           |
+| Focused Modify / safe-edit / retained / AI-write / standard diagnostics | **5,426 passed**                                                                        |
+| Full API suite                                                          | **6,988 passed**, including all **42 PostgreSQL cases**, no skips                       |
+| Frontend                                                                | **869 passed** in **35 files**, no skips                                                |
+| Modify browser matrix                                                   | **45 passed**, Chromium / Firefox / WebKit, four workers, zero retries                  |
+| Frozen installs                                                         | npm ci and uv sync --locked passed; dependencies/lockfiles unchanged                    |
+| Required gate                                                           | make format, lint, typecheck, build, test, migration-check, compose-check, audit passed |
+
+The initial targeted suite passed 1,232 cases before one final absolute-ceiling
+case was added; the final focused/full suites include all 43 new cases. Strict
+Python checking passed across 199 source files; TypeScript checking passed.
+Audits reported no known vulnerabilities among audited packages; the unchanged
+Python audit excludes the editable app. Migration check reported no new upgrade
+operations. The pre-existing bundle-size warning remains. Frontend test execution
+used VITEST_MAX_WORKERS=2 for machine capacity, without repository runner changes.
+
+Verification used synthetic CAD, in-process MockTransport and isolated settings /
+databases. PostgreSQL used a healthy loopback-only random-port tmpfs container
+with synthetic credentials; only that container was removed after verification,
+retaining application services/data. Final Settings confirmed real writes OFF.
+No private CAD, secret, environment, dependency, deployment or unrelated changes.
+Representation/registry/role validators, planner, approval/fence/recovery and exact
+post-write verification source files remain unchanged from starting HEAD.
+
+Files: write_client.py; test_modify_payload_budget.py; test_modify_plan.py;
+test_modify_ui_conformance.py; docs/PHASE_16_MODIFY_LIVE_CONFORMANCE.md;
+docs/ROADMAP.md; docs/ARCHITECTURE.md; docs/SECURITY.md; docs/DEVELOPMENT.md;
+docs/HACKATHON_MODIFY_A1.md.
+
+Boundary coverage includes all four rename/quantity target combinations at 8,192,
+8,193, 14,771, 32,768 and 32,769 serialized bytes, Unicode escaping at the exact
+32 KiB boundary, an independent transport ceiling and writes-OFF guard, and the
+unchanged 8 KiB ordinary limit even with replacement-looking fields/paths.
+Large snapshots still produce minimal suppression attributes. Larger bodies do
+not bypass unsupported shape rejection, stale detection, cancel, one-use claims,
+exact acknowledgement/fresh verification or uncertainty/fence/suffix behavior.
+
+The existing over-cap replacement tests keep their failure/no-dispatch/no-fence
+assertions and now exceed the separately authorized 32 KiB cap. Original public
+8 KiB parsing and suppression regressions remain unchanged. No other bound,
+assertion, timeout, retry, threshold, dependency or lockfile change is introduced.
+
+### Next work and human checkpoint
+
+Resume the separately requested exact current-UI query-role acceptance task using
+the complete 13/13 and 8/8 evidence already provided. That task must keep explicit
+role/category/query-count contracts and the narrow depth-9 extrudeDirection rule,
+with full preservation and no diagnostic-string authority. This payload-only
+commit does not implement or claim those contracts.
+
+After that acceptance implementation and its complete gate pass, perform ONE
+same-fixture writes-OFF Inspector refresh for exact_match on both complete
+representations, rename and quantity replacement diagnostics, with the probe still
+eligible_no_proposal_no_write. No additional live read is performed by this repair,
+and no live write, deployment, merge, OAuth/domain/secret change or Phase 17 work
+is authorized. Explicit approval of an exact preview remains mandatory later.
