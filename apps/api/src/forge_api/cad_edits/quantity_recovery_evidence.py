@@ -82,12 +82,12 @@ def check_depth_recovery_state(
         raise EditError("recovery_required") from None
 
 
-def classify_depth_comparison(
+def classify_depth_comparisons(
     before: ModifyEvidence,
     after: ModifyEvidence,
     operation: ResolvedOperation,
     marker: str,
-) -> ComparisonFailure | None:
+) -> tuple[ComparisonFailure, ...]:
     """Diagnostic only: mirror verify_operation for depth, never grant success.
 
     The reader calls this only after the unchanged authoritative check rejected.
@@ -95,16 +95,17 @@ def classify_depth_comparison(
     precede inventory/configuration hashes when several predicates fail together.
     """
     if operation.operation.type != "SET_EXTRUDE_DEPTH":
-        return "unavailable"
+        return ("unavailable",)
     b, a = before.baseline, after.baseline
+    failures: list[ComparisonFailure] = []
     if a.context != b.context or a.microversion != marker or marker == b.microversion:
-        return "revision_mismatch"
+        failures.append("revision_mismatch")
     try:
         inventory = before.inventory()
         features = cast(list[dict[str, JsonValue]], inventory["features"])
         expected, preview = change(features, operation.target, operation.operation)
         if preview != operation.preview:
-            return "preview_mismatch"
+            failures.append("preview_mismatch")
         features[operation.target.position - 1] = expected
         inventory["sourceMicroversion"] = marker
         configuration = cast(
@@ -132,9 +133,20 @@ def classify_depth_comparison(
                 == fingerprint(json.loads(after.configuration_json)),
             ),
         )
-        return next((code for code, passed in checks if not passed), None)
+        return tuple(failures) + tuple(code for code, passed in checks if not passed)
     except EditError, ValueError, TypeError, KeyError, IndexError:
-        return "unavailable"
+        return tuple(failures) + ("unavailable",)
+
+
+def classify_depth_comparison(
+    before: ModifyEvidence,
+    after: ModifyEvidence,
+    operation: ResolvedOperation,
+    marker: str,
+) -> ComparisonFailure | None:
+    return next(
+        iter(classify_depth_comparisons(before, after, operation, marker)), None
+    )
 
 
 def classify_depth_inventory(

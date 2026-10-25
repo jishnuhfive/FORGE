@@ -3837,3 +3837,54 @@ privacy boundary additions were followed by focused tests and full API/PostgreSQ
 regressions. Full logs remain local under /tmp/inventory-diff-*. No real provider
 calls or incident access occurred; CAD writes remain OFF. The exact verifier,
 release procedure and operator console are unchanged.
+
+### Consolidated development baseline/current diagnostics
+
+The next human attempt reported historical_projection:baseline_mismatch instead of
+the previously observed current inventory mismatch. The retained incident and pinned
+historical revision are reported unchanged. This does not identify a cause or prove
+that any difference is safe to normalize. No normalization or repair is introduced.
+
+The private server-attested development reader now compares every typed Baseline
+component with the saved approved baseline, emitting only the following fixed labels
+in this order: context_mismatch, microversion_mismatch, terminal_identity_mismatch,
+terminal_label_mismatch, position_mismatch, definitions_digest_mismatch,
+full_evidence_digest_mismatch, serialization_mismatch, library_mismatch,
+suppressed_state_mismatch, body_revision_evidence_mismatch,
+feature_state_evidence_mismatch, suppression_aux_evidence_mismatch,
+parent_suppression_evidence_mismatch, configured_suppression_evidence_mismatch.
+No values, labels, counts, digests or revisions are emitted. An exhaustive field-map
+test requires every Baseline field to have exactly one diagnostic category.
+
+A mismatch latches an unconditional denial from the original model equality check,
+independently of diagnostic labels. Only this already-denied development path may
+continue the existing bounded eight-GET sequence, project current evidence, collect
+all supported exact comparison failures and inventory-difference categories, and
+check the final head. The combined output is a fixed historical_baseline_mismatch
+section plus current_comparison and/or current_capture sections. Current read,
+projection, deadline or final-head failures preserve the historical section. A
+current_comparison:exact_match label describes only the diagnostic comparison;
+the historical mismatch still forbids recovery. Even an empty diagnostic category
+result cannot remove the denial. No VerifiedDepthRecoveryEvidence is constructed,
+registered or handed to release_depth_record after a historical mismatch.
+
+The existing single-category API is retained for matching-history behavior.
+verify_operation, check_depth_recovery_state, saved-plan equality, exact inventory
+fingerprints, locking, grants, session preparation, release and original uncertainty
+remain unchanged. Independent recovery still aborts immediately on historical mismatch.
+No new provider request, retry, route, recovery mechanism or raw CAD persistence is
+added. CAD writes remain OFF. No real provider call, incident/session access or live
+recovery occurred during implementation. The existing one-time operator command
+above remains applicable with the same reviewed disposable/drain/settlement inputs.
+
+Consolidation gate: **8,992 API tests passed, zero skips**, including all **75
+PostgreSQL cases** in a newly isolated random-port tmpfs container, removed afterward.
+The change adds **29 synthetic tests**. Focused baseline/current diagnostics,
+comparison, readers and session preparation: **297 passed**, with one PostgreSQL
+case initially skipped and then executed successfully in the full database gate.
+Frontend: **869 passed**; Modify browsers: **45 passed** across three engines.
+make format, lint, typecheck (227 Python source/test files and TypeScript), test,
+build, migration-check, compose-check and dependency audits passed. Logs remain
+local under /tmp/depth-consolidated-*. Existing development databases/volumes and
+the real incident were untouched. No real provider calls or live recovery occurred;
+CAD writes remain OFF. Phase 16 live conformance remains unproven.

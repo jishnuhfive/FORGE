@@ -1,11 +1,15 @@
 """Internal eight-GET pinned capture. No mutation client, refresh, or retry path."""
 
 from time import monotonic
-from typing import Literal
+from typing import Literal, NoReturn
 
 import httpx2 as httpx
 from pydantic import JsonValue, SecretStr, TypeAdapter
 
+from forge_api.cad_edits.depth_baseline_diagnostics import (
+    BaselineDifference,
+    baseline_differences,
+)
 from forge_api.cad_edits.depth_contracts import (
     CAPTURE_SECONDS,
     DepthRecoveryDenied,
@@ -22,6 +26,7 @@ from forge_api.cad_edits.quantity_recovery_evidence import (
     DepthRecoveryCapture,
     check_depth_recovery_state,
     classify_depth_comparison,
+    classify_depth_comparisons,
     classify_depth_inventory,
 )
 
@@ -66,8 +71,31 @@ class DepthReadFailure(DepthRecoveryDenied):
         category: ReadCategory | ComparisonFailure,
         differences: tuple[InventoryDifference, ...] = (),
     ) -> None:
+        self.stage, self.category = stage, category
         suffix = ":" + ",".join(differences) if differences else ""
         super().__init__("depth_recovery:" + stage + ":" + category + suffix)
+
+
+class DepthBaselineDiagnostic(DepthRecoveryDenied):
+    """Unconditional denial, composed exclusively from closed diagnostic types."""
+
+    def __init__(
+        self,
+        baseline: tuple[BaselineDifference, ...],
+        comparisons: tuple[ComparisonFailure, ...] | None,
+        inventory: tuple[InventoryDifference, ...],
+        failure: DepthReadFailure | None = None,
+    ) -> None:
+        summary = "depth_recovery:diagnostic:historical_baseline_mismatch:" + ",".join(
+            baseline
+        )
+        if comparisons is not None:
+            summary += ";current_comparison:" + (",".join(comparisons) or "exact_match")
+            if inventory:
+                summary += ":" + ",".join(inventory)
+        if failure is not None:
+            summary += ";current_capture:" + failure.stage + ":" + failure.category
+        super().__init__(summary)
 
 
 _BODY_REASONS = frozenset(
@@ -265,6 +293,18 @@ class DepthEvidenceReader:
         diagnostic = isinstance(reference, ServerAttestedDepthReference)
         self._diagnostic = diagnostic
         stage: ReadStage = "historical_features"
+        historical_mismatch = False
+        historical_differences: tuple[BaselineDifference, ...] = ()
+        comparisons: tuple[ComparisonFailure, ...] | None = None
+        inventory_differences: tuple[InventoryDifference, ...] = ()
+
+        def deny(failure: DepthReadFailure) -> NoReturn:
+            if historical_mismatch:
+                raise DepthBaselineDiagnostic(
+                    historical_differences, comparisons, inventory_differences, failure
+                ) from None
+            raise failure from None
+
         try:
             if saved.plan.baseline.microversion != self._historical:
                 raise DepthRecoveryDenied("historical_revision_mismatch")
@@ -277,7 +317,7 @@ class DepthEvidenceReader:
                 self._context, self._historical, features, configuration, bodies
             )
             stage = "historical_projection"
-            # Reject bad history before spending the current-read quota.
+            # Stop independent recovery; latch development diagnostic denial.
             before = project_modify_evidence(
                 self._context,
                 self._historical,
@@ -286,9 +326,12 @@ class DepthEvidenceReader:
                 historical_capture.bodies,
             )
             if before.baseline != saved.plan.baseline:
-                if diagnostic:
-                    raise DepthReadFailure(stage, "baseline_mismatch")
-                raise DepthRecoveryDenied("historical_baseline_mismatch")
+                if not diagnostic:
+                    raise DepthRecoveryDenied("historical_baseline_mismatch")
+                historical_mismatch = True
+                historical_differences = baseline_differences(
+                    saved.plan.baseline, before.baseline
+                )
             stage = "current_head"
             marker = self._head()
             self._guard.pin(marker)
@@ -304,33 +347,42 @@ class DepthEvidenceReader:
             )
             baseline = after.baseline
             stage = "comparison"
-            try:
-                check_depth_recovery_state(
-                    saved,
-                    historical_capture,
-                    DepthRecoveryCapture(
-                        self._context, marker, features, configuration, bodies
-                    ),
+            if historical_mismatch:
+                comparisons = classify_depth_comparisons(
+                    before, after, saved.plan.operations[0], marker
                 )
-            except EditError:
-                if diagnostic:
-                    comparison_category = (
-                        classify_depth_comparison(
-                            before, after, saved.plan.operations[0], marker
-                        )
-                        or "unavailable"
+                if "inventory_mismatch" in comparisons:
+                    inventory_differences = classify_depth_inventory(
+                        before, after, saved.plan.operations[0], marker
                     )
-                    differences = (
-                        classify_depth_inventory(
-                            before, after, saved.plan.operations[0], marker
-                        )
-                        if comparison_category == "inventory_mismatch"
-                        else ()
+            else:
+                try:
+                    check_depth_recovery_state(
+                        saved,
+                        historical_capture,
+                        DepthRecoveryCapture(
+                            self._context, marker, features, configuration, bodies
+                        ),
                     )
-                    raise DepthReadFailure(
-                        stage, comparison_category, differences
-                    ) from None
-                raise
+                except EditError:
+                    if diagnostic:
+                        comparison_category = (
+                            classify_depth_comparison(
+                                before, after, saved.plan.operations[0], marker
+                            )
+                            or "unavailable"
+                        )
+                        differences = (
+                            classify_depth_inventory(
+                                before, after, saved.plan.operations[0], marker
+                            )
+                            if comparison_category == "inventory_mismatch"
+                            else ()
+                        )
+                        raise DepthReadFailure(
+                            stage, comparison_category, differences
+                        ) from None
+                    raise
             stage = "final_head"
             final = self._head()
             finished = monotonic()
@@ -340,6 +392,11 @@ class DepthEvidenceReader:
                         stage, "changed" if final != marker else "deadline"
                     )
                 raise DepthRecoveryDenied("capture_changed_or_expired")
+            if historical_mismatch:
+                # Never construct evidence or reach release for mismatched history.
+                raise DepthBaselineDiagnostic(
+                    historical_differences, comparisons, inventory_differences
+                )
             historical = reference.historical
             return VerifiedDepthRecoveryEvidence(
                 reference_fingerprint=reference_fingerprint(reference),
@@ -355,23 +412,29 @@ class DepthEvidenceReader:
                 started_monotonic=started,
                 finished_monotonic=finished,
             )
-        except DepthReadFailure:
+        except DepthBaselineDiagnostic:
             raise
+        except DepthReadFailure as error:
+            deny(error)
         except DepthRecoveryDenied as error:
             if diagnostic and error.args[0] in (
                 "capture_deadline",
                 "read_response_rejected",
             ):
-                raise DepthReadFailure(
-                    stage,
-                    "deadline"
-                    if error.args[0] == "capture_deadline"
-                    else "provider_response",
-                ) from None
+                deny(
+                    DepthReadFailure(
+                        stage,
+                        "deadline"
+                        if error.args[0] == "capture_deadline"
+                        else "provider_response",
+                    )
+                )
+            if historical_mismatch:
+                deny(DepthReadFailure(stage, "unavailable"))
             raise
         except httpx.HTTPError:
             if diagnostic:
-                raise DepthReadFailure(stage, "transport") from None
+                deny(DepthReadFailure(stage, "transport"))
             raise DepthRecoveryDenied("read_evidence_unavailable") from None
         except (ValueError, TypeError, RecursionError, EditError) as error:
             if diagnostic:
@@ -397,7 +460,7 @@ class DepthEvidenceReader:
                     "comparison",
                 ):
                     category = "provider_response"
-                raise DepthReadFailure(stage, category) from None
+                deny(DepthReadFailure(stage, category))
             raise DepthRecoveryDenied("read_evidence_unavailable") from None
         finally:
             self.close()

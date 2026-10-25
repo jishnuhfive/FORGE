@@ -13,7 +13,10 @@ from test_server_depth_recovery import case as case
 from forge_api.cad_edits.domain import EditError
 from forge_api.cad_edits.quantity_recovery_evidence import classify_depth_comparison
 from forge_api.integrations.onshape import depth_reader
-from forge_api.integrations.onshape.depth_reader import DepthReadFailure
+from forge_api.integrations.onshape.depth_reader import (
+    DepthBaselineDiagnostic,
+    DepthReadFailure,
+)
 from forge_api.integrations.onshape.modify_evidence import (
     project_modify_evidence,
     verify_operation,
@@ -96,7 +99,12 @@ def test_classifier_matches_unchanged_verifier(
         (1, "provider", "historical_features:provider_response"),
         (1, "malformed", "historical_features:provider_response"),
         (1, "shape", "historical_projection:unavailable"),
-        (1, "name", "historical_projection:baseline_mismatch"),
+        (
+            1,
+            "name",
+            "diagnostic:historical_baseline_mismatch:definitions_digest_mismatch,"
+            "full_evidence_digest_mismatch;current_comparison:inventory_mismatch:non_target_feature_changed",
+        ),
         (2, "provider", "historical_configuration:provider_response"),
         (3, "provider", "historical_body:provider_response"),
         (4, "shape", "current_head:provider_response"),
@@ -161,7 +169,12 @@ def test_closed_stage_output_preserves_incident_and_fence(
 
     case.provider.handle = respond  # type: ignore[method-assign]
     snapshot = case.snapshot()
-    with pytest.raises(DepthReadFailure) as error:
+    failure_type = (
+        DepthBaselineDiagnostic
+        if expected.startswith("diagnostic:")
+        else DepthReadFailure
+    )
+    with pytest.raises(failure_type) as error:
         case.recover()
     assert str(error.value) == "depth_recovery:" + expected
     assert "PRIVATE-SENTINEL" not in str(error.value) + caplog.text
