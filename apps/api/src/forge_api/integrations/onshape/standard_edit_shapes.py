@@ -33,6 +33,13 @@ from .standard_shape_contract import (
 
 QuantityKind = Literal["length", "offset", "angle", "fraction", "open_fraction"]
 SequenceKind = Literal["entities", "edges", "empty_queries", "empty_items"]
+CurrentExtrudeExpression = Literal[
+    "active_depth",
+    "positive_decimal_in",
+    "zero_integer_in",
+    "positive_integer_deg",
+    "positive_integer_in",
+]
 
 
 @dataclass(frozen=True)
@@ -42,6 +49,13 @@ class ParameterRule:
     enum: tuple[str, str] | None = None
     quantity: QuantityKind | None = None
     sequence: SequenceKind | None = None
+
+
+@dataclass(frozen=True)
+class CurrentExtrudeQuantityContract:
+    """One human-proven current-UI expression class, bound to one exact role."""
+
+    expression: CurrentExtrudeExpression
 
 
 def _boolean(*values: bool) -> ParameterRule:
@@ -229,6 +243,46 @@ QUANTITY_FIELDS = BASE_FIELDS | frozenset(
         "units",
     }
 )
+CURRENT_EXTRUDE_QUANTITY_FIELDS = frozenset(
+    {
+        "btType",
+        "parameterId",
+        "expression",
+        "nodeId",
+        "isInteger",
+        "value",
+        "units",
+        "parameterName",
+        "libraryRelationType",
+    }
+)
+CURRENT_EXTRUDE_QUANTITIES: Mapping[StandardId, CurrentExtrudeQuantityContract] = (
+    MappingProxyType(
+        {
+            # Depth remains the existing active positive-length contract. The other
+            # entries are exact dormant expression classes from both writes-OFF
+            # current-UI response variants; none applies by dimension or activity.
+            "depth": CurrentExtrudeQuantityContract("active_depth"),
+            "thickness": CurrentExtrudeQuantityContract("positive_decimal_in"),
+            "thickness1": CurrentExtrudeQuantityContract("positive_decimal_in"),
+            "thickness2": CurrentExtrudeQuantityContract("zero_integer_in"),
+            "draftAngle": CurrentExtrudeQuantityContract("positive_integer_deg"),
+            "secondDirectionDepth": CurrentExtrudeQuantityContract(
+                "positive_integer_in"
+            ),
+            "secondDirectionDraftAngle": CurrentExtrudeQuantityContract(
+                "positive_integer_deg"
+            ),
+            "offsetDistance": CurrentExtrudeQuantityContract("positive_integer_in"),
+            "secondDirectionOffsetDistance": CurrentExtrudeQuantityContract(
+                "positive_integer_in"
+            ),
+            "startOffsetDistance": CurrentExtrudeQuantityContract(
+                "positive_integer_in"
+            ),
+        }
+    )
+)
 NUMBER = r"[0-9]{1,6}(?:\.[0-9]{1,6})?"
 
 
@@ -292,10 +346,19 @@ def _common_metadata(param: dict[str, JsonValue], parameter: StandardId) -> None
 
 
 def _quantity_value(
-    param: dict[str, JsonValue], kind: QuantityKind, parameter: StandardId
+    param: dict[str, JsonValue],
+    kind: QuantityKind,
+    parameter: StandardId,
+    current_extrude: CurrentExtrudeQuantityContract | None,
+    exact_current_envelope: bool,
 ) -> None:
     if set(param) - QUANTITY_FIELDS:
         _reject(parameter, "unexpected_field")
+    if current_extrude is not None and exact_current_envelope:
+        if set(param) - CURRENT_EXTRUDE_QUANTITY_FIELDS:
+            _reject(parameter, "unexpected_field")
+        if CURRENT_EXTRUDE_QUANTITY_FIELDS - set(param):
+            _reject(parameter, "missing_required")
     if "isInteger" in param and param["isInteger"] is not False:
         _reject(parameter, "wrong_is_integer")
     if "value" in param and (
@@ -307,6 +370,32 @@ def _quantity_value(
     expression = param.get("expression")
     if not isinstance(expression, str):
         _reject(parameter, "wrong_quantity_expression")
+    if current_extrude is not None and current_extrude.expression != "active_depth":
+        shape = current_extrude.expression
+        if shape == "zero_integer_in":
+            accepted = expression == "0 in"
+        elif shape == "positive_decimal_in":
+            accepted = (
+                re.fullmatch(r"(?:0|[1-9][0-9]{0,5})\.[0-9]{1,6} in", expression)
+                is not None
+            )
+        elif shape == "positive_integer_in":
+            accepted = re.fullmatch(r"[1-9][0-9]{0,5} in", expression) is not None
+        else:
+            accepted = re.fullmatch(r"[1-9][0-9]{0,1} deg", expression) is not None
+        if accepted and shape != "zero_integer_in":
+            number = Decimal(expression.split(" ", 1)[0])
+            accepted = number > 0 and (
+                number < 90 if shape == "positive_integer_deg" else True
+            )
+        if accepted and shape in ("positive_decimal_in", "positive_integer_in"):
+            try:
+                valid_quantity(expression)
+            except ValueError:
+                accepted = False
+        if not accepted:
+            _reject(parameter, "wrong_quantity_expression")
+        return
     if kind == "length":
         try:
             valid_quantity(expression)
@@ -395,6 +484,7 @@ def _validate(
     parameter: StandardId,
     *,
     category: ShapeCategory,
+    current_ordinary_profile: bool,
 ) -> None:
     if param.get("btType") != rule.bt_type:
         _reject(parameter, "wrong_bt_type")
@@ -415,7 +505,15 @@ def _validate(
         if param.get("value") != rule.enum[1]:
             _reject(parameter, "wrong_enum_value")
     elif rule.quantity is not None:
-        _quantity_value(param, rule.quantity, parameter)
+        _quantity_value(
+            param,
+            rule.quantity,
+            parameter,
+            CURRENT_EXTRUDE_QUANTITIES.get(parameter)
+            if category == "extrude"
+            else None,
+            current_ordinary_profile,
+        )
     else:
         field = "items" if rule.sequence == "empty_items" else "queries"
         value = param.get(field)
@@ -477,7 +575,20 @@ def ui_quantity_parameter(
         _reject("parameters", "too_many_parameters")
     category: ShapeCategory = "extrude" if feature_type == "extrude" else "fillet"
     params: dict[StandardId, dict[str, JsonValue]] = {}
-    ordinary_query_profile = False
+    current_ordinary_profile = False
+    for candidate in raw:
+        if not isinstance(candidate, dict):
+            continue
+        raw_key = candidate.get("parameterId")
+        key = next((key for key in rules if key == raw_key), None)
+        if (
+            key is not None
+            and key != "entities"
+            and rules[key].bt_type == "BTMParameterQueryList-148"
+            and "filter" in candidate
+        ):
+            current_ordinary_profile = True
+            break
     for item in raw:
         if not isinstance(item, dict):
             _reject("parameters", "wrong_bt_type")
@@ -489,14 +600,15 @@ def ui_quantity_parameter(
             _reject("unknown_parameter", "unknown_parameter")
         if key in params:
             _reject("duplicate_parameter", "duplicate_parameter")
-        _validate(item, rules[key], key, category=category)
-        ordinary_query_profile = ordinary_query_profile or (
-            key != "entities"
-            and rules[key].bt_type == "BTMParameterQueryList-148"
-            and "filter" in item
+        _validate(
+            item,
+            rules[key],
+            key,
+            category=category,
+            current_ordinary_profile=current_ordinary_profile,
         )
         params[key] = item
-    if ordinary_query_profile:
+    if current_ordinary_profile:
         # A current ordinary definition is whole, not a mixture assembled by
         # dropping serialized dormant parameters/filters into the older profile.
         for key, rule in rules.items():

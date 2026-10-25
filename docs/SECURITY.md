@@ -772,6 +772,18 @@ DEV/diagnostics-ON/writes-OFF, complete/source-matched evidence, matching-head a
 per-record guards remain mandatory. The projector reuses existing GET responses
 and has no browser/model/persistence/eligibility/approval/mutation consumer.
 
+Complete human writes-OFF evidence now closes those ten production roles. Exact
+feature-category plus parameter-role lookup prevents a generic dormant/zero rule.
+The current complete profile requires the observed quantity field set and states;
+missing node/common fields, previously absent fields appearing, wrong provider or
+cached states, configured/nonliteral expressions, wrong signs/formats/units and
+cross-dimension substitutions all reject before dispatch. Depth retains only its
+existing positive bounded length authority. Fillet and the separately proven query
+trees do not inherit any Extrude rule. Definitions remain structurally copied
+apart from the approved name or expression delta, and fresh exact-effect evidence
+still gates success. No model, graph, browser or diagnostic output gains write
+authority.
+
 The human explicitly authorized a separate 24 KiB (24,576-byte) full-definition
 payload budget after evidence-shaped complete replacements exceeded the
 inherited 8 KiB fence.

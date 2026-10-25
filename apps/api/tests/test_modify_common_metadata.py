@@ -205,7 +205,11 @@ def test_even_eligible_metadata_omission_is_an_unrelated_postwrite_effect(
     operation = OP.validate_python(operation_for(kind, target(position).handle))
     updated, preview = change(data["features"], target(position), operation)
     data["features"][position - 1] = updated
-    del param(data, position, "depth" if position == 2 else "radius")[field]
+    item = param(data, position, "depth" if position == 2 else "radius")
+    if field in item:
+        del item[field]
+    else:
+        item[field] = ""
     assert metadata(data, position)["replacement"] == "exact_match"
     marker = "e" * 24
     data["sourceMicroversion"] = marker

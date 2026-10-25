@@ -462,7 +462,7 @@ def test_other_structurally_valid_provider_changes_cannot_verify(
     if case == "dormant_value":
         param(data, position, "thickness" if position == 2 else "otherRadius")[
             "expression"
-        ] = "7 mm"
+        ] = "0.5 in" if position == 2 else "7 mm"
     elif case == "parameter_order":
         data["features"][position - 1]["parameters"].reverse()
     elif case == "query_content":

@@ -55,6 +55,16 @@ MISSING = object()
 
 def ordinary_inventory() -> dict[str, Any]:
     data = ui_inventory()
+    # This older entities-only profile predates the full current quantity
+    # metadata. Keep its compact envelope for the original byte-bound proofs;
+    # current_inventory restores the complete human-observed envelope.
+    for item in data["features"][1]["parameters"]:
+        if (
+            item["btType"] == "BTMParameterQuantity-147"
+            and item["parameterId"] != "depth"
+        ):
+            del item["parameterName"]
+            del item["libraryRelationType"]
     for position, role in ((2, "extrude"), (3, "fillet")):
         param(data, position, "entities")["filter"] = deepcopy(FIXTURES[role]["filter"])
     return data

@@ -728,6 +728,18 @@ record cap. It adds no read or acceptance path; standard validators, query-role
 authority, Fillet, write transport and every approval/verification boundary stay
 unchanged. One writes-OFF Inspector refresh supplies the missing evidence.
 
+That refresh completed the quantity evidence for both response variants. The
+standard Extrude validator now selects one explicit expression contract by feature
+category and parameter role. Active depth retains the existing bounded positive
+length grammar. Each dormant role uses only its observed integer/decimal, sign,
+unit and dimension class; thickness2 alone admits the observed unsigned integer
+zero-inch literal. Complete current query-filter profiles also require the exact
+nine-field quantity envelope and common metadata presence. Full feature definitions
+are still copied intact, so quantity and rename payload construction changes only
+the approved expression or name and exact-effect verification compares everything
+else. Fillet, query filters, historical minimal adapters and all write authority
+boundaries are unchanged.
+
 [Recovery hotfix](MODIFY_RECOVERY_HOTFIX.md) adds session-owned server discovery,
 read-only single-terminal-suppression reconciliation and a deterministic planning
 fast path before AI fallback. `reconciled_current_state` proves present-state

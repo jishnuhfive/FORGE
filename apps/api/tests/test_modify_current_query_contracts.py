@@ -62,6 +62,9 @@ LEAF_FIELDS = tuple(
 
 def current_inventory() -> dict[str, Any]:
     data = ordinary_inventory()
+    for item in data["features"][1]["parameters"]:
+        if item["btType"] == "BTMParameterQuantity-147":
+            item.update(parameterName="", libraryRelationType="DEFAULT")
     for position, category in ((2, "extrude"), (3, "fillet")):
         for key, expected in FIXTURE[category].items():
             param(data, position, key)["filter"] = deepcopy(expected["filter"])

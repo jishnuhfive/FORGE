@@ -587,22 +587,23 @@ READ-ONLY VALIDATED — MERGED INTO MAIN** at `36511d73a7fffd4b219497fe09d2c8d4f
 
 ## Phase 16 — controlled real Modify conformance
 
-**IN PROGRESS — CURRENT-UI QUERY CONTRACTS; FINAL WRITES-OFF EXACT-MATCH CHECK REQUIRED**
+**IN PROGRESS — EXTRUDE QUANTITY CONTRACT REPAIRED; FINAL WRITES-OFF EXACT-MATCH REFRESH REQUIRED**
 
-Latest checkpoint: Fillet is fully exact-match, both query inventories are complete
-and clean, and the only remaining standard-shape failure is Extrude thickness2 /
-wrong_quantity_expression. Dormant quantity values in the local fixture are
-invented, while first-failure evidence cannot establish later quantity roles. A
-single guarded writes-OFF diagnostic now inventories all ten source-declared
-Extrude quantity roles in both existing response variants using fixed role-bound
-classifications and a 16 KiB record cap. It changes no acceptance rule, Fillet,
-query authority, transport, approval or verification behavior. One same-fixture
-Inspector refresh must provide the complete closed quantity evidence before a
-narrow production repair can be authorized. Live conformance remains unproven.
-The diagnostic gate passed 46 new cases, 2,402 affected cases, 6,729 focused
-regressions, all 8,291 API / 869 frontend cases (including all 42 PostgreSQL
-cases, no skips), and 45 Modify browser cases. Frozen installs and the complete
-format/lint/type/build/test/migration/Compose/audit gate passed with writes OFF.
+Latest human evidence is complete and agrees across both existing response
+variants. All ten Extrude quantity roles use the exact observed common envelope;
+active depth retains its positive-length authority, while each dormant role is
+bound explicitly to its observed literal number format, sign, dimension and unit.
+In particular, only thickness2 accepts the observed unsigned integer zero-inch
+form; there is no general zero/dormant-length rule. Role substitution, missing or
+extra fields, malformed metadata and wrong cached states reject. Fillet and all
+query-filter contracts are unchanged. The synthetic full profile now reaches
+exact_match for both features, with clean 13/13 and 8/8 query evidence. The
+automated gate passed: 169 new quantity cases, 3,245 affected cases, 6,898 focused
+regressions, all 8,460 API cases (including 42 PostgreSQL cases), 869 frontend
+cases and 45 Modify browser cases, without skips. Frozen installs and required
+format/lint/type/build/test/migration/Compose/audit checks passed. One final
+same-fixture human writes-OFF exact-match refresh remains required. Live
+conformance is still unproven and writes stay OFF.
 
 Complete human 13/13 Extrude and 8/8 Fillet evidence now supports explicit typed
 production contracts for every current ordinary query role. Active entities require

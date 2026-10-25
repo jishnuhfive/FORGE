@@ -50,7 +50,7 @@
       "value": 0,
       "units": "",
       "parameterName": "",
-      "valueString": ""
+      "libraryRelationType": "DEFAULT"
     },
     {
       "btType": "BTMParameterEnum-145",
@@ -98,28 +98,34 @@
       "btType": "BTMParameterQuantity-147",
       "parameterId": "thickness",
       "nodeId": "n11",
-      "expression": "5 mm",
+      "expression": "0.25 in",
       "isInteger": false,
       "value": 0,
-      "units": ""
+      "units": "",
+      "parameterName": "",
+      "libraryRelationType": "DEFAULT"
     },
     {
       "btType": "BTMParameterQuantity-147",
       "parameterId": "thickness1",
       "nodeId": "n12",
-      "expression": "5 mm",
+      "expression": "0.25 in",
       "isInteger": false,
       "value": 0,
-      "units": ""
+      "units": "",
+      "parameterName": "",
+      "libraryRelationType": "DEFAULT"
     },
     {
       "btType": "BTMParameterQuantity-147",
       "parameterId": "thickness2",
       "nodeId": "n13",
-      "expression": "5 mm",
+      "expression": "0 in",
       "isInteger": false,
       "value": 0,
-      "units": ""
+      "units": "",
+      "parameterName": "",
+      "libraryRelationType": "DEFAULT"
     },
     {
       "btType": "BTMParameterBoolean-144",
@@ -154,7 +160,9 @@
       "expression": "3 deg",
       "isInteger": false,
       "value": 0,
-      "units": ""
+      "units": "",
+      "parameterName": "",
+      "libraryRelationType": "DEFAULT"
     },
     {
       "btType": "BTMParameterBoolean-144",
@@ -179,10 +187,12 @@
       "btType": "BTMParameterQuantity-147",
       "parameterId": "secondDirectionDepth",
       "nodeId": "n22",
-      "expression": "25 mm",
+      "expression": "1 in",
       "isInteger": false,
       "value": 0,
-      "units": ""
+      "units": "",
+      "parameterName": "",
+      "libraryRelationType": "DEFAULT"
     },
     {
       "btType": "BTMParameterBoolean-144",
@@ -203,7 +213,9 @@
       "expression": "3 deg",
       "isInteger": false,
       "value": 0,
-      "units": ""
+      "units": "",
+      "parameterName": "",
+      "libraryRelationType": "DEFAULT"
     },
     {
       "btType": "BTMParameterBoolean-144",
@@ -239,10 +251,12 @@
       "btType": "BTMParameterQuantity-147",
       "parameterId": "offsetDistance",
       "nodeId": "n31",
-      "expression": "0 mm",
+      "expression": "1 in",
       "isInteger": false,
       "value": 0,
-      "units": ""
+      "units": "",
+      "parameterName": "",
+      "libraryRelationType": "DEFAULT"
     },
     {
       "btType": "BTMParameterBoolean-144",
@@ -278,10 +292,12 @@
       "btType": "BTMParameterQuantity-147",
       "parameterId": "secondDirectionOffsetDistance",
       "nodeId": "n37",
-      "expression": "0 mm",
+      "expression": "1 in",
       "isInteger": false,
       "value": 0,
-      "units": ""
+      "units": "",
+      "parameterName": "",
+      "libraryRelationType": "DEFAULT"
     },
     {
       "btType": "BTMParameterBoolean-144",
@@ -318,10 +334,12 @@
       "btType": "BTMParameterQuantity-147",
       "parameterId": "startOffsetDistance",
       "nodeId": "n43",
-      "expression": "0 mm",
+      "expression": "1 in",
       "isInteger": false,
       "value": 0,
-      "units": ""
+      "units": "",
+      "parameterName": "",
+      "libraryRelationType": "DEFAULT"
     },
     {
       "btType": "BTMParameterQueryList-148",

@@ -16,8 +16,10 @@ reject pending evidence and review. See [A1 limitations](../../../../docs/HACKAT
 Extrude inputs and 38 standard Fillet inputs, based on the official standard
 library predicates and human-reported writes-OFF metadata documented in
 [the Phase 16 record](../../../../docs/PHASE_16_MODIFY_LIVE_CONFORMANCE.md).
-All node IDs, queries and incidental dormant quantities are invented. It is not
-a private capture or proof of real write conformance. It exercises the expanded
+All node IDs and queries are invented. Quantity magnitudes are synthetic, while
+the ten Extrude expression/metadata classes now reproduce the complete closed
+evidence that agreed across both real response variants. It is not a private
+capture or proof of real write conformance. It exercises the expanded
 closed contract, explicit mode guards, empty inactive queries/arrays, ordinary
 overflow=true, and zero/empty quantity bookkeeping. Tests preserve the entire
 definition and reject unknown fields/IDs, enabled richer modes, malformed data,
@@ -37,6 +39,13 @@ This is preserved serialization metadata, never proof of configuration/import
 eligibility. Tests exercise the empty placeholders on every known parameter
 independently and preserve the unchanged 8 KiB replacement limit. No imported/
 configured behavior or nondefault library state is added.
+
+That earlier metadata gate used the original 8 KiB replacement ceiling; the
+separately authorized current ceiling is 24 KiB, with ordinary/suppression paths
+still at 8 KiB. The older entities-only test builder retains its compact dormant
+quantity metadata so its original 8,192/8,193-byte boundary proofs remain intact.
+The complete current builder restores all nine observed quantity fields before
+validating every query role. Neither builder trims production payloads.
 
 An earlier real writes-OFF checkpoint failed both entities envelopes before exact
 filter evidence was supplied. The parameter fixtures remain filter-free synthetic

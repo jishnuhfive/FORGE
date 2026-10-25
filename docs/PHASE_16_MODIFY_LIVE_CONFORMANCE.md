@@ -1,6 +1,6 @@
 # Phase 16 — controlled real Modify conformance
 
-**IN PROGRESS — CURRENT-UI QUERY CONTRACTS; FINAL WRITES-OFF EXACT-MATCH CHECK REQUIRED**
+**IN PROGRESS — EXTRUDE QUANTITY CONTRACT REPAIRED; FINAL WRITES-OFF EXACT-MATCH REFRESH REQUIRED**
 
 Initial status: `IN PROGRESS — AUTOMATED CONFORMANCE PREPARATION`.
 
@@ -3251,3 +3251,110 @@ eligible_no_proposal_no_write. Do not provide raw expressions, IDs, names, query
 text or provider JSON. Any incomplete, nonliteral, dimension-mismatched, malformed,
 unexpected or variant-disagreeing result stops the repair. This diagnostic commit
 does not claim Extrude exact_match or live-write conformance.
+
+## Exact current Extrude quantity-contract repair
+
+Starting clean synchronized branch phase16/modify-live-conformance at
+`44ee0e0f956508506c9f483dc3c8274e5028a3eb`, the requested writes-OFF refresh
+completed the missing authority. Both noSketchGeometry variants agree: all ten
+source-declared roles are present once and fully inspected; no role is malformed,
+duplicated, unrecognized, clipped or carrying an unexpected field. Every role has
+the exact nine-field quantity envelope: btType, parameterId, expression, nodeId,
+isInteger, value, units, parameterName and libraryRelationType. The observed common
+state is a nonempty string nodeId, isInteger=false, numeric cached value zero,
+empty cached units/parameterName, DEFAULT library relation and absent import marker /
+valueString. These are representation requirements, not reconstructed defaults.
+
+The production contract remains keyed by Extrude plus the exact parameter role.
+Depth keeps the existing positive supported length expression needed by
+SET_EXTRUDE_DEPTH; its current observed integer-mm baseline does not narrow the
+approved replacement quantity grammar. Dormant roles accept only their proven
+classes:
+
+| Role                                                               | Accepted current dormant expression class                         |
+| ------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| thickness, thickness1                                              | positive unsigned decimal inches                                  |
+| thickness2                                                         | unsigned integer zero inches                                      |
+| draftAngle, secondDirectionDraftAngle                              | positive unsigned integer degrees below 90                        |
+| secondDirectionDepth                                               | positive unsigned integer inches within the existing length bound |
+| offsetDistance, secondDirectionOffsetDistance, startOffsetDistance | positive unsigned integer inches within the existing length bound |
+
+There is no general dormant-length or zero-quantity predicate. The explicit role
+map chooses a closed expression class before validation. Zero-inch thickness2
+cannot substitute into the positive decimal thickness roles, those roles cannot
+substitute into thickness2, and angle literals cannot substitute into length roles.
+Canonical unsigned literal forms are required; configured, arithmetic, scientific,
+signed, wrong-format, wrong-unit and wrong-dimension forms reject. Current complete
+query-filter profiles additionally require the exact observed field envelope and
+common states. Older filter-free standard profiles retain their prior metadata
+envelope, while their role-specific expressions use the same closed role map. The
+separate A1 minimal adapters and all Fillet contracts are unchanged.
+
+The synthetic full profile now uses invented magnitudes that match the ten proven
+classes and the exact observed metadata presence; it contains no private capture,
+provider identifier or query text. Tests prove both features report standard-shape
+exact_match, parameter_shape_matches_registry=true, replacement=exact_match and
+rename=exact_match. Query evidence remains complete and clean at 13/13 Extrude and
+8/8 Fillet. Negative coverage includes positive/decimal/wrong-unit thickness2,
+signed and nonliteral forms, cross-role substitution, angle/length mismatch, wrong
+provider type, cached value/units, missing node/required fields, wrong isInteger,
+unexpected fields, duplicates and malformed parameter entries. Full-copy mutation
+and post-write verification tests continue to compare every unrelated field.
+
+The resumed full regression run exposed six synthetic size failures after the
+shared quantity fixture gained metadata: two older entities-only replacements
+exceeded their 8 KiB fixture assertions, and four 8,192/8,193-byte boundary cases
+could no longer be padded to their exact size. The older entities-only builder now
+retains its compact dormant metadata, while the complete current builder restores
+all observed fields. All size, approval, full-copy and no-dispatch assertions remain
+intact. The 2,069-case fixture regression suite passed after that separation.
+
+This repair changes no planner/model input, target discovery, preview/digest,
+approval/one-use claim, context/expiry/stale checks, execution fence, fresh
+pre-dispatch evidence, rejectMicroversionSkew, post-write exact-effect verification,
+uncertainty/no-retry or recovery behavior. Query filters, Fillet and suppression
+transport are unchanged. The 24 KiB full-replacement and independent 8 KiB ordinary /
+suppression ceilings remain. CAD writes stayed OFF; no proposal, approval, provider
+mutation, deployment or merge occurred.
+
+The final human checkpoint remains one Inspector refresh on the same confirmed
+disposable fixture with writes OFF. Both response variants must report Extrude and
+Fillet standard-shape exact_match, registry=true, replacement/rename exact_match,
+clean 13/13 and 8/8 query summaries, one SOLID / NO_ERROR and
+eligible_no_proposal_no_write. This read-only checkpoint authorizes no live write.
+
+### Quantity-contract repair automated gate
+
+The complete resumed gate passed on 2026-10-25 with real CAD writes OFF. Counts
+overlap; all full-suite tests ran without skips:
+
+| Check                                                           | Result                                                                                     |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| New exact quantity-contract module                              | **169 cases**, included in affected/full runs                                              |
+| Affected quantity/current-query/UI/common-metadata/shape suite  | **3,245 passed**                                                                           |
+| Older/current fixture and exact payload-boundary regressions    | **2,069 passed**                                                                           |
+| Focused Modify/safe-edit/retained/AI-write/standard diagnostics | **6,898 passed**                                                                           |
+| Full API                                                        | **8,460 passed**, including all **42 PostgreSQL cases**                                    |
+| Frontend                                                        | **869 passed** in **35 files**                                                             |
+| Modify browser matrix                                           | **45 passed**, Chromium/Firefox/WebKit, four workers, zero retries                         |
+| Required repository gate                                        | make format, lint, typecheck, build, test, migration-check, compose-check and audit passed |
+| Frozen installs                                                 | npm ci and uv sync --locked passed; lockfiles unchanged                                    |
+
+Strict typing passed for 203 Python source files and all TypeScript projects.
+Migration drift reported no new upgrade operations; npm and Python audits found
+no known vulnerabilities among audited dependencies (the editable API is excluded
+by the unchanged audit command). The existing bundle-size warning remains.
+Verification used synthetic CAD, MockTransport and an isolated loopback-only,
+random-port tmpfs PostgreSQL 18.6 container matching the Compose image. Its schema
+was migrated before the final full run; only this temporary container was removed
+afterward. Existing database services/data were retained. VITEST_MAX_WORKERS=2 was
+execution-only; no timeout, retry, threshold, assertion or safety bound was relaxed.
+
+Final diff review confirms runtime changes are confined to the standard quantity
+validator. Fillet fixture data, A1 minimal fixture, query-filter contracts, write
+client, planner, approvals, exact-effect verification, recovery and lockfiles are
+unchanged. Local Settings confirmed writes OFF before and after verification.
+Full logs are retained locally in `/tmp/forge-phase16-quantity-gate`; no private
+CAD, identifiers, secrets, environment files or provider capture was added.
+
+**PHASE 16 EXTRUDE QUANTITY CONTRACT PASS — READY FOR FINAL WRITES-OFF EXACT-MATCH REFRESH**

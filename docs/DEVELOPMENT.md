@@ -810,8 +810,17 @@ variant covers all ten source-declared Extrude quantity roles and is capped at
 16 KiB. Use one same-fixture CAD Inspector refresh with development diagnostics
 ON and writes OFF. Report only its closed classifications and summary flags; never
 copy raw expressions, IDs, names, queries or provider JSON. The diagnostic does
-not change production eligibility, so thickness2 remains unsupported until the
-human evidence supports a later narrow role-specific repair.
+not change production eligibility. Complete human evidence now supports the narrow
+role-specific repair documented below.
+
+Run `tests/test_modify_extrude_quantity_contracts.py` with the quantity-evidence,
+current-query, UI-conformance, common/default metadata and shape-failure suites.
+The focused contract suite uses only synthetic fixtures and requires all ten exact
+role classes, the complete current nine-field envelopes, unchanged depth authority,
+Fillet exact-match and clean 13/13 plus 8/8 query summaries. Its negative matrix
+covers substitutions, wrong expression classes/dimensions/states, absent/extra
+fields, duplicate and malformed parameters. Keep FORGE_CAD_WRITES_ENABLED=false;
+these tests and the final human Inspector refresh are read-only gates.
 
 It performs pinned GET reads without proposals or mutations, and adds no
 public diagnostic route/header. It is not invoked by Learn or AI. See

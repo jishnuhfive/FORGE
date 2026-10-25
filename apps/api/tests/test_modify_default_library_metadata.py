@@ -135,7 +135,7 @@ def test_any_unapproved_library_metadata_effect_fails_exact_verification(
     elif effect == "change":
         item["libraryRelationType"] = "IGNORE_LIBRARY_VALUES"
     else:
-        param(data, position, "thickness" if position == 2 else "otherRadius")[
+        param(data, position, "wallShape" if position == 2 else "otherRadius")[
             "libraryRelationType"
         ] = "DEFAULT"
     if effect != "change":
