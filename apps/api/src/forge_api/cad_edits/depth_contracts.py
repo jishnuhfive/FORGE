@@ -98,6 +98,7 @@ class ServerAttestedDevelopmentApproval(Closed):
 
 
 class DevelopmentOperatorReview(Closed):
+    original_baseline_restored: bool = False
     operator_authorized: bool
     server_attested_policy_accepted: bool
     disposable_fixture: bool
@@ -111,6 +112,7 @@ class DevelopmentOperatorReview(Closed):
 class DevelopmentIncidentReview(Closed):
     """Only human review input. No historical IDs/digests supplied by operator."""
 
+    original_baseline_restored: bool = False
     operator_authorized: bool
     server_attested_policy_accepted: bool
     disposable_fixture: bool
@@ -148,6 +150,13 @@ class DepthRecoveryReference(Closed):
 
 
 DepthReference = DepthRecoveryReference | ServerAttestedDepthReference
+
+
+def baseline_restoration_reviewed(reference: DepthReference) -> bool:
+    return (
+        isinstance(reference, ServerAttestedDepthReference)
+        and reference.review.original_baseline_restored
+    )
 
 
 def reference_fingerprint(reference: DepthReference) -> str:
@@ -222,9 +231,10 @@ class DepthRecoveryResult(Closed):
     schema_version: Literal["depth-operator-result-v1"] = "depth-operator-result-v1"
     state: Literal["operator_recovered"] = "operator_recovered"
     original_execution_outcome: Literal["execution_uncertain"] = "execution_uncertain"
-    disposition: Literal["independently_settled_current_state_matches"] = (
-        "independently_settled_current_state_matches"
-    )
+    disposition: Literal[
+        "independently_settled_current_state_matches",
+        "independently_settled_original_baseline_restored",
+    ] = "independently_settled_current_state_matches"
     recovered_at: int = Field(ge=0)
 
 

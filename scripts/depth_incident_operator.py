@@ -44,13 +44,22 @@ def operator_attempt(
     )
     report("Confirm all writers OFF/drained; independently review upstream settlement.")
     report("Use normal UI read access first; recovery cannot refresh a token.")
-    if ask("Type DISPOSABLE SETTLED DRAINED AUTHORIZE to attempt once: ") != (
-        "DISPOSABLE SETTLED DRAINED AUTHORIZE"
-    ):
+    report(
+        "Baseline-restored closure proves only current original-baseline restoration; "
+        "the original execution remains uncertain."
+    )
+    confirmation = ask(
+        "Type DISPOSABLE SETTLED DRAINED AUTHORIZE for approved-final-state closure, "
+        "or RESTORED BASELINE SETTLED DRAINED AUTHORIZE for the reviewed disposable "
+        "original-baseline-restored closure (one attempt): "
+    )
+    restored = confirmation == "RESTORED BASELINE SETTLED DRAINED AUTHORIZE"
+    if not restored and confirmation != "DISPOSABLE SETTLED DRAINED AUTHORIZE":
         report("DENIED operator_review_required")
         return 1
     try:
         review = DevelopmentIncidentReview(
+            original_baseline_restored=restored,
             operator_authorized=True,
             server_attested_policy_accepted=True,
             disposable_fixture=True,
@@ -82,6 +91,8 @@ def operator_attempt(
         report("DENIED completion_unconfirmed_no_retry")
         return 1
     report("PASS closure_confirmed original_execution_outcome=execution_uncertain")
+    if restored:
+        report("disposition=independently_settled_original_baseline_restored")
     return 0
 
 

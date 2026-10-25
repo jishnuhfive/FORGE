@@ -33,6 +33,7 @@ from .depth_contracts import (
     ServerAttestedDepthResult,
     VerifiedDepthRecoveryEvidence,
     _DepthRun,
+    baseline_restoration_reviewed,
     check_independent,
 )
 from .domain import EditError, fingerprint
@@ -344,7 +345,14 @@ def release_depth_record(
         raise DepthRecoveryDenied("evidence_handoff_expired")
     server_attested = isinstance(reference, ServerAttestedDepthReference)
     result: DepthResult = (
-        ServerAttestedDepthResult(recovered_at=now())
+        ServerAttestedDepthResult(
+            recovered_at=now(),
+            disposition=(
+                "independently_settled_original_baseline_restored"
+                if baseline_restoration_reviewed(reference)
+                else "independently_settled_current_state_matches"
+            ),
+        )
         if server_attested
         else DepthRecoveryResult(recovered_at=now())
     )
@@ -385,13 +393,26 @@ def release_depth_record(
     )
     if len(removed) != 1:
         raise DepthRecoveryDenied("exact_single_fence_required")
-    audit(
-        db,
-        "write_depth_development_recovery"
-        if server_attested
-        else "write_depth_operator_recovery",
-        "local_only",
-        reference.approval.user,
-    )
+    if server_attested:
+        _audit_development_closure(db, reference.approval.user, result.recovered_at)
+    else:
+        audit(
+            db, "write_depth_operator_recovery", "local_only", reference.approval.user
+        )
     db.flush()
     return result
+
+
+def _audit_development_closure(
+    db: DatabaseSession, user: str, recovered_at: int
+) -> None:
+    # Completion confirmation requires exact equality with the tombstone timestamp.
+    # One atomic closure timestamp avoids a false denial at a wall-clock tick.
+    db.add(
+        AuditEvent(
+            kind="write_depth_development_recovery",
+            outcome="local_only",
+            user_id=user,
+            created_at=recovered_at,
+        )
+    )

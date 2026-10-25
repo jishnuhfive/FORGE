@@ -105,6 +105,67 @@ def check_depth_recovery_state(
         raise EditError("recovery_required") from None
 
 
+def check_depth_baseline_restored(
+    saved: StoredPlan, historical: DepthRecoveryCapture, current: DepthRecoveryCapture
+) -> None:
+    """Private development closure prerequisite, never execution success.
+
+    Bind original history using its original policy before comparing current CAD.
+    Only the existing source revision and validated node bookkeeping semantics
+    may differ. The approved operation is validated, but never applied to CAD or
+    to the expected restored inventory. No final-result recovery fallback exists.
+    """
+    plan = saved.plan
+    try:
+        if (
+            saved.result.state != "execution_uncertain"
+            or saved.result.operations != ("execution_uncertain",)
+            or len(plan.operations) != 1
+            or plan.operations[0].operation.type != "SET_EXTRUDE_DEPTH"
+            or plan.operations[0].target.feature_type != "extrude"
+            or plan.baseline.context != plan.binding.context
+            or historical.context != plan.binding.context
+            or current.context != plan.binding.context
+            or historical.microversion == current.microversion
+            or approved_historical_baseline(saved, historical) != plan.baseline
+        ):
+            raise EditError("recovery_required")
+        before, after = (
+            project_modify_evidence(
+                c.context, c.microversion, c.features, c.configuration, c.bodies
+            )
+            for c in (historical, current)
+        )
+        # Validates exact historical target identity/type/position, supported
+        # parameter shape and retained preview; discard the proposed replacement.
+        operation = plan.operations[0]
+        _, preview = change(before.features(), operation.target, operation.operation)
+        if preview != operation.preview:
+            raise EditError("recovery_required")
+        inventory = before.inventory()
+        inventory["sourceMicroversion"] = current.microversion
+        configuration = cast(
+            dict[str, JsonValue], json.loads(before.configuration_json)
+        )
+        configuration["sourceMicroversion"] = current.microversion
+        expected_fingerprint = fingerprint(
+            [semantic_inventory(inventory), configuration]
+        )
+        # Compare EVERY projected baseline field, including model health evidence,
+        # suppression evidence, definitions and identity. Fingerprint is rebuilt
+        # only to account for the existing pinned revision marker contract.
+        expected_baseline = before.baseline.model_copy(
+            update={
+                "microversion": current.microversion,
+                "fingerprint": expected_fingerprint,
+            }
+        )
+        if expected_baseline != after.baseline:
+            raise EditError("recovery_required")
+    except EditError, ValueError, TypeError, KeyError, IndexError:
+        raise EditError("recovery_required") from None
+
+
 def classify_depth_comparisons(
     before: ModifyEvidence,
     after: ModifyEvidence,

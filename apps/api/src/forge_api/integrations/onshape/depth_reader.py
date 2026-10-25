@@ -16,6 +16,7 @@ from forge_api.cad_edits.depth_contracts import (
     DepthReference,
     ServerAttestedDepthReference,
     VerifiedDepthRecoveryEvidence,
+    baseline_restoration_reviewed,
     reference_fingerprint,
 )
 from forge_api.cad_edits.depth_inventory_diagnostics import InventoryDifference
@@ -25,6 +26,7 @@ from forge_api.cad_edits.quantity_recovery_evidence import (
     ComparisonFailure,
     DepthRecoveryCapture,
     approved_historical_baseline,
+    check_depth_baseline_restored,
     check_depth_recovery_state,
     classify_depth_comparison,
     classify_depth_comparisons,
@@ -60,6 +62,7 @@ ReadCategory = Literal[
     "deadline",
     "transport",
     "provider_response",
+    "original_baseline_mismatch",
 ]
 
 
@@ -359,7 +362,12 @@ class DepthEvidenceReader:
                     )
             else:
                 try:
-                    check_depth_recovery_state(
+                    state_check = (
+                        check_depth_baseline_restored
+                        if baseline_restoration_reviewed(reference)
+                        else check_depth_recovery_state
+                    )
+                    state_check(
                         saved,
                         historical_capture,
                         DepthRecoveryCapture(
@@ -367,6 +375,10 @@ class DepthEvidenceReader:
                         ),
                     )
                 except EditError:
+                    if baseline_restoration_reviewed(reference):
+                        raise DepthReadFailure(
+                            stage, "original_baseline_mismatch"
+                        ) from None
                     if diagnostic:
                         comparison_category = (
                             classify_depth_comparison(

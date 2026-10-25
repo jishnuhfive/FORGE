@@ -435,7 +435,7 @@ def test_atomic_failure_restores_original_fence_and_record(
     event.listen(engine, "before_cursor_execute", before_sql)
     event.listen(engine, "after_cursor_execute", after_sql)
     if stage == "audit":
-        monkeypatch.setattr(depth_release, "audit", fail)
+        monkeypatch.setattr(depth_release, "_audit_development_closure", fail)
     if stage == "commit":
         event.listen(engine, "commit", fail)
     try:

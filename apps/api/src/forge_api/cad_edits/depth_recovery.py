@@ -190,6 +190,7 @@ def _development_reference(
             expires_at=record.expires_at,
         ),
         review=DevelopmentOperatorReview(
+            original_baseline_restored=review.original_baseline_restored,
             operator_authorized=review.operator_authorized,
             server_attested_policy_accepted=review.server_attested_policy_accepted,
             disposable_fixture=review.disposable_fixture,

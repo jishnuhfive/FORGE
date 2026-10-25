@@ -1144,3 +1144,11 @@ a2_ack_difference warning at an already-rejected Modify ack_fingerprint boundary
 Only closed schema-path classes and validator reason codes may be logged, only in
 development. See the latest [Phase 16 record](PHASE_16_MODIFY_LIVE_CONFORMANCE.md).
 Use synthetic transports only; this diagnostic does not authorize a live write/retry.
+
+The depth console's explicit RESTORED BASELINE SETTLED DRAINED AUTHORIZE choice is
+only for a separately reviewed disposable incident already manually restored to its
+original approved baseline. The existing DISPOSABLE SETTLED DRAINED AUTHORIZE choice
+still requires the approved final state. Neither mode falls back to the other.
+Follow the latest Phase 16 record; never invoke recovery during tests. Synthetic
+coverage is in test_depth_baseline_restoration.py, plus the restored-state concurrent
+closure case in test_server_depth_postgres.py (disposable PostgreSQL only).

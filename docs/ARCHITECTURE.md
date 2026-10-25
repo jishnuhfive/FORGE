@@ -890,3 +890,10 @@ excluded from semantic digests and exact acknowledgement/post-read equality. Raw
 features still construct provider payloads. New plans carry modify-semantic-nodes-2;
 retained depth approvals must first match their original raw historical baseline.
 No graph, planner, approval, fence or provider-dispatch authority moves.
+
+The private development depth console also supports an explicitly reviewed
+original-baseline-restored disposition, bound to the same incident reference and
+one-use eight-GET capture. A separate exact original-state prerequisite precedes
+unchanged atomic administrative release. Approved-final-state verification and
+production Modify verification are unchanged; neither closure infers original-write
+causality. See the latest Phase 16 recovery record for the trust boundary.

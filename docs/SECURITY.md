@@ -998,3 +998,11 @@ binds new semantic baselines. Old pending policies cannot execute; retained dept
 recovery requires the complete original raw-baseline binding before canonical exact
 verification. No approval digest/row rewrite, fence bypass, automatic retry or broader
 recovery authority is introduced; original execution uncertainty stays historical fact.
+
+Original-baseline-restored depth closure is development/operator-only and explicitly
+selected in the reviewed incident reference. It retains all existing settlement,
+drain, identity, grant, integrity, locking, freshness and atomic closure controls.
+Legacy historical raw binding precedes semantic comparison; no field exclusions
+are added. Only fresh head-bracketed exact current-original-state evidence permits
+this distinct disposition. Original execution stays execution_uncertain. The old
+approved-result and Fillet policies remain unchanged; no CAD mutation is available.

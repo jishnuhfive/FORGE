@@ -4039,3 +4039,96 @@ real incident records/fences were untouched. No real provider calls, writes,
 recovery, retry, merge or deployment occurred. CAD writes remain OFF.
 
 AUTOMATED ACK DIAGNOSTIC GATE PASS — ACTUAL LIVE MISMATCH CLASS UNPROVEN
+
+### Explicit original-baseline-restored administrative disposition
+
+Human sequencing evidence: after the second controlled depth write failed at
+ack_fingerprint, CAD was manually restored from the observed 25 mm state to the
+original approved 20 mm baseline before the recovery operator ran. The operator
+then denied depth_recovery:comparison:inventory_mismatch:target_depth_expression_unexpected.
+The historical session was explicitly revoked when prompted; writes remained OFF
+and the protective fence remained. This expected denial does not establish a new
+Modify conformance defect: the existing recovery predicate requires current CAD
+to match the approved final state. The acknowledgement mismatch remains unresolved.
+
+The private development console now offers a separately explicit reviewed choice:
+RESTORED BASELINE SETTLED DRAINED AUTHORIZE. It requires the same owned disposable
+fixture, independently reviewed upstream settlement, drained writers, writes OFF,
+unique aged fenced uncertain depth incident, original binding/integrity/audits,
+inactive historical session, current connected read grant and cached credential.
+The reviewed choice is bound into the incident reference fingerprint, including
+historical-session preparation and the one-use transaction-local evidence handoff.
+Changing the choice after capture invalidates the handoff. There is no fallback
+between baseline-restored and approved-final-state recovery.
+
+The same eight bounded GETs reacquire immutable approved history and bracket fresh
+current pinned feature/configuration/body reads. Legacy approvals must pass their
+original RAW historical baseline binding first; semantic-policy approvals keep their
+original semantic binding. The new pure comparison validates the exact retained
+depth target and preview, then compares the complete projected original baseline
+with current evidence. Only the already-supported sourceMicroversion substitution
+and validated nodeId bookkeeping semantics apply. Inventory/order/identity, depth
+expression and all other parameters/queries/metadata, independent configuration,
+suppression evidence and projected model-health evidence must agree. No geometry
+equivalence beyond the existing bounded body/model evidence contract is inferred.
+Unknown, malformed or unsupported changes reject; no new normalization is added.
+Final head movement/deadlines reject before release.
+
+Atomic administrative release, exact conditional record/fence updates, fixed audit,
+commit and read-only completion confirmation are reused. The redacted tombstone
+records disposition=independently_settled_original_baseline_restored and preserves
+original_execution_outcome=execution_uncertain. It never claims the original write
+did or did not happen, fabricates execution success, edits CAD or rewrites approval
+authority. The old independently_settled_current_state_matches disposition and its
+exact approved-result verification remain unchanged, as do independent-depth and
+legacy Fillet recovery. No public route, AI tool or production mode is added.
+Failures before commit roll back and retain record/fence. An ambiguous commit result
+must deny without retry; as with the existing path, a commit already completed can
+only be assessed by independently inspecting committed state, never by assuming
+rollback or reporting success.
+
+Implementation/tests used synthetic provider evidence and isolated test databases
+only. The real incident/fence, real Onshape document and CAD-write configuration
+were not accessed or changed. No recovery attempt, live write, merge or deployment
+was performed. Production Modify verification, ack comparison, approval/freshness,
+claim/fence/microversion/no-retry behavior, query contracts and 24 KiB/8 KiB limits
+remain unchanged. Phase 16 live conformance is still incomplete.
+
+Separately authorized next operator checkpoint (do not run as an automated test):
+stop other backends/writers; keep CAD writes OFF; start the existing local console
+with `cd apps/api && uv run --frozen python ../../scripts/depth_incident_operator.py`.
+Use normal read-only UI access to populate that runtime's cached credential. Review
+settlement/drain and the disposable incident, choose exactly
+RESTORED BASELINE SETTLED DRAINED AUTHORIZE, and provide the existing private review
+and exact stack/company inputs. Revoke only the historical session if prompted.
+Attempt once; on denial or unconfirmed completion retain the stop/no-retry posture.
+A confirmed baseline-restored disposition proves current restoration only, never
+original-write causality or successful Modify conformance.
+
+The first complete automated gate exposed an existing development closure timestamp
+race: the tombstone used now() at construction while its audit used a separate
+insertion-time default; completion requires their timestamps to be exactly equal.
+A deterministic synthetic clock-tick test reproduced completion_unconfirmed_no_retry.
+Development closure now assigns the same atomic closure timestamp to its fixed audit
+and tombstone. The exact confirmation predicate is unchanged. Independent-depth
+and Fillet auditing remain unchanged; audit-failure rollback injection remains
+covered. This is a local administrative-confirmation fix, not evidence about the
+real ack_fingerprint failure. Full regressions are rerun after this proven repair.
+
+Final baseline-restoration gate: **9,177 API tests passed, zero skips**, including
+all **76 PostgreSQL cases** (75 existing and one added concurrent restored-closure
+case). This change adds **52 synthetic cases**, including a deterministic clock-tick
+regression. The initial relevant suite passed **3,109 tests**; after the clock fix,
+focused recovery/session/semantic regressions passed **405 tests**. Each focused run
+omitted its one isolated PostgreSQL case; that case executed in the final complete
+passing gate. Frontend: **869 passed**; Modify browsers: **45 passed** across Chromium,
+Firefox and WebKit. make format, lint, typecheck (232 Python files and TypeScript),
+test, build, migration-check, compose-check and dependency audits all passed.
+The first complete run's one timestamp-confirmation failure was reproduced and fixed
+before the final full rerun; no assertion, timeout, bound or confirmation predicate
+was weakened. Logs are local under /tmp/baseline-restored-* (the failed first run is
+preserved separately). PostgreSQL used only new random-loopback-port tmpfs containers,
+removed afterward; existing development databases/volumes and the real incident/fence
+were untouched. Human recovery and actual acknowledgement conformance remain unrun.
+
+AUTOMATED BASELINE-RESTORED ADMINISTRATIVE CLOSURE GATE PASS — LIVE CONFORMANCE PENDING

@@ -848,3 +848,10 @@ locations, exact semantic verification and raw-bound retained-depth compatibilit
 Automated verification and the next writes-OFF human recovery checkpoint are recorded
 in [the conformance record](PHASE_16_MODIFY_LIVE_CONFORMANCE.md). Phase 16 live conformance
 remains pending; this repair does not authorize creation work or declare Phase 16 done.
+
+Phase 16 adds a separately reviewed development-only original-baseline-restored
+administrative disposition after the human restored CAD before final-state recovery.
+It proves fresh current baseline agreement only, retaining execution_uncertain
+provenance. This expected final-state denial is not a new conformance defect. The
+ack_fingerprint blocker and final human live gate remain unresolved; no Phase 17
+creation authority is gained.

@@ -347,3 +347,50 @@ def test_database_idle_timeout_during_capture_keeps_fence(
         monkeypatch.setattr(provider, "handle", slow)
         assert outcome(c) == "denied"
         assert c.snapshot() == before and provider.writes == 0
+
+
+def test_restored_baseline_duplicate_has_one_atomic_closure(
+    postgres: Engine,
+    harness: Harness,
+) -> None:
+    from copy import deepcopy
+
+    import httpx2 as httpx
+    from server_depth_support import review
+
+    use_postgres(harness, postgres)
+    provider = PlanProvider()
+    original = deepcopy(provider.data)
+    with running(harness, provider):
+        c = seed_depth(harness, provider)
+        provider.data = original
+        provider.data["sourceMicroversion"] = provider.marker
+        reviewed = review(harness).model_copy(
+            update={"original_baseline_restored": True}
+        )
+        barrier = Barrier(2)
+
+        def attempt() -> str:
+            barrier.wait(timeout=5)
+            try:
+                result = depth_recovery.recover_development_depth_incident(
+                    harness.runtime,
+                    reviewed,
+                    transport=httpx.MockTransport(provider.handle),
+                )
+                assert (
+                    result.disposition
+                    == "independently_settled_original_baseline_restored"
+                )
+                assert result.original_execution_outcome == "execution_uncertain"
+                return "closed"
+            except DepthRecoveryDenied:
+                return "denied"
+
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            a, b = pool.submit(attempt), pool.submit(attempt)
+            assert sorted((a.result(timeout=10), b.result(timeout=10))) == [
+                "closed",
+                "denied",
+            ]
+        assert_closed(c)
