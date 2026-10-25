@@ -3725,3 +3725,57 @@ existing development data/volumes were untouched. Logs are local /tmp/session-ga
 No real provider call, real session revocation or recovery occurred. CAD writes stayed
 OFF. Fillet recovery, independent-depth eligibility, exact-effect comparison, normal
 approval/fence behavior, payload limits, grants and token handling remain unchanged.
+
+### Closed development depth-read failure classification
+
+The real operator advanced beyond historical-session inactivity and then denied
+read_evidence_unavailable. That observation alone does not identify the failed
+GET, projection or exact comparison. No cause or successful closure is inferred.
+
+The existing eight-GET reader now reports fixed depth_recovery:stage:category
+codes only for the private server-attested development incident path. Stages
+identify historical features/configuration/body reads, historical projection,
+current/final head, current features/configuration/body reads and projections,
+and comparison. Categories distinguish unavailable projection, historical baseline
+mismatch, invalid body evidence, changed final head, deadline, transport and rejected
+provider response. Comparison categories distinguish inventory, configuration,
+serialization, library, parent suppression, configured suppression, revision and
+preview mismatch; an unclassifiable rejection remains unavailable. Where several
+exact comparisons fail, the specific serialization/library/suppression predicate
+precedes the encompassing inventory/configuration fingerprint mismatch.
+
+Classification runs only after the unchanged authoritative prerequisite rejects.
+It mirrors the existing depth verifier predicates independently, cannot authorize
+recovery, and never includes provider values, opaque identifiers, expressions,
+fingerprints, URLs, credentials, bodies or exception text. General Modify verification
+and independent-depth/Fillet recovery remain unchanged. No session, grant, fence,
+record, payload ceiling or recovery-release rule changes. Failure still closes the
+reader, denies without retry and leaves the retained incident/fence intact.
+
+Synthetic differential tests compare accepted/rejected states with the unchanged
+verifier, isolate every comparison category, cover read/projection/provider/deadline
+failures, check sanitized output and unchanged incident/fence, and prove even a
+classifier returning no mismatch cannot override an authoritative rejection.
+No real provider calls or real incident access occurred during implementation.
+CAD writes remain OFF. The single next human evidence step is the existing operator
+command, with the same disposable-fixture, drain and settlement review prerequisites:
+
+```sh
+cd /Users/jishnuhiremath/Developer/FORGE-retained-recovery/apps/api
+uv run --frozen python ../../scripts/depth_incident_operator.py
+```
+
+Run once, record only its fixed denial category or sanitized closure result, and
+stop on denial. This diagnostic does not establish live conformance or settle the
+original uncertain operation. No automatic retry or fence release is introduced.
+
+Diagnostic gate: **8,909 API tests passed, zero skips**, including all **75
+PostgreSQL cases**. The diagnostic adds 35 synthetic tests; targeted reader,
+comparison and session-preparation regressions passed 214 tests (one PostgreSQL
+case awaited the full isolated-database run and then passed there). Frontend:
+869 passed; Modify browsers: 45 passed across Chromium, Firefox and WebKit.
+make format, lint, typecheck (223 Python files and TypeScript), test, build,
+migration-check, compose-check and dependency audits passed. PostgreSQL ran only
+in a newly created random-loopback-port tmpfs container, removed afterward;
+existing development databases and volumes were untouched. Full logs remain local
+under /tmp/depth-class-*. No live recovery or CAD write was attempted.

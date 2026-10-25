@@ -1,6 +1,7 @@
 """Internal eight-GET pinned capture. No mutation client, refresh, or retry path."""
 
 from time import monotonic
+from typing import Literal
 
 import httpx2 as httpx
 from pydantic import JsonValue, SecretStr, TypeAdapter
@@ -9,19 +10,73 @@ from forge_api.cad_edits.depth_contracts import (
     CAPTURE_SECONDS,
     DepthRecoveryDenied,
     DepthReference,
+    ServerAttestedDepthReference,
     VerifiedDepthRecoveryEvidence,
     reference_fingerprint,
 )
 from forge_api.cad_edits.domain import EditError
 from forge_api.cad_edits.plans import StoredPlan
 from forge_api.cad_edits.quantity_recovery_evidence import (
+    ComparisonFailure,
     DepthRecoveryCapture,
     check_depth_recovery_state,
+    classify_depth_comparison,
 )
 
 from .client import MAX_BYTES, bounded_json
 from .contracts import ACCEPT, API_VERSION, CadId, WorkspaceReference, api_origin
+from .eligibility import EligibilityRejected, Reason
 from .modify_evidence import project_modify_evidence
+
+ReadStage = Literal[
+    "historical_features",
+    "historical_configuration",
+    "historical_body",
+    "historical_projection",
+    "current_head",
+    "current_features",
+    "current_configuration",
+    "current_body",
+    "current_projection",
+    "current_feature_projection",
+    "current_configuration_projection",
+    "current_body_projection",
+    "comparison",
+    "final_head",
+]
+ReadCategory = Literal[
+    "unavailable",
+    "baseline_mismatch",
+    "body_invalid",
+    "changed",
+    "deadline",
+    "transport",
+    "provider_response",
+]
+
+
+class DepthReadFailure(DepthRecoveryDenied):
+    """Closed stage/category only. Never accepts provider/exception text."""
+
+    def __init__(
+        self, stage: ReadStage, category: ReadCategory | ComparisonFailure
+    ) -> None:
+        super().__init__("depth_recovery:" + stage + ":" + category)
+
+
+_BODY_REASONS = frozenset(
+    {
+        Reason.BODY_SCHEMA,
+        Reason.BODY_COUNT,
+        Reason.BODY_TYPE,
+        Reason.BODY_ERROR,
+        Reason.BODY_REVISION_MISSING,
+        Reason.BODY_REVISION,
+        Reason.BODY_PINNING,
+        Reason.BODY_AMBIGUOUS,
+        Reason.BODY_DELETED,
+    }
+)
 
 
 class _PinnedGetTransport(httpx.BaseTransport):
@@ -119,6 +174,7 @@ class DepthEvidenceReader:
         )
         self._deadline = 0.0
         self._used = False
+        self._diagnostic = False
 
     def close(self) -> None:
         self._credential = None
@@ -167,6 +223,8 @@ class DepthEvidenceReader:
                     len(content) + len(chunk) > MAX_BYTES
                     or monotonic() >= self._deadline
                 ):
+                    if self._diagnostic and monotonic() >= self._deadline:
+                        raise DepthRecoveryDenied("capture_deadline")
                     raise DepthRecoveryDenied("read_response_rejected")
                 content.extend(chunk)
             if monotonic() >= self._deadline:
@@ -198,40 +256,74 @@ class DepthEvidenceReader:
             if deadline is not None
             else started + CAPTURE_SECONDS
         )
+        diagnostic = isinstance(reference, ServerAttestedDepthReference)
+        self._diagnostic = diagnostic
+        stage: ReadStage = "historical_features"
         try:
             if saved.plan.baseline.microversion != self._historical:
                 raise DepthRecoveryDenied("historical_revision_mismatch")
+            features = self._get()
+            stage = "historical_configuration"
+            configuration = self._get()
+            stage = "historical_body"
+            bodies = self._get()
             historical_capture = DepthRecoveryCapture(
-                self._context, self._historical, self._get(), self._get(), self._get()
+                self._context, self._historical, features, configuration, bodies
             )
+            stage = "historical_projection"
             # Reject bad history before spending the current-read quota.
-            if (
-                project_modify_evidence(
-                    self._context,
-                    self._historical,
-                    historical_capture.features,
-                    historical_capture.configuration,
-                    historical_capture.bodies,
-                ).baseline
-                != saved.plan.baseline
-            ):
+            before = project_modify_evidence(
+                self._context,
+                self._historical,
+                historical_capture.features,
+                historical_capture.configuration,
+                historical_capture.bodies,
+            )
+            if before.baseline != saved.plan.baseline:
+                if diagnostic:
+                    raise DepthReadFailure(stage, "baseline_mismatch")
                 raise DepthRecoveryDenied("historical_baseline_mismatch")
+            stage = "current_head"
             marker = self._head()
             self._guard.pin(marker)
-            features, configuration, bodies = self._get(), self._get(), self._get()
-            baseline = project_modify_evidence(
+            stage = "current_features"
+            features = self._get()
+            stage = "current_configuration"
+            configuration = self._get()
+            stage = "current_body"
+            bodies = self._get()
+            stage = "current_projection"
+            after = project_modify_evidence(
                 self._context, marker, features, configuration, bodies
-            ).baseline
-            check_depth_recovery_state(
-                saved,
-                historical_capture,
-                DepthRecoveryCapture(
-                    self._context, marker, features, configuration, bodies
-                ),
             )
+            baseline = after.baseline
+            stage = "comparison"
+            try:
+                check_depth_recovery_state(
+                    saved,
+                    historical_capture,
+                    DepthRecoveryCapture(
+                        self._context, marker, features, configuration, bodies
+                    ),
+                )
+            except EditError:
+                if diagnostic:
+                    raise DepthReadFailure(
+                        stage,
+                        classify_depth_comparison(
+                            before, after, saved.plan.operations[0], marker
+                        )
+                        or "unavailable",
+                    ) from None
+                raise
+            stage = "final_head"
             final = self._head()
             finished = monotonic()
             if final != marker or finished > self._deadline:
+                if diagnostic:
+                    raise DepthReadFailure(
+                        stage, "changed" if final != marker else "deadline"
+                    )
                 raise DepthRecoveryDenied("capture_changed_or_expired")
             historical = reference.historical
             return VerifiedDepthRecoveryEvidence(
@@ -248,7 +340,49 @@ class DepthEvidenceReader:
                 started_monotonic=started,
                 finished_monotonic=finished,
             )
-        except httpx.HTTPError, ValueError, TypeError, RecursionError, EditError:
+        except DepthReadFailure:
+            raise
+        except DepthRecoveryDenied as error:
+            if diagnostic and error.args[0] in (
+                "capture_deadline",
+                "read_response_rejected",
+            ):
+                raise DepthReadFailure(
+                    stage,
+                    "deadline"
+                    if error.args[0] == "capture_deadline"
+                    else "provider_response",
+                ) from None
+            raise
+        except httpx.HTTPError:
+            if diagnostic:
+                raise DepthReadFailure(stage, "transport") from None
+            raise DepthRecoveryDenied("read_evidence_unavailable") from None
+        except (ValueError, TypeError, RecursionError, EditError) as error:
+            if diagnostic:
+                category: ReadCategory = "unavailable"
+                if (
+                    stage == "current_projection"
+                    and isinstance(error, EligibilityRejected)
+                    and error.diagnostic.reason in _BODY_REASONS
+                ):
+                    stage = "current_body_projection"
+                    category = "body_invalid"
+                elif stage == "current_projection":
+                    stage = (
+                        "current_configuration_projection"
+                        if isinstance(error, EligibilityRejected)
+                        and error.diagnostic.reason
+                        in (Reason.CONFIGURATION_SHAPE, Reason.CONFIGURED)
+                        else "current_feature_projection"
+                    )
+                elif stage not in (
+                    "historical_projection",
+                    "current_projection",
+                    "comparison",
+                ):
+                    category = "provider_response"
+                raise DepthReadFailure(stage, category) from None
             raise DepthRecoveryDenied("read_evidence_unavailable") from None
         finally:
             self.close()

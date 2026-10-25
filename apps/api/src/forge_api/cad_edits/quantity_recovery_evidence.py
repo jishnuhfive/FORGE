@@ -3,21 +3,37 @@
 Inputs must come from independently reviewed, bounded provider captures. This
 module performs no I/O, accepts no credentials and cannot release a fence. A
 successful comparison proves current-state agreement, never upstream settlement
-or original-write causality. No recovery entry point consumes this prerequisite.
+or original-write causality. Only the private recovery reader consumes this check.
 """
 
+import json
 from dataclasses import dataclass
+from typing import Literal, cast
 
 from pydantic import JsonValue
 
 from forge_api.integrations.onshape.contracts import WorkspaceReference
+from forge_api.integrations.onshape.edit_registry import change
 from forge_api.integrations.onshape.modify_evidence import (
+    ModifyEvidence,
     project_modify_evidence,
     verify_operation,
 )
 
-from .domain import EditError
-from .plans import StoredPlan
+from .domain import EditError, fingerprint
+from .plans import ResolvedOperation, StoredPlan
+
+ComparisonFailure = Literal[
+    "serialization_mismatch",
+    "library_mismatch",
+    "parent_suppression_mismatch",
+    "configured_suppression_mismatch",
+    "inventory_mismatch",
+    "configuration_mismatch",
+    "revision_mismatch",
+    "preview_mismatch",
+    "unavailable",
+]
 
 
 @dataclass(frozen=True, repr=False)
@@ -63,3 +79,58 @@ def check_depth_recovery_state(
         verify_operation(before, after, plan.operations[0], after.baseline.microversion)
     except EditError, ValueError, TypeError:
         raise EditError("recovery_required") from None
+
+
+def classify_depth_comparison(
+    before: ModifyEvidence,
+    after: ModifyEvidence,
+    operation: ResolvedOperation,
+    marker: str,
+) -> ComparisonFailure | None:
+    """Diagnostic only: mirror verify_operation for depth, never grant success.
+
+    The reader calls this only after the unchanged authoritative check rejected.
+    Evaluate every exact comparison independently; specific baseline differences
+    precede inventory/configuration hashes when several predicates fail together.
+    """
+    if operation.operation.type != "SET_EXTRUDE_DEPTH":
+        return "unavailable"
+    b, a = before.baseline, after.baseline
+    if a.context != b.context or a.microversion != marker or marker == b.microversion:
+        return "revision_mismatch"
+    try:
+        inventory = before.inventory()
+        features = cast(list[dict[str, JsonValue]], inventory["features"])
+        expected, preview = change(features, operation.target, operation.operation)
+        if preview != operation.preview:
+            return "preview_mismatch"
+        features[operation.target.position - 1] = expected
+        inventory["sourceMicroversion"] = marker
+        configuration = cast(
+            dict[str, JsonValue], json.loads(before.configuration_json)
+        )
+        configuration["sourceMicroversion"] = marker
+        checks: tuple[tuple[ComparisonFailure, bool], ...] = (
+            ("serialization_mismatch", a.serialization == b.serialization),
+            ("library_mismatch", a.library == b.library),
+            (
+                "parent_suppression_mismatch",
+                a.parent_suppression_evidence == b.parent_suppression_evidence,
+            ),
+            (
+                "configured_suppression_mismatch",
+                a.configured_suppression_evidence == b.configured_suppression_evidence,
+            ),
+            (
+                "inventory_mismatch",
+                fingerprint(inventory) == fingerprint(after.inventory()),
+            ),
+            (
+                "configuration_mismatch",
+                fingerprint(configuration)
+                == fingerprint(json.loads(after.configuration_json)),
+            ),
+        )
+        return next((code for code, passed in checks if not passed), None)
+    except EditError, ValueError, TypeError, KeyError, IndexError:
+        return "unavailable"
