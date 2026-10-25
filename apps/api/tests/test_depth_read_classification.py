@@ -106,7 +106,7 @@ def test_classifier_matches_unchanged_verifier(
         (6, "shape", "current_configuration_projection:unavailable"),
         (7, "provider", "current_body:provider_response"),
         (7, "shape", "current_body_projection:body_invalid"),
-        (5, "name", "comparison:inventory_mismatch"),
+        (5, "name", "comparison:inventory_mismatch:non_target_feature_changed"),
         (6, "metadata", "comparison:configuration_mismatch"),
         (5, "serialization", "comparison:serialization_mismatch"),
         (5, "library", "comparison:library_mismatch"),

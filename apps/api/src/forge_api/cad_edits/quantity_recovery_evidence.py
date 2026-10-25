@@ -20,6 +20,7 @@ from forge_api.integrations.onshape.modify_evidence import (
     verify_operation,
 )
 
+from .depth_inventory_diagnostics import InventoryDifference, inventory_differences
 from .domain import EditError, fingerprint
 from .plans import ResolvedOperation, StoredPlan
 
@@ -134,3 +135,28 @@ def classify_depth_comparison(
         return next((code for code, passed in checks if not passed), None)
     except EditError, ValueError, TypeError, KeyError, IndexError:
         return "unavailable"
+
+
+def classify_depth_inventory(
+    before: ModifyEvidence,
+    after: ModifyEvidence,
+    operation: ResolvedOperation,
+    marker: str,
+) -> tuple[InventoryDifference, ...]:
+    """Explain only the already-rejected expected/current inventory fingerprint."""
+    if operation.operation.type != "SET_EXTRUDE_DEPTH":
+        return ()
+    try:
+        expected = before.inventory()
+        features = cast(list[dict[str, JsonValue]], expected["features"])
+        replacement, _ = change(features, operation.target, operation.operation)
+        features[operation.target.position - 1] = replacement
+        expected["sourceMicroversion"] = marker
+        actual = after.inventory()
+        if fingerprint(expected) == fingerprint(actual):
+            return ()
+        return inventory_differences(expected, actual, operation.target.feature_id) or (
+            "unknown_provider_metadata_changed",
+        )
+    except EditError, ValueError, TypeError, KeyError, IndexError, RecursionError:
+        return ("unknown_provider_metadata_changed",)

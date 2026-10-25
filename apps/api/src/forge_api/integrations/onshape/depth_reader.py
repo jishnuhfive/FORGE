@@ -14,6 +14,7 @@ from forge_api.cad_edits.depth_contracts import (
     VerifiedDepthRecoveryEvidence,
     reference_fingerprint,
 )
+from forge_api.cad_edits.depth_inventory_diagnostics import InventoryDifference
 from forge_api.cad_edits.domain import EditError
 from forge_api.cad_edits.plans import StoredPlan
 from forge_api.cad_edits.quantity_recovery_evidence import (
@@ -21,6 +22,7 @@ from forge_api.cad_edits.quantity_recovery_evidence import (
     DepthRecoveryCapture,
     check_depth_recovery_state,
     classify_depth_comparison,
+    classify_depth_inventory,
 )
 
 from .client import MAX_BYTES, bounded_json
@@ -59,9 +61,13 @@ class DepthReadFailure(DepthRecoveryDenied):
     """Closed stage/category only. Never accepts provider/exception text."""
 
     def __init__(
-        self, stage: ReadStage, category: ReadCategory | ComparisonFailure
+        self,
+        stage: ReadStage,
+        category: ReadCategory | ComparisonFailure,
+        differences: tuple[InventoryDifference, ...] = (),
     ) -> None:
-        super().__init__("depth_recovery:" + stage + ":" + category)
+        suffix = ":" + ",".join(differences) if differences else ""
+        super().__init__("depth_recovery:" + stage + ":" + category + suffix)
 
 
 _BODY_REASONS = frozenset(
@@ -308,12 +314,21 @@ class DepthEvidenceReader:
                 )
             except EditError:
                 if diagnostic:
-                    raise DepthReadFailure(
-                        stage,
+                    comparison_category = (
                         classify_depth_comparison(
                             before, after, saved.plan.operations[0], marker
                         )
-                        or "unavailable",
+                        or "unavailable"
+                    )
+                    differences = (
+                        classify_depth_inventory(
+                            before, after, saved.plan.operations[0], marker
+                        )
+                        if comparison_category == "inventory_mismatch"
+                        else ()
+                    )
+                    raise DepthReadFailure(
+                        stage, comparison_category, differences
                     ) from None
                 raise
             stage = "final_head"

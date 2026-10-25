@@ -3779,3 +3779,61 @@ migration-check, compose-check and dependency audits passed. PostgreSQL ran only
 in a newly created random-loopback-port tmpfs container, removed afterward;
 existing development databases and volumes were untouched. Full logs remain local
 under /tmp/depth-class-*. No live recovery or CAD write was attempted.
+
+### Development inventory-mismatch explanation
+
+The next real operator reported depth_recovery:comparison:inventory_mismatch.
+This establishes an exact expected/current inventory disagreement; it does not
+establish the specific structural difference or settle the original operation.
+
+Only after the existing authoritative comparison rejects, the private development
+reader now explains an inventory fingerprint mismatch using the already captured
+historical/current inventories. It constructs the same expected approved depth
+replacement and source revision as verify_operation, without changing that verifier.
+No provider request, persisted CAD, new recovery mechanism, normalization or
+verification exception is introduced. The closed diagnostic vocabulary does not
+ignore any field for acceptance: the complete exact fingerprint remains authoritative.
+
+The appended diagnostic set is deduplicated in this fixed order:
+
+- feature_count_changed
+- feature_order_or_identity_changed
+- non_target_feature_changed
+- target_name_changed
+- target_suppression_changed
+- target_definition_metadata_changed
+- target_parameter_count_changed
+- target_parameter_order_changed
+- target_parameter_type_or_shape_changed
+- target_depth_expression_unexpected
+- target_depth_parameter_metadata_changed
+- other_target_parameter_metadata_changed
+- feature_states_changed
+- source_revision_metadata_changed
+- unknown_provider_metadata_changed
+
+Features/parameters are aligned by identity for diagnostic attribution only.
+Unknown fields (including nested additions/removals) collapse to the generic label;
+no keys, values, identities, indexes, revisions, expressions, quantities, fingerprints,
+queries or exception text appear in output. Multiple categories may overlap and are
+reported together, without implying causality or authorizing a repair. A classifier
+failure remains a denial with the generic label. Independent-depth and Fillet paths,
+session revocation, grants, payload ceilings, record/fence and verification rules
+remain unchanged. CAD writes stayed OFF; no real provider/incident was accessed.
+
+The existing operator command above remains the next single human evidence step,
+with the same disposable/drain/settlement review. Record the fixed denial suffix
+and stop on denial. No live retry or recovery was run in this implementation task.
+
+Inventory diagnostic verification: **8,963 API tests passed, zero skips**, including
+all **75 PostgreSQL cases** in a newly isolated random-port tmpfs database container,
+removed afterward. The change adds **54 synthetic tests**. Focused diagnostics,
+readers, exact comparison and historical-session regressions: **268 passed**, with
+one PostgreSQL case initially skipped locally and subsequently passed in the full
+isolated-database run. Frontend: **869 passed**; Modify browsers: **45 passed** across
+all three engines. make format, lint, typecheck (225 Python source/test files and
+TypeScript), test, build, migration-check, compose-check and audits passed. Final
+privacy boundary additions were followed by focused tests and full API/PostgreSQL
+regressions. Full logs remain local under /tmp/inventory-diff-*. No real provider
+calls or incident access occurred; CAD writes remain OFF. The exact verifier,
+release procedure and operator console are unchanged.
