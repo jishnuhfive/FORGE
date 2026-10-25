@@ -29,7 +29,7 @@ All requests: same-origin, `X-CSRF-Token`, JSON. Errors: `{"detail": "<code>"}`.
    `{status:"unsupported", reason, message}` | `{status:"rejected", code}`.
    The browser keeps only the brief from `ready`.
 2. `POST /api/create/plan` `{context, brief}` → `{proposal_id, digest, expires_at,
-   brief, plan, explanations, limitations}`. `digest` is the whole-approval digest the
+brief, plan, explanations, limitations}`. `digest` is the whole-approval digest the
    approval binds to (not `plan.digest`). `422 unsupported_geometry` means the server
    refused the whole plan before any approval exists (any hole/cut today); the UI shows
    the unsupported state and nothing is built.
