@@ -1125,3 +1125,9 @@ For the server-attested incident, the tested local launcher is
 It owns the actual normal backend runtime/cache and shuts down after one reviewed
 attempt; do not run beside an existing backend or use a new interpreter to impersonate
 a live runtime. Follow the Phase 16 procedure. No recovery web endpoint is added.
+
+The same depth operator command now conditionally prompts REVOKE HISTORICAL SESSION
+for the exact active historical incident identity. No session hash is entered and
+signing out a different current session is unnecessary. Revocation preparation makes
+no provider calls and does not close the fence; reviewed recovery follows only after
+inactivity is confirmed. Tests: test_depth_session_preparation.py and console matrix.

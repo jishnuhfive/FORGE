@@ -145,9 +145,9 @@ def _eligible(saved: StoredPlan) -> None:
         raise DepthRecoveryDenied("unsupported_depth_operation")
 
 
-def _validate_locked(
+def _lock_incident(
     db: DatabaseSession, settings: Settings, reference: DepthReference
-) -> tuple[WriteRecord, StoredPlan, OnshapeAuthorization]:
+) -> tuple[WriteRecord, StoredPlan, OnshapeAuthorization, Session]:
     _environment(settings, reference)
     at = now()
     historical, approval, review = (
@@ -168,10 +168,6 @@ def _validate_locked(
         original is None
         or original.user_id != approval.user
         or original.created_at > historical.created_at
-        or (
-            original.expires_at > at
-            and (original.revoked_at is None or original.revoked_at > at)
-        )
     ):
         raise DepthRecoveryDenied("historical_inactive_identity_required")
     grant = db.scalar(
@@ -288,6 +284,18 @@ def _validate_locked(
     ):
         raise DepthRecoveryDenied("conflicting_user_operation")
     _audits(db, reference, at)
+    return record, saved, grant, original
+
+
+def _validate_locked(
+    db: DatabaseSession, settings: Settings, reference: DepthReference
+) -> tuple[WriteRecord, StoredPlan, OnshapeAuthorization]:
+    record, saved, grant, original = _lock_incident(db, settings, reference)
+    at = now()
+    if original.expires_at > at and (
+        original.revoked_at is None or original.revoked_at > at
+    ):
+        raise DepthRecoveryDenied("historical_inactive_identity_required")
     return record, saved, grant
 
 

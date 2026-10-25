@@ -19,7 +19,11 @@ from forge_api.cad_edits.depth_contracts import (
     DepthRecoveryDenied,
     DevelopmentIncidentReview,
 )
-from forge_api.cad_edits.depth_recovery import recover_development_depth_incident
+from forge_api.cad_edits.depth_recovery import (
+    inspect_development_depth_session,
+    recover_development_depth_incident,
+    revoke_development_depth_session,
+)
 from forge_api.core.config import Settings
 from forge_api.main import create_app
 
@@ -56,7 +60,18 @@ def operator_attempt(
             stack=ask("Reviewed stack URL (exact): "),
             company_id=ask("Reviewed company ID (empty for personal stack): ") or None,
         )
-        recover_development_depth_incident(runtime, review)
+        incident = inspect_development_depth_session(runtime, review)
+        if incident.active:
+            report(
+                "Historical incident session is still active. "
+                "Type REVOKE HISTORICAL SESSION "
+                "to revoke only that exact retained incident session."
+            )
+            confirmation = ask("> ")
+            incident = revoke_development_depth_session(
+                runtime, review, incident, confirmation
+            )
+        recover_development_depth_incident(runtime, review, incident=incident)
     except ValidationError:
         report("DENIED invalid_operator_review")
         return 1

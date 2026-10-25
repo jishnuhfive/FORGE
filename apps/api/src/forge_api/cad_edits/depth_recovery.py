@@ -7,12 +7,13 @@ already own the exact cached read credential; never bootstrap or refresh a token
 from time import monotonic
 
 import httpx2 as httpx
-from sqlalchemy import select, text
+from sqlalchemy import select, text, update
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, sessionmaker
 
 from forge_api.auth.provider import ProviderError
 from forge_api.auth.runtime import AuthRuntime
+from forge_api.auth.security import audit
 from forge_api.auth.tokens import TokenManager
 from forge_api.core.config import Settings
 from forge_api.db.coordination import user_lock
@@ -21,6 +22,10 @@ from forge_api.db.models import (
     OnshapeAuthorization,
     WriteFence,
     WriteRecord,
+    now,
+)
+from forge_api.db.models import (
+    Session as LoginSession,
 )
 from forge_api.integrations.onshape.depth_reader import DepthEvidenceReader
 
@@ -35,12 +40,13 @@ from .depth_contracts import (
     DevelopmentIncidentReview,
     DevelopmentOperatorReview,
     HistoricalPlanReference,
+    HistoricalSessionPreparation,
     IndependentSettlement,
     ServerAttestedDepthReference,
     ServerAttestedDepthResult,
     ServerAttestedDevelopmentApproval,
 )
-from .depth_release import lock_depth_record, release_depth_record
+from .depth_release import _lock_incident, lock_depth_record, release_depth_record
 from .domain import EditError, fingerprint
 
 
@@ -200,6 +206,7 @@ def recover_development_depth_incident(
     runtime: AuthRuntime,
     review: DevelopmentIncidentReview,
     *,
+    incident: HistoricalSessionPreparation | None = None,
     transport: httpx.BaseTransport | None = None,
 ) -> ServerAttestedDepthResult:
     """Trusted in-process operator only. No external IDs or approval receipt.
@@ -214,6 +221,8 @@ def recover_development_depth_incident(
         with runtime.sessions.begin() as db:
             _transaction_limits(db)
             reference = _development_reference(db, runtime.settings, review)
+            if incident is not None and reference != incident.reference:
+                raise DepthRecoveryDenied("reviewed_incident_changed")
             result = _recover_locked(
                 db, runtime.settings, runtime.tokens, reference, started, transport
             )
@@ -276,3 +285,83 @@ def _transaction_limits(db: Session) -> None:
         db.execute(text("SET LOCAL lock_timeout = '2000ms'"))
         db.execute(text("SET LOCAL statement_timeout = '35000ms'"))
         db.execute(text("SET LOCAL idle_in_transaction_session_timeout = '40000ms'"))
+
+
+def inspect_development_depth_session(
+    runtime: AuthRuntime,
+    review: DevelopmentIncidentReview,
+) -> HistoricalSessionPreparation:
+    """Inspect only; the same full incident locks/guards precede a possible prompt."""
+    try:
+        with runtime.sessions.begin() as db:
+            _transaction_limits(db)
+            reference = _development_reference(db, runtime.settings, review)
+            _, _, _, original = _lock_incident(db, runtime.settings, reference)
+            at = now()
+            active = original.expires_at > at and (
+                original.revoked_at is None or original.revoked_at > at
+            )
+            return HistoricalSessionPreparation(reference=reference, active=active)
+    except SQLAlchemyError:
+        raise DepthRecoveryDenied("session_preparation_unavailable") from None
+
+
+def revoke_development_depth_session(
+    runtime: AuthRuntime,
+    review: DevelopmentIncidentReview,
+    incident: HistoricalSessionPreparation,
+    confirmation: str,
+) -> HistoricalSessionPreparation:
+    """Administrative preparation only. No CAD, grant/cache change or fence release.
+
+    One exact session transition and fixed local-only session audit commit together.
+    Any ambiguous completion is denied, never retried. Duplicate inactive calls are
+    safe no-ops. The private incident pins are rechecked before and after commit.
+    """
+    if confirmation != "REVOKE HISTORICAL SESSION":
+        raise DepthRecoveryDenied("historical_revocation_confirmation_required")
+    try:
+        with runtime.sessions.begin() as db:
+            _transaction_limits(db)
+            reference = _development_reference(db, runtime.settings, review)
+            if reference != incident.reference:
+                raise DepthRecoveryDenied("reviewed_incident_changed")
+            _, _, _, original = _lock_incident(db, runtime.settings, reference)
+            at = now()
+            if original.expires_at > at and (
+                original.revoked_at is None or original.revoked_at > at
+            ):
+                changed = list(
+                    db.scalars(
+                        update(LoginSession)
+                        .where(
+                            LoginSession.token_hash
+                            == reference.historical.binding.session,
+                            LoginSession.user_id == reference.approval.user,
+                            LoginSession.created_at == original.created_at,
+                            LoginSession.expires_at == original.expires_at,
+                            LoginSession.revoked_at == original.revoked_at,
+                        )
+                        .values(revoked_at=at)
+                        .returning(LoginSession.token_hash)
+                    )
+                )
+                if len(changed) != 1:
+                    raise DepthRecoveryDenied(
+                        "historical_revocation_unconfirmed_no_retry"
+                    )
+                audit(
+                    db, "session_revoked", "local_only", user_id=reference.approval.user
+                )
+        # Inspection is read-only SQL (row locks only) and proves exact identity,
+        # inactive status and unchanged incident/grant/audit relationships again.
+        after = inspect_development_depth_session(runtime, review)
+        if after.reference != reference or after.active:
+            raise DepthRecoveryDenied("historical_revocation_unconfirmed_no_retry")
+        return after
+    except DepthRecoveryDenied:
+        raise
+    except Exception:
+        raise DepthRecoveryDenied(
+            "historical_revocation_unconfirmed_no_retry"
+        ) from None

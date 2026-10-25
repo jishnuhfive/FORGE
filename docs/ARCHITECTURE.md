@@ -877,3 +877,8 @@ variant. The short private operator entry derives the unique incident's pins ins
 the serialized transaction, reuses exact eight-GET depth capture/release, then confirms
 closure read-only. It adds no normal route/tool/CLI and never acquires/refreshes a token.
 Server-attested provenance is distinct from an independently preserved approval receipt.
+
+Exact historical-session revocation is a separate depth operator preparation
+transaction. Shared incident validation/locks are reused; recovery's inactive-session
+check remains mandatory. Frozen private incident pins prevent retargeting between
+inspection, confirmed exact-session revocation and subsequent recovery.

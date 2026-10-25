@@ -123,3 +123,56 @@ def test_launcher_shares_actual_runtime_and_stops_its_server(
         assert console.serve_operator(app) == (0 if mode == "ready" else 1)
     assert servers[0].finished
     assert configs[0]["host"] == "127.0.0.1" and configs[0]["access_log"] is False
+
+
+@pytest.mark.parametrize("mode", ["confirm", "decline", "inactive"])
+def test_exact_historical_session_prompt_and_same_incident(
+    case: ServerCase, monkeypatch: pytest.MonkeyPatch, mode: str
+) -> None:
+    from forge_api.db.models import Session, now
+
+    with case.harness.runtime.sessions.begin() as db:
+        original = db.get(Session, case.reference.historical.binding.session)
+        assert original
+        original.expires_at = now() + 3600
+        original.revoked_at = now() if mode == "inactive" else None
+    answers = iter(
+        [
+            "DISPOSABLE SETTLED DRAINED AUTHORIZE",
+            case.reference.review.stack,
+            "",
+            "REVOKE HISTORICAL SESSION" if mode == "confirm" else "NO",
+        ]
+    )
+    output: list[str] = []
+    calls = []
+
+    def recover(runtime: Any, review: Any, **kw: Any) -> object:
+        incident = kw["incident"]
+        assert incident.reference.historical == case.reference.historical
+        assert incident.reference.approval == case.reference.approval
+        assert not incident.active
+        calls.append("recover")
+        return object()
+
+    monkeypatch.setattr(console, "recover_development_depth_incident", recover)
+    before = case.snapshot()
+    result = console.operator_attempt(
+        case.harness.runtime,
+        ask=lambda _: next(answers),
+        private=lambda _: "Synthetic independent settlement reviewed",
+        report=output.append,
+    )
+    assert result == (1 if mode == "decline" else 0)
+    assert calls == ([] if mode == "decline" else ["recover"])
+    prompt = (
+        "Historical incident session is still active. "
+        "Type REVOKE HISTORICAL SESSION "
+        "to revoke only that exact retained incident session."
+    )
+    assert (prompt in output) == (mode != "inactive")
+    with case.harness.runtime.sessions() as db:
+        original = db.get(Session, case.reference.historical.binding.session)
+        assert original
+        assert (original.revoked_at is not None) == (mode != "decline")
+    assert case.snapshot() == before and not case.provider.calls

@@ -3600,7 +3600,9 @@ console launcher supplies the real in-process runtime; it is not a normal-user A
    leave the existing local HTTPS frontend/configuration in place. Review the unique
    owned disposable incident, accept this server-attested trust policy, establish
    independent upstream settlement and authorize this administrative closure. The
-   historical session must be hard-expired or revoked via normal auth controls.
+   exact historical session must be inactive before recovery. The console now offers
+   guarded revocation of only that retained incident session; signing out a different
+   current browser session is neither required nor sufficient.
 2. From the repository, run exactly this local operator launcher (no opaque pins):
 
    ```sh
@@ -3623,6 +3625,12 @@ console launcher supplies the real in-process runtime; it is not a normal-user A
    reviewed exact stack URL https://cad.onshape.com/api, and an empty company ID for
    this personal-stack fixture. No proposal handle, user/session/feature ID or digest
    is entered or printed. Cancellation/invalid review causes denial with no attempt.
+   If the exact historical session is still active, the console prints the sanitized
+   historical-session prompt. Type REVOKE HISTORICAL SESSION only to authorize that
+   exact session's revocation. It commits and re-reads inactivity before continuing
+   recovery with the same private incident pins. If already inactive, this step is
+   skipped without another revocation/audit. A different current session, OAuth grant
+   and cached read credential are preserved.
 4. The console invokes the guarded entry once. It derives the unique server pins,
    validates all audits/relationships, performs at most eight bounded GETs, and closes
    only on exact agreement. It confirms the committed tombstone/audit/fence state
@@ -3672,3 +3680,48 @@ predicate or Fillet recovery implementation changed. Independent-depth reference
 serialization/result schema remain unchanged. CAD writes remained OFF and no real
 Onshape request, real closure, original-record/fence mutation, merge or deployment
 occurred. This is implementation verification, not Phase 16 live conformance.
+
+## Exact historical-session administrative preparation
+
+The real operator denial historical_inactive_identity_required exposed a different
+historical browser session still within its normal eight-hour lifetime. Recovery's
+inactive-session requirement remains intact. A separate guarded preparation step now
+uses the same complete incident validation and user/session/grant/fence/record locks.
+The common validator returns the exact original session; _validate_locked still
+requires it inactive before any recovery capture/release. No active-session bypass
+or optional relaxation was added to recovery.
+
+inspect_development_depth_session derives the exact session from the unique retained
+fenced plan, validates the current disposable/operator/settlement/drain review and
+all record integrity, single-depth, owner, grant, workspace, audit and age conditions,
+and returns private frozen incident pins plus an active classification. The console
+requires the exact extra phrase REVOKE HISTORICAL SESSION before invoking
+revoke_development_depth_session. That helper rechecks the same pins/guards under
+locks and conditionally sets only the exact Session.revoked_at=now(), with one
+session_revoked/local_only audit in the same transaction. Already hard-expired or
+revoked sessions are no-ops. It commits and re-reads the exact inactive identity and
+unchanged incident relationships. Failure rolls back; ambiguous completion denies
+without retry. Separate sessions, OAuth grant/generation, token cache, uncertain row
+and fence are never mutated by preparation. It performs ZERO provider calls.
+
+Console recovery then receives the same private incident pins; substituted or changed
+incidents reject before capture. The operator enters no session ID/hash, need not log
+out a different current browser session, and cannot revoke all sessions. There is no
+new route, AI/browser capability, production mode or direct database-edit procedure.
+The existing command/procedure above applies with this one conditional prompt.
+The real historical session, retained record and fence were not accessed or modified
+in this implementation task; real preparation/recovery was not executed.
+
+Historical-session preparation gate: **8,874 API tests passed with no skips**, including
+all **75 PostgreSQL cases** (the existing 74 plus the exact-session concurrent-revocation
+case). The change adds 31 tests overall. Targeted mixed preparation/console/independent/
+server-depth regression: 182 passed, one PostgreSQL case deselected for the targeted
+non-PostgreSQL run; that race case passed separately and in the complete gate.
+Frontend: 869 passed in 35 files. Modify browsers: 45 passed across all three engines.
+make format, lint, typecheck (222 Python files and TypeScript), build, migration-check,
+compose-check and audits passed. Existing bundle-size warning only. PostgreSQL used
+only a newly isolated loopback/random-port tmpfs 18.6 container, removed afterward;
+existing development data/volumes were untouched. Logs are local /tmp/session-gate-*.
+No real provider call, real session revocation or recovery occurred. CAD writes stayed
+OFF. Fillet recovery, independent-depth eligibility, exact-effect comparison, normal
+approval/fence behavior, payload limits, grants and token handling remain unchanged.

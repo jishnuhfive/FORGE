@@ -982,3 +982,10 @@ comparison remain mandatory. This policy is not tamper-proof database evidence,
 physical-human detection or production recovery. It has a distinct provenance-labeled
 tombstone/audit and read-only commit confirmation. See Phase 16 for the trusted
 in-process procedure and cache limitation. Independent-depth and Fillet policy remain.
+
+Development depth incident preparation can revoke only the historical session derived
+from the exact unique fenced uncertain depth plan after full locked incident/review
+validation and a separate exact console confirmation. It writes only that session's
+revoked_at plus session_revoked/local_only, commits and re-proves inactivity; duplicates
+are no-ops. Recovery still requires inactivity. Current sessions, grant/cache and the
+uncertain row/fence are preserved. Private incident pins bind preparation to recovery.

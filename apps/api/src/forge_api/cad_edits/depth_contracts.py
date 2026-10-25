@@ -128,6 +128,14 @@ class ServerAttestedDepthReference(Closed):
     review: DevelopmentOperatorReview = Field(repr=False)
 
 
+@dataclass(frozen=True, repr=False)
+class HistoricalSessionPreparation:
+    """Private incident pins for console handoff, never a session/approval token."""
+
+    reference: ServerAttestedDepthReference
+    active: bool
+
+
 class DepthRecoveryReference(Closed):
     settlement: IndependentSettlement = Field(repr=False)
     independent: IndependentDepthApproval = Field(repr=False)
