@@ -7,6 +7,7 @@ from urllib.parse import quote
 import httpx2 as httpx
 from pydantic import JsonValue, TypeAdapter
 
+from forge_api.cad_edits import plan_diagnostics
 from forge_api.cad_edits.domain import Baseline, EditError, Proposal, fingerprint
 from forge_api.cad_edits.plans import ResolvedOperation
 from forge_api.core.config import Settings
@@ -25,6 +26,7 @@ class SafeEditClient:
     def __init__(self, settings: Settings, transport: httpx.Client, token: str) -> None:
         self._origin = api_origin(str(settings.onshape_api_base_url))
         self._enabled = settings.forge_cad_writes_enabled
+        self._development = settings.environment == "development"
         self._transport = transport
         self._token = token
         self._deadline = monotonic() + 30
@@ -185,44 +187,70 @@ class SafeEditClient:
         No caller-supplied path, method, parameter identifier or payload is accepted.
         The fixed executor is the sole caller; this is never a planner tool.
         """
-        if not self._enabled:
-            raise EditError("write_disabled", 403)
-        baseline = evidence.baseline
-        path, body, updated, suppression = self._operation_request(evidence, operation)
-        # The larger budget is reached only after change()/preview and payload
-        # preflight. Both branches send exactly once, never retry.
-        data = (
-            self._exchange("POST", path, body)
-            if suppression
-            else self._exchange_replacement(path, body)
-        )
-        if not isinstance(data, dict) or data.get("microversionSkew") is not False:
-            raise EditError("verification_failed")
-        if suppression:
-            returned = data.get("features")
-            if not isinstance(returned, list) or len(returned) != 1:
-                raise EditError("verification_failed")
-            feature = returned[0]
-        else:
-            feature = data.get("feature")
-        if (
-            not isinstance(feature, dict)
-            or feature.get("featureId") != operation.target.feature_id
-        ):
-            raise EditError("verification_failed")
-        if suppression and feature.get("suppressed") is not updated["suppressed"]:
-            raise EditError("verification_failed")
-        if not suppression and fingerprint(feature) != fingerprint(updated):
-            raise EditError("verification_failed")
+        stage: plan_diagnostics.DispatchStage = "request_preflight"
+
+        def passed() -> None:
+            plan_diagnostics.emit_dispatch(self._development, stage, True)
+
         try:
-            marker = TypeAdapter(CadId).validate_python(
-                data.get("sourceMicroversion"), strict=True
+            if not self._enabled:
+                raise EditError("write_disabled", 403)
+            baseline = evidence.baseline
+            path, body, updated, suppression = self._operation_request(
+                evidence, operation
             )
-        except ValueError:
-            raise EditError("verification_failed") from None
-        if marker == baseline.microversion:
-            raise EditError("verification_failed")
-        return marker
+            passed()
+            # The larger budget is reached only after change()/preview and payload
+            # preflight. Both branches send exactly once, never retry.
+            stage = "provider_exchange"
+            data = (
+                self._exchange("POST", path, body)
+                if suppression
+                else self._exchange_replacement(path, body)
+            )
+            passed()
+            stage = "ack_skew"
+            if not isinstance(data, dict) or data.get("microversionSkew") is not False:
+                raise EditError("verification_failed")
+            passed()
+            stage = "ack_feature_envelope"
+            if suppression:
+                returned = data.get("features")
+                if not isinstance(returned, list) or len(returned) != 1:
+                    raise EditError("verification_failed")
+                feature = returned[0]
+            else:
+                feature = data.get("feature")
+            if not isinstance(feature, dict):
+                raise EditError("verification_failed")
+            passed()
+            stage = "ack_target_identity"
+            if feature.get("featureId") != operation.target.feature_id:
+                raise EditError("verification_failed")
+            passed()
+            stage = "ack_fingerprint"
+            if suppression and feature.get("suppressed") is not updated["suppressed"]:
+                raise EditError("verification_failed")
+            if not suppression and fingerprint(feature) != fingerprint(updated):
+                raise EditError("verification_failed")
+            passed()
+            stage = "ack_marker_shape"
+            try:
+                marker = TypeAdapter(CadId).validate_python(
+                    data.get("sourceMicroversion"), strict=True
+                )
+            except ValueError:
+                raise EditError("verification_failed") from None
+            passed()
+            stage = "ack_marker_advance"
+            if marker == baseline.microversion:
+                raise EditError("verification_failed")
+            passed()
+            return marker
+        except Exception:
+            # Closed labels only: no exception text, response, CAD or identifiers.
+            plan_diagnostics.emit_dispatch(self._development, stage, False)
+            raise
 
     def check_operation(
         self, evidence: ModifyEvidence, operation: ResolvedOperation

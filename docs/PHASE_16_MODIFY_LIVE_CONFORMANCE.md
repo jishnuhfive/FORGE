@@ -3358,3 +3358,37 @@ Full logs are retained locally in `/tmp/forge-phase16-quantity-gate`; no private
 CAD, identifiers, secrets, environment files or provider capture was added.
 
 **PHASE 16 EXTRUDE QUANTITY CONTRACT PASS — READY FOR FINAL WRITES-OFF EXACT-MATCH REFRESH**
+
+## First controlled live depth write: execution uncertain
+
+After the writes-OFF exact-match checkpoint, a human approved one depth change on
+the disposable Extrude, 20 mm to 25 mm. Onshape later showed a 25.000 mm measured
+edge; Forge reported `execution_uncertain`, zero verified operations and manual
+recovery required. The write-enabled backend was stopped and restarted with CAD
+writes OFF. The original record and protective fence remain intact. The measurement
+does not establish an exact feature-definition change or authorize recovery.
+
+The retained terminal excerpt contains startup messages but no request or
+`a2_verify` messages. This does not identify the failed boundary: the development
+launcher uses Uvicorn `--no-access-log`, and `a2_verify` begins only after the
+provider response, acknowledgement checks and acknowledgement-journal transaction
+commit. A dispatched POST can therefore become uncertain on a transport/response
+error; a failed
+`microversionSkew` predicate; returned feature envelope, identity or exact
+fingerprint mismatch; invalid/non-advancing `sourceMicroversion`; or an audit,
+journal or commit failure after acknowledgement. A worker interruption can also
+leave a claimed/verifying record fenced and later reported uncertain by retention
+cleanup. The available excerpt cannot distinguish these cases or prove which
+process handled the approval.
+
+A development-only, closed `a2_dispatch` trace now labels request preflight,
+provider exchange, each acknowledgement predicate and acknowledgement-journal
+commit as pass/fail. It records no exception text, response data, feature content,
+identifiers or expressions. The prior `a2_verify` stages, dispatch, approval,
+freshness, exact-effect verification, fence and recovery behavior are unchanged.
+Synthetic response and journal failures verify stage attribution, retained
+uncertainty and no success inference. No live CAD request or write was made during
+this diagnosis. For any later separately authorized investigation, compare the
+closed trace from the process that actually handled approval with the retained
+audit/record state using read-only, privacy-preserving inspection; do not retry
+the uncertain operation or release the fence based on the measured edge.

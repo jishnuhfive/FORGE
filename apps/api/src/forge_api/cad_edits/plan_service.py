@@ -227,6 +227,7 @@ def approve(
     index = 0
     dispatched = False
     verify_stage: plan_diagnostics.Stage | None = None
+    ack_journal_pending = False
     development = auth.settings.environment == "development"
 
     def diagnostic(stage: plan_diagnostics.Stage) -> None:
@@ -249,6 +250,7 @@ def approve(
         for index, operation in enumerate(plan.operations):
             dispatched = False
             verify_stage = None
+            ack_journal_pending = False
             states[index] = "checking"
             with auth.sessions.begin() as db:
                 _current(request, auth, db, plan, started)
@@ -286,11 +288,14 @@ def approve(
                     raise EditError("model_changed")
                 dispatched = True
                 marker = provider.execute_operation(evidence, operation)
+                ack_journal_pending = True
                 audit(db, "write_provider_acknowledged", user_id=user)
                 states[index] = "verifying"
                 plan_storage.journal(
                     db, plan, PlanResult(state="verifying", operations=tuple(states))
                 )
+            ack_journal_pending = False
+            plan_diagnostics.emit_dispatch(development, "ack_journal", True)
             stage("verifying")
             verify_stage = "post_read"
             after = provider.modify_evidence(plan.binding.context)
@@ -322,6 +327,8 @@ def approve(
             expected = after.baseline  # M0 -> verified M1 -> verified M2 only.
         result = PlanResult(state="verified_success", operations=tuple(states))
     except Exception as error:
+        if ack_journal_pending:
+            plan_diagnostics.emit_dispatch(development, "ack_journal", False)
         if verify_stage is not None:
             plan_diagnostics.emit(development, verify_stage, False)
         # No raw exception/provider data escapes and no later operation executes.
