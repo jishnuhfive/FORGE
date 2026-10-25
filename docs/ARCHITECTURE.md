@@ -897,3 +897,8 @@ one-use eight-GET capture. A separate exact original-state prerequisite precedes
 unchanged atomic administrative release. Approved-final-state verification and
 production Modify verification are unchanged; neither closure infers original-write
 causality. See the latest Phase 16 recovery record for the trust boundary.
+
+The development acknowledgement query-ID context classifier adds no semantic
+projection rule. deterministicIds retain exact equality and raw payloads remain
+unchanged; role/type/state labels cannot establish selection equivalence or grant
+write/recovery authority. See the latest Phase 16 conformance record.

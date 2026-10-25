@@ -1006,3 +1006,11 @@ Legacy historical raw binding precedes semantic comparison; no field exclusions
 are added. Only fresh head-bracketed exact current-original-state evidence permits
 this distinct disposition. Original execution stays execution_uncertain. The old
 approved-result and Fillet policies remain unchanged; no CAD mutation is available.
+
+The Phase 16 acknowledgement query-ID context warning is development-only and
+classification-only. deterministicIds retain exact equality everywhere: official
+individual-query POST semantics give them selection authority when queryString is
+also present. Valid schema/unchanged queryString is not proof that IDs are ignorable.
+The helper inspects only a fully validated single entities query and emits closed
+role/type/state labels, never IDs or arbitrary keys. It adds no provider requests,
+normalization, write authority or recovery capability; see the latest Phase 16 record.

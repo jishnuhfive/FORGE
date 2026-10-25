@@ -1,7 +1,7 @@
 """Development-only bounded schema-path labels; no raw CAD leaves this helper."""
 
 import logging
-from typing import Literal, get_args
+from typing import Literal, cast, get_args
 
 from pydantic import JsonValue
 
@@ -331,6 +331,116 @@ def ack_differences(
     )
 
 
+def query_id_context(
+    expected: dict[str, JsonValue], returned: dict[str, JsonValue]
+) -> str:
+    """Closed single-query role/type/state labels, never selection equivalence.
+
+    Full existing profile validation precedes inspection. Dormant roles cannot
+    hold queries in these profiles; only entities is inspected, without recursion.
+    A matching remaining envelope does NOT prove IDs are non-semantic: Onshape
+    documents ID precedence over queryString for individual-query POSTs.
+    """
+    if any(schema_reason(feature) != "none" for feature in (expected, returned)):
+        return "unvalidated_or_unsupported_location"
+    category = (
+        "extrude_entities"
+        if expected.get("featureType") == returned.get("featureType") == "extrude"
+        else "fillet_entities"
+        if expected.get("featureType") == returned.get("featureType") == "fillet"
+        else None
+    )
+    if category is None:
+        return "unvalidated_or_unsupported_location"
+    pair: list[dict[str, JsonValue]] = []
+    filters: list[object] = []
+    for raw in (expected, returned):
+        projected = semantic_feature(raw)[0]
+        if not isinstance(projected, dict):
+            return "unvalidated_or_unsupported_location"
+        parameters = projected.get("parameters")
+        if not isinstance(parameters, list) or len(parameters) > _MAX_PARAMETERS:
+            return "unvalidated_or_unsupported_location"
+        entities = [
+            p
+            for p in parameters
+            if isinstance(p, dict) and p.get("parameterId") == "entities"
+        ]
+        if len(entities) != 1 or not isinstance(entities[0], dict):
+            return "unvalidated_or_unsupported_location"
+        parameter = entities[0]
+        queries = parameter.get("queries")
+        if not isinstance(queries, list) or len(queries) != 1:
+            return "query_list_not_single"
+        query = queries[0]
+        if not isinstance(query, dict):
+            return "unvalidated_or_unsupported_location"
+        pair.append(query)
+        filters.append(parameter.get("filter", _MISSING))
+    a, b = pair
+    kind = (
+        "individual_query"
+        if a.get("btType") == b.get("btType") == "BTMIndividualQuery-138"
+        else "sketch_region_query"
+        if a.get("btType") == b.get("btType") == "BTMIndividualSketchRegionQuery-140"
+        else "query_type_changed"
+    )
+
+    def ids_state(query: dict[str, JsonValue]) -> str:
+        return (
+            "absent"
+            if "deterministicIds" not in query
+            else "empty"
+            if query["deterministicIds"] == []
+            else "nonempty"
+        )
+
+    def string_state(query: dict[str, JsonValue]) -> str:
+        return (
+            "absent"
+            if "queryString" not in query
+            else "nonempty"
+            if isinstance(query["queryString"], str) and query["queryString"].strip()
+            else "blank"
+        )
+
+    ids_change = (
+        "unchanged"
+        if _equal(
+            a.get("deterministicIds", _MISSING), b.get("deterministicIds", _MISSING)
+        )
+        else "presence"
+        if ("deterministicIds" in a) != ("deterministicIds" in b)
+        else "count"
+        if len(cast(list[JsonValue], a.get("deterministicIds", [])))
+        != len(cast(list[JsonValue], b.get("deterministicIds", [])))
+        else "values_or_order"
+    )
+    remaining = _equal(
+        {key: value for key, value in a.items() if key != "deterministicIds"},
+        {key: value for key, value in b.items() if key != "deterministicIds"},
+    )
+    return (
+        category
+        + "."
+        + kind
+        + ".expected_ids_"
+        + ids_state(a)
+        + ".returned_ids_"
+        + ids_state(b)
+        + ".expected_string_"
+        + string_state(a)
+        + ".returned_string_"
+        + string_state(b)
+        + ".ids_change_"
+        + ids_change
+        + ".remaining_query_"
+        + ("exact" if remaining else "changed")
+        + ".filter_"
+        + ("exact" if _equal(*filters) else "changed")
+    )
+
+
 def emit_ack_difference(
     development: bool, expected: dict[str, JsonValue], returned: dict[str, JsonValue]
 ) -> None:
@@ -343,6 +453,16 @@ def emit_ack_difference(
             schema_reason(returned),
             schema_reason(expected),
         )
+        if "query_deterministic_ids_changed" in categories.split(","):
+            # Additional fixed warning before the original summary, development
+            # only and only after an already-rejected acknowledgement.
+            try:
+                context = query_id_context(expected, returned)
+            except Exception:
+                context = "diagnostic_unavailable"
+            logging.getLogger("forge.modify.verification").warning(
+                "a2_ack_query_ids context=%s", context
+            )
     except Exception:
         categories, returned_reason, expected_reason = (
             "diagnostic_unavailable",

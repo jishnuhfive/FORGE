@@ -4132,3 +4132,88 @@ removed afterward; existing development databases/volumes and the real incident/
 were untouched. Human recovery and actual acknowledgement conformance remain unrun.
 
 AUTOMATED BASELINE-RESTORED ADMINISTRATIVE CLOSURE GATE PASS — LIVE CONFORMANCE PENDING
+
+### Controlled acknowledgement query-ID mismatch: normalization remains unproven
+
+New human-controlled disposable 20 mm → 25 mm depth evidence: request_preflight,
+provider_exchange, ack_skew, ack_feature_envelope and ack_target_identity passed;
+a2_ack_difference reported categories=query_deterministic_ids_changed with
+returned_schema=none and expected_schema=none; ack_fingerprint failed. No a2_verify
+stage occurred. The observed model reached 25 mm, but Forge correctly retained
+execution_uncertain and its fence. This implementation does not access or alter
+that real incident, perform recovery/retry, or request/perform another live write.
+CAD writes remain OFF.
+
+The existing current ordinary Extrude contract permits nonempty queries only in
+entities; all other recognized query roles must be empty. Thus a fully validated
+ordinary Extrude's direct query-ID mismatch is constrained to entities. However,
+that role accepts both BTMIndividualQuery-138 and BTMIndividualSketchRegionQuery-140.
+The earlier sanitized checkpoint reported individual_query and the synthetic current
+fixture uses that type; the latest acknowledgement warning itself does not bind
+the subtype or the absent/empty/nonempty ID-state transition. Synthetic fixtures
+must not substitute for the actual current acknowledgement's class.
+
+The current [official Onshape feature documentation](https://onshape-public.github.io/docs/api-adv/featureaccess/)
+explicitly says that individual-query POSTs use deterministicIds rather than
+queryString when both are supplied. IDs are query results obtained from the Part
+Studio; the sketch-region subtype instead documents a sketch featureId. The guide labels its examples as v9, while FORGE currently uses v17; it is not
+a verified v17 guarantee of query equivalence. The public
+[changelog](https://onshape-public.github.io/docs/changelog/) also records API v9
+returning deterministicIds for feature GETs. Neither statement proves that unequal
+IDs in this acknowledged update are non-semantic bookkeeping. In particular, an
+unchanged opaque queryString/filter does not independently prove the same selected
+entities when IDs have POST selection authority. No safe normalization is justified.
+This source review used public documentation only, without any real CAD API call.
+
+A development-only a2_ack_query_ids warning now supplements the already-failed
+acknowledgement summary. It emits only closed role/type classes, expected/returned
+ID and query-string states (absent/empty/nonempty or blank), ID change class
+(presence/count/values-or-order), and whether the remaining semantic query envelope
+and parameter filter are exact. Full existing profile validation precedes inspection;
+only one direct entities query is inspected, with unsupported/unvalidated/non-single
+structures collapsed to fixed labels. The output is bounded, has no indexes or
+arbitrary keys, and prints no IDs, values, expressions, query contents, names,
+fingerprints, node IDs, URLs, JSON or exception text. A helper failure emits only
+diagnostic_unavailable and preserves the original difference/schema summary.
+Production skips all added inspection/logging. No additional requests are made.
+
+There is NO comparison or payload repair in this change. deterministicIds remain
+exact at every location, including validated entities queries and unsupported
+structures. semantic_inventory, acknowledgement equality/marker checks, production
+post-write verifier, raw evidence/payload construction, policy/digest/freshness,
+claim/fence/stale/skew controls, no-retry behavior, filter and quantity contracts,
+24 KiB/8 KiB limits, legacy recovery and baseline-restored recovery are unchanged.
+Existing tests are retained without weakening assertions. New synthetic tests cover
+closed location/state diagnostics and privacy, malformed IDs, meaningful query,
+feature/filter/count/order/type changes, unsupported locations, exact raw payloads,
+acknowledgement uncertainty with fence retention, independent fresh verification,
+production silence and diagnostic-failure isolation. An unchanged selection remains
+accepted; changed IDs are deliberately NOT treated as semantically equal.
+
+Exact remaining evidence: classify the expected/returned direct query in an already
+preserved acknowledgement, if available, to establish the actual subtype and ID-state
+transition. That class alone still cannot justify ignoring selection IDs. Any future
+normalization requires authoritative evidence that the exact validated query class
+independently specifies the identical intended selection without those IDs, including
+POST behavior and all other identity/filter fields. No such guarantee exists in the
+current evidence for BTMIndividualQuery-138. Do not parse or infer equivalence from an
+opaque query string, substitute a geometry measurement, or replay the uncertain write.
+No new live write is requested here. If the acknowledgement is not preserved, the
+role/state evidence gap remains; this implementation adds no retrospective real-CAD
+reader, recovery action or new capture/write route. Phase 16 remains live NO-GO.
+
+Query-ID context gate: **9,220 API tests passed, zero skips**, including all **76
+PostgreSQL cases**. This adds **43 synthetic cases**; focused old/new acknowledgement
+diagnostics passed **95 tests**. Relevant Modify/Phase 16/recovery suites passed
+**7,078 tests** with 57 database cases deferred to the final isolated PostgreSQL
+run, where all executed. Existing Fillet, semantic-node, independent/legacy depth,
+baseline-restored recovery and session tests remain unchanged. Frontend: **869
+passed**; Modify browsers: **45 passed** across Chromium, Firefox and WebKit.
+make format, lint, typecheck (233 Python files and TypeScript), test, build,
+migration-check, compose-check and dependency audits all passed. Logs are local
+under /tmp/ack-query-context-*. Only a newly isolated random-loopback-port tmpfs
+PostgreSQL container was used and removed; existing development databases/volumes,
+real incident/fence, credentials and CAD were untouched. No real provider calls,
+recovery, retry, live proposal/approval/write, merge or deployment occurred.
+
+AUTOMATED QUERY-ID CONTEXT DIAGNOSTIC GATE PASS — SAFE NORMALIZATION UNPROVEN

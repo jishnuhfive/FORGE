@@ -855,3 +855,10 @@ It proves fresh current baseline agreement only, retaining execution_uncertain
 provenance. This expected final-state denial is not a new conformance defect. The
 ack_fingerprint blocker and final human live gate remain unresolved; no Phase 17
 creation authority is gained.
+
+Phase 16 live acknowledgement evidence now isolates query_deterministic_ids_changed
+with both schema reasons none and no post-write verification stages. A bounded
+role/type/state diagnostic is added; production equality is unchanged. Official
+individual-query POST semantics make these IDs selection-authoritative, so treating
+them as bookkeeping is not justified. The uncertain incident/fence is untouched;
+Phase 16 remains live NO-GO pending authoritative query-conformance evidence.

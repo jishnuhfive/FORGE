@@ -1152,3 +1152,10 @@ still requires the approved final state. Neither mode falls back to the other.
 Follow the latest Phase 16 record; never invoke recovery during tests. Synthetic
 coverage is in test_depth_baseline_restoration.py, plus the restored-state concurrent
 closure case in test_server_depth_postgres.py (disposable PostgreSQL only).
+
+Acknowledgement query-ID diagnostics: test_modify_ack_query_ids.py uses synthetic
+fixtures only. a2_ack_query_ids adds a closed role/type/identity-state class to an
+already rejected development acknowledgement; the existing summary is preserved.
+It does not normalize deterministicIds or authorize a retry/capture. Current and
+legacy recovery/semantic-node regressions must remain unchanged. See the latest
+Phase 16 record for the official selection-authority constraint and evidence gap.
