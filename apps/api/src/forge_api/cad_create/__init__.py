@@ -12,6 +12,7 @@ from forge_api.cad_create.compile import (
     compile_plate_with_holes,
     plan_digest,
 )
+from forge_api.cad_create.explain import StepExplanation, explain_plan
 from forge_api.cad_create.models import (
     CreationPlan,
     CreationStep,
@@ -19,10 +20,24 @@ from forge_api.cad_create.models import (
     PlateWithHolesBrief,
     ThroughHole,
 )
+from forge_api.cad_create.planner import (
+    NeedsClarification,
+    PlanReady,
+    Rejected,
+    Unsupported,
+    plan_creation,
+)
 
 __all__ = [
     "BriefError",
     "CreationPlan",
+    "NeedsClarification",
+    "PlanReady",
+    "Rejected",
+    "StepExplanation",
+    "Unsupported",
+    "explain_plan",
+    "plan_creation",
     "CreationStep",
     "Dimension",
     "PlateWithHolesBrief",
