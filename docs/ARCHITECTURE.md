@@ -866,3 +866,8 @@ Phase 16 depth-recovery preparation adds a pure historical/current comparison
 prerequisite only. It reuses the Modify evidence projector and exact-effect verifier;
 no reader, route, coordinator or administrative closure consumes it. Existing
 terminal-Fillet recovery remains separate and unchanged.
+
+The Phase 16 depth-only private operator coordinator now consumes the exact-state
+prerequisite via an eight-GET historical/current reader and transaction-local
+handoff. It has separate contracts/release policy from Fillet recovery, no public
+entry point and no provider-write capability. See the Phase 16 operator procedure.

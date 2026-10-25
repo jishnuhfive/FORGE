@@ -962,3 +962,12 @@ complete projected historical/current evidence using unchanged exact-effect chec
 it returns no authority and is not connected to fence release. Independent receipt,
 settlement, capture provenance and transaction controls remain required. See the
 Phase 16 record for the remaining implementation boundary.
+
+Depth administrative closure now requires independent approval and settlement
+receipts, explicit operator review, writes OFF/drained, inactive historical identity,
+current cached read grant, exact aged uncertain row/fence and locked revalidation.
+A dedicated fixed eight-GET reader compares approved immutable history and fresh
+current evidence; raw captures never enter release, storage or logs. One-use
+transaction-local evidence and atomic conditional closure preserve historical
+execution_uncertain. Optional absent acknowledgement is allowed only in this
+separate depth policy; it never proves settlement. Existing Fillet policy is unchanged.

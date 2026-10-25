@@ -3446,3 +3446,95 @@ under /tmp/forge-depth-*. Existing recovery concurrency/replay/rollback tests pa
 these do not establish a quantity release implementation. No provider response
 predicate, payload ceiling, adapter, approval, freshness, fence or recovery policy
 was changed. This is prerequisite preparation, not a recovery or live-gate pass.
+
+## Depth-specific administrative recovery implementation
+
+The missing path is now implemented separately in depth_contracts.py,
+depth_release.py, depth_recovery.py and integrations/onshape/depth_reader.py.
+Existing Fillet modules, semantic prerequisite, write client, planner and public
+routes are unchanged. The sole new audit kind is write_depth_operator_recovery
+with local_only outcome. There is no route, CLI, browser action or model tool.
+
+The private operator must supply independently preserved original approval evidence
+(source, receipt digest, historical handle or approval digest, exact owner/context,
+Extrude identity/position and approved quantity), an independent upstream-settlement
+review with evidence digest and settled attestation, and explicit operator review of
+stack/company/current grant generation, writer drain, provenance and authorization.
+These typed attestations enforce consistency; they cannot authenticate an operator's
+claims or cryptographically establish settlement. Database values relabeled as an
+external receipt, screenshots and measurements are insufficient.
+
+The depth-only coordinator follows the existing user/session/grant/fence/record
+lock order and aged, explicitly uncertain single-operation eligibility. It requires
+development with writes OFF, an inactive historical session, current same-user
+connected read grant and an already cached credential valid through capture. It
+never refreshes a token. Competing active records, mismatched references and audit
+ambiguity reject. Required unique ordered audits are claim, dispatch and uncertainty;
+a single acknowledgement is optional but, when present, must be ordered between
+dispatch and uncertainty. Absence is never fabricated or treated as settlement.
+This separate policy handles the established incident without changing Fillet policy.
+
+Eight fixed GETs capture features/configuration/bodies at the approved immutable
+microversion, followed by current head, pinned current features/configuration/bodies
+and final head. Exact origin/path/query/body guards, response/JSON byte/structure
+limits, timeouts, no retry and one-use readers apply. History must project to the
+exact approved Baseline. check_depth_recovery_state remains the comparison authority
+for exactly the approved depth change and all unrelated inventory/configuration and
+relevant model state. Bad history stops before current reads. The raw captures stay
+inside the private reader invocation and are never persisted or logged.
+
+After closing the reader and discarding its credential, a transaction-local run
+registers the exact sanitized evidence object. Object identity, reference pins,
+transaction identity, consumed handoff, 30-second capture / 5-second handoff /
+40-second transaction bounds, locked revalidation and conditional exact updates
+protect release. One atomic transaction writes a redacted operator_recovered
+tombstone retaining original_execution_outcome=execution_uncertain, deletes exactly
+the matching fence, and adds the fixed audit. Any failure rolls back; a lost commit
+reply never triggers retry or reports success. Closure does not prove write causality
+or verified_success and never restores approval authority.
+
+### Separately authorized real operator procedure (not executed)
+
+1. Keep every effective writer OFF and drained, including in-flight work. Independently
+   establish upstream settlement and review the preserved approval receipt against
+   the original owner, exact disposable context, target and approved depth. Stop if
+   provenance or settlement cannot be established. Review current configuration and
+   connected read grant; the original session must be expired or revoked, never revived.
+2. In one trusted private process, construct IndependentDepthApproval,
+   IndependentSettlement and OperatorReview from the independently reviewed sources.
+   Load the retained plan privately for consistency checking only; use
+   build_depth_reference to pin it. Do not derive independent evidence from that row,
+   export private values or log raw objects. Obtain separate explicit authorization
+   for this exact administrative closure before invoking the coordinator.
+3. Use recover_depth_record with the existing session factory, Settings, existing
+   TokenManager cache and reference. Do not supply a live transport override. It
+   performs exactly eight GETs on success and zero provider writes. Missing cached
+   credentials, mismatches or stale evidence stop with the fence intact. On ambiguous
+   completion inspect sanitized DB status/audit read-only; do not retry automatically.
+4. Confirm the administrative tombstone and exact fence removal; historical outcome
+   remains uncertain. Only then schedule a separately authorized live conformance
+   gate: each of the five operations individually, fresh read/preview, cancel first,
+   fresh proposal and approve once, verified exact effect and one mutation; additionally
+   stale/double approval, cancel, unsupported/no-target and context-switch denial cases.
+   Any uncertainty stops the gate. Do not infer Phase 16 completion from recovery.
+
+This implementation task made ZERO real Onshape calls, did not access the live
+retained record, did not execute administrative recovery, and kept CAD writes OFF.
+
+### Depth administrative closure gate results
+
+Full final API: **8,657 passed, zero skips**, including all 42 existing PostgreSQL
+cases and 16 new depth PostgreSQL cases. The new depth matrices contribute 175
+cases overall. Targeted semantic/evidence/recovery run passed 155 cases, and the
+additional boundary matrix passed 17; counts overlap the full suite. Frontend:
+869 tests in 35 files. Modify browsers: 45 passed across Chromium/Firefox/WebKit.
+make format, lint, typecheck (214 Python files plus TypeScript), build,
+migration-check, compose-check and audit passed. Existing bundle-size warning only.
+All test CAD/transports were synthetic. PostgreSQL used new loopback random-port
+tmpfs 18.6 containers matching the pinned Compose image; only those containers were
+removed. Development database/volumes, credentials, domains, environment files,
+lockfiles and provider contracts were not changed. Full logs remain local under
+/tmp/depth-closure-*. Final diff review confirms Fillet retained modules, quantity
+comparison prerequisite, normal Modify execution and payload ceilings are unchanged.
+Implementation verification is not execution of the real recovery or live CAD
+conformance; independent provenance/settlement availability remains a human gate.

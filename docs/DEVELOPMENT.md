@@ -1104,3 +1104,10 @@ Depth-recovery prerequisite tests are in `test_quantity_recovery_evidence.py`.
 Use synthetic captures only. This module has no recovery entry point; passing its
 comparison cannot authorize fence release. Run existing recovery/PostgreSQL suites
 unchanged, with a separate disposable database and no real provider calls.
+
+Depth closure tests: test_depth_recovery.py, test_depth_evidence.py and
+test_depth_postgres.py (random disposable schemas). All provider responses are
+mocked. Run these plus the unchanged Fillet/Modify regressions and full gate with
+FORGE_TEST_DATABASE_URL pointing only to a disposable database. Real operator use
+is private and separately authorized as documented in the Phase 16 record; never
+invoke it as a test or bootstrap credentials with refresh.

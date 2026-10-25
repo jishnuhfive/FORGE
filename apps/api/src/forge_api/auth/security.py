@@ -26,6 +26,7 @@ AuditKind = Literal[
     "write_verification_failed",
     "write_operator_recovery",
     "write_retained_operator_recovery",
+    "write_depth_operator_recovery",
     "login_started",
     "login_succeeded",
     "login_failed",

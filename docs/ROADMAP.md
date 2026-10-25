@@ -837,3 +837,8 @@ Phase 16 remains IN PROGRESS / live NO-GO after the uncertain depth trial. A pur
 exact depth-state comparison prerequisite is implemented; quantity-specific
 administrative closure, historical capture provenance and independent settlement
 review remain blockers. No creation or Learn capability is added by this work.
+
+Phase 16 depth-specific administrative closure is implemented and subject to the
+separate operator evidence/authorization procedure. The live record remains fenced;
+recovery was not executed during development. Final human five-operation conformance
+and authority/failure cases remain required before any Phase 17 creation work.
