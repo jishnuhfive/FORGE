@@ -3155,3 +3155,99 @@ all query-role and authority/verification implementation files are unchanged.
 The final human writes-OFF checkpoint above remains the next step. It must not
 generate proposals, approvals or mutations. This automated correction neither
 performs that checkpoint nor authorizes any later live write.
+
+## Complete Extrude quantity-role evidence checkpoint
+
+Starting clean synchronized branch phase16/modify-live-conformance at
+`2617729a9731727f054f23943073c57cc038af9f`. The latest human writes-OFF checkpoint
+now proves Fillet exact_match for standard shape, registry, replacement and rename.
+Both variants have complete clean 13/13 Extrude and 8/8 Fillet query-role evidence,
+one SOLID / NO_ERROR body and eligible_no_proposal_no_write. The only current
+standard-shape failure is Extrude thickness2 / wrong_quantity_expression. Zero
+proposal, approval or provider mutation occurred; CAD writes remained OFF.
+
+The first-failure result is insufficient to repair quantity acceptance safely.
+It proves that earlier roles passed their current rules, but does not expose the
+exact expression representations of thickness2 or any later Extrude quantity.
+The repository fixture cannot supply that authority: it explicitly documents all
+incidental dormant quantities as invented. Therefore this continuation changes
+no acceptance rule and prepares one bounded diagnostic for all source-declared
+Extrude quantity roles at once.
+
+The source vocabulary yields exactly ten roles in order: depth, thickness,
+thickness1, thickness2, draftAngle, secondDirectionDepth,
+secondDirectionDraftAngle, offsetDistance, secondDirectionOffsetDistance and
+startOffsetDistance. The diagnostic binds every row to that fixed role and source
+kind and labels depth active while all other roles are dormant. It never stops at
+the production validator's first failure and never treats a value class as generic
+eligibility.
+
+For each role it emits only closed classifications: occurrence/duplicate state;
+provider quantity type; expression class, sign, numeric class/format and units;
+whether literal units match the role's source dimension; cached numeric value and
+units classes; node-ID and isInteger states; import/common metadata states; the
+ordered presence of fixed schema fields; required-field and allowed-field-only
+flags; and capped unexpected-field counts. Expressions are never logged. Unknown
+parameter IDs are counted without names. Duplicates are not inspected by choosing
+one payload. The complete record has ten rows and an independent 16 KiB bound.
+
+Projection and emission require development, diagnostics ON, writes OFF, a
+complete source-matched response and the existing matching-head bracket. The
+diagnostic reuses both existing noSketchGeometry feature responses and adds no
+provider request. It has no public/browser/model payload, persistence, proposal,
+approval, target eligibility or mutation path. Fillet and query-filter logic are
+untouched. Production standard-shape, registry, legacy, write-client, planner,
+approval, freshness, digest, claims, fences, microversion, verification, recovery,
+24 KiB replacement and 8 KiB ordinary/suppression implementations are unchanged.
+
+### Quantity-diagnostic automated gate
+
+All checks passed with real CAD writes OFF; counts overlap:
+
+| Check                                                                   | Result                                                                                  |
+| ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| New complete quantity-role diagnostic                                   | **46 passed**                                                                           |
+| Quantity/current-query/UI-shape/first-failure suite                     | **2,402 passed**                                                                        |
+| Focused Modify / safe-edit / retained / AI-write / standard diagnostics | **6,729 passed**                                                                        |
+| Full API suite                                                          | **8,291 passed**, including all **42 PostgreSQL cases**, no skips                       |
+| Frontend                                                                | **869 passed** in **35 files**, no skips                                                |
+| Modify browser matrix                                                   | **45 passed**, Chromium / Firefox / WebKit, four workers, zero retries                  |
+| Frozen installs                                                         | npm ci and uv sync --locked passed; lockfiles unchanged                                 |
+| Required gate                                                           | make format, lint, typecheck, build, test, migration-check, compose-check, audit passed |
+
+Strict Python checking passed across 202 source files; TypeScript checking passed.
+Migration check found no new upgrade operations. Dependency audits found no known
+vulnerabilities among audited packages; the unchanged Python audit excludes the
+editable application. The existing bundle-size warning remains. Tests used only
+synthetic CAD, in-process MockTransport and a fresh isolated loopback-only tmpfs
+PostgreSQL container with synthetic credentials. Only that temporary container
+was removed afterward; existing application services and data were retained. No
+provider mutation was issued.
+
+### One required human writes-OFF refresh
+
+On the same confirmed disposable ordinary fixture, keep development diagnostics
+ON and FORGE_CAD_WRITES_ENABLED=false, then perform exactly one CAD Inspector →
+Refresh CAD. Generate no Modify proposal or approval. For BOTH noSketchGeometry
+variants, report the two `safe_edit_extrude_quantity_coverage` records only as
+sanitized closed fields. Each must prove:
+
+- summary expected_roles=10, roles_present=10 and roles_inspected=10;
+- all_roles_inspected=true, unrecognized_quantity_parameters=0 and
+  parameter_count_capped=false;
+- all missing/duplicate/malformed/unexpected/uninspected flags=false;
+- every role occurs once, has its fixed source_kind/activity, provider_type=quantity,
+  non-null evidence and expression_dimension_matches_source=true;
+- for each role, the exact expression_class, number_class, number_format, sign and
+  units classifications;
+- each role's cached value/units, node-ID, isInteger, import/common-metadata and
+  ordered present_allowed_fields classifications;
+- required_fields_present=true, allowed_fields_only=true and zero uncapped
+  unexpected fields.
+
+The refresh must also retain the already observed Fillet exact matches, clean
+13/13 and 8/8 query summaries, one SOLID / NO_ERROR body and
+eligible_no_proposal_no_write. Do not provide raw expressions, IDs, names, query
+text or provider JSON. Any incomplete, nonliteral, dimension-mismatched, malformed,
+unexpected or variant-disagreeing result stops the repair. This diagnostic commit
+does not claim Extrude exact_match or live-write conformance.

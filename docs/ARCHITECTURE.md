@@ -718,6 +718,16 @@ Fresh definitions stay whole; only the intended field changes. Historical profil
 suppression transport, graph boundaries and all approval/fence/verification rules
 remain unchanged. Final same-fixture writes-OFF exact-match is still required.
 
+The latest checkpoint proves Fillet exact-match and isolates the remaining
+Extrude failure at thickness2 / wrong_quantity_expression. Because the synthetic
+dormant quantities are invented and a first-failure validator cannot prove later
+roles, a DEV-only sibling projector inventories all ten source-declared Extrude
+quantity roles from the two existing pinned responses. It emits only closed
+role-bound expression/value/unit/field-envelope classifications under a 16 KiB
+record cap. It adds no read or acceptance path; standard validators, query-role
+authority, Fillet, write transport and every approval/verification boundary stay
+unchanged. One writes-OFF Inspector refresh supplies the missing evidence.
+
 [Recovery hotfix](MODIFY_RECOVERY_HOTFIX.md) adds session-owned server discovery,
 read-only single-terminal-suppression reconciliation and a deterministic planning
 fast path before AI fallback. `reconciled_current_state` proves present-state

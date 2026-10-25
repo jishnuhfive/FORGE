@@ -762,6 +762,16 @@ provider IO, persistence or public/model payloads. All role, legacy, approval,
 fence, microversion, verification, uncertainty/retry and recovery controls remain
 unchanged. Real writes remain OFF pending complete human evidence and later scope.
 
+The remaining Extrude quantity investigation is diagnostic only. It derives ten
+fixed role names from the source vocabulary and emits no expression text, numeric
+value, node ID, unknown field/parameter name or provider JSON. Values reduce to
+fixed sign/format/unit and primitive-state labels; allowed schema-field presence
+uses a fixed ordered vocabulary. Unknown quantity IDs are counted, duplicates are
+not selected, every count is bounded, and each complete record is capped at 16 KiB.
+DEV/diagnostics-ON/writes-OFF, complete/source-matched evidence, matching-head and
+per-record guards remain mandatory. The projector reuses existing GET responses
+and has no browser/model/persistence/eligibility/approval/mutation consumer.
+
 The human explicitly authorized a separate 24 KiB (24,576-byte) full-definition
 payload budget after evidence-shaped complete replacements exceeded the
 inherited 8 KiB fence.

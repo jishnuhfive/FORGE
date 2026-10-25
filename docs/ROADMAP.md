@@ -589,6 +589,21 @@ READ-ONLY VALIDATED — MERGED INTO MAIN** at `36511d73a7fffd4b219497fe09d2c8d4f
 
 **IN PROGRESS — CURRENT-UI QUERY CONTRACTS; FINAL WRITES-OFF EXACT-MATCH CHECK REQUIRED**
 
+Latest checkpoint: Fillet is fully exact-match, both query inventories are complete
+and clean, and the only remaining standard-shape failure is Extrude thickness2 /
+wrong_quantity_expression. Dormant quantity values in the local fixture are
+invented, while first-failure evidence cannot establish later quantity roles. A
+single guarded writes-OFF diagnostic now inventories all ten source-declared
+Extrude quantity roles in both existing response variants using fixed role-bound
+classifications and a 16 KiB record cap. It changes no acceptance rule, Fillet,
+query authority, transport, approval or verification behavior. One same-fixture
+Inspector refresh must provide the complete closed quantity evidence before a
+narrow production repair can be authorized. Live conformance remains unproven.
+The diagnostic gate passed 46 new cases, 2,402 affected cases, 6,729 focused
+regressions, all 8,291 API / 869 frontend cases (including all 42 PostgreSQL
+cases, no skips), and 45 Modify browser cases. Frozen installs and the complete
+format/lint/type/build/test/migration/Compose/audit gate passed with writes OFF.
+
 Complete human 13/13 Extrude and 8/8 Fillet evidence now supports explicit typed
 production contracts for every current ordinary query role. Active entities require
 one query; all 19 dormant roles require empty queries plus their exact observed

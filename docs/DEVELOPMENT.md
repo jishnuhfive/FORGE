@@ -802,6 +802,17 @@ the exact depth-9/17-node production exception; diagnostic depth is not authorit
 Use the final Phase 16 writes-OFF exact-match checkpoint after the full gate.
 No automatic proposal, approval or mutation belongs to that checkpoint.
 
+For the remaining Extrude quantity checkpoint, run
+`tests/test_modify_quantity_role_evidence.py` with the current-query, UI-shape and
+first-failure suites. The guarded log name is
+`safe_edit_extrude_quantity_coverage`; exactly one record per existing response
+variant covers all ten source-declared Extrude quantity roles and is capped at
+16 KiB. Use one same-fixture CAD Inspector refresh with development diagnostics
+ON and writes OFF. Report only its closed classifications and summary flags; never
+copy raw expressions, IDs, names, queries or provider JSON. The diagnostic does
+not change production eligibility, so thickness2 remains unsupported until the
+human evidence supports a later narrow role-specific repair.
+
 It performs pinned GET reads without proposals or mutations, and adds no
 public diagnostic route/header. It is not invoked by Learn or AI. See
 [the investigation record](PHASE_9_REVIEW.md) before interpreting missing fields;

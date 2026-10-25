@@ -21,6 +21,11 @@ from forge_api.integrations.onshape.query_filter_evidence import leaf_states_tex
 from forge_api.integrations.onshape.service import read_permission
 from forge_api.integrations.onshape.write_client import SafeEditClient
 
+from .extrude_quantities import (
+    ExtrudeQuantityInventory,
+    extrude_quantity_inventory,
+    extrude_quantity_text,
+)
 from .modify_representation import RepresentationCoverage, representation_coverage
 from .query_roles import FeatureQueryRoles, query_role_inventory, query_role_text
 from .standard_parameters import StandardCoverage, standard_parameter_coverage
@@ -296,6 +301,18 @@ class CoverageClient(SafeEditClient):
             return None
         return query_role_inventory(data)
 
+    def _extrude_quantities(
+        self, data: JsonValue, *, source_matches: bool
+    ) -> tuple[ExtrudeQuantityInventory, ...] | None:
+        if (
+            not _diagnostics_enabled(self._diagnostic_settings)
+            or not source_matches
+            or not isinstance(data, dict)
+            or data.get("isComplete") is not True
+        ):
+            return None
+        return extrude_quantity_inventory(data)
+
     """Development-only, two fixed GET variants; no raw results leave this call."""
 
     def compare(self, context: WorkspaceReference) -> None:
@@ -310,6 +327,7 @@ class CoverageClient(SafeEditClient):
                 StandardCoverage | None,
                 tuple[ShapeValidation, ...] | None,
                 tuple[FeatureQueryRoles, ...] | None,
+                tuple[ExtrudeQuantityInventory, ...] | None,
             ]
         ] = []
         for mode in ("true", "false"):
@@ -329,6 +347,9 @@ class CoverageClient(SafeEditClient):
                     ),
                     self._shape_validation(data, source_matches=report.source_matches),
                     self._query_roles(data, source_matches=report.source_matches),
+                    self._extrude_quantities(
+                        data, source_matches=report.source_matches
+                    ),
                 )
             )
             del data
@@ -342,6 +363,7 @@ class CoverageClient(SafeEditClient):
             standard,
             shapes,
             queries,
+            quantities,
         ) in reports:
             logger.warning(
                 "safe_edit_state_coverage noSketchGeometry=%s metadata=%s",
@@ -388,6 +410,15 @@ class CoverageClient(SafeEditClient):
                         mode,
                         inventory.summary.model_dump_json(),
                     )
+            for quantity_inventory in quantities or ():
+                if not _diagnostics_enabled(self._diagnostic_settings):
+                    break
+                logger.warning(
+                    "safe_edit_extrude_quantity_coverage "
+                    "noSketchGeometry=%s metadata=%s",
+                    mode,
+                    extrude_quantity_text(quantity_inventory),
+                )
             for shape in shapes or ():
                 if not _diagnostics_enabled(self._diagnostic_settings):
                     break
