@@ -22,6 +22,7 @@ from forge_api.integrations.onshape.service import read_permission
 from forge_api.integrations.onshape.write_client import SafeEditClient
 
 from .modify_representation import RepresentationCoverage, representation_coverage
+from .query_roles import FeatureQueryRoles, query_role_inventory, query_role_text
 from .standard_parameters import StandardCoverage, standard_parameter_coverage
 from .standard_shape_failure import ShapeValidation, shape_validation_coverage
 
@@ -283,6 +284,18 @@ class CoverageClient(SafeEditClient):
             return None
         return shape_validation_coverage(data)
 
+    def _query_roles(
+        self, data: JsonValue, *, source_matches: bool
+    ) -> tuple[FeatureQueryRoles, ...] | None:
+        if (
+            not _diagnostics_enabled(self._diagnostic_settings)
+            or not source_matches
+            or not isinstance(data, dict)
+            or data.get("isComplete") is not True
+        ):
+            return None
+        return query_role_inventory(data)
+
     """Development-only, two fixed GET variants; no raw results leave this call."""
 
     def compare(self, context: WorkspaceReference) -> None:
@@ -296,6 +309,7 @@ class CoverageClient(SafeEditClient):
                 RepresentationCoverage | None,
                 StandardCoverage | None,
                 tuple[ShapeValidation, ...] | None,
+                tuple[FeatureQueryRoles, ...] | None,
             ]
         ] = []
         for mode in ("true", "false"):
@@ -314,12 +328,21 @@ class CoverageClient(SafeEditClient):
                         data, source_matches=report.source_matches
                     ),
                     self._shape_validation(data, source_matches=report.source_matches),
+                    self._query_roles(data, source_matches=report.source_matches),
                 )
             )
             del data
         if self.head(context) != marker:
             raise EditError("model_changed")
-        for mode, report, suppression, representation, standard, shapes in reports:
+        for (
+            mode,
+            report,
+            suppression,
+            representation,
+            standard,
+            shapes,
+            queries,
+        ) in reports:
             logger.warning(
                 "safe_edit_state_coverage noSketchGeometry=%s metadata=%s",
                 mode,
@@ -347,6 +370,24 @@ class CoverageClient(SafeEditClient):
                     mode,
                     standard.model_dump_json(),
                 )
+            for inventory in queries or ():
+                for role in inventory.roles:
+                    if not _diagnostics_enabled(self._diagnostic_settings):
+                        break
+                    logger.warning(
+                        "safe_edit_query_role noSketchGeometry=%s position=%s "
+                        "category=%s %s",
+                        mode,
+                        inventory.summary.position,
+                        inventory.summary.category,
+                        query_role_text(role),
+                    )
+                if _diagnostics_enabled(self._diagnostic_settings):
+                    logger.warning(
+                        "safe_edit_query_role_summary noSketchGeometry=%s metadata=%s",
+                        mode,
+                        inventory.summary.model_dump_json(),
+                    )
             for shape in shapes or ():
                 if not _diagnostics_enabled(self._diagnostic_settings):
                     break

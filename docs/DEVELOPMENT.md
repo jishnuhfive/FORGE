@@ -758,6 +758,20 @@ replacement/rename exact_match. The next human action remains exactly one
 same-fixture Inspector refresh with diagnostics ON/writes OFF. No proposal,
 approval or mutation is part of that checkpoint.
 
+For the all-role evidence continuation, run
+`tests/test_modify_query_role_inventory.py` with the existing strict-contract,
+signature/filter, minimal-profile, first-failure, representation, standard-source
+and Modify diagnostic suites, then the full normal gate with isolated PostgreSQL,
+all frontend tests, Modify browsers in three engines, frozen installs, audits,
+Compose and migration drift checks. Keep real CAD writes OFF. The collector reuses
+existing reads and logs `safe_edit_query_role` plus `safe_edit_query_role_summary`
+for both noSketchGeometry variants. Current full fixtures have 13 Extrude / 8
+Fillet query roles; actual returned roles are derived rather than assumed. Report
+all rows, actual discovered/inspected totals, completeness and aggregate flags in
+one human refresh. Empty roles still require filter evidence. Unknown identities,
+duplicates or clipping leave evidence incomplete. See the newest Phase 16 section;
+full representation exact_match is not expected yet and no dormant role is accepted.
+
 It performs pinned GET reads without proposals or mutations, and adds no
 public diagnostic route/header. It is not invoked by Learn or AI. See
 [the investigation record](PHASE_9_REVIEW.md) before interpreting missing fields;

@@ -1,6 +1,6 @@
 # Phase 16 — controlled real Modify conformance
 
-**IN PROGRESS — WRITES-OFF EXACT-MATCH CHECKPOINT REQUIRED**
+**IN PROGRESS — COMPLETE QUERY-ROLE FILTER EVIDENCE REQUIRED**
 
 Initial status: `IN PROGRESS — AUTOMATED CONFORMANCE PREPARATION`.
 
@@ -2288,3 +2288,217 @@ contents or provider JSON. Any failure stops advancement and requires separate
 review. This human exact-match checkpoint is still mandatory before the first
 separately authorized controlled mutation. Do not enable writes, merge, deploy,
 run a live write trial or begin Phase 17 in this continuation.
+
+## Inventory every current query role in one refresh
+
+Starting clean synchronized branch: `phase16/modify-live-conformance`, local and
+fetched origin HEAD `2f68b5f2478b030238d4dad1a8246f4e2f56b61c`
+(`fix: accept exact current Onshape filter contracts`). Local Settings confirmed
+CAD writes OFF; no operator dotenv was present. No private CAD read, real proposal,
+approval or mutation is part of this continuation.
+
+### Latest human writes-OFF result
+
+The strict entities contracts no longer appeared as the first failure. Validation
+advanced to Extrude `surfaceEntities` and Fillet `side1Face`, each still rejected
+with `query_filter_unproven`. This confirms progress through the entities checks;
+it does not establish whole-feature representation exact_match or live writes.
+
+Extrude surfaceEntities:
+
+```text
+and(and(and(entity_type,sketch_object),modifiable_entity_only),construction)
+```
+
+The human reported two children, depth 4/nodes 7, entity_type=edge,
+sketch_object=true, sketch_object_type=any_sketch_object,
+modifiable_entity_only=true and construction=false.
+
+Fillet side1Face:
+
+```text
+and(and(and(and(entity_type,construction),sketch_object),modifiable_entity_only),active_sheet_metal)
+```
+
+The human reported two children, depth 5/nodes 9, entity_type=face,
+construction=false, sketch_object=false, sketch_object_type=not_sketch_object,
+modifiable_entity_only=true and active_sheet_metal=false.
+
+For both, malformed, missing_operand, unexpected_fields, uninspected, truncated
+and signature_truncated were all false. Body evidence remained one SOLID with
+NO_ERROR; the probe remained eligible_no_proposal_no_write. The human reported
+no proposal, approval or mutation. Neither newly exposed role is accepted here.
+
+### Independent complete-role diagnostic
+
+`dev/query_roles.py` enumerates every present parameter whose source kind is query
+or whose provider representation is query-bearing. It derives names/order from
+the existing source vocabulary and the actual returned parameters, independently
+of the first-failure production validator. Exact query-list types and malformed
+envelopes containing queries/filter are included, even on a source non-query role;
+that source/provider disagreement is flagged malformed. No hand-maintained role
+allowlist or early stop at the first unsupported parameter is used. A missing
+optional parameter is not invented. Every recognized discovered role appears
+exactly once in source-catalog order, independent of returned parameter ordering.
+
+Current complete synthetic feature fixtures yield the following sets. These are
+catalog/fixture observations; the next refresh must establish actual human data.
+
+- Extrude (13): entities, surfaceEntities, wallShape, endBoundEntityFace,
+  endBoundEntityBody, endBoundEntityVertex, secondDirectionBoundEntityFace,
+  secondDirectionBoundEntityBody, secondDirectionBoundEntityVertex,
+  extrudeDirection, startOffsetEntity, booleanScope, booleanSurfaceScope.
+- Fillet (8): entities, side1Face, side2Face, centerFaces, startPartialEntity,
+  endPartialEntity, keepEdges, smoothCornerExceptions.
+
+The two existing pinned feature GET variants are reused. After matching-head
+bracketing, each emits `safe_edit_query_role` rows with noSketchGeometry, local
+feature position/category, fixed role name, occurrences, query state/count/capping,
+filter presence, root/child count/depth/nodes/categories, structural flags,
+normalized signature/signature_truncated and closed leaf states. Empty lists are
+inspected exactly like nonempty lists. Query item contents are never read by this
+projection. Missing/null/wrong list states remain explicit; counts cap at 2,000.
+Absent filters have filter_present=false with unavailable signature and zero
+filter counters; a present null filter is separately projected as malformed.
+No absent filter/default semantic value is invented.
+
+Each feature also emits `safe_edit_query_role_summary` with position/category,
+total_query_roles_discovered, total_query_roles_inspected, all_roles_inspected,
+any_malformed, any_unexpected_fields, any_uninspected and any_truncated, plus
+unrecognized_query_parameters and parameter_count_capped. Counts include every
+recognized unique query role plus unidentified query-bearing parameters. Unknown
+identities are counted but never printed; they prevent completeness. Counts are
+lower bounds if scanning is clipped. A duplicate role emits one ambiguous record
+with its occurrence count; no duplicate payload is selected as representative.
+Its state is unavailable and its inspection is explicitly incomplete.
+
+The inspected count excludes opaque, unknown-field, duplicate and clipped roles.
+all_roles_inspected=true requires every discovered role to be accounted for with
+no such inspection gap. A fully classified malformed primitive can still be
+counted as inspected; any_malformed separately prevents treating it as clean
+evidence. Completeness and all-false flags are diagnostic observations, never
+acceptance. Closed unknown/missing semantic states still require human review.
+
+### Privacy, bounds and authority
+
+Only existing finite role/category/state vocabularies and bounded counters/flags
+leave the projection. No raw provider JSON, btType/enum text, IDs, names, query
+strings, node IDs, arbitrary field names/values or credentials are logged.
+Unknown fields are flagged without walking their values. Frozen extra-forbidden
+schemas carry already-closed filter summaries; provider mappings are not accepted
+as nested projection instances or exposed in validation-error paths.
+
+Bounds are 20 features, 100 scanned parameters per feature, at most the current
+maximum source vocabulary size of 50 role rows, query counts <=2,000 and the
+unchanged per-filter depth <=8/nodes <=64/signature <=4,096 characters/192 tokens.
+Each new row is bounded below 17,408 characters including its fixed log header.
+New inventory logs cap at 128 KiB per feature/variant including the summary, or
+5 MiB over both variants at the 20-feature limit. Output-budget clipping preserves
+each role's row, removes its filter payload explicitly, and marks uninspected /
+truncated/incomplete; it never silently omits a role or claims full inspection.
+
+Projection and every emitted row/summary retain development, diagnostics ON,
+writes OFF, complete/source-matched and matching-head guards. A flag change stops
+subsequent inventory records. Existing compare uses four GETs; the full Inspector
+test retains 13 total GETs, with zero extra acquisition or mutation requests.
+No public/browser/model metadata, API/header, persistence, background job or
+mutation-capable entry point is added.
+
+Strict Extrude/Fillet entities contracts, current-UI parameter rules, historical
+profiles, registry, suppression transport, approval, authoritative preview/digest,
+one-use claims, stale rejection, fences, microversion guards, freshness, post-write
+exact-effect verification, uncertainty, no-retry and recovery remain unchanged.
+The production first failures remain surfaceEntities and side1Face in the
+reported-shape synthetic tests; representation remains unsupported_shape.
+No inactive role is accepted and no fully inspected tree is presumed writable.
+The pure evidence collector cannot grant eligibility. CAD writes remain OFF.
+
+### Verification
+
+Focused diagnostic/filter/contract/minimal-profile suites: **1,974 passed**,
+including **55 new inventory cases** and all **600 unchanged strict-contract
+cases**. Coverage includes complete derived role sets, once-only/catalog ordering,
+empty lists, absent filters/parameters, source/provider disagreement, malformed
+envelopes/operands, unknown identities/fields/subtypes, duplicates, cycles,
+depth/node/count/output limits, strict projection privacy, runtime/source/head /
+per-record guards, unchanged authority and a GET-only Inspector route with zero
+proposal/fence records. Dormant filters on roles other than the two reported ones
+are explicitly invented diagnostic fixtures, not new live evidence or contracts.
+
+All full suites/checks passed with real CAD writes OFF; counts overlap:
+
+| Check                                   | Result                                                                 |
+| --------------------------------------- | ---------------------------------------------------------------------- |
+| New query-role inventory suite          | **55 passed**                                                          |
+| Focused diagnostic/filter/contract gate | **1,974 passed**                                                       |
+| Preserved strict entities suite         | **600 passed**, unchanged                                              |
+| Full API suite                          | **6,815 passed**, including all **42 PostgreSQL cases**, no skips      |
+| Full frontend suite                     | **869 passed** in **35 files**, no skips                               |
+| Modify browser matrix                   | **45 passed**, Chromium / Firefox / WebKit, four workers, zero retries |
+| Frozen installs                         | npm ci / uv sync --locked passed; dependencies/lockfiles unchanged     |
+| Format / lint / strict types / build    | Passed                                                                 |
+| Dependency audits / Compose validation  | Passed                                                                 |
+| Isolated migrations / migration drift   | Passed; no new upgrade operations                                      |
+
+Two initial frontend runs at default parallelism reported timeout/DOM-wait
+failures (84 and 31 cases). The complete unchanged `make test` command then passed
+with the supported execution-only `VITEST_MAX_WORKERS=2` environment setting.
+Every frontend case and API/PostgreSQL case ran. No test, assertion, timeout,
+threshold, repository runner configuration or product retry rule was changed;
+the browser matrix retained its normal four workers and zero retries.
+
+Strict Python checking passed across 197 source files; TypeScript checking passed.
+Audits reported no known vulnerabilities among audited dependencies; the existing
+Python command excludes the editable application. The pre-existing bundle-size
+warning remains. No dependency, environment file, migration or deployment setting
+changed. A new projection test caught raw key text in nested validation-error
+locations; the new role schema was tightened to require an already-closed filter
+summary before the successful privacy/full gates. No raw provider mapping is
+passed into that nested schema in the live projection.
+
+PostgreSQL used a fresh healthy loopback-only random-port tmpfs container with
+synthetic credentials and an isolated gate environment. Only that verification
+container was stopped/removed; existing services/data were retained. Local
+Settings confirmed writes OFF. Final scope/privacy/secret-pattern review passed.
+The strict filter contracts, current-UI validator, registry/legacy profiles,
+write client, exact verifier, approval/claims/fences/recovery, graph code, frontend,
+all original tests/fixtures and lockfiles remain byte-for-byte unchanged. Shared
+filter evidence has docstring-only changes; its vocabulary/traversal is unchanged.
+
+**PHASE 16 QUERY ROLE INVENTORY PASS — READY FOR COMPLETE HUMAN FILTER EVIDENCE REFRESH**
+
+### Query-role inventory files changed
+
+- apps/api/src/forge_api/integrations/onshape/dev/query_roles.py
+- apps/api/src/forge_api/integrations/onshape/dev/safe_edit.py
+- apps/api/src/forge_api/integrations/onshape/query_filter_evidence.py (docstrings only)
+- apps/api/tests/test_modify_query_role_inventory.py
+- docs/ARCHITECTURE.md
+- docs/SECURITY.md
+- docs/DEVELOPMENT.md
+- docs/ROADMAP.md
+- docs/PHASE_16_MODIFY_LIVE_CONFORMANCE.md
+
+### Exact next human complete-evidence checkpoint
+
+On the original development Mac, pull `phase16/modify-live-conformance`. Keep
+ENVIRONMENT=development, FORGE_SAFE_EDIT_DIAGNOSTICS_ENABLED=true and
+FORGE_CAD_WRITES_ENABLED=false. On the SAME disposable Sketch 1 → Extrude 1 →
+Fillet 1 fixture, perform **exactly ONE Inspector → Refresh CAD**. Generate no
+proposal, approval or mutation.
+
+Report every `safe_edit_query_role` row and both feature summaries for each
+noSketchGeometry=true/false variant, including accepted entities and every empty
+role. Report actual discovered/inspected totals, all_roles_inspected and every
+aggregate flag, plus the existing closed first-failure/body/probe summaries.
+Require discovered=inspected, all_roles_inspected=true, no unidentified/duplicate
+roles, no count/output clipping and all malformed/unexpected/uninspected/truncated
+flags false for complete evidence. Record explicit filter presence and all closed
+leaf states. Missing/unknown states or any inspection gap stop advancement.
+
+The probe must remain eligible_no_proposal_no_write, with one SOLID / NO_ERROR
+body evidence. First-failure query_filter_unproven on dormant roles is expected;
+full representation exact_match is not claimed. Share only these sanitized
+records, never provider JSON or identifiers/query contents. A later separately
+authorized task may assess exact role-specific inactive-filter contracts from
+the complete evidence. No merge, deployment, real writes or Phase 17 work here.

@@ -1,4 +1,4 @@
-"""Closed evidence for rejected filters; never an acceptance predicate.
+"""Closed filter evidence; never an acceptance predicate.
 
 Vocabulary/leaf types: current official OpenAPI, recorded in Phase 16. No runtime
 schema fetching, type-prefix matching or raw provider strings in the projection.
@@ -348,7 +348,7 @@ def leaf_states_text(summary: QueryFilterSummary) -> str:
 
 
 def unproven_filter_summary(raw: JsonValue) -> QueryFilterSummary:
-    """No acceptance authority: the caller projects a rejected filter only.
+    """Finite diagnostic evidence only, independent of acceptance authority.
 
     Iterative raw visits <=64, depth <=8, fixed SDK operand slots only. Unknown
     payloads are opaque. Only finite enum/Boolean states may leave known leaves.

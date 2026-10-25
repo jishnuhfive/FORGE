@@ -734,6 +734,21 @@ microversion guards, uncertainty/no-retry and recovery are unchanged. Existing
 log guards/privacy and GET budgets remain. CAD writes stay OFF; a human writes-OFF
 exact-match refresh is required before any separately authorized mutation.
 
+The later all-query-role inventory is diagnostic evidence only. It enumerates
+present source-query/provider-query roles, including empty lists, without invoking
+acceptance or interpreting query items. Only fixed catalog names, existing closed
+filter labels and bounded counts/flags can log; unknown identities are counted
+without names and make completeness false. Duplicates never select one payload.
+Unknown fields remain untraversed and every clipping path is explicit. Frozen
+projection models require already-closed filter summary instances, avoiding raw
+provider key text in nested validation errors. Per-filter 8/64 bounds remain;
+parameter scans, role counts and per-feature log output have explicit caps.
+DEV/diagnostics-ON/writes-OFF, complete/source/head and per-record guards apply.
+No extra GET, mutation request, public/model payload or persistence is added.
+Entities acceptance, all other role rejection, legacy profiles, suppression and
+every approval/execution/recovery control remain unchanged. Complete inventory
+does not establish eligibility; CAD writes stay OFF.
+
 [Recovery controls](MODIFY_RECOVERY_HOTFIX.md) use the existing authenticated
 same-origin CSRF guard. Recovery returns only same-session consumed status handles
 and safe previews, never approval digests or provider bindings. Reconciliation

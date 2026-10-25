@@ -667,6 +667,17 @@ boundaries remain unchanged. The next gate is a human writes-OFF exact-match
 refresh for both complete feature representations; automated success does not
 prove any of the five live writes or authorize Phase 17, deployment or writes ON.
 
+The following human checkpoint progressed through entities but exposed Extrude
+surfaceEntities and Fillet side1Face as first unsupported filters. Full
+representation exact_match is still unproven. A bounded read-only query-role
+inventory now derives every present query-bearing role and emits closed filter
+evidence plus feature completeness flags in one Inspector refresh, including all
+empty selections. Current full fixtures yield 13 Extrude / 8 Fillet roles; actual
+returned sets must be evidenced. Existing strict entities contracts and every
+other eligibility/approval/write/recovery boundary are unchanged. The next human
+writes-OFF refresh inventories all remaining roles simultaneously; it does not
+authorize a dormant filter, proposal, approval or mutation.
+
 Previous DEFAULT repair passed 251 new-module cases plus 18 additional malformed
 variants (269 added cases), 3,757 focused cases, all 5,319 API / 869 frontend cases
 (including all 42 PostgreSQL cases, no skips), and 45 Modify browser cases across

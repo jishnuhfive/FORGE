@@ -674,6 +674,18 @@ exact-effect verification preserve every unrelated field. No acquisition,
 planner, approval, execution, recovery or graph boundary changes. The real write
 flag stays OFF pending the human exact-match checkpoint in the Phase 16 record.
 
+The next human refresh advanced past entities to dormant surfaceEntities /
+side1Face filters. A separate DEV query-role inventory now projects every present
+source-query/provider-query parameter from the same pinned feature responses,
+including empty lists, independently of the first-failure validator. Role rows
+and per-feature completeness/aggregate flags use only closed metadata. Source
+catalog order is deterministic; unknown identities, duplicates and clipping
+prevent complete evidence. Depth/node limits remain 8/64; new per-feature output
+is capped at 128 KiB. Existing guards and GET budgets remain. No role acceptance,
+API/model payload, persistence, execution or graph authority changes. Full
+representation exact_match is still pending; the next single human writes-OFF
+refresh collects all remaining roles simultaneously.
+
 [Recovery hotfix](MODIFY_RECOVERY_HOTFIX.md) adds session-owned server discovery,
 read-only single-terminal-suppression reconciliation and a deterministic planning
 fast path before AI fallback. `reconciled_current_state` proves present-state
