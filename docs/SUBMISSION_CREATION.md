@@ -120,3 +120,28 @@ label of the first failed check as its outcome: `post_transport`, `ack_*`
 `step_preflight`, `step_other`). In development a log line names only unrecognized
 provider field names, never values. The fence and uncertain state are unchanged; the
 label is diagnostic only and relaxes no check.
+
+## Partial-creation incident settlement (operator only)
+
+`cad_create/settlement.py` with `scripts/creation_incident_operator.py` closes ONE
+partially executed creation incident: a single `execution_uncertain` record whose
+first step was dispatched and never acknowledged, its single fence, and a Part
+Studio now holding exactly the expected unsuppressed, healthy first sketch, no
+Extrude and no solid body. It is not a route, AI tool or general recovery framework.
+
+- Requires development, CAD writes OFF, reviewer flags, the exact typed statement
+  (`CONFIRMATION`), the reviewed stack, and this process's cached read credential.
+- Reads only, over a GET-only transport, twice; the two captures must agree and the
+  revision must have advanced since approval. Nothing is verified, continued, retried
+  or cleaned up, and the sketch is left as is.
+- `inspect` also runs the creation acknowledgement checks on the current sketch and
+  reports only the first failing check label and unrecognized field names.
+- Under one locked transaction it moves the record to the existing closed state
+  `operator_recovered`, leaves its payload and step states (`execution_uncertain`,
+  `skipped`) untouched, deletes exactly the matching fence and adds one
+  `write_creation_settlement` / `local_only` audit event, then re-reads the result.
+  A failure leaves the fence and uncertain record in place; there is no retry.
+- Authority-free leftovers (the `admission` placeholder and an unclaimable expired
+  preview) do not count as a conflicting operation; any claimable or in-flight record
+  does. Open `admission` rows sit until the next cleanup, which is the likely cause of
+  earlier `conflicting_user_operation` denials in other recovery paths.
