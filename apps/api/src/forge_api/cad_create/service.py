@@ -1,13 +1,14 @@
 """Creation-specific whole-plan approval, shared durable claim/fence primitives."""
 
 from time import monotonic
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
+import httpx2 as httpx
 from fastapi import Request
 from sqlalchemy import delete
 
 from forge_api.auth.runtime import AuthRuntime
-from forge_api.auth.security import audit, random_token
+from forge_api.auth.security import AuditOutcome, audit, random_token
 from forge_api.cad_edits import service as authority
 from forge_api.cad_edits import storage
 from forge_api.cad_edits.domain import (
@@ -19,13 +20,24 @@ from forge_api.cad_edits.domain import (
     fingerprint,
 )
 from forge_api.db.models import WriteFence, WriteRecord, now
+from forge_api.integrations.onshape.client import ReadError
 from forge_api.integrations.onshape.contracts import WorkspaceReference
 
 from .compile import compile_brief
+from .evidence import CreationEvidence
 from .execution import ExecutionResult, execute
 from .explain import explain_plan
 from .models import CreationPlan, PlateWithHolesBrief
 from .provider import CreationClient, feature
+
+
+class BaselineParts(Closed):
+    """Category digests of the approved baseline; no raw CAD data or identities."""
+
+    marker: Digest
+    inventory: Digest
+    configuration: Digest
+    bodies: Digest
 
 
 class Approval(Closed):
@@ -35,6 +47,7 @@ class Approval(Closed):
     brief: PlateWithHolesBrief
     plan: CreationPlan
     baseline: Digest
+    baseline_parts: BaselineParts
     created_at: int
     expires_at: int
 
@@ -107,6 +120,7 @@ def prepare(
         brief=brief,
         plan=plan,
         baseline=baseline.digest,
+        baseline_parts=BaselineParts(**baseline.parts),
         created_at=now(),
         expires_at=now() + 120,
     )
@@ -152,6 +166,46 @@ def prepare(
     }
 
 
+def _budget(plan: CreationPlan) -> int:
+    """Seconds for the whole approval: 30 per step plus one, under the UI's 120."""
+    return min(110, 30 * (len(plan.steps) + 1))
+
+
+def _cause(error: Exception) -> AuditOutcome:
+    """Closed category for a pre-dispatch stop; never exception text or CAD data."""
+    if isinstance(error, EditError):
+        return cast(
+            AuditOutcome,
+            {
+                "model_changed": "pre_head_moved",
+                "unsupported_target": "pre_unsupported",
+                "context_changed": "pre_context",
+                "verification_failed": "pre_gate",
+                "onshape_unavailable": "pre_read_failed",
+                "invalid_provider_response": "pre_read_failed",
+                "rate_limited": "pre_read_failed",
+                "permission_or_access_required": "pre_read_failed",
+            }.get(error.code, "pre_other"),
+        )
+    if isinstance(error, (ReadError, httpx.HTTPError, TimeoutError, OSError)):
+        return "pre_read_failed"
+    return "pre_other"
+
+
+def _difference(approved: BaselineParts, now_: CreationEvidence) -> AuditOutcome:
+    """First differing category, marker first: a moved revision is a real change."""
+    current = now_.parts
+    for name, outcome in (
+        ("marker", "baseline_marker"),
+        ("inventory", "baseline_inventory"),
+        ("configuration", "baseline_configuration"),
+        ("bodies", "baseline_bodies"),
+    ):
+        if getattr(approved, name) != current[name]:
+            return cast(AuditOutcome, outcome)
+    return "pre_other"
+
+
 def status(request: Request, auth: AuthRuntime, handle: str) -> dict[str, Any]:
     from forge_api.auth.routes import active_session
 
@@ -191,6 +245,8 @@ def approve(
 
     attempted = False
     result: ExecutionResult | None = None
+    cause: AuditOutcome | None = None
+    budget = _budget(saved.plan)
 
     def journal(states: tuple[str, ...], dispatched: bool) -> None:
         nonlocal attempted
@@ -205,7 +261,10 @@ def approve(
             row = storage.owned(db, handle, saved.binding.user, saved.binding.session)
             if load(row) != saved or row.state not in ("claimed", "verifying"):
                 raise EditError("proposal_used")
-            if not auth.settings.forge_cad_writes_enabled or monotonic() - started > 30:
+            if (
+                not auth.settings.forge_cad_writes_enabled
+                or monotonic() - started > budget
+            ):
                 raise EditError("verification_failed")
             row.state = "verifying"
             row.payload = StoredCreation.model_validate(
@@ -228,6 +287,7 @@ def approve(
     try:
         baseline = provider.capture()
         if baseline.digest != saved.baseline:
+            cause = _difference(saved.baseline_parts, baseline)
             raise EditError("model_changed")
         result = execute(saved.plan, baseline, provider, journal)
         with auth.sessions.begin() as db:
@@ -244,7 +304,10 @@ def approve(
             row.payload = StoredCreation.model_validate(
                 {"approval": saved, "steps": result.steps}
             ).model_dump_json()
-            if not auth.settings.forge_cad_writes_enabled or monotonic() - started > 30:
+            if (
+                not auth.settings.forge_cad_writes_enabled
+                or monotonic() - started > budget
+            ):
                 raise EditError("verification_failed")
             if safe:
                 db.execute(
@@ -254,7 +317,7 @@ def approve(
                     )
                 )
         return {"state": result.state, "steps": list(result.steps)}
-    except Exception:
+    except Exception as error:
         # Fail closed; never delete a fence on an unconfirmed transaction/result.
         with auth.sessions.begin() as db:
             from forge_api.db.coordination import user_lock
@@ -284,6 +347,12 @@ def approve(
             steps = list(StoredCreation.model_validate_json(row.payload or "").steps)
             row.state = "execution_uncertain" if attempted else "rejected_stale"
             if not attempted:
+                audit(
+                    db,
+                    "write_rejected_stale",
+                    cause or _cause(error),
+                    user_id=saved.binding.user,
+                )
                 db.execute(
                     delete(WriteFence).where(
                         WriteFence.record_id == handle,

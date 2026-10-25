@@ -93,6 +93,16 @@ class CreationEvidence:
             [self.marker, self.inventory, self.configuration, self.bodies]
         )
 
+    @property
+    def parts(self) -> dict[str, str]:
+        """Per-category digests; they alone locate a mismatch without raw CAD data."""
+        return {
+            "marker": fingerprint(self.marker),
+            "inventory": fingerprint(self.inventory),
+            "configuration": fingerprint(self.configuration),
+            "bodies": fingerprint(self.bodies),
+        }
+
     def require_empty(self) -> None:
         if self.inventory["features"] or self.bodies["bodies"]:
             raise EditError("unsupported_target")

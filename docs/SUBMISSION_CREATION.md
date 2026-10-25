@@ -94,3 +94,15 @@ acknowledgement and required exactly on the fresh reread; unknown fields still r
 A synthetic lost-final-commit-reply regression proves a completed verified record is
 not rewritten into unfenced uncertainty: a separate transaction confirms the exact
 committed result of this run without redispatch. Unconfirmed writes retain their fence.
+
+## Pre-dispatch stops and time budgets
+
+A stop before the first write is audited as `write_rejected_stale` with a closed
+category outcome, never exception text or CAD data: `baseline_marker`,
+`baseline_inventory`, `baseline_configuration`, `baseline_bodies` (approval-time
+capture differs from the approved baseline; first differing category, marker
+first), `pre_head_moved`, `pre_unsupported`, `pre_context`, `pre_gate`,
+`pre_read_failed`, `pre_other`. The UI still shows "Model changed" for the
+`rejected_stale` state; the audit category says why. Every capture and dispatch gets
+its own 30 s ceiling, and the whole approval a budget of 30 s per step plus one (max
+110 s), so a slow but healthy provider can finish a multi-step plan.

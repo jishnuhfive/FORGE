@@ -1,6 +1,7 @@
 """Deterministic v17 feature adapter. No semantic plan ever contains provider IDs."""
 
 from math import hypot
+from time import monotonic
 from typing import Any, cast
 
 from forge_api.cad_edits.domain import EditError
@@ -405,7 +406,14 @@ class CreationClient:
         self.provider = provider
         self.context = context
 
+    def _renew(self) -> None:
+        # Each capture or dispatch gets its own 30 s ceiling. A sequential plan makes
+        # many reads, so one ceiling shared by the whole approval would expire
+        # mid-plan; a hung request is still bounded.
+        self.provider._deadline = monotonic() + 30
+
     def capture(self) -> CreationEvidence:
+        self._renew()
         return read(self.provider, self.context)
 
     def preflight(
@@ -430,5 +438,6 @@ class CreationClient:
             f"/partstudios/d/{context.documentId}/w/{context.workspaceId}"
             f"/e/{context.elementId}/features"
         )
+        self._renew()
         result = self.provider._exchange("POST", path, body)
         return acknowledge(body["feature"], result, before)
