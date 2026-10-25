@@ -686,6 +686,18 @@ API/model payload, persistence, execution or graph authority changes. Full
 representation exact_match is still pending; the next single human writes-OFF
 refresh collects all remaining roles simultaneously.
 
+The full human inventory found 13 Extrude / 8 Fillet roles but only 4 / 6 fully
+inspected: mesh/mate-connector leaves were opaque and extrudeDirection clipped at
+depth 8. The shared finite projector now reads only the verified optional Boolean
+fields of those two schemas. DEV inventory uses a separate depth-16 summary/model
+and entry point; production rejection evidence and exact acceptance retain depth
+8, and every path retains 64 nodes. Three mate Boolean fields require a three-field
+leaf bound and 20 KiB filter-message budget; per-feature inventory output remains
+128 KiB. Existing complete shallow projections are unchanged. No acceptance,
+transport, acquisition, approval/execution/recovery or graph boundary changes.
+The next human writes-OFF refresh must prove clean 13/13 + 8/8 and the real complete
+direction tree before dormant-role contracts can be considered.
+
 [Recovery hotfix](MODIFY_RECOVERY_HOTFIX.md) adds session-owned server discovery,
 read-only single-terminal-suppression reconciliation and a deterministic planning
 fast path before AI fallback. `reconciled_current_state` proves present-state

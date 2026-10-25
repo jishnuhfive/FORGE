@@ -32,6 +32,7 @@ from forge_api.integrations.onshape.query_filter_evidence import (
     LEAF_RULES,
     MAX_DEPTH,
     MAX_FILTER_LOG_CHARS,
+    MAX_LEAF_FIELDS,
     MAX_NODES,
     MAX_SIGNATURE_CHARS,
     FilterCategory,
@@ -302,7 +303,7 @@ def test_actual_and_schema_maximum_log_lengths_are_bounded() -> None:
                 LeafEvidence(
                     visit=64,
                     fields=(LeafFieldState(field=longest_field, state=longest_state),)
-                    * 2,
+                    * MAX_LEAF_FIELDS,
                 )
                 for _ in range(MAX_NODES)
             ),

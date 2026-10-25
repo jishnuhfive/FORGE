@@ -1,6 +1,6 @@
 # Phase 16 — controlled real Modify conformance
 
-**IN PROGRESS — COMPLETE QUERY-ROLE FILTER EVIDENCE REQUIRED**
+**IN PROGRESS — REMAINING QUERY LEAF/DEPTH EVIDENCE REFRESH REQUIRED**
 
 Initial status: `IN PROGRESS — AUTOMATED CONFORMANCE PREPARATION`.
 
@@ -2502,3 +2502,215 @@ full representation exact_match is not claimed. Share only these sanitized
 records, never provider JSON or identifiers/query contents. A later separately
 authorized task may assess exact role-specific inactive-filter contracts from
 the complete evidence. No merge, deployment, real writes or Phase 17 work here.
+
+## Close the remaining mesh/mate and diagnostic-depth evidence gaps
+
+Starting clean synchronized branch: `phase16/modify-live-conformance`, local and
+fetched origin HEAD `18493146f5cb5b220036603c089ab40f6eaf4ece`
+(`test: inventory all current Onshape query roles`). Local Settings confirmed CAD
+writes OFF. No private fixture read, real proposal, approval or mutation was made
+by the agent. Dormant-role acceptance is not part of this continuation.
+
+### Complete human inventory results, incomplete filter evidence
+
+One same-fixture Sketch 1 → Extrude 1 → Fillet 1 refresh discovered all 13 Extrude
+and 8 Fillet query-bearing roles, but reported:
+
+| Feature | Discovered / inspected | All inspected | Malformed / unexpected | Uninspected | Truncated |
+| ------- | ---------------------- | ------------- | ---------------------- | ----------- | --------- |
+| Extrude | 13 / 4                 | false         | false / false          | true        | true      |
+| Fillet  | 8 / 6                  | false         | false / false          | true        | false     |
+
+The human reported eligible_no_proposal_no_write and no proposal, approval or
+mutation. The already complete Extrude roles were entities, surfaceEntities,
+wallShape and startOffsetEntity. The already complete Fillet roles were entities,
+side1Face, side2Face, centerFaces, keepEdges and smoothCornerExceptions. Their
+normalized behavior is preserved; the 600 strict entities cases remain unchanged.
+
+The remaining shallow evidence classes were:
+
+| Roles                                                   | Observed normalized topology                                                                       | Known semantic states; remaining gap                                            |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| endBoundEntityFace / secondDirectionBoundEntityFace     | or(and(and(entity_type,sketch_object),allow_mesh_geometry),body_type)                              | face; sketch=false/not_sketch_object; body=mate_connector; mesh opaque          |
+| endBoundEntityBody / secondDirectionBoundEntityBody     | and(and(and(entity_type,or(body_type,body_type)),sketch_object),allow_mesh_geometry)               | body entity; solid/sheet bodies; sketch=false/not_sketch_object; mesh opaque    |
+| endBoundEntityVertex / secondDirectionBoundEntityVertex | or(entity_type,mate_connector)                                                                     | vertex; mate connector opaque                                                   |
+| booleanScope                                            | and(and(and(entity_type,body_type),modifiable_entity_only),allow_mesh_geometry)                    | body entity/solid; modifiable=true; mesh opaque                                 |
+| booleanSurfaceScope                                     | and(and(and(and(entity_type,body_type),modifiable_entity_only),allow_mesh_geometry),sketch_object) | body entity/sheet; modifiable=true; sketch=false/not_sketch_object; mesh opaque |
+| startPartialEntity / endPartialEntity                   | or(and(entity_type,allow_mesh_geometry),or(entity_type,mate_connector))                            | face/vertex; mesh and mate connector opaque                                     |
+
+Extrude extrudeDirection reported root=or, child_count=2, depth=8/nodes=15,
+malformed/missing_operand/unexpected_fields=false, uninspected/truncated=true and
+signature_truncated=true with signature unavailable. Known leaves included line,
+circle, arc, cylinder and plane geometry plus body_type=mate_connector. **Its
+complete real topology was hidden and remains unknown.** No production contract,
+real fixture capture or reconstructed complete topology is inferred from this.
+
+### Official schema verification before implementation
+
+The current public [OpenAPI](https://cad.onshape.com/api/openapi) was fetched with
+TLS verification: OpenAPI 3.0.1, version `1.222.91980-dcee49ea4d64`, SHA-256
+`6416eff28b497b1bfa5d7fbcc614d3e1a669966f2a4f5b1b5dd9ab808aea76fb`.
+BTQueryFilter-183 contributes only btType. The exact subtype envelopes are:
+
+- BTAllowMeshGeometryFilter-1026: btType plus optional Boolean allowsMeshGeometry.
+- BTMateConnectorFilter-163: btType plus optional Booleans
+  allowImplicitMateConnector, isMateConnectorInferenceEnabledByDefault and
+  requiresOccurrence.
+
+The official generated SDK independently confirms the
+[mesh model](https://raw.githubusercontent.com/onshape-public/go-client/386ba6fdf60a7de469253857e227064c7df33273/onshape/model_bt_allow_mesh_geometry_filter_1026.go)
+and [mate connector model](https://raw.githubusercontent.com/onshape-public/go-client/386ba6fdf60a7de469253857e227064c7df33273/onshape/model_bt_mate_connector_filter_163.go).
+Official master was checked at that exact SHA. Comments and independent tests
+record this provenance; no runtime schema request or dependency is introduced.
+SDK getter zero values are not evidence of a missing provider field's value.
+
+### Closed leaf inspection and separate diagnostic depth
+
+The finite diagnostic projection adds exactly these schema-backed mappings:
+
+| Provider field                           | Closed diagnostic field          |
+| ---------------------------------------- | -------------------------------- |
+| allowsMeshGeometry                       | allow_mesh_geometry              |
+| allowImplicitMateConnector               | allow_implicit_mate_connector    |
+| isMateConnectorInferenceEnabledByDefault | mate_connector_inference_default |
+| requiresOccurrence                       | requires_occurrence              |
+
+Each independently emits only true, false, missing, null or wrong_type. Actual
+Boolean type is required: integers, strings, arrays and objects never coerce or
+echo. Null/wrong-type values flag malformed; missing stays explicit with no default
+inference. Unknown fields still set unexpected_fields/uninspected without walking
+their values. Exact discriminator matching is unchanged; unknown schema variants
+remain opaque/uninspected. No new categories or state values are added, only four
+compile-time field labels. The real Boolean values still require a human refresh.
+
+The default `unproven_filter_summary` and its production rejection model retain
+depth <=8. A separate `diagnostic_filter_summary` / sibling
+`DiagnosticQueryFilterSummary` is used only by the DEV role inventory, with
+depth <=16 and the unchanged node cap <=64. The models are separate: extended
+evidence does not validate as the production rejection model. Strict production
+acceptance remains byte-for-byte unchanged, including its independent depth-8 /
+64-node ceilings and exact role shapes.
+
+Depth 16 is a modest doubling of the clipped evidence allowance. The truncated
+human result cannot establish the exact required height, so no guessed height or
+topology is claimed. The iterative walker still follows only fixed SDK operands,
+counts raw visits, terminates safely on cycles and clears signatures on any
+depth/node/arity/length clipping. If the real tree exceeds 16 or 64 nodes, it must
+remain incomplete. There is no recursive or arbitrary provider-value walk.
+
+Mate connector has three Boolean fields, so the closed per-leaf field bound is
+now three. The worst-schema filter-message budget is 20 KiB (previously 16 KiB),
+with <=4,096 signature characters / 192 tokens / 64 leaf records unchanged. The
+inventory row budget is correspondingly 21 KiB including its fixed header. Its
+128 KiB per-feature/variant and 5 MiB whole-refresh ceilings are unchanged;
+budget clipping remains explicit and preserves every role row. Schema-maximum
+tests now exercise all three fields rather than the old two-field maximum.
+
+No raw provider JSON/types/values, IDs, node IDs or query text escape. Frozen
+projection models still require already-closed diagnostic summaries. DEV,
+diagnostics-ON/writes-OFF, complete/source-matched, matching-head and per-record
+guards remain; the Inspector still uses its existing 13 GETs (four for compare),
+with no additional provider acquisition or mutation request.
+
+### Authority and automated evidence
+
+No dormant role gains acceptance. The exact entities predicates, full current-UI
+parameter validator, registry/historical profiles, suppression transport,
+approval/preview/digest, stale checks, one-use claims, execution fences,
+rejectMicroversionSkew, pre-dispatch freshness, post-write fresh evidence,
+exact-effect verification, uncertainty/no-retry, recovery and graph/model
+boundaries are unchanged. Normal first failures remain Extrude surfaceEntities /
+Fillet side1Face → query_filter_unproven. Diagnostic completeness cannot grant
+write eligibility. CAD writes remain OFF; no real write success is claimed.
+
+Focused gate: **2,104 passed**, including **102 new closure cases**, **28 additional
+closed-leaf matrix cases**, and all **600 unchanged strict-contract cases**. Tests
+cover every supported Boolean/state, hostile values, exact envelopes, unsupported
+variants, separate model/depth bounds, cycles, node clipping and excessive depth.
+Inventory tests achieve 13/13 and 8/8 with clean aggregate flags; existing complete
+roles retain identical normalized projections and dormant replacements still
+reject. A GET-only Inspector test verifies complete bounded signatures/states,
+sanitized logs, an unchanged input fingerprint, no proposal/fence records and
+eligible_no_proposal_no_write. Fault cases preserve truthful aggregate flags.
+
+The deep direction test is an explicitly synthetic depth-12/17-node stress tree,
+with the known root category and geometry/body leaf families. It is **not** the
+real extrudeDirection topology or an accepted filter. New optional Boolean values
+in test fixtures are invented schema coverage, not observed provider values.
+
+All full suites/checks passed with real CAD writes OFF; counts overlap:
+
+| Check                                  | Result                                                                 |
+| -------------------------------------- | ---------------------------------------------------------------------- |
+| New evidence-closure suite             | **102 passed**                                                         |
+| Extended shared leaf-state matrix      | **28 additional cases**, **253 signature cases passed**                |
+| Focused evidence/contract/shape gate   | **2,104 passed**                                                       |
+| Preserved strict entities suite        | **600 passed**, byte-for-byte unchanged                                |
+| Full API suite                         | **6,945 passed**, including all **42 PostgreSQL cases**, no skips      |
+| Full frontend suite                    | **869 passed** in **35 files**, no skips                               |
+| Modify browser matrix                  | **45 passed**, Chromium / Firefox / WebKit, four workers, zero retries |
+| Frozen installs                        | npm ci / uv sync --locked passed; dependencies/lockfiles unchanged     |
+| Format / lint / strict types / build   | Passed                                                                 |
+| Dependency audits / Compose validation | Passed                                                                 |
+| Isolated migrations / migration drift  | Passed; no new upgrade operations                                      |
+
+There are 130 added collected cases in total. The complete `make test` command
+used the supported execution-only VITEST_MAX_WORKERS=2 setting for machine
+capacity. No test was skipped and no assertion, timeout, product retry behavior,
+threshold or repository runner configuration was weakened. Production depth/node
+and 8 KiB replacement bounds remain unchanged; only explicit diagnostic bounds
+and their maximum-output tests change. Python strict checking passed across
+198 source files; TypeScript checking passed. Audits found no known vulnerabilities
+among audited packages; the existing Python audit excludes the editable app.
+The pre-existing bundle-size warning remains. No dependency, migration, environment
+file or deployment configuration changed.
+
+PostgreSQL used a fresh healthy loopback-only random-port tmpfs container with
+synthetic credentials, isolated from operator dotenv and service credentials.
+Only that verification container was stopped/removed, retaining existing services
+and data. Final local Settings confirmed writes OFF. Scope/privacy and secret
+pattern review passed. Strict entities acceptance, current-UI validation,
+registry/legacy profiles, write transport, exact verifier, approval/claims/fences /
+recovery, graph/model code, frontend and original fixtures remain unchanged.
+Automated success proves diagnostic capability only; real optional-field values
+and direction topology still require the human refresh below.
+
+**PHASE 16 QUERY EVIDENCE CLOSURE PASS — READY FOR COMPLETE 13/13 + 8/8 REFRESH**
+
+### Query-evidence closure files changed
+
+- apps/api/src/forge_api/integrations/onshape/query_filter_evidence.py
+- apps/api/src/forge_api/integrations/onshape/dev/query_roles.py
+- apps/api/tests/test_modify_query_evidence_closure.py
+- apps/api/tests/test_modify_filter_signature.py (three-field maximum proof)
+- apps/api/tests/test_modify_query_role_inventory.py (diagnostic model/depth proofs)
+- docs/ARCHITECTURE.md
+- docs/SECURITY.md
+- docs/DEVELOPMENT.md
+- docs/ROADMAP.md
+- docs/PHASE_16_MODIFY_LIVE_CONFORMANCE.md
+
+### Exact next human 13/13 + 8/8 evidence checkpoint
+
+On the original development Mac, pull `phase16/modify-live-conformance`. Keep
+ENVIRONMENT=development, FORGE_SAFE_EDIT_DIAGNOSTICS_ENABLED=true and
+FORGE_CAD_WRITES_ENABLED=false. On the SAME disposable Sketch 1 → Extrude 1 →
+Fillet 1 fixture, perform **exactly ONE Inspector → Refresh CAD**. Generate no
+proposal, approval or mutation.
+
+For each noSketchGeometry variant, report every sanitized query-role row plus
+both feature summaries. Required targets are Extrude discovered=13/inspected=13,
+Fillet discovered=8/inspected=8, all_roles_inspected=true and all four aggregate
+malformed/unexpected/uninspected/truncated flags false. Require complete real
+extrudeDirection topology, signature_truncated=false and all bounded closed leaf
+states, plus explicit mesh Boolean and all three mate-connector field states on
+every applicable role. Preserve/report the already complete roles unchanged.
+
+The probe must remain eligible_no_proposal_no_write. Continue reporting closed
+first-failure/body summaries; surfaceEntities / side1Face query_filter_unproven
+remains expected. Report optional missing fields explicitly as absence, without
+inferring defaults; their meaning requires later contract review. Unknown states,
+malformed values, unexpected fields or clipping stop advancement; never guess a
+hidden tree/value. Only complete human evidence can
+support a later separately authorized dormant-role acceptance task. No merge,
+deployment, writes ON, live mutation trial or Phase 17 work is authorized here.

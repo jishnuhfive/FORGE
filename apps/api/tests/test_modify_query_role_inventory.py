@@ -33,14 +33,16 @@ from forge_api.integrations.onshape.dev.standard_parameters import VOCABULARY
 from forge_api.integrations.onshape.dev.standard_shape_failure import diagnose_ui_shape
 from forge_api.integrations.onshape.query_filter_evidence import (
     CATEGORIES,
+    MAX_DIAGNOSTIC_DEPTH,
+    MAX_LEAF_FIELDS,
     MAX_NODES,
     MAX_SIGNATURE_CHARS,
+    DiagnosticQueryFilterSummary,
     FilterCategory,
     LeafEvidence,
     LeafField,
     LeafFieldState,
     LeafState,
-    QueryFilterSummary,
     leaf_states_text,
     unproven_filter_summary,
 )
@@ -301,7 +303,8 @@ def test_role_faults_are_closed_flagged_and_cannot_hide_later_roles(fault: str) 
     else:
         assert role.malformed and report.summary.any_malformed
     assert role.query_filter is None or (
-        role.query_filter.node_count <= 64 and role.query_filter.max_depth <= 8
+        role.query_filter.node_count <= 64
+        and role.query_filter.max_depth <= MAX_DIAGNOSTIC_DEPTH
     )
     assert HOSTILE not in report.model_dump_json() and HOSTILE not in query_role_text(
         role
@@ -382,13 +385,14 @@ def test_schema_maximum_log_size_and_whole_feature_output_are_bounded(
         categories=(category,) * len(CATEGORIES),
         leaf_states=tuple(
             LeafEvidence(
-                visit=64, fields=(LeafFieldState(field=field, state=state),) * 2
+                visit=64,
+                fields=(LeafFieldState(field=field, state=state),) * MAX_LEAF_FIELDS,
             )
             for _ in range(MAX_NODES)
         ),
     )
-    maximum = QueryFilterSummary.model_validate(raw)
-    monkeypatch.setattr(query_roles, "unproven_filter_summary", lambda _: maximum)
+    maximum = DiagnosticQueryFilterSummary.model_validate(raw)
+    monkeypatch.setattr(query_roles, "diagnostic_filter_summary", lambda _: maximum)
     report = query_role_inventory(all_role_inventory())[0]
     assert len(report.roles) == 13 and any(r.query_filter is None for r in report.roles)
     assert report.summary.any_truncated and report.summary.any_uninspected

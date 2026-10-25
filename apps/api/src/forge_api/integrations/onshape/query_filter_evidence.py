@@ -68,6 +68,10 @@ LeafField = Literal[
     "sketch_object_type",
     "modifiable_entity_only",
     "allows",
+    "allow_mesh_geometry",
+    "allow_implicit_mate_connector",
+    "mate_connector_inference_default",
+    "requires_occurrence",
 ]
 LeafState = Literal[
     "all_mesh",
@@ -119,11 +123,13 @@ LeafState = Literal[
     "wrong_type",
 ]
 MAX_DEPTH = 8
+MAX_DIAGNOSTIC_DEPTH = 16
 MAX_NODES = 64
+MAX_LEAF_FIELDS = 3
 MAX_SIGNATURE_CHARS = 4096
-# Derived from closed labels, <=64 nodes, <=2 fields per leaf. Includes the
+# Derived from closed labels, <=64 nodes, <=3 fields per leaf. Includes the
 # fixed DEV prefix/counts/flags; tests check both actual and schema maxima.
-MAX_FILTER_LOG_CHARS = 16384
+MAX_FILTER_LOG_CHARS = 20 * 1024
 
 KINDS: dict[str, FilterCategory] = {
     "BTEntityTypeFilter-124": "entity_type",
@@ -270,6 +276,18 @@ LEAF_RULES: dict[FilterCategory, tuple[LeafRule, ...]] = {
     "flat_sheet_metal": (
         LeafRule("allows", "allows", GBTFILTERFLATTENEDGEOMETRYOPTIONS),
     ),
+    # Official OpenAPI 1.222.91980-dcee49ea4d64 / onshape-public/go-client
+    # 386ba6fdf60a7de469253857e227064c7df33273: these subtypes inherit only
+    # btType and add the optional Boolean fields below. No defaults inferred.
+    "allow_mesh_geometry": (LeafRule("allowsMeshGeometry", "allow_mesh_geometry"),),
+    "mate_connector": (
+        LeafRule("allowImplicitMateConnector", "allow_implicit_mate_connector"),
+        LeafRule(
+            "isMateConnectorInferenceEnabledByDefault",
+            "mate_connector_inference_default",
+        ),
+        LeafRule("requiresOccurrence", "requires_occurrence"),
+    ),
 }
 
 
@@ -281,14 +299,14 @@ class LeafFieldState(Closed):
 class LeafEvidence(Closed):
     # Preorder visit number within this filter, never a provider identity.
     visit: int = Field(ge=1, le=MAX_NODES)
-    fields: tuple[LeafFieldState, ...] = Field(min_length=1, max_length=2)
+    fields: tuple[LeafFieldState, ...] = Field(min_length=1, max_length=MAX_LEAF_FIELDS)
 
 
-class QueryFilterSummary(Closed):
+class _FilterSummary(Closed):
     root: FilterCategory
     root_state: Literal["object", "null", "wrong_type"]
     root_child_count: int = Field(ge=0, le=2)
-    max_depth: int = Field(ge=1, le=MAX_DEPTH)
+    max_depth: int = Field(ge=1, le=MAX_DIAGNOSTIC_DEPTH)
     node_count: int = Field(ge=1, le=MAX_NODES)
     categories: tuple[FilterCategory, ...] = Field(max_length=len(CATEGORIES))
     signature: tuple[SignatureToken, ...] = Field(max_length=3 * MAX_NODES)
@@ -308,6 +326,16 @@ class QueryFilterSummary(Closed):
         if sum(map(len, value)) > MAX_SIGNATURE_CHARS:
             raise ValueError("filter_signature_bound")
         return value
+
+
+class QueryFilterSummary(_FilterSummary):
+    """Existing production rejection evidence retains its depth-8 constraint."""
+
+    max_depth: int = Field(ge=1, le=MAX_DEPTH)
+
+
+class DiagnosticQueryFilterSummary(_FilterSummary):
+    """Read-only inventory evidence; never a production acceptance model."""
 
 
 def _category(raw: JsonValue) -> FilterCategory:
@@ -336,7 +364,7 @@ def _state(node: dict[str, JsonValue], rule: LeafRule) -> LeafFieldState:
     return LeafFieldState(field=rule.field, state=state)
 
 
-def leaf_states_text(summary: QueryFilterSummary) -> str:
+def leaf_states_text(summary: QueryFilterSummary | DiagnosticQueryFilterSummary) -> str:
     """Serialize only schema-closed labels and bounded local visit numbers."""
     return (
         ";".join(
@@ -348,9 +376,25 @@ def leaf_states_text(summary: QueryFilterSummary) -> str:
 
 
 def unproven_filter_summary(raw: JsonValue) -> QueryFilterSummary:
+    """Preserve the existing depth-8 production rejection projection."""
+    return _filter_summary(raw, MAX_DEPTH, QueryFilterSummary)
+
+
+def diagnostic_filter_summary(raw: JsonValue) -> DiagnosticQueryFilterSummary:
+    """Inventory-only depth 16: double the clipped evidence allowance, <=64 nodes.
+
+    The real extrudeDirection topology remains unknown until a human refresh.
+    Deeper/wider/cyclic inputs still truncate; no tree or value is inferred.
+    """
+    return _filter_summary(raw, MAX_DIAGNOSTIC_DEPTH, DiagnosticQueryFilterSummary)
+
+
+def _filter_summary[Summary: _FilterSummary](
+    raw: JsonValue, depth_limit: int, summary_type: type[Summary]
+) -> Summary:
     """Finite diagnostic evidence only, independent of acceptance authority.
 
-    Iterative raw visits <=64, depth <=8, fixed SDK operand slots only. Unknown
+    Iterative raw visits <=64, fixed bounded depth/SDK operand slots only. Unknown
     payloads are opaque. Only finite enum/Boolean states may leave known leaves.
     Token events never examine provider data or consume another raw-node visit.
     Invalid operator arity or clipping clears the signature, never invents nodes.
@@ -412,7 +456,7 @@ def unproven_filter_summary(raw: JsonValue) -> QueryFilterSummary:
             for index, key in reversed(tuple(enumerate(slots))):
                 if key not in node:
                     missing = True
-                elif level == MAX_DEPTH:
+                elif level == depth_limit:
                     truncated = True
                 else:
                     stack.append((node[key], level + 1))
@@ -424,7 +468,7 @@ def unproven_filter_summary(raw: JsonValue) -> QueryFilterSummary:
         or invalid_operator
         or sum(map(len, parts)) > MAX_SIGNATURE_CHARS
     )
-    return QueryFilterSummary(
+    return summary_type(
         root=root,
         root_state="object"
         if isinstance(raw, dict)

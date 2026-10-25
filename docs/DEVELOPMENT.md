@@ -772,6 +772,19 @@ one human refresh. Empty roles still require filter evidence. Unknown identities
 duplicates or clipping leave evidence incomplete. See the newest Phase 16 section;
 full representation exact_match is not expected yet and no dormant role is accepted.
 
+For the remaining query-evidence closure, first run
+`tests/test_modify_query_evidence_closure.py`, then inventory/signature/filter,
+strict-contract, minimal-profile and diagnostic regressions. The default rejection
+projection stays depth 8; only inventory uses diagnostic depth 16, with the same
+64-node cap. Schema-maximum tests include all three mate-connector fields. Full
+tests must include isolated PostgreSQL, frontend, Modify browsers, frozen installs,
+format/lint/types/build/audits/Compose and migrations/drift. If capacity requires,
+use execution-only lower test parallelism without changing assertions/timeouts.
+The deep synthetic fixture is not a real direction-tree capture. The next human
+single-refresh target is clean 13/13 Extrude and 8/8 Fillet, including complete
+real direction signature and explicit mesh/mate states. Keep diagnostics ON/writes
+OFF; first-failure dormant-role rejection remains expected. No proposal or write.
+
 It performs pinned GET reads without proposals or mutations, and adds no
 public diagnostic route/header. It is not invoked by Learn or AI. See
 [the investigation record](PHASE_9_REVIEW.md) before interpreting missing fields;

@@ -11,9 +11,9 @@ from forge_api.cad_edits.domain import Closed, EditError
 
 from ..query_filter_evidence import (
     MAX_FILTER_LOG_CHARS,
-    QueryFilterSummary,
+    DiagnosticQueryFilterSummary,
+    diagnostic_filter_summary,
     leaf_states_text,
-    unproven_filter_summary,
 )
 from ..standard_edit_shapes import BASE_FIELDS
 from ..standard_shape_contract import ShapeCategory, StandardId
@@ -34,7 +34,7 @@ class QueryRole(Closed):
     query_item_count: int | None = Field(ge=0, le=2000)
     query_count_capped: bool
     filter_present: bool
-    query_filter: QueryFilterSummary | None
+    query_filter: DiagnosticQueryFilterSummary | None
     malformed: bool
     unexpected_fields: bool
     uninspected: bool
@@ -42,10 +42,10 @@ class QueryRole(Closed):
 
     @field_validator("query_filter", mode="before")
     @classmethod
-    def closed_filter(cls, value: object) -> QueryFilterSummary | None:
+    def closed_filter(cls, value: object) -> DiagnosticQueryFilterSummary | None:
         # The projector supplies an already closed summary, never a provider
         # mapping whose arbitrary keys could appear in validation-error paths.
-        if value is not None and not isinstance(value, QueryFilterSummary):
+        if value is not None and not isinstance(value, DiagnosticQueryFilterSummary):
             raise ValueError("closed_filter_projection_required")
         return value
 
@@ -112,7 +112,7 @@ def _role(
     )
     count = len(queries) if isinstance(queries, list) else None
     present = "filter" in param
-    evidence = unproven_filter_summary(param["filter"]) if present else None
+    evidence = diagnostic_filter_summary(param["filter"]) if present else None
     allowed = BASE_FIELDS | {"queries", "filter"}
     extra = len(param) > len(allowed) or any(key not in allowed for key in param)
     return QueryRole(

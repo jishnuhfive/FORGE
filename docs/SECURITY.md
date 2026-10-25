@@ -749,6 +749,19 @@ Entities acceptance, all other role rejection, legacy profiles, suppression and
 every approval/execution/recovery control remain unchanged. Complete inventory
 does not establish eligibility; CAD writes stay OFF.
 
+The query-evidence closure adds four closed field labels for the official mesh
+Boolean and three mate-connector Booleans. Values emit only true/false/missing /
+null/wrong_type; no coercion, default or raw provider text is permitted. Unknown
+fields/variants still prevent completeness. The DEV inventory alone uses a new
+depth-16 sibling projection model; the original production evidence model remains
+depth 8 and strict acceptance code is unchanged. Iterative node visits stay <=64,
+with cycle/depth/node clipping explicit. Leaf records now allow three fields;
+worst-schema filter/row budgets are 20/21 KiB while the 128 KiB feature budget and
+all privacy/runtime guards remain. No diagnostic output authorizes edits or adds
+provider IO, persistence or public/model payloads. All role, legacy, approval,
+fence, microversion, verification, uncertainty/retry and recovery controls remain
+unchanged. Real writes remain OFF pending complete human evidence and later scope.
+
 [Recovery controls](MODIFY_RECOVERY_HOTFIX.md) use the existing authenticated
 same-origin CSRF guard. Recovery returns only same-session consumed status handles
 and safe previews, never approval digests or provider bindings. Reconciliation

@@ -678,6 +678,16 @@ other eligibility/approval/write/recovery boundary are unchanged. The next human
 writes-OFF refresh inventories all remaining roles simultaneously; it does not
 authorize a dormant filter, proposal, approval or mutation.
 
+The complete human inventory confirmed the 13/8 role sets but inspected only
+4/6: allow_mesh_geometry and mate_connector were opaque, and extrudeDirection
+exceeded diagnostic depth 8. The follow-up closes only these evidence gaps using
+verified Boolean schema fields and a separate inventory depth-16/64-node allowance.
+Production acceptance remains depth 8 with exact entities contracts; dormant roles
+still reject. Current complete projections, privacy, bounded output and every
+write/approval/recovery boundary remain. The next human writes-OFF refresh must
+show 13/13 + 8/8, clean aggregate flags and the actual complete direction tree
+before a later authorized dormant-role contract. No live write conformance claimed.
+
 Previous DEFAULT repair passed 251 new-module cases plus 18 additional malformed
 variants (269 added cases), 3,757 focused cases, all 5,319 API / 869 frontend cases
 (including all 42 PostgreSQL cases, no skips), and 45 Modify browser cases across
