@@ -11,6 +11,7 @@ from pydantic import Field, ValidationError
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.concurrency import run_in_threadpool
 
+from forge_api.ai.diagnostics import Stage, emit_diagnostic
 from forge_api.ai.models import AiError
 from forge_api.auth.routes import Runtime, active_session
 from forge_api.cad_edits import storage
@@ -19,6 +20,7 @@ from forge_api.cad_edits.routes import error_response, guard
 from forge_api.integrations.onshape.client import ReadError
 from forge_api.integrations.onshape.contracts import WorkspaceReference
 from forge_api.integrations.onshape.service import ReadGate
+from forge_api.modify_planner.routes import STATUS, failure
 
 from . import service
 from .compile import BriefError
@@ -45,6 +47,7 @@ class Approve(Closed):
 @router.post("/api/create/interpret")
 async def natural(request: Request, auth: Runtime) -> JSONResponse:
     raw = await guard(request, auth)
+    correlation = uuid4().hex
     try:
         value = Interpret.model_validate(raw)
         with auth.sessions() as db:
@@ -52,20 +55,39 @@ async def natural(request: Request, auth: Runtime) -> JSONResponse:
             if current is None:
                 raise EditError("session_expired", 401)
             user = current.user_id
-        with cast(ReadGate, request.app.state.planner_gate).enter(user):
+        gate = cast(ReadGate, request.app.state.planner_gate)
+        with gate.enter(user):
             result = await interpret(
                 auth.settings,
                 cast(httpx.AsyncClient, request.app.state.ai_transport),
                 value.request,
-                str(uuid4()),
+                correlation,
             )
         return JSONResponse(
             result.model_dump(mode="json"), headers={"Cache-Control": "no-store"}
         )
     except ValidationError, OverflowError:
         return JSONResponse({"detail": "invalid_request"}, 400)
-    except AiError:
-        return JSONResponse({"detail": "plan_unavailable"}, 503)
+    except AiError as error:
+        # Same closed mapping as Modify: only an unusable model answer asks the user
+        # to rewrite; provider capacity, auth, quota and timeouts say what they are.
+        emit_diagnostic(
+            error,
+            environment=auth.settings.environment,
+            provider=auth.settings.forge_ai_provider,
+            stage=Stage.FINAL_OUTPUT,
+            request_id=correlation,
+        )
+        if error.code in ("rate_limited", "capacity_unavailable", "quota_unavailable"):
+            gate.defer(user, error.retry_after or 60)
+        status = STATUS.get(error.code, 502)
+        return failure(
+            "plan_unavailable" if status == 502 else error.code,
+            status,
+            error.retry_after,
+        )
+    except TimeoutError:
+        return failure("timeout", 504)
     except ReadError:
         return JSONResponse({"detail": "request_in_progress"}, 429)
     except EditError as error:

@@ -278,7 +278,8 @@ def test_model_intent_never_approves_or_dispatches(harness: Harness, mode: str) 
                 {"request": "Create a rectangle with explicit dimensions and no holes"},
             )
             if mode == "tool":
-                assert response.status_code == 503
+                assert response.status_code == 502
+                assert response.json() == {"detail": "plan_unavailable"}
             else:
                 assert response.status_code == 200, response.text
                 assert (
