@@ -762,8 +762,9 @@ provider IO, persistence or public/model payloads. All role, legacy, approval,
 fence, microversion, verification, uncertainty/retry and recovery controls remain
 unchanged. Real writes remain OFF pending complete human evidence and later scope.
 
-The human explicitly authorized a separate 32 KiB full-definition payload budget
-after evidence-shaped complete replacements exceeded the inherited 8 KiB fence.
+The human explicitly authorized a separate 24 KiB (24,576-byte) full-definition
+payload budget after evidence-shaped complete replacements exceeded the
+inherited 8 KiB fence.
 Only the private validated rename/depth/radius executor path can select it, after
 fresh registry/change and preview checks; fields, URL patterns, diagnostics and
 model arguments cannot. Ordinary/suppression exchanges and public input limits

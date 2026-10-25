@@ -523,7 +523,7 @@ def test_full_ui_feature_obeys_bounded_replacement_payload_cap(
 ) -> None:
     provider = PlanProvider()
     provider.data = ui_inventory()
-    provider.data["features"][position - 1]["syntheticMetadata"] = "x" * 32768
+    provider.data["features"][position - 1]["syntheticMetadata"] = "x" * 24576
     with running(harness, provider):
         req, preview = plan_for(harness, position, "RENAME_FEATURE")
         result = approve(harness, req, preview)

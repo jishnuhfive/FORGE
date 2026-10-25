@@ -366,7 +366,7 @@ def test_complete_current_payload_cancels_then_approves_once_and_verifies(
         )
         assert provider.payloads[0]["feature"] == expected
         post = next(c for c in provider.calls if c.method == "POST")
-        assert 8192 < len(post.content) <= 32768
+        assert 8192 < len(post.content) <= 24576
         assert (
             provider.writes == 1
             and provider.payloads[0]["rejectMicroversionSkew"] is True

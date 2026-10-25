@@ -2717,6 +2717,11 @@ deployment, writes ON, live mutation trial or Phase 17 work is authorized here.
 
 ## Separately authorized bounded full-definition payload repair
 
+Historical implementation/gate record: this repair incorrectly selected 32 KiB.
+The human subsequently confirmed the authorized ceiling is **24 KiB / 24,576
+bytes**. The correction and its fresh verification are recorded at the end of
+this document; the prior sizes/counts below describe the original implementation.
+
 Starting clean synchronized branch phase16/modify-live-conformance at
 `8a8c9ccba37dfb1c45be246455fd6199204cfae7`. The latest human checkpoint reports
 complete 13/13 Extrude and 8/8 Fillet query-role evidence in both Inspector variants,
@@ -2746,7 +2751,7 @@ with NO-GO before source changes. The human then explicitly selected:
 **Authorize a separate payload-limit repair.** This authorization supersedes the
 previous unchanged-8-KiB requirement only for the narrow replacement path below.
 
-### Two fixed server-owned byte budgets
+### Original two fixed server-owned byte budgets (superseded below)
 
 - MAX_REQUEST_BYTES remains **8,192** for ordinary exchanges, suppression and the
   original Phase 9 suppression path. Public request-body limits are unchanged.
@@ -2836,7 +2841,7 @@ not bypass unsupported shape rejection, stale detection, cancel, one-use claims,
 exact acknowledgement/fresh verification or uncertainty/fence/suffix behavior.
 
 The existing over-cap replacement tests keep their failure/no-dispatch/no-fence
-assertions and now exceed the separately authorized 32 KiB cap. Original public
+assertions and then exceeded the incorrectly implemented 32 KiB cap. Original public
 8 KiB parsing and suppression regressions remain unchanged. No other bound,
 assertion, timeout, retry, threshold, dependency or lockfile change is introduced.
 
@@ -3081,3 +3086,72 @@ is needed. This automated gate does not claim actual live exact-match or write
 success. Even a successful final read checkpoint does not enable writes or
 approve a mutation: controlled human live preview/approval remains a separate
 stage. No merge, deployment, OAuth/domain/secret change or Phase 17 work occurs.
+
+## Authorized 24 KiB replacement-ceiling correction
+
+Starting clean synchronized branch phase16/modify-live-conformance at
+`109b91e21b6d72ec57326dea587bf382fd17f999`. Before the final human writes-OFF
+checkpoint, the human confirmed the authorized full-definition replacement
+ceiling is **24 KiB / 24,576 bytes**, correcting the prior implementation's
+32 KiB value. Historical gate results above retain their original context.
+
+The only runtime change is MAX_FEATURE_REPLACEMENT_BYTES = 24 * 1024.
+Ordinary exchanges and both suppression paths remain independently capped at
+**8 KiB / 8,192 bytes**. Only the existing validated full-definition replacement
+path selects the larger budget. Preflight, private replacement transport and the
+absolute shared transport guard all enforce the corrected ceiling. There is no
+new setting, caller-selected limit, serialization change or payload trimming.
+
+Boundary expectations use literal sizes so a future increase fails the tests:
+all four rename/quantity target combinations cover 8,192, 8,193, 10,782, 14,771,
+24,576 and 24,577 serialized bytes. The two observed-size examples remain
+synthetic evidence-shaped payloads, not new measurements of private CAD.
+Exactly 24,576 bytes succeeds in MockTransport; 24,577 rejects before dispatch,
+without a dispatch audit or live fence. Unicode JSON escaping is tested at both
+boundaries, as is the independent private transport ceiling. Ordinary exchanges
+explicitly cover both replacement-looking and /features/updates paths at
+8,192/8,193 bytes. Large snapshots still produce attribute-only suppression.
+Existing over-cap regression fixtures now exceed 24 KiB; their no-dispatch and
+failure assertions remain intact. The complete current-query test only tightens
+its payload-size assertion to 24,576; query-role contract work is not redone.
+
+All feature/query validators, payload construction, field preservation, planner,
+preview/digest, approval/one-use claims, expiry/context/stale checks, fences,
+microversion guards, fresh exact-effect verification, uncertainty/no-retry and
+recovery behavior remain unchanged. Real CAD writes remain OFF. This correction
+does not perform the pending human Inspector checkpoint or establish live-write
+conformance. No real CAD read, proposal, approval, mutation, merge or deployment.
+
+### Ceiling-correction automated gate
+
+All checks passed with real CAD writes OFF; counts overlap:
+
+| Check                                                                   | Result                                                                                  |
+| ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Affected payload / plan / UI conformance tests                          | **1,243 passed**                                                                        |
+| Focused Modify / safe-edit / retained / AI-write / standard diagnostics | **6,683 passed**                                                                        |
+| Full API suite                                                          | **8,245 passed**, including all **42 PostgreSQL cases**, no skips                       |
+| Frontend                                                                | **869 passed** in **35 files**, no skips                                                |
+| Modify browser matrix                                                   | **45 passed**, Chromium / Firefox / WebKit, four workers, zero retries                  |
+| Frozen installs                                                         | npm ci and uv sync --locked passed; dependencies/lockfiles unchanged                    |
+| Required gate                                                           | make format, lint, typecheck, build, test, migration-check, compose-check, audit passed |
+
+Strict Python checking passed across 200 source files; TypeScript checking passed.
+Migration check found no new upgrade operations. Dependency audits found zero
+known vulnerabilities among audited packages; the unchanged Python audit excludes
+the editable application. The existing bundle-size warning remains. Frontend
+tests used execution-only VITEST_MAX_WORKERS=2; no runner, timeout, retry, approval,
+safety assertion or other bound was relaxed.
+
+Verification used synthetic CAD and in-process MockTransport, isolated settings,
+and a fresh healthy loopback-only random-port tmpfs PostgreSQL container with
+synthetic credentials. Only that temporary container was removed afterward;
+existing application services and data were retained. Local Settings confirmed
+real CAD writes OFF before and after verification. Diff review found no private
+CAD, credentials, environment, dependency, migration or deployment changes.
+Only the replacement ceiling and its explanatory comment changed at runtime;
+all query-role and authority/verification implementation files are unchanged.
+
+The final human writes-OFF checkpoint above remains the next step. It must not
+generate proposals, approvals or mutations. This automated correction neither
+performs that checkpoint nor authorizes any later live write.

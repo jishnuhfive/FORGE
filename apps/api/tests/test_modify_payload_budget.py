@@ -66,7 +66,7 @@ def sized_inventory(
 
 
 @pytest.mark.parametrize("position,kind", REPLACEMENTS)
-@pytest.mark.parametrize("size", [8192, 8193, 14771, 32768, 32769])
+@pytest.mark.parametrize("size", [8192, 8193, 10782, 14771, 24576, 24577])
 def test_replacement_budget_is_exact_and_requires_cancel_then_single_approval(
     harness: Harness, position: int, kind: str, size: int
 ) -> None:
@@ -83,7 +83,7 @@ def test_replacement_budget_is_exact_and_requires_cancel_then_single_approval(
         _no_dispatch(harness, provider)
         req, preview = plan_for(harness, position, kind)
         result = approve(harness, req, preview)
-        if size > MAX_FEATURE_REPLACEMENT_BYTES:
+        if size > 24576:
             assert result.state == "write_failed" and result.operations == (
                 "write_failed",
             )
@@ -108,7 +108,7 @@ def test_replacement_budget_is_exact_and_requires_cancel_then_single_approval(
         assert provider.writes == 1
 
 
-@pytest.mark.parametrize("size", [32768, 32769])
+@pytest.mark.parametrize("size", [24576, 24577])
 def test_bound_counts_serialized_bytes_for_unicode_metadata(
     harness: Harness, size: int
 ) -> None:
@@ -117,7 +117,7 @@ def test_bound_counts_serialized_bytes_for_unicode_metadata(
     with running(harness, provider):
         req, preview = plan_for(harness, 2, "RENAME_FEATURE")
         result = approve(harness, req, preview)
-    if size == MAX_FEATURE_REPLACEMENT_BYTES:
+    if size == 24576:
         assert result.state == "verified_success" and provider.writes == 1
         post = next(c for c in provider.calls if c.method == "POST")
         assert len(post.content) == size
@@ -132,8 +132,9 @@ def test_bound_counts_serialized_bytes_for_unicode_metadata(
 
 @pytest.mark.parametrize("method", ["GET", "POST", "PATCH"])
 @pytest.mark.parametrize("size", [8192, 8193])
+@pytest.mark.parametrize("path", ["/features/featureid/synthetic", "/features/updates"])
 def test_ordinary_exchange_keeps_8k_even_with_replacement_looking_fields(
-    method: str, size: int
+    method: str, size: int, path: str
 ) -> None:
     body: dict[str, object] = {
         "btType": "BTFeatureDefinitionCall-1406",
@@ -149,16 +150,16 @@ def test_ordinary_exchange_keeps_8k_even_with_replacement_looking_fields(
 
     with httpx.Client(transport=httpx.MockTransport(receive)) as transport:
         client = SafeEditClient(Settings(_env_file=None), transport, "synthetic-token")
-        if size == MAX_REQUEST_BYTES:
-            assert client._exchange(method, "/features/featureid/synthetic", body) == {}
+        if size == 8192:
+            assert client._exchange(method, path, body) == {}
             assert len(calls) == 1 and len(calls[0].content) == size
         else:
             with pytest.raises(EditError, match="invalid_request"):
-                client._exchange(method, "/features/featureid/synthetic", body)
+                client._exchange(method, path, body)
             assert not calls
 
 
-@pytest.mark.parametrize("size", [32768, 32769])
+@pytest.mark.parametrize("size", [24576, 24577])
 def test_private_replacement_transport_has_an_independent_exact_ceiling(
     size: int,
 ) -> None:
@@ -176,7 +177,7 @@ def test_private_replacement_transport_has_an_independent_exact_ceiling(
             transport,
             "synthetic-token",
         )
-        if size == MAX_FEATURE_REPLACEMENT_BYTES:
+        if size == 24576:
             assert client._exchange_replacement("/synthetic", body) == {}
             assert (
                 len(calls) == 1

@@ -82,6 +82,6 @@ The complete profile combines it with the existing synthetic 50/38-parameter
 fixture. Immutable production trees are separate from this test fixture and never
 compare diagnostic strings. Dormant roles are empty; only the exact direction
 role has depth 9. Full replacement tests preserve every filter/empty list and
-metadata field within the separately authorized 32 KiB wire cap. Historical and
+metadata field within the separately authorized 24 KiB wire cap. Historical and
 earlier incomplete/source-derived fixtures remain separate and retain rejection
 for their unsupported fields/states. Real writes remain unproven.

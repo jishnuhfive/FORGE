@@ -786,8 +786,8 @@ real direction signature and explicit mesh/mate states. Keep diagnostics ON/writ
 OFF; first-failure dormant-role rejection remains expected. No proposal or write.
 
 The separately authorized Phase 16 payload repair uses two fixed server-owned
-limits: 8 KiB ordinary/suppression requests, 32 KiB validated full rename/depth /
-radius replacement requests. Count actual serialized bytes, including JSON escapes;
+limits: 8 KiB ordinary/suppression requests, 24 KiB (24,576-byte) validated full
+rename/depth/radius replacement requests. Count serialized bytes, including JSON escapes;
 never trim CAD metadata or filters to fit. Both preflight and transport enforce
 the bound. There is no setting or model/public request field selecting a budget.
 Keep CAD writes OFF during tests and implementation. Dormant-role acceptance and

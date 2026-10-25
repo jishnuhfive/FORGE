@@ -18,7 +18,7 @@ from .modify_evidence import ModifyEvidence, project_modify_evidence
 from .write_evidence import project_write_evidence
 
 MAX_REQUEST_BYTES = 8 * 1024
-MAX_FEATURE_REPLACEMENT_BYTES = 32 * 1024
+MAX_FEATURE_REPLACEMENT_BYTES = 24 * 1024
 
 
 class SafeEditClient:
@@ -269,7 +269,7 @@ class SafeEditClient:
         else:
             # updateFeatures documents parameter/suppression updates, not rename.
             # Use the documented full-definition replacement for name/quantity;
-            # preserve every fresh unrelated field within the fixed 32 KiB cap.
+            # preserve every fresh unrelated field within the fixed 24 KiB cap.
             path = scope + "/featureid/" + quote(operation.target.feature_id, safe="")
             body.update({"btType": "BTFeatureDefinitionCall-1406", "feature": updated})
         limit = MAX_REQUEST_BYTES if suppression else MAX_FEATURE_REPLACEMENT_BYTES

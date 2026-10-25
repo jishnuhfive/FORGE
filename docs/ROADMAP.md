@@ -598,9 +598,14 @@ has a fixed depth-9 / 17-node exception; other production role ceilings stay 8.
 The filtered ordinary profile requires all 50/38 serialized parameters and every
 query filter, without projecting into historical/older profiles. Full preservation
 and all authority/fence/post-write/recovery controls remain unchanged. Suppression
-retains its independent attribute-only transport. The separately authorized
-32 KiB replacement budget was committed first as 99bc6f8; ordinary/public /
-suppression limits remain 8 KiB.
+retains its independent attribute-only transport. The replacement budget was
+initially implemented incorrectly as 32 KiB in 99bc6f8; the authorized ceiling is
+now corrected to **24 KiB / 24,576 bytes**. Ordinary/public/suppression limits
+remain 8 KiB. Query-role contracts are unchanged by this correction.
+The ceiling-correction gate passed 1,243 affected and 6,683 focused cases,
+all 8,245 API / 869 frontend cases (all 42 PostgreSQL cases, no skips), and
+45 Modify browser cases. Frozen installs and the full format/lint/types/build /
+test/migration/Compose/audit gate passed with real CAD writes OFF.
 The query-contract gate passed 1,247 new cases, 2,004 targeted cases, all 600
 unchanged active-entities cases, 6,673 focused cases, all 8,235 API / 869 frontend
 cases (including all 42 PostgreSQL cases, no skips), and 45 Modify browser cases
@@ -615,11 +620,12 @@ Fillet roles, clean evidence flags, one SOLID / NO_ERROR body, no proposals or
 mutations. Before accepting dormant roles, reconstructed complete replacement
 payloads exposed the inherited 8 KiB fence (14,771 / 10,782 bytes). The human
 explicitly authorized a separate bounded payload repair: only validated full
-rename/depth/radius replacements gain a fixed 32 KiB envelope; ordinary requests,
+rename/depth/radius replacements gain a fixed 24 KiB envelope; ordinary requests,
 suppression and public parsing remain at 8 KiB. Representation acceptance and all
 approval/stale/fence/microversion/verification/recovery controls are unchanged.
-The separate byte-budget gate passed 43 new cases, 5,426 focused cases, all 6,988
-API / 869 frontend cases (all 42 PostgreSQL cases, no skips), and 45 Modify browser
+The original byte-budget gate (before the 24 KiB correction) passed 43 new cases,
+5,426 focused cases, all 6,988 API / 869 frontend cases (all 42 PostgreSQL cases,
+no skips), and 45 Modify browser
 cases across Chromium/Firefox/WebKit. Frozen installs and all required format /
 lint / types / build / test / migration / Compose / audit checks passed. Real
 writes remain OFF; only the explicitly authorized replacement-byte bound changes.

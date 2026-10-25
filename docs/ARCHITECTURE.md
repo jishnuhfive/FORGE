@@ -700,10 +700,11 @@ direction tree before dormant-role contracts can be considered.
 
 A separately human-authorized Phase 16 payload repair splits byte budgets after
 complete shape/preview validation: full rename/depth/radius replacements cap at
-32 KiB; ordinary exchanges and suppression retain 8 KiB. Only the closed executor
-selects the private larger-body POST path, never payload fields or model input.
+24 KiB (24,576 bytes); ordinary exchanges and suppression retain 8 KiB. Only the
+closed executor selects the private larger-body POST path, never payload fields
+or model input.
 Preflight and transport independently enforce serialized bytes; the shared sender
-also has an absolute 32 KiB ceiling. Full definitions stay intact. Dormant query
+also has an absolute 24 KiB ceiling. Full definitions stay intact. Dormant query
 acceptance, response/time budgets and all write authority controls are unchanged.
 See the Phase 16 record for the measured blocker and explicit authorization.
 
