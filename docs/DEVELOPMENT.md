@@ -1138,3 +1138,9 @@ The legacy fixture constructs a disposable pre-repair raw-bound record in the te
 it must never be copied into an operator/database-edit procedure. Current/legacy
 projection differences and the one-time writes-OFF operator checkpoint are documented
 in [the Phase 16 record](PHASE_16_MODIFY_LIVE_CONFORMANCE.md). No live call is a test.
+
+Acknowledgement diagnosis: test_modify_ack_difference.py exercises the private
+a2_ack_difference warning at an already-rejected Modify ack_fingerprint boundary.
+Only closed schema-path classes and validator reason codes may be logged, only in
+development. See the latest [Phase 16 record](PHASE_16_MODIFY_LIVE_CONFORMANCE.md).
+Use synthetic transports only; this diagnostic does not authorize a live write/retry.

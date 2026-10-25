@@ -3970,3 +3970,72 @@ afterward; existing development databases/volumes and the retained real incident
 were untouched. Real recovery and live conformance remain human checkpoints.
 
 PHASE 16 REPAIR READY FOR REAL RECOVERY
+
+### Controlled acknowledgement failure after semantic-node repair
+
+The latest human-controlled disposable depth write reported this exact closed trace:
+request_preflight pass, provider_exchange pass, ack_skew pass,
+ack_feature_envelope pass, ack_target_identity pass, ack_fingerprint fail.
+No a2_verify stages occurred. The operator reports the requested 25 mm state visible
+in Onshape, zero verified operations, execution_uncertain and a protective fence.
+Writes are now OFF. A visible measurement does not verify the acknowledged feature.
+No recovery, retry or real provider/incident access occurred in this implementation.
+
+The proven boundary is acknowledgement semantic-feature comparison before marker
+validation, acknowledgement journaling and fresh post-write reads. The trace alone
+does not distinguish an unequal semantic representation from rejection while
+constructing that representation. It does not identify the differing field or
+parameter-profile discriminator. No raw acknowledgement was supplied or retained
+by this task; synthetic fixtures cannot establish the actual live field difference.
+Consequently no additional bookkeeping exclusion or production conformance fix is
+justified. The actual mismatch category remains unproven beyond ack_fingerprint.
+
+The development-only a2_ack_difference warning now reports a deterministic deduplicated
+closed set of schema-path classes and existing validator reason codes. Classes cover
+feature/suppression envelopes, field presence, parameter inventory/order/type/profile,
+quantity expression/cached value/units/integer flag, common parameter metadata,
+enum/Boolean/array changes, query/filter/identity structure, unknown fields and malformed
+node slots. It distinguishes invalid semantic projection from comparison inequality.
+Unknown keys/containers collapse to fixed labels; no values, names, IDs, node IDs,
+expressions, quantities, query contents, fingerprints, URLs, bodies or exception text
+are emitted. There is no generic recursive dump. Schema-derived parameter limits and
+the existing query-list bound cap detailed inspection; diagnostic_structure_limit
+explicitly flags uninspected excess structure. Classifier failures emit only
+fixed diagnostic_unavailable. Production performs no classification or logging.
+
+The warning is emitted only at an already-failed full-definition acknowledgement.
+The production semantic_feature representation, exact comparison, rejection and
+exception propagation are unchanged; the diagnostic cannot authorize success.
+Raw request/response data remains unchanged and is never persisted by this helper.
+Identity checks, rejectMicroversionSkew, freshness/digest/claim/fence controls,
+post-write exact verification, recovery and no-retry behavior, query contracts and
+24 KiB/8 KiB limits are unchanged. Original records/fences remain untouched.
+
+Synthetic cases demonstrate multiple distinct acknowledgement-only differences can
+produce the same observed stage trace. They also cover already-proven valid node-only
+variation, malformed/out-of-location nodes, meaningful field/query mutations, privacy,
+production silence, classifier failure, uncertainty/fence retention, no retry and no
+post-write read after a rejected acknowledgement. Existing semantic verification and
+legacy recovery regressions remain required. These tests are not a replay of the real
+incident and do not constitute new live evidence.
+
+Remaining human evidence is a closed schema classification from an independently
+preserved acknowledgement or a separately authorized future capture. This task does
+not request or authorize another write, incident retry, recovery or fence release.
+Phase 16 remains blocked on actual live acknowledgement conformance; do not infer a
+new safe normalization rule from any diagnostic class without supporting evidence.
+
+Acknowledgement diagnostic gate: **9,125 API tests passed, zero skips**, including
+all **75 PostgreSQL cases**. The change adds **52 synthetic tests**; final focused
+acknowledgement/stage/semantic-node checks passed **146 tests**. The relevant Modify,
+current-UI, payload, depth/legacy recovery and session suites were exercised and are
+included in the passing complete API gate. Frontend: **869 passed**; Modify browsers:
+**45 passed** across Chromium, Firefox and WebKit. make format, lint, typecheck
+(231 Python source/test files and TypeScript), test, build, migration-check,
+compose-check and dependency audits passed. Logs remain local under
+/tmp/ack-fingerprint-*. PostgreSQL used only a new isolated random-loopback-port
+tmpfs container, removed afterward; existing development databases/volumes and
+real incident records/fences were untouched. No real provider calls, writes,
+recovery, retry, merge or deployment occurred. CAD writes remain OFF.
+
+AUTOMATED ACK DIAGNOSTIC GATE PASS — ACTUAL LIVE MISMATCH CLASS UNPROVEN

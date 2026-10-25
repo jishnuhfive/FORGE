@@ -14,6 +14,7 @@ from forge_api.core.config import Settings
 
 from .client import MAX_BYTES, bounded_json
 from .contracts import ACCEPT, API_VERSION, CadId, WorkspaceReference, api_origin
+from .dev.ack_difference import emit_ack_difference
 from .edit_registry import change
 from .modify_evidence import ModifyEvidence, project_modify_evidence
 from .semantic_inventory import semantic_feature
@@ -232,10 +233,17 @@ class SafeEditClient:
             stage = "ack_fingerprint"
             if suppression and feature.get("suppressed") is not updated["suppressed"]:
                 raise EditError("verification_failed")
-            if not suppression and fingerprint(
-                semantic_feature(feature)
-            ) != fingerprint(semantic_feature(updated)):
-                raise EditError("verification_failed")
+            if not suppression:
+                try:
+                    mismatch = fingerprint(semantic_feature(feature)) != fingerprint(
+                        semantic_feature(updated)
+                    )
+                except Exception:
+                    emit_ack_difference(self._development, updated, feature)
+                    raise
+                if mismatch:
+                    emit_ack_difference(self._development, updated, feature)
+                    raise EditError("verification_failed")
             passed()
             stage = "ack_marker_shape"
             try:
