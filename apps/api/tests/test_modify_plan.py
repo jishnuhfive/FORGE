@@ -46,6 +46,7 @@ from forge_api.integrations.onshape.modify_evidence import (
     project_modify_evidence,
     verify_operation,
 )
+from forge_api.integrations.onshape.query_receipt import OperationAcknowledgement
 from forge_api.integrations.onshape.service import ReadGate
 from forge_api.integrations.onshape.write_client import SafeEditClient
 
@@ -769,7 +770,7 @@ def test_dispatch_journal_is_durable_and_uncertainty_fence_survives_cleanup(
 
         def inspect_boundary(
             self: SafeEditClient, evidence: Any, operation: Any
-        ) -> str:
+        ) -> str | OperationAcknowledgement:
             with harness.runtime.sessions() as db:
                 row = db.get(WriteRecord, preview.proposal_id)
                 assert row and row.payload
@@ -880,7 +881,9 @@ def test_unsuppress_requires_fresh_positive_result(
         req, preview = prepare(harness, ("SET_UNSUPPRESSED", "RENAME_FEATURE"))
         original = SafeEditClient.execute_operation
 
-        def ambiguous(self: SafeEditClient, evidence: Any, operation: Any) -> str:
+        def ambiguous(
+            self: SafeEditClient, evidence: Any, operation: Any
+        ) -> str | OperationAcknowledgement:
             marker = original(self, evidence, operation)
             del provider.data["features"][-1]["suppressed"]
             return marker

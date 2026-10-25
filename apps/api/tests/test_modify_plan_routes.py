@@ -29,6 +29,7 @@ from forge_api.cad_edits.plan_events import (
 )
 from forge_api.cad_edits.plans import PlanPreview, PlanResult
 from forge_api.db.models import AuditEvent, User, WriteFence, WriteRecord
+from forge_api.integrations.onshape.query_receipt import OperationAcknowledgement
 
 TYPES = (
     "SET_EXTRUDE_DEPTH",
@@ -643,7 +644,7 @@ def test_disconnect_during_dispatch_keeps_backend_task_and_status(
         approvals += 1
         return original_approve(*args, **kwargs)
 
-    def dispatch(self: SafeEditClient, *args: Any) -> str:
+    def dispatch(self: SafeEditClient, *args: Any) -> str | OperationAcknowledgement:
         if provider.writes == 0:
             entered.set()
             assert release.wait(10)

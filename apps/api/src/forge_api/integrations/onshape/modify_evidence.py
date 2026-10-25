@@ -11,6 +11,7 @@ from forge_api.cad_edits.plans import ResolvedOperation
 
 from .contracts import WorkspaceReference
 from .edit_registry import change
+from .query_receipt import OperationAcknowledgement
 from .semantic_inventory import canonical_inventory, semantic_inventory
 from .write_evidence import project_write_evidence
 
@@ -106,6 +107,7 @@ def verify_operation(
     after: ModifyEvidence,
     operation: ResolvedOperation,
     marker: str,
+    receipt: OperationAcknowledgement | None = None,
 ) -> None:
     b, a = before.baseline, after.baseline
     if a.context != b.context or a.microversion != marker or marker == b.microversion:
@@ -115,6 +117,10 @@ def verify_operation(
     expected, preview = change(features, operation.target, operation.operation)
     if preview != operation.preview:
         raise EditError("verification_failed")
+    if receipt is not None:
+        if operation.operation.type in ("SET_SUPPRESSED", "SET_UNSUPPRESSED"):
+            raise EditError("verification_failed")
+        expected = receipt.consume(before, operation, marker).materialize(expected)
     features[operation.target.position - 1] = expected
     inventory["sourceMicroversion"] = marker
     if operation.operation.type in ("SET_SUPPRESSED", "SET_UNSUPPRESSED"):

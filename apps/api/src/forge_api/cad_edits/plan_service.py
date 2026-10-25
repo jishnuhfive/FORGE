@@ -29,6 +29,7 @@ from forge_api.integrations.onshape.modify_evidence import (
     ModifyEvidence,
     verify_operation,
 )
+from forge_api.integrations.onshape.query_receipt import OperationAcknowledgement
 from forge_api.integrations.onshape.service import ReadGate
 from forge_api.integrations.onshape.write_client import SafeEditClient
 
@@ -287,7 +288,13 @@ def approve(
                 if provider.head(plan.binding.context) != expected.microversion:
                     raise EditError("model_changed")
                 dispatched = True
-                marker = provider.execute_operation(evidence, operation)
+                acknowledgement = provider.execute_operation(evidence, operation)
+                receipt = (
+                    acknowledgement
+                    if isinstance(acknowledgement, OperationAcknowledgement)
+                    else None
+                )
+                marker = receipt.marker if receipt is not None else str(acknowledgement)
                 ack_journal_pending = True
                 audit(db, "write_provider_acknowledged", user_id=user)
                 states[index] = "verifying"
@@ -301,7 +308,7 @@ def approve(
             after = provider.modify_evidence(plan.binding.context)
             diagnostic(verify_stage)
             verify_stage = "operation_compare"
-            verify_operation(evidence, after, operation, marker)
+            verify_operation(evidence, after, operation, marker, receipt)
             diagnostic(verify_stage)
             verify_stage = "deadline"
             if not 0 <= monotonic() - started <= 30:

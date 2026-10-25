@@ -17,6 +17,7 @@ from .contracts import ACCEPT, API_VERSION, CadId, WorkspaceReference, api_origi
 from .dev.ack_difference import emit_ack_difference
 from .edit_registry import change
 from .modify_evidence import ModifyEvidence, project_modify_evidence
+from .query_receipt import OperationAcknowledgement, QueryIdentityReceipt
 from .semantic_inventory import semantic_feature
 from .write_evidence import project_write_evidence
 
@@ -183,7 +184,7 @@ class SafeEditClient:
 
     def execute_operation(
         self, evidence: ModifyEvidence, operation: ResolvedOperation
-    ) -> str:
+    ) -> str | OperationAcknowledgement:
         """Closed internal dispatch from a freshly checked, already-claimed plan.
 
         No caller-supplied path, method, parameter identifier or payload is accepted.
@@ -230,6 +231,7 @@ class SafeEditClient:
             if feature.get("featureId") != operation.target.feature_id:
                 raise EditError("verification_failed")
             passed()
+            identity: QueryIdentityReceipt | None = None
             stage = "ack_fingerprint"
             if suppression and feature.get("suppressed") is not updated["suppressed"]:
                 raise EditError("verification_failed")
@@ -242,8 +244,11 @@ class SafeEditClient:
                     emit_ack_difference(self._development, updated, feature)
                     raise
                 if mismatch:
-                    emit_ack_difference(self._development, updated, feature)
-                    raise EditError("verification_failed")
+                    try:
+                        identity = QueryIdentityReceipt.resolve(updated, feature)
+                    except EditError:
+                        emit_ack_difference(self._development, updated, feature)
+                        raise
             passed()
             stage = "ack_marker_shape"
             try:
@@ -257,7 +262,11 @@ class SafeEditClient:
             if marker == baseline.microversion:
                 raise EditError("verification_failed")
             passed()
-            return marker
+            return (
+                OperationAcknowledgement(marker, identity, evidence, operation)
+                if identity is not None
+                else marker
+            )
         except Exception:
             # Closed labels only: no exception text, response, CAD or identifiers.
             plan_diagnostics.emit_dispatch(self._development, stage, False)

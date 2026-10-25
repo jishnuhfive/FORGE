@@ -4217,3 +4217,63 @@ real incident/fence, credentials and CAD were untouched. No real provider calls,
 recovery, retry, live proposal/approval/write, merge or deployment occurred.
 
 AUTOMATED QUERY-ID CONTEXT DIAGNOSTIC GATE PASS — SAFE NORMALIZATION UNPROVEN
+
+### Provider-resolved query identity receipt
+
+The latest controlled depth acknowledgement identifies exactly:
+extrude_entities.individual_query.expected_ids_empty.returned_ids_nonempty.expected_string_nonempty.returned_string_nonempty.ids_change_count.remaining_query_exact.filter_exact.
+Both schema reasons were none; only query_deterministic_ids_changed was reported,
+ack_fingerprint failed and no a2_verify stage occurred. The old comparison expected
+an empty ID list where the provider had materialized selected entity IDs. Global
+normalization remains inappropriate because IDs can carry POST selection authority.
+
+Full replacements now retain the exact acknowledgement path or accept only the
+validated single entities BTMIndividualQuery empty-list → bounded nonempty-list
+transition. Materializing those IDs into a copy of the expected feature must produce
+exact existing semantic equality with the complete acknowledgement. All remaining
+query, filter, parameter and feature fields remain exact. Extrude and Fillet use
+the same existing profile validators; no query class or feature eligibility expands.
+Raw payloads and approvals remain unchanged; no IDs are discarded or logged.
+
+After normal marker shape/advance checks, a private immutable ID receipt is returned
+in an operation-local acknowledgement. It is bound by object identity to the exact
+fresh evidence and resolved approved operation, plus the acknowledged marker, and
+consumed once. It is never persisted, exposed in results or supplied to the planner.
+The normal fresh pinned post-write read MUST reproduce those exact IDs, including
+count, order and values. Verification materializes only receipt IDs into the expected
+approved-change inventory and uses the existing complete semantic inventory,
+configuration and state comparisons. No receipt means the original verifier path.
+Suppression, recovery, legacy raw binding and baseline-restored closure are unchanged.
+Marker/journal/30-second/fence/no-retry controls and 24 KiB/8 KiB limits remain intact.
+
+The real incident/fence and CAD remain untouched during implementation; writes OFF.
+Remaining human sequence, separately authorized only after this gate: first use the
+existing reviewed writes-OFF recovery procedure for the exact unsettled incident
+(final-state or original-baseline-restored choice according to actual reviewed CAD).
+On denial/unconfirmed completion stop without retry. After independently confirmed
+closure, use the disposable fixture and real Modify UI: fresh read, exact depth
+preview, cancel and confirm unchanged, fresh proposal, explicit single approval.
+Only that later human stage may enable writes for its exact approved operation.
+Confirm acknowledgement marker/journal, fresh pinned read, exact receipt-ID match,
+only intended depth effect, exactly one mutation and verified_success. Stop on any
+uncertainty. Then validate remaining operations independently under the original
+Phase 16 protocol. No live test or recovery is executed or requested by this patch.
+
+Receipt repair gate: **9,251 API tests passed, zero skips**, including all **76
+PostgreSQL cases**. Added **31 receipt-specific synthetic cases**, all passed.
+Initial receipt/acknowledgement/node checks passed 160 cases; broader Modify,
+current-UI, Phase 16 and recovery checks passed **7,105 tests**, with 57 PostgreSQL
+cases deferred to the final isolated gate. Four additional Fillet pipeline cases
+passed before that final gate. Frontend **869 passed**; Modify browsers **45 passed**
+across Chromium, Firefox and WebKit. format, lint, strict typing (235 Python files
+and TypeScript), build, migration-check, compose-check and dependency audits passed.
+Two existing mock files only update internal dispatch return annotations for the
+new acknowledgement type; no assertion, bound, timeout or recovery test was weakened.
+Logs remain local under /tmp/query-receipt-* and /tmp/receipt-*. PostgreSQL used a
+new isolated random-loopback tmpfs container, removed afterward. Existing development
+databases, the real incident/fence and provider credentials were untouched. Receipt
+evidence is ephemeral: interrupted execution still retains uncertainty and the
+existing reviewed recovery predicates; no receipt is fabricated during recovery.
+Human recovery/live conformance remain unrun. CAD writes remain OFF.
+
+PHASE 16 QUERY ID RECEIPT REPAIR READY FOR FINAL LIVE VALIDATION
