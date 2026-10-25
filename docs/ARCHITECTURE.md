@@ -662,6 +662,18 @@ traversing their values. This closes one diagnostic gap only: every filter still
 rejects as `query_filter_unproven`, and Fillet's existing projection is unchanged.
 The next gate remains one human writes-OFF Inspector refresh.
 
+The subsequent human refresh supplied complete exact trees and leaf states for
+both entities roles. Two named current-UI predicates now validate those parsed
+provider structures directly against immutable typed shapes: Extrude 13 nodes /
+depth 5 and Fillet 17 / 8, with exact operand positions, closed field envelopes and
+strict enum/Boolean values. Diagnostic strings confer no authority. Only matching
+feature-category/entities roles may accept; all other filter roles remain
+unproven. The complete current-UI parameter contract still applies. Historical
+profiles and suppression transport stay separate; copied definitions and fresh
+exact-effect verification preserve every unrelated field. No acquisition,
+planner, approval, execution, recovery or graph boundary changes. The real write
+flag stays OFF pending the human exact-match checkpoint in the Phase 16 record.
+
 [Recovery hotfix](MODIFY_RECOVERY_HOTFIX.md) adds session-owned server discovery,
 read-only single-terminal-suppression reconciliation and a deterministic planning
 fast path before AI fallback. `reconciled_current_state` proves present-state

@@ -1,6 +1,6 @@
 # Phase 16 — controlled real Modify conformance
 
-**IN PROGRESS — FLAT SHEET METAL LEAF EVIDENCE REFRESH NEEDED**
+**IN PROGRESS — WRITES-OFF EXACT-MATCH CHECKPOINT REQUIRED**
 
 Initial status: `IN PROGRESS — AUTOMATED CONFORMANCE PREPARATION`.
 
@@ -2080,3 +2080,211 @@ leaf states or any structural flag leave evidence incomplete; report only those
 closed results and stop advancement. Only after satisfactory human evidence may
 a later authorized task construct exact role-specific acceptance. Do not accept
 filters, enable writes, merge, deploy or begin Phase 17 in this continuation.
+
+## Strict current-UI entities filter contracts
+
+Starting clean synchronized branch: `phase16/modify-live-conformance`, local and
+fetched origin HEAD `c415890a48e2357c1b6002d378df78f6f2f6be61`
+(`test: close flat sheet metal filter evidence`). The operator dotenv was absent;
+local Settings confirmed CAD writes OFF before implementation. No private fixture
+read, real proposal, approval or mutation was performed by the agent.
+
+### Complete human evidence
+
+The human has now reported complete sanitized current-UI trees on the same
+disposable Sketch 1 → Extrude 1 → Fillet 1 fixture. Both roots are and with two
+children. Extrude has exactly 13 nodes/depth 5; Fillet exactly 17 nodes/depth 8.
+Both reported malformed, missing_operand, unexpected_fields, uninspected,
+truncated and signature_truncated all false. Body evidence was one SOLID with
+NO_ERROR. The probe remained `eligible_no_proposal_no_write`; the human reported
+no proposal, approval or mutation.
+
+The exact human-observed Extrude entities topology is:
+
+```text
+and(or(and(and(flat_sheet_metal,sketch_object),entity_type),and(and(geometry,flat_sheet_metal),entity_type)),construction)
+```
+
+| Visit | Required closed leaf states                              |
+| ----- | -------------------------------------------------------- |
+| 5     | allows=model_and_flattened                               |
+| 6     | sketch_object=true, sketch_object_type=any_sketch_object |
+| 7     | entity_type=face                                         |
+| 10    | geometry=plane                                           |
+| 11    | allows=model_only                                        |
+| 12    | entity_type=face                                         |
+| 13    | construction=false                                       |
+
+The exact human-observed Fillet entities topology is:
+
+```text
+and(and(and(or(and(active_sheet_metal,or(and(entity_type,edge_topology),entity_type)),and(entity_type,sheet_metal_definition_entity_type)),construction),sketch_object),modifiable_entity_only)
+```
+
+| Visit | Required closed leaf states                               |
+| ----- | --------------------------------------------------------- |
+| 6     | active_sheet_metal=false                                  |
+| 9     | entity_type=edge                                          |
+| 10    | edge_topology=two_sided, internal_edge=true               |
+| 11    | entity_type=face                                          |
+| 13    | entity_type=edge                                          |
+| 14    | sheet_metal_definition_entity_type=vertex                 |
+| 15    | construction=false                                        |
+| 16    | sketch_object=false, sketch_object_type=not_sketch_object |
+| 17    | modifiable_entity_only=true                               |
+
+The current [official OpenAPI](https://cad.onshape.com/api/openapi) was independently
+re-fetched before implementation: OpenAPI 3.0.1, API version
+`1.222.91980-dcee49ea4d64`, SHA-256
+`6416eff28b497b1bfa5d7fbcc614d3e1a669966f2a4f5b1b5dd9ab808aea76fb`.
+All operator/leaf subtype field envelopes and enum/Boolean types were rechecked.
+The schema supplies exact type/field mappings; the human evidence supplies the
+specific role structure, optional-field presence and exact semantic states.
+Schema recognition alone does not authorize any other tree.
+
+### Acceptance and representation integration
+
+`current_ui_filters.py` defines two private immutable typed shapes and two named
+role predicates. The current-UI parameter validator selects the known feature
+category before invoking the appropriate predicate for `entities`. It walks the
+parsed provider objects directly, compares exact node types/key sets/operand
+positions and type-checks every enum/Boolean value. Integers cannot stand in for
+Booleans. No diagnostic signature, summary flag, rendered leaf text, string
+normalization, tree sorting or Boolean-equivalence rewrite participates in
+acceptance. The diagnostic module is not imported by the acceptance module.
+
+The bounded iterative walk requires the exact role count/depth at completion.
+Missing/extra nodes or fields, unknown/opaque subtypes, missing/null/wrong enum
+values, UNKNOWN, alternative known values, operand swaps and equivalent-looking
+reassociation reject. The fixed schema slots make partial/uninspected/truncated
+trees impossible to accept. Depth <=8 / visits <=64 remain hard ceilings; the
+actual accepted work is exactly 13 or 17 nodes. Extrude and Fillet trees cannot
+substitute for each other. Other query roles, including empty inactive selections,
+still reject every present filter with the existing `query_filter_unproven` detail.
+
+Exact filters on the two proven entities roles proceed through all existing
+query, quantity, mode, parameter, bookkeeping and whole-feature requirements.
+Unknown/duplicate IDs, malformed inputs and richer modes still reject. The
+50-input Extrude and 38-input Fillet fixtures with these exact reconstructed
+filters reach standard-shape exact_match, parameter_shape_matches_registry=true,
+replacement=exact_match and rename=exact_match. Previously supported filter-free
+definitions retain their existing validation; no filter is removed to obtain a
+match, and removal during execution fails exact-effect verification.
+
+Historical minimal profiles remain byte-for-byte unchanged in the registry:
+exactly bodyType/operationType/entities/endBound/depth for Extrude and exactly
+entities/radius/tangentPropagation for Fillet. Their nested envelopes still reject
+all filters, including the newly proven trees. A historical failure never falls
+through to current UI. No hybrid profile, field stripping or default rebuilding
+is introduced. Accepted full definitions, filters, parameter order and dormant
+inputs are copied exactly; only the intended name or quantity expression changes.
+The 8 KiB replacement limit is unchanged.
+
+Suppression is independently eligible under its existing terminal-Fillet
+contract, even when a replacement filter is invalid. SET_SUPPRESSED and
+SET_UNSUPPRESSED retain dedicated `/features/updates` attribute-only transport;
+no complete parameter/filter definition enters their mutation payload.
+
+Human approval, authoritative preview/digest, session/context binding, expiry,
+one-use claims, stale rejection, execution fences, pre-dispatch freshness,
+rejectMicroversionSkew, fresh post-write reads, exact-effect verification,
+uncertainty, no-retry/suffix stopping and recovery are unchanged. Model/AI and
+ForgeModelGraph gain no provider-payload, approval or write authority. Only the
+specific representation eligibility gap is closed. No live write is proven.
+
+### Diagnostics and verification
+
+Accepted roles now emit the existing guarded
+`safe_edit_standard_shape_validation category=... outcome=exact_match` and
+representation exact-match metadata. Rejected trees retain the same closed
+failure/summary projection and generic public unsupported_target error. This adds
+no raw provider types, enum strings, IDs, query text or arbitrary fields/values to
+diagnostic logs, public/model payloads or persisted diagnostics. Existing DEV/diagnostics-ON/writes-OFF,
+matching-head, complete/source-matched and per-record guards remain unchanged.
+The mocked Inspector route still uses exactly 13 existing GETs, makes no proposal
+or write, and adds no public diagnostic payload or header.
+
+The new fixture reconstructs provider-shaped synthetic objects from sanitized
+human evidence and official schema fields; it contains no private capture,
+identity or query. The original historical, full-parameter and source-derived
+filter fixtures remain unchanged. Source-derived incomplete candidates still
+reject. Automated traffic uses only synthetic credentials and MockTransport;
+isolated test Settings enable mock approval cases without changing the real flag.
+
+Focused gate: **2,553 passed**, including **600 new strict-contract cases**.
+Coverage mutates every node/type/key, every required leaf's presence/type/value,
+every operator position/arity/order, both roles, inactive roles, historical
+fallback, deep/wide/cyclic inputs and spoofed diagnostic summaries. Positive
+cases cover full field/order preservation, four approved mock replacement kinds,
+stale rejection before dispatch, one-use claims, unchanged size/microversion
+guards, filter-aware fresh exact verification, independent suppression and the
+human checkpoint's expected writes-OFF Inspector output. No safety test is skipped.
+
+All full gates passed with real CAD writes OFF; counts overlap:
+
+| Check                                        | Result                                                                 |
+| -------------------------------------------- | ---------------------------------------------------------------------- |
+| New strict-contract suite                    | **600 passed**                                                         |
+| Focused contract / filter / shape suites     | **2,553 passed**                                                       |
+| Full API suite                               | **6,760 passed**, including all **42 PostgreSQL cases**, no skips      |
+| Frontend suite                               | **869 passed** in **35 files**, no skips                               |
+| Modify browser matrix                        | **45 passed**, Chromium / Firefox / WebKit, four workers, zero retries |
+| Frozen installs                              | npm ci / uv sync --locked passed; lockfiles unchanged                  |
+| Format / lint / strict typing / test / build | Passed                                                                 |
+| Dependency audits / Compose validation       | Passed                                                                 |
+| Isolated migrations / migration drift        | Passed; no new upgrade operations                                      |
+
+Strict Python checking passed across 195 source files; TypeScript checking passed.
+An empty-list test annotation was corrected before the successful strict type
+gate. Audits found no known vulnerabilities among audited dependencies; the
+existing Python command excludes the editable application. The pre-existing
+bundle-size warning remains. No safety assertion, bound, retry, timeout or
+threshold was weakened, and there are no dependency/schema migrations.
+
+PostgreSQL used a fresh healthy loopback-only random-port tmpfs container with
+synthetic credentials, isolated from operator dotenv and service credentials.
+Only that verification container was stopped/removed; existing services/data were
+retained. Local Settings confirmed writes OFF. Diff/privacy and secret-pattern
+review passed. Registry/legacy profiles, write client, exact verifier, approval /
+claims/fences/recovery, graph code, frontend and all original fixtures/lockfiles
+remain unchanged. The diagnostic module has documentation-only changes.
+
+**PHASE 16 STRICT FILTER CONTRACT PASS — READY FOR WRITES-OFF EXACT-MATCH CHECKPOINT**
+
+### Strict-contract files changed
+
+- apps/api/src/forge_api/integrations/onshape/current_ui_filters.py
+- apps/api/src/forge_api/integrations/onshape/standard_edit_shapes.py
+- apps/api/src/forge_api/integrations/onshape/query_filter_evidence.py (docstrings only)
+- apps/api/tests/test_modify_filter_contracts.py
+- apps/api/tests/fixtures/modify_observed_filters.json
+- apps/api/tests/fixtures/README.md
+- docs/ARCHITECTURE.md
+- docs/SECURITY.md
+- docs/DEVELOPMENT.md
+- docs/ROADMAP.md
+- docs/PHASE_16_MODIFY_LIVE_CONFORMANCE.md
+
+### Exact next human writes-OFF checkpoint
+
+On the original development Mac, pull `phase16/modify-live-conformance`. Keep
+ENVIRONMENT=development, FORGE_SAFE_EDIT_DIAGNOSTICS_ENABLED=true and
+FORGE_CAD_WRITES_ENABLED=false. On the SAME disposable Sketch 1 → Extrude 1 →
+Fillet 1 fixture, perform **exactly ONE Inspector → Refresh CAD**. Do not generate
+a proposal, approval or mutation.
+
+For each existing noSketchGeometry variant, both Extrude and Fillet must show:
+
+- standard shape validation = exact_match;
+- parameter_shape_matches_registry = true;
+- replacement = exact_match;
+- rename = exact_match.
+
+The probe must remain `safe_edit_probe outcome=eligible_no_proposal_no_write`,
+with the existing structural/body evidence intact. No query_filter_unproven may
+remain for the accepted Extrude/Fillet entities roles. Report only these closed
+states and any later closed first failure; provide no private identifiers, query
+contents or provider JSON. Any failure stops advancement and requires separate
+review. This human exact-match checkpoint is still mandatory before the first
+separately authorized controlled mutation. Do not enable writes, merge, deploy,
+run a live write trial or begin Phase 17 in this continuation.

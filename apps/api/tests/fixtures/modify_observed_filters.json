@@ -1,0 +1,124 @@
+{
+  "provenance": "Reconstructed synthetic provider objects from complete human-reported sanitized writes-OFF Phase 16 topology/leaf evidence and official OpenAPI discriminator/field mappings. No private provider capture, identifiers or query contents. Accepted only for the matching current-UI entities role; not proof of live replacement conformance.",
+  "extrude": {
+    "filter": {
+      "btType": "BTAndFilter-110",
+      "operand1": {
+        "btType": "BTOrFilter-167",
+        "operand1": {
+          "btType": "BTAndFilter-110",
+          "operand1": {
+            "btType": "BTAndFilter-110",
+            "operand1": {
+              "btType": "BTFlatSheetMetalFilter-3018",
+              "allows": "MODEL_AND_FLATTENED"
+            },
+            "operand2": {
+              "btType": "BTSketchObjectFilter-184",
+              "isSketchObject": true,
+              "objectType": "ANY_SKETCH_OBJECT"
+            }
+          },
+          "operand2": {
+            "btType": "BTEntityTypeFilter-124",
+            "entityType": "FACE"
+          }
+        },
+        "operand2": {
+          "btType": "BTAndFilter-110",
+          "operand1": {
+            "btType": "BTAndFilter-110",
+            "operand1": {
+              "btType": "BTGeometryFilter-130",
+              "geometryType": "PLANE"
+            },
+            "operand2": {
+              "btType": "BTFlatSheetMetalFilter-3018",
+              "allows": "MODEL_ONLY"
+            }
+          },
+          "operand2": {
+            "btType": "BTEntityTypeFilter-124",
+            "entityType": "FACE"
+          }
+        }
+      },
+      "operand2": {
+        "btType": "BTConstructionObjectFilter-113",
+        "isConstruction": false
+      }
+    },
+    "nodes": 13,
+    "depth": 5,
+    "signature": "and(or(and(and(flat_sheet_metal,sketch_object),entity_type),and(and(geometry,flat_sheet_metal),entity_type)),construction)",
+    "leaf_states": "5:allows=model_and_flattened;6:sketch_object=true,sketch_object_type=any_sketch_object;7:entity_type=face;10:geometry=plane;11:allows=model_only;12:entity_type=face;13:construction=false"
+  },
+  "fillet": {
+    "filter": {
+      "btType": "BTAndFilter-110",
+      "operand1": {
+        "btType": "BTAndFilter-110",
+        "operand1": {
+          "btType": "BTAndFilter-110",
+          "operand1": {
+            "btType": "BTOrFilter-167",
+            "operand1": {
+              "btType": "BTAndFilter-110",
+              "operand1": {
+                "btType": "BTActiveSheetMetalFilter-2944",
+                "isFromActiveSheetMetal": false
+              },
+              "operand2": {
+                "btType": "BTOrFilter-167",
+                "operand1": {
+                  "btType": "BTAndFilter-110",
+                  "operand1": {
+                    "btType": "BTEntityTypeFilter-124",
+                    "entityType": "EDGE"
+                  },
+                  "operand2": {
+                    "btType": "BTEdgeTopologyFilter-122",
+                    "edgeTopology": "TWO_SIDED",
+                    "isInternalEdge": true
+                  }
+                },
+                "operand2": {
+                  "btType": "BTEntityTypeFilter-124",
+                  "entityType": "FACE"
+                }
+              }
+            },
+            "operand2": {
+              "btType": "BTAndFilter-110",
+              "operand1": {
+                "btType": "BTEntityTypeFilter-124",
+                "entityType": "EDGE"
+              },
+              "operand2": {
+                "btType": "BTSMDefinitionEntityTypeFilter-1651",
+                "smDefinitionEntityType": "VERTEX"
+              }
+            }
+          },
+          "operand2": {
+            "btType": "BTConstructionObjectFilter-113",
+            "isConstruction": false
+          }
+        },
+        "operand2": {
+          "btType": "BTSketchObjectFilter-184",
+          "isSketchObject": false,
+          "objectType": "NOT_SKETCH_OBJECT"
+        }
+      },
+      "operand2": {
+        "btType": "BTModifiableEntityOnlyFilter-1593",
+        "modifiableOnly": true
+      }
+    },
+    "nodes": 17,
+    "depth": 8,
+    "signature": "and(and(and(or(and(active_sheet_metal,or(and(entity_type,edge_topology),entity_type)),and(entity_type,sheet_metal_definition_entity_type)),construction),sketch_object),modifiable_entity_only)",
+    "leaf_states": "6:active_sheet_metal=false;9:entity_type=edge;10:edge_topology=two_sided,internal_edge=true;11:entity_type=face;13:entity_type=edge;14:sheet_metal_definition_entity_type=vertex;15:construction=false;16:sketch_object=false,sketch_object_type=not_sketch_object;17:modifiable_entity_only=true"
+  }
+}

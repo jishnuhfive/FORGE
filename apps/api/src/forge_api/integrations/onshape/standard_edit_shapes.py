@@ -1,4 +1,4 @@
-"""Closed current-UI replacement contracts; no payload construction or authority.
+"""Closed current-UI replacement contracts; no payload construction or execution.
 
 Source predicates and human writes-OFF provenance are recorded in Phase 16.
 Inactive inputs are validated, never discarded. Missing mode guards are never
@@ -16,11 +16,16 @@ from pydantic import JsonValue
 
 from forge_api.cad_edits.plans import valid_quantity
 
+from .current_ui_filters import (
+    matches_extrude_entities_filter,
+    matches_fillet_entities_filter,
+)
 from .query_filter_evidence import unproven_filter_summary
 from .standard_shape_contract import (
     CommonMetadataFailure,
     FailureParameter,
     FailureReason,
+    ShapeCategory,
     ShapeValidationError,
     StandardId,
 )
@@ -384,7 +389,11 @@ def _entity_query(raw: JsonValue, parameter: StandardId, *, allow_region: bool) 
 
 
 def _validate(
-    param: dict[str, JsonValue], rule: ParameterRule, parameter: StandardId
+    param: dict[str, JsonValue],
+    rule: ParameterRule,
+    parameter: StandardId,
+    *,
+    category: ShapeCategory,
 ) -> None:
     if param.get("btType") != rule.bt_type:
         _reject(parameter, "wrong_bt_type")
@@ -411,13 +420,20 @@ def _validate(
         value = param.get(field)
         extra = set(param) - (BASE_FIELDS | {field})
         if field == "queries" and extra == {"filter"}:
-            # Documented envelope field, but no real role-specific tree evidence.
-            # Always reject; the same closed production failure powers DEV logs.
-            raise ShapeValidationError(
-                parameter,
-                "query_filter_unproven",
-                query_filter=unproven_filter_summary(param["filter"]),
-            ) from None
+            # Role is selected before validation. Only these two entities trees
+            # have human evidence; recognition alone never grants authority.
+            accepted = parameter == "entities" and (
+                matches_extrude_entities_filter(param["filter"])
+                if category == "extrude"
+                else matches_fillet_entities_filter(param["filter"])
+            )
+            if not accepted:
+                raise ShapeValidationError(
+                    parameter,
+                    "query_filter_unproven",
+                    query_filter=unproven_filter_summary(param["filter"]),
+                ) from None
+            extra = set()
         if extra:
             _reject(parameter, "unexpected_field")
         if not isinstance(value, list):
@@ -452,6 +468,7 @@ def ui_quantity_parameter(
         _reject("parameters", "missing_required")
     if len(raw) > len(rules):
         _reject("parameters", "too_many_parameters")
+    category: ShapeCategory = "extrude" if feature_type == "extrude" else "fillet"
     params: dict[StandardId, dict[str, JsonValue]] = {}
     for item in raw:
         if not isinstance(item, dict):
@@ -464,7 +481,7 @@ def ui_quantity_parameter(
             _reject("unknown_parameter", "unknown_parameter")
         if key in params:
             _reject("duplicate_parameter", "duplicate_parameter")
-        _validate(item, rules[key], key)
+        _validate(item, rules[key], key, category=category)
         params[key] = item
     assert isinstance(feature_type, str)
     missing = next(

@@ -744,6 +744,20 @@ regressions before the normal full gate. Synthetic allows inputs are not live
 evidence. Keep writes OFF and perform only the next single human Inspector refresh
 documented in the Phase 16 record; no role-specific filter acceptance is added.
 
+After complete human filter evidence, run `tests/test_modify_filter_contracts.py`
+first, then signature/flat-sheet-metal/query-filter, minimal-profile, UI-conformance,
+shape-failure and Modify diagnostic suites. The new provider-shaped synthetic
+fixture reconstructs the exact observed entities trees; it is not private CAD or
+proof of live writes. Test both exact role matches and rejection at every schema
+slot, then the full API/PostgreSQL/frontend gate, Modify browser cases in all three
+engines, frozen installs, format/lint/strict typing/build/audits/Compose and isolated
+migrations/drift. Never use the application database or real provider traffic.
+Existing Inspector diagnostics now report exact_match for both roles when the
+whole feature passes; the representation report must show registry=true and
+replacement/rename exact_match. The next human action remains exactly one
+same-fixture Inspector refresh with diagnostics ON/writes OFF. No proposal,
+approval or mutation is part of that checkpoint.
+
 It performs pinned GET reads without proposals or mutations, and adds no
 public diagnostic route/header. It is not invoked by Learn or AI. See
 [the investigation record](PHASE_9_REVIEW.md) before interpreting missing fields;

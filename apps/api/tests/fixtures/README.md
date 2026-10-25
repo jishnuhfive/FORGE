@@ -38,11 +38,11 @@ eligibility. Tests exercise the empty placeholders on every known parameter
 independently and preserve the unchanged 8 KiB replacement limit. No imported/
 configured behavior or nondefault library state is added.
 
-The latest real writes-OFF checkpoint still fails both entities envelopes.
-Current OpenAPI documents optional polymorphic filter metadata, but no actual
-serialized tree has been supplied. These fixtures remain filter-free synthetic
-profiles, not proof of the current real UI envelope. Query-filter test trees are
-invented SDK-shaped rejection cases only. No guessed filter is added or accepted.
+An earlier real writes-OFF checkpoint failed both entities envelopes before exact
+filter evidence was supplied. The parameter fixtures remain filter-free synthetic
+profiles, not proof of the current real UI envelope. Early query-filter test trees
+remain invented SDK-shaped rejection cases; the later complete evidence has a
+separate fixture below. No guessed filter is accepted from source intent alone.
 
 The legacy safety repair keeps this historical JSON unchanged but now validates
 its entire parameter and query envelopes. All five Extrude and all three Fillet
@@ -59,3 +59,17 @@ human aggregate counts, not proven real REST topology/fields. Optional edge
 isInternalEdge and sketch objectType are deliberately absent and diagnosed as
 missing. Every candidate remains rejected in active, mismatched and inactive
 roles; no target filter acceptance or normalization is introduced.
+
+`modify_observed_filters.json` is the subsequent strict-contract fixture. It
+reconstructs synthetic provider-shaped objects from the complete human-reported
+sanitized topology and leaf evidence, using official OpenAPI discriminators and
+field names. It contains no private provider capture, identifiers or queries.
+Only its exact matching current-UI `entities` roles are accepted: Extrude 13 nodes /
+depth 5, Fillet 17 / 8. Every leaf value and operand slot is explicit; missing
+optional schema fields do not acquire defaults. Diagnostic strings in this fixture
+are expected output only and are never production acceptance authority. Tests
+combine these trees with the unchanged 50/38-input UI parameter fixture, preserve
+all accepted fields, and reject every role/schema/state deviation. The original
+source candidates deliberately remain incomplete and rejected. Neither the
+reconstruction nor mock replacement tests prove real live write conformance; the
+next human writes-OFF exact-match Inspector checkpoint remains mandatory.

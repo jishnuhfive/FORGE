@@ -719,6 +719,21 @@ without reading their values. This is diagnostic inspection, never acceptance.
 Existing log guards, bounds, four GETs, filter rejection and all CAD authority
 remain unchanged. No real writes or private fixture reads accompany the patch.
 
+Complete later human evidence authorizes exactly two current-UI entities filter
+shapes, each bound to its feature role before validation. The acceptance module
+uses exact typed node/field/value constraints and bounded iterative traversal,
+never rendered diagnostic strings or generic known-type recognition. Missing,
+extra, reordered, unknown, malformed, coerced, opaque or clipped inputs reject;
+the opposite role cannot substitute. Other query roles still reject filters.
+Historical profiles remain closed and cannot fall through after failure. Every
+other parameter requirement remains in force, and full replacement copies retain
+filter fields and ordering. Fresh exact-effect verification rejects any unrelated
+filter change, including removal. Suppression remains independently authorized
+with attribute-only transport. Approval, stale checks, one-use claims, fences,
+microversion guards, uncertainty/no-retry and recovery are unchanged. Existing
+log guards/privacy and GET budgets remain. CAD writes stay OFF; a human writes-OFF
+exact-match refresh is required before any separately authorized mutation.
+
 [Recovery controls](MODIFY_RECOVERY_HOTFIX.md) use the existing authenticated
 same-origin CSRF guard. Recovery returns only same-session consumed status handles
 and safe previews, never approval digests or provider bindings. Reconciliation
