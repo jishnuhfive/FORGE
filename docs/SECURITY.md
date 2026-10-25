@@ -1014,3 +1014,10 @@ also present. Valid schema/unchanged queryString is not proof that IDs are ignor
 The helper inspects only a fully validated single entities query and emits closed
 role/type/state labels, never IDs or arbitrary keys. It adds no provider requests,
 normalization, write authority or recovery capability; see the latest Phase 16 record.
+
+Creation approval is a separate closed payload over the existing atomic WriteRecord/
+WriteFence primitives. The model emits brief intent only; authenticated CSRF-protected
+human approval confirms the complete brief/plan and exact empty baseline. Per-step
+journal/acknowledgement/pinned reread precedes dependency publication; uncertainty
+keeps the fence and prohibits automatic retry/rollback. Whole unsupported plans reject
+before dispatch. Creation recovery is not implemented. See SUBMISSION_CREATION.md.

@@ -1159,3 +1159,8 @@ already rejected development acknowledgement; the existing summary is preserved.
 It does not normalize deterministicIds or authorize a retry/capture. Current and
 legacy recovery/semantic-node regressions must remain unchanged. See the latest
 Phase 16 record for the official selection-authority constraint and evidence gap.
+
+Submission creation tests: test_creation_execution.py and test_creation_api.py are
+synthetic; test_creation_postgres.py requires the existing isolated PostgreSQL setup.
+Frontend Creation tests and tests/e2e/creation.spec.ts use mocked HTTP only. Run the
+complete browser matrix for the Design integration. No real CAD write is a test.

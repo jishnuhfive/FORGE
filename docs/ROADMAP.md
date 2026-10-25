@@ -862,3 +862,9 @@ role/type/state diagnostic is added; production equality is unchanged. Official
 individual-query POST semantics make these IDs selection-authoritative, so treating
 them as bookkeeping is not justified. The uncertain incident/fence is untouched;
 Phase 16 remains live NO-GO pending authoritative query-conformance evidence.
+
+Submission sprint: the creation executor's first enabled slice is an empty Studio →
+Top rectangle → additive blind Extrude, behind explicit whole-plan human approval and
+the write flag. Full face-based circle/REMOVE execution remains planned pending its
+current-v17 contract capture. This does not declare Level-3 or Phase 16 live conformance
+complete. See SUBMISSION_CREATION.md for exact limits and human validation.

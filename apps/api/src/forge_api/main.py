@@ -13,6 +13,7 @@ from starlette.responses import JSONResponse, RedirectResponse, Response
 from forge_api.ai.routes import router as ai_router
 from forge_api.auth.routes import router as auth_router
 from forge_api.auth.runtime import AuthRuntime
+from forge_api.cad_create.routes import router as creation_router
 from forge_api.cad_edits.plan_routes import router as plan_router
 from forge_api.cad_edits.routes import router as edit_router
 from forge_api.core.config import Settings
@@ -170,6 +171,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(step_checks_router)
     application.include_router(tutor_router)
     application.include_router(planner_router)
+    application.include_router(creation_router)
     application.include_router(plan_router)
     if config.web_build_dir is not None:
         install_web(application, config.web_build_dir)

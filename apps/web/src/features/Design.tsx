@@ -6,6 +6,7 @@ import { Analysis } from '../ai/Analysis';
 import { PromptComposer } from '../components/PromptComposer';
 import { useOnshapeContext } from '../onshape/store';
 import { revisionId } from '../onshape/model';
+import { Creation } from '../creation/Creation';
 
 export function Design({
   preview = false,
@@ -15,6 +16,7 @@ export function Design({
   onSubmit?: (text: string) => void;
 }) {
   const [draft, setDraft] = useState('');
+  const [creationOpen, setCreationOpen] = useState(false);
   const client = useOnshapeContext();
   const auth = useAuth();
   const contextLabel = client.context
@@ -51,6 +53,33 @@ export function Design({
     return (
       <div className="feature design-feature">
         <h1 className="sr-only">Design workspace</h1>
+        {context?.revision.kind === 'workspace' &&
+          context.server === 'https://cad.onshape.com' &&
+          (!context.elementType || context.elementType === 'partStudio') &&
+          auth.me.connection === 'connected' &&
+          auth.me.csrf_token && (
+            <details
+              onToggle={(event) => setCreationOpen(event.currentTarget.open)}
+            >
+              <summary>Create editable CAD</summary>
+              {creationOpen && (
+                <Creation
+                  key={[
+                    context.documentId,
+                    revisionId(context),
+                    context.elementId,
+                    auth.me.csrf_token,
+                  ].join(':')}
+                  context={{
+                    documentId: context.documentId,
+                    workspaceId: context.revision.workspaceId,
+                    elementId: context.elementId,
+                  }}
+                  csrf={auth.me.csrf_token}
+                />
+              )}
+            </details>
+          )}
         {available && context && auth.me.csrf_token ? (
           <Analysis
             key={[

@@ -902,3 +902,8 @@ The development acknowledgement query-ID context classifier adds no semantic
 projection rule. deterministicIds retain exact equality and raw payloads remain
 unchanged; role/type/state labels cannot establish selection equivalence or grant
 write/recovery authority. See the latest Phase 16 conformance record.
+
+Submission creation adds separate empty-state evidence, whole-plan creation approval
+and a sequential generic executor, reusing durable claims/fences and bounded transport.
+See [submission creation](SUBMISSION_CREATION.md) for the additive-only enabled slice,
+strict per-step verification and pending face/REMOVE contract. Modify remains frozen.
