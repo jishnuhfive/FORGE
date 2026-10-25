@@ -11,6 +11,14 @@ from forge_api.integrations.onshape.contracts import CadId
 from forge_api.integrations.onshape.semantic_inventory import canonical_feature
 
 
+class VerifyRejected(EditError):
+    """Fresh post-write verification failed one named check (closed label)."""
+
+    def __init__(self, check: str, code: str = "verification_failed") -> None:
+        super().__init__(code)
+        self.check = check
+
+
 @dataclass(frozen=True, repr=False)
 class CreationEvidence:
     marker: str
@@ -120,7 +128,7 @@ def verify_added(
         or after.marker != marker
         or len(b["features"]) != len(a["features"]) + 1
     ):
-        raise EditError("verification_failed")
+        raise VerifyRejected("ver_count")
     # Full inventory/config metadata and all prior feature states remain exact;
     # only the source revision, rollback position and newly appended entry change.
     expected = dict(a)
@@ -134,7 +142,7 @@ def verify_added(
     elif b["featureStates"]:
         # Empty state coverage cannot silently turn into different prior evidence.
         if a["features"]:
-            raise EditError("verification_failed")
+            raise VerifyRejected("ver_inventory")
         states = b["featureStates"]
     expected["featureStates"] = states
 
@@ -145,11 +153,11 @@ def verify_added(
         expected_bodies = deepcopy(before.bodies)
         expected_bodies["microversionId"]["theId"] = marker
         if fingerprint(expected_bodies) != fingerprint(after.bodies):
-            raise EditError("verification_failed")
+            raise VerifyRejected("ver_bodies")
     elif len(after.bodies["bodies"]) != 1:
-        raise EditError("verification_failed")
+        raise VerifyRejected("ver_bodies")
     cfg = {**before.configuration, "sourceMicroversion": marker}
-    if fingerprint(semantic(expected)) != fingerprint(semantic(b)) or fingerprint(
-        cfg
-    ) != fingerprint(after.configuration):
-        raise EditError("verification_failed")
+    if fingerprint(semantic(expected)) != fingerprint(semantic(b)):
+        raise VerifyRejected("ver_inventory")
+    if fingerprint(cfg) != fingerprint(after.configuration):
+        raise VerifyRejected("ver_config")

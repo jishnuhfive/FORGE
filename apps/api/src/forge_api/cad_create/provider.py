@@ -1,5 +1,8 @@
 """Deterministic v17 feature adapter. No semantic plan ever contains provider IDs."""
 
+import json
+import logging
+import re
 from math import hypot
 from time import monotonic
 from typing import Any, cast
@@ -18,6 +21,36 @@ from .models import (
     ExtrudeNew,
     ExtrudeRemove,
 )
+
+
+class AckRejected(EditError):
+    """A provider acknowledgement failed one named check; the code stays closed.
+
+    ``check`` is a fixed label and ``names`` are field names only (never values),
+    so a rejection can be located without exposing CAD data.
+    """
+
+    def __init__(self, check: str, names: set[str] | None = None) -> None:
+        super().__init__("verification_failed")
+        self.check = check
+        self.names = tuple(
+            sorted(
+                n
+                for n in (names or ())
+                if re.fullmatch(r"[A-Za-z][A-Za-z0-9]{0,39}", n)
+            )
+        )[:8]
+
+
+class StopLabelled(EditError):
+    """Wraps a failure with its closed label, keeping the original closed code."""
+
+    def __init__(
+        self, check: str, cause: EditError, names: tuple[str, ...] = ()
+    ) -> None:
+        super().__init__(cause.code, cause.status)
+        self.check = check
+        self.names = names
 
 
 def read(provider: SafeEditClient, context: WorkspaceReference) -> CreationEvidence:
@@ -174,7 +207,7 @@ def _sketch_entities(expected: list[dict[str, Any]], actual: Any) -> None:
     from forge_api.cad_edits.domain import fingerprint
 
     if not isinstance(actual, list) or len(actual) != len(expected):
-        raise EditError("verification_failed")
+        raise AckRejected("ack_entities")
     # Only current v17 declared entity bookkeeping/default fields are permitted.
     # They remain in the acknowledgement and must be exact on the fresh reread.
     defaults = {
@@ -192,43 +225,46 @@ def _sketch_entities(expected: list[dict[str, Any]], actual: Any) -> None:
         "offsetCurveExtensions": [],
     }
     for wanted, got in zip(expected, actual, strict=True):
-        if not isinstance(got, dict) or set(got) - (
+        if not isinstance(got, dict):
+            raise AckRejected("ack_entity_keys")
+        unknown = set(got) - (
             set(wanted) | set(defaults) | {"nodeId", "index", "entityType"}
-        ):
-            raise EditError("verification_failed")
+        )
+        if unknown:
+            raise AckRejected("ack_entity_keys", unknown)
         for key, value in defaults.items():
             if key in got and fingerprint(got[key]) != fingerprint(value):
-                raise EditError("verification_failed")
+                raise AckRejected("ack_entity_defaults")
         if "nodeId" in got and (
             not isinstance(got["nodeId"], str) or not 1 <= len(got["nodeId"]) <= 256
         ):
-            raise EditError("verification_failed")
+            raise AckRejected("ack_entity_node")
         if "index" in got and (
             type(got["index"]) is not int or not 0 <= got["index"] <= 64
         ):
-            raise EditError("verification_failed")
+            raise AckRejected("ack_entity_node")
         kind = (
             "LINE"
             if wanted["geometry"]["btType"] == "BTCurveGeometryLine-117"
             else "CIRCLE"
         )
         if "entityType" in got and got["entityType"] not in ("CURVE", kind):
-            raise EditError("verification_failed")
+            raise AckRejected("ack_entity_geometry")
         for key, value in wanted.items():
             if key == "geometry":
                 geometry = got.get(key)
                 if not isinstance(geometry, dict) or set(geometry) - (
                     set(value) | {"entityType"}
                 ):
-                    raise EditError("verification_failed")
+                    raise AckRejected("ack_entity_geometry")
                 if geometry.get("entityType", kind) != kind:
-                    raise EditError("verification_failed")
+                    raise AckRejected("ack_entity_geometry")
                 if fingerprint({k: geometry.get(k) for k in value}) != fingerprint(
                     value
                 ):
-                    raise EditError("verification_failed")
+                    raise AckRejected("ack_entity_geometry")
             elif fingerprint(got.get(key)) != fingerprint(value):
-                raise EditError("verification_failed")
+                raise AckRejected("ack_entity_fields")
 
 
 def acknowledge(
@@ -241,7 +277,7 @@ def acknowledge(
     from forge_api.integrations.onshape.semantic_inventory import canonical_feature
 
     if not isinstance(data, dict) or data.get("microversionSkew") is not False:
-        raise EditError("verification_failed")
+        raise AckRejected("ack_skew")
     marker = TypeAdapter(CadId).validate_python(
         data.get("sourceMicroversion"), strict=True
     )
@@ -252,10 +288,10 @@ def acknowledge(
         or not isinstance(actual.get("featureId"), str)
         or not 1 <= len(actual["featureId"]) <= 256
     ):
-        raise EditError("verification_failed")
+        raise AckRejected("ack_envelope")
     for key in ("btType", "featureType", "name", "suppressed"):
         if actual.get(key) != sent[key] or type(actual.get(key)) is not type(sent[key]):
-            raise EditError("verification_failed")
+            raise AckRejected("ack_header")
     for key, value in (
         ("namespace", ""),
         ("subFeatures", []),
@@ -264,7 +300,7 @@ def acknowledge(
         ("suppressionConfigured", False),
     ):
         if key in actual and fingerprint(actual[key]) != fingerprint(value):
-            raise EditError("verification_failed")
+            raise AckRejected("ack_defaults")
     allowed = {
         "btType",
         "featureType",
@@ -283,7 +319,7 @@ def acknowledge(
         "constraints",
     }
     if set(actual) - allowed:
-        raise EditError("verification_failed")
+        raise AckRejected("ack_feature_keys", set(actual) - allowed)
     suppression = actual.get("suppressionState")
     if suppression is not None and (
         not isinstance(suppression, dict)
@@ -291,17 +327,17 @@ def acknowledge(
         or suppression.get("btType") != "BTMSuppressionState-1924"
         or suppression.get("suppressionConfigured") is not False
     ):
-        raise EditError("verification_failed")
+        raise AckRejected("ack_suppression")
     canonical_feature(actual)  # Reject malformed modeled node slots.
     params = actual.get("parameters")
     if not isinstance(params, list) or any(
         not isinstance(p, dict) or not isinstance(p.get("parameterId"), str)
         for p in params
     ):
-        raise EditError("verification_failed")
+        raise AckRejected("ack_parameters")
     by_id = {p["parameterId"]: p for p in params}
     if len(by_id) != len(params):
-        raise EditError("verification_failed")
+        raise AckRejected("ack_parameters")
     if sent["featureType"] == "extrude":
         # Existing closed NEW/SOLID/BLIND quantity/default-mode contract, unchanged.
         from forge_api.integrations.onshape.edit_registry import quantity_parameter
@@ -309,7 +345,7 @@ def acknowledge(
         quantity_parameter(actual, "SET_EXTRUDE_DEPTH")
     else:
         plane = by_id.get("sketchPlane", {})
-        if set(plane) - {
+        unknown_plane = set(plane) - {
             "btType",
             "parameterId",
             "queries",
@@ -318,8 +354,9 @@ def acknowledge(
             "parameterName",
             "valueString",
             "libraryRelationType",
-        }:
-            raise EditError("verification_failed")
+        }
+        if unknown_plane:
+            raise AckRejected("ack_plane", unknown_plane)
         for field, default_value in (
             ("parameterName", ""),
             ("valueString", ""),
@@ -329,21 +366,21 @@ def acknowledge(
             if field in plane and fingerprint(plane[field]) != fingerprint(
                 default_value
             ):
-                raise EditError("verification_failed")
+                raise AckRejected("ack_plane")
         if set(by_id) != {"sketchPlane"}:
-            raise EditError("verification_failed")
+            raise AckRejected("ack_parameters")
         if fingerprint(actual.get("constraints")) != fingerprint(sent["constraints"]):
-            raise EditError("verification_failed")
+            raise AckRejected("ack_constraints")
         _sketch_entities(sent["entities"], actual.get("entities"))
     for expected in sent["parameters"]:
         received = by_id.get(expected["parameterId"])
         if received is None:
-            raise EditError("verification_failed")
+            raise AckRejected("ack_parameters")
         for key, value in expected.items():
             if key == "queries":
                 queries = received.get("queries")
                 if not isinstance(queries, list) or len(queries) != 1:
-                    raise EditError("verification_failed")
+                    raise AckRejected("ack_query")
                 q = queries[0]
                 if not isinstance(q, dict) or set(q) - {
                     "btType",
@@ -359,25 +396,25 @@ def acknowledge(
                     "queryStatement",
                     "variableName",
                 }:
-                    raise EditError("verification_failed")
+                    raise AckRejected("ack_query")
                 if q.get("btType") == "BTMIndividualQuery-138" and (
                     "featureId" in q or "filterInnerLoops" in q
                 ):
-                    raise EditError("verification_failed")
+                    raise AckRejected("ack_query")
                 if q.get("btType") == "BTMIndividualSketchRegionQuery-140" and (
                     q.get("filterInnerLoops", False) is not False
                     or q.get("queryString", "") != ""
                 ):
-                    raise EditError("verification_failed")
+                    raise AckRejected("ack_query")
                 if "nodeId" in q and (
                     not isinstance(q["nodeId"], str) or not 1 <= len(q["nodeId"]) <= 256
                 ):
-                    raise EditError("verification_failed")
+                    raise AckRejected("ack_query")
                 if q.get("importMicroversion", 0) != 0:
-                    raise EditError("verification_failed")
+                    raise AckRejected("ack_query")
                 for field, wanted in value[0].items():
                     if fingerprint(q.get(field)) != fingerprint(wanted):
-                        raise EditError("verification_failed")
+                        raise AckRejected("ack_query")
                 for field in (
                     "query",
                     "deterministicIdList",
@@ -386,7 +423,7 @@ def acknowledge(
                     "variableName",
                 ):
                     if q.get(field) is not None:
-                        raise EditError("verification_failed")
+                        raise AckRejected("ack_query")
                 ids = q.get("deterministicIds", [])
                 if (
                     not isinstance(ids, list)
@@ -395,9 +432,9 @@ def acknowledge(
                         not isinstance(i, str) or not 1 <= len(i) <= 256 for i in ids
                     )
                 ):
-                    raise EditError("verification_failed")
+                    raise AckRejected("ack_query")
             elif fingerprint(received.get(key)) != fingerprint(value):
-                raise EditError("verification_failed")
+                raise AckRejected("ack_parameters")
     return marker, actual
 
 
@@ -405,6 +442,15 @@ class CreationClient:
     def __init__(self, provider: SafeEditClient, context: WorkspaceReference) -> None:
         self.provider = provider
         self.context = context
+        self.last_rejection: str | None = None
+
+    def note_failure(self, label: str, names: tuple[str, ...] = ()) -> None:
+        """Keep the closed label for the audit and, in development, a field-name log."""
+        self.last_rejection = label
+        if self.provider._development:
+            logging.getLogger("forge.creation").warning(
+                "creation_stop %s", json.dumps({"check": label, "fields": names})
+            )
 
     def _renew(self) -> None:
         # Each capture or dispatch gets its own 30 s ceiling. A sequential plan makes
@@ -439,5 +485,13 @@ class CreationClient:
             f"/e/{context.elementId}/features"
         )
         self._renew()
-        result = self.provider._exchange("POST", path, body)
-        return acknowledge(body["feature"], result, before)
+        try:
+            result = self.provider._exchange("POST", path, body)
+        except EditError as error:
+            raise StopLabelled("post_transport", error) from None
+        try:
+            return acknowledge(body["feature"], result, before)
+        except AckRejected as error:
+            raise StopLabelled(error.check, error, error.names) from None
+        except EditError as error:
+            raise StopLabelled("ack_contract", error) from None

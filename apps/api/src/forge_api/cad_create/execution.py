@@ -10,7 +10,7 @@ from typing import Any, Protocol
 
 from forge_api.cad_edits.domain import EditError
 
-from .evidence import CreationEvidence, verify_added
+from .evidence import CreationEvidence, VerifyRejected, verify_added
 from .models import CreationPlan, CreationStep
 
 
@@ -48,13 +48,18 @@ def execute(
     previous = baseline
     dispatched = False
     for i, step in enumerate(plan.steps):
+        stage = "step_other"
         try:
+            stage = "step_read"
             current = provider.capture()
             if current.digest != previous.digest:
-                raise EditError("model_changed")
+                raise VerifyRejected("step_baseline", "model_changed")
             if any(ref not in verified for ref in step.depends_on):
+                stage = "step_dependency"
                 raise EditError("unsupported_target")
+            stage = "step_preflight"
             payload = provider.preflight(step, verified, current)
+            stage = "step_other"
             states[i] = "executing"
             journal(tuple(states), True)
             dispatched = True
@@ -64,12 +69,20 @@ def execute(
             after = provider.capture()
             verify_added(current, after, ack, marker)
             if ack["featureId"] in {f["featureId"] for f in verified.values()}:
-                raise EditError("verification_failed")
+                raise VerifyRejected("ver_duplicate")
             verified[step.id] = ack
             previous = after
             states[i] = "verified_success"
             journal(tuple(states), True)
-        except Exception:
+        except Exception as error:
+            note = getattr(provider, "note_failure", None)
+            if note is not None:
+                label = getattr(error, "check", None) or (
+                    "step_head_moved"
+                    if getattr(error, "code", "") == "model_changed"
+                    else stage
+                )
+                note(label, getattr(error, "names", ()))
             states[i] = "execution_uncertain" if dispatched else "rejected"
             states[i + 1 :] = ["skipped"] * (len(states) - i - 1)
             result = ExecutionResult(

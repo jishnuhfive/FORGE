@@ -106,3 +106,17 @@ first), `pre_head_moved`, `pre_unsupported`, `pre_context`, `pre_gate`,
 `rejected_stale` state; the audit category says why. Every capture and dispatch gets
 its own 30 s ceiling, and the whole approval a budget of 30 s per step plus one (max
 110 s), so a slow but healthy provider can finish a multi-step plan.
+
+## Post-dispatch stop labels
+
+A stop after a dispatch audits `write_uncertain` (or `write_failed`) with the closed
+label of the first failed check as its outcome: `post_transport`, `ack_*`
+(`ack_skew`, `ack_envelope`, `ack_header`, `ack_defaults`, `ack_feature_keys`,
+`ack_suppression`, `ack_parameters`, `ack_plane`, `ack_constraints`, `ack_query`,
+`ack_entities`, `ack_entity_keys`, `ack_entity_defaults`, `ack_entity_node`,
+`ack_entity_geometry`, `ack_entity_fields`, `ack_contract`), `ver_*` (fresh reread:
+`ver_count`, `ver_inventory`, `ver_bodies`, `ver_config`, `ver_duplicate`) or
+`step_*` (`step_baseline`, `step_head_moved`, `step_read`, `step_dependency`,
+`step_preflight`, `step_other`). In development a log line names only unrecognized
+provider field names, never values. The fence and uncertain state are unchanged; the
+label is diagnostic only and relaxes no check.

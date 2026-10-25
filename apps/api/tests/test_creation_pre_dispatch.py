@@ -1,5 +1,6 @@
 """A stop before the first write is named by a closed category; budgets are per step."""
 
+import json
 from types import SimpleNamespace
 from typing import Any, cast
 
@@ -189,3 +190,75 @@ def test_a_hung_capture_still_stops_before_any_write(
         )
     assert_closed_before_dispatch(harness, p, response)
     assert stop_outcomes(harness) == ["pre_read_failed"]
+
+
+class Variant(Provider):
+    """Provider whose first POST acknowledgement carries an extra field."""
+
+    def handle(self, request: httpx.Request) -> httpx.Response:
+        response = super().handle(request)
+        if request.method == "POST" and self.mode == "extra":
+            body = json.loads(response.content)
+            body["feature"]["bogusProviderKey"] = 1
+            return httpx.Response(200, json=body)
+        return response
+
+
+def uncertain_outcomes(harness: Harness) -> list[str]:
+    with harness.runtime.sessions() as db:
+        return [
+            e.outcome
+            for e in db.scalars(
+                select(AuditEvent).where(AuditEvent.kind == "write_uncertain")
+            )
+        ]
+
+
+@pytest.mark.parametrize(
+    ("mode", "label"),
+    [
+        ("ack", "ack_header"),
+        ("extra", "ack_feature_keys"),
+        ("fresh", "ver_inventory"),
+        ("transport", "post_transport"),
+    ],
+)
+def test_a_post_dispatch_stop_names_the_failed_check_and_keeps_the_fence(
+    harness: Harness, mode: str, label: str
+) -> None:
+    p = Variant()
+    p.mode = mode
+    with running(harness, cast(Any, p)):
+        preview = post(
+            harness, "/api/create/plan", {"context": REF.model_dump(), "brief": BRIEF}
+        ).json()
+        response = post(
+            harness,
+            f"/api/create/plans/{preview['proposal_id']}/approve",
+            {"digest": preview["digest"], "brief_confirmed": True},
+        )
+    assert response.json()["state"] == "execution_uncertain"
+    assert response.json()["steps"] == ["execution_uncertain", "skipped"]
+    assert p.writes == 1  # one dispatch, never retried, step two never started
+    assert uncertain_outcomes(harness) == [label]
+    with harness.runtime.sessions() as db:
+        assert db.scalar(select(WriteFence)) is not None
+
+
+def test_stop_log_carries_only_a_label_and_field_names(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    client = creation_provider.CreationClient(
+        cast(Any, SimpleNamespace(_development=True)), cast(Any, None)
+    )
+    with caplog.at_level("WARNING", logger="forge.creation"):
+        client.note_failure("ack_feature_keys", ("bogusProviderKey",))
+    assert client.last_rejection == "ack_feature_keys"
+    assert caplog.messages == [
+        'creation_stop {"check": "ack_feature_keys", "fields": ["bogusProviderKey"]}'
+    ]
+
+
+def test_unsafe_field_names_are_dropped_from_the_label() -> None:
+    error = creation_provider.AckRejected("ack_plane", {"ok1", "bad name", "x" * 50})
+    assert error.names == ("ok1",)

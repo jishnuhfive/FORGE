@@ -8,7 +8,7 @@ from fastapi import Request
 from sqlalchemy import delete
 
 from forge_api.auth.runtime import AuthRuntime
-from forge_api.auth.security import AuditOutcome, audit, random_token
+from forge_api.auth.security import AuditKind, AuditOutcome, audit, random_token
 from forge_api.cad_edits import service as authority
 from forge_api.cad_edits import storage
 from forge_api.cad_edits.domain import (
@@ -270,8 +270,7 @@ def approve(
             row.payload = StoredCreation.model_validate(
                 {"approval": saved, "steps": states}
             ).model_dump_json()
-            audit(
-                db,
+            kind: AuditKind = (
                 "write_dispatch_started"
                 if "executing" in states
                 else "write_provider_acknowledged"
@@ -280,7 +279,16 @@ def approve(
                 if "execution_uncertain" in states
                 else "write_failed"
                 if "rejected" in states
-                else "write_verified",
+                else "write_verified"
+            )
+            # The closed label of the first failed check, set by the kernel hook.
+            stopped = kind in ("write_uncertain", "write_failed")
+            audit(
+                db,
+                kind,
+                cast(AuditOutcome, provider.last_rejection)
+                if stopped and provider.last_rejection
+                else "ok",
                 user_id=saved.binding.user,
             )
 
