@@ -989,3 +989,12 @@ validation and a separate exact console confirmation. It writes only that sessio
 revoked_at plus session_revoked/local_only, commits and re-proves inactivity; duplicates
 are no-ops. Recovery still requires inactivity. Current sessions, grant/cache and the
 uncertain row/fence are preserved. Private incident pins bind preparation to recovery.
+
+Phase 16 semantic node comparison excludes ONLY validated provider nodeId bookkeeping
+at the explicit locations in [the repair record](PHASE_16_MODIFY_LIVE_CONFORMANCE.md).
+Unknown fields/containers and all meaningful CAD/query/configuration data remain exact.
+Malformed nodes reject; raw payloads remain unchanged. Policy modify-semantic-nodes-2
+binds new semantic baselines. Old pending policies cannot execute; retained depth
+recovery requires the complete original raw-baseline binding before canonical exact
+verification. No approval digest/row rewrite, fence bypass, automatic retry or broader
+recovery authority is introduced; original execution uncertainty stays historical fact.

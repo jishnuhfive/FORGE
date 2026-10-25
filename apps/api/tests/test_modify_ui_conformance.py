@@ -424,7 +424,7 @@ def test_known_empty_metadata_and_zero_bookkeeping_are_preserved_exactly(
 
 
 @pytest.mark.parametrize("position,key", CASES)
-def test_fresh_post_read_rejects_node_change_on_every_parameter(
+def test_fresh_post_read_allows_only_validated_node_change_on_every_parameter(
     position: int, key: str
 ) -> None:
     data = ui_inventory()
@@ -440,6 +440,11 @@ def test_fresh_post_read_rejects_node_change_on_every_parameter(
     marker = "e" * 24
     data["sourceMicroversion"] = marker
     param(data, position, key)["nodeId"] = "synthetic-other-node"
+    after = project_modify_evidence(REF, marker, data, config(marker), bodies(marker))
+    verify_operation(before, after, resolved, marker)
+    # Only the declared nodeId is volatile. Unknown nested node-named data
+    # still rejects on every role; it never inherits bookkeeping authority.
+    param(data, position, key)["unexpectedNodeEnvelope"] = {"nodeId": "unapproved"}
     after = project_modify_evidence(REF, marker, data, config(marker), bodies(marker))
     with pytest.raises(EditError, match="verification_failed"):
         verify_operation(before, after, resolved, marker)

@@ -16,6 +16,7 @@ from .client import MAX_BYTES, bounded_json
 from .contracts import ACCEPT, API_VERSION, CadId, WorkspaceReference, api_origin
 from .edit_registry import change
 from .modify_evidence import ModifyEvidence, project_modify_evidence
+from .semantic_inventory import semantic_feature
 from .write_evidence import project_write_evidence
 
 MAX_REQUEST_BYTES = 8 * 1024
@@ -231,7 +232,9 @@ class SafeEditClient:
             stage = "ack_fingerprint"
             if suppression and feature.get("suppressed") is not updated["suppressed"]:
                 raise EditError("verification_failed")
-            if not suppression and fingerprint(feature) != fingerprint(updated):
+            if not suppression and fingerprint(
+                semantic_feature(feature)
+            ) != fingerprint(semantic_feature(updated)):
                 raise EditError("verification_failed")
             passed()
             stage = "ack_marker_shape"

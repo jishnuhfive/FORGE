@@ -56,6 +56,8 @@ def claim(db: Session, handle: str, user: str, session: str, digest: str) -> Mod
     if record.state != "pending":
         raise EditError("proposal_used")
     saved = load(record)
+    if saved.plan.policy_version != "modify-semantic-nodes-2":
+        raise EditError("model_changed")
     if saved.result != pending(saved.plan):
         raise EditError("proposal_tampered")
     storage.claim_record(db, record, saved.plan.binding, digest)

@@ -11,6 +11,7 @@ from forge_api.cad_edits.plans import ResolvedOperation
 
 from .contracts import WorkspaceReference
 from .edit_registry import change
+from .semantic_inventory import canonical_inventory, semantic_inventory
 from .write_evidence import project_write_evidence
 
 
@@ -26,8 +27,18 @@ class ModifyEvidence:
     def features(self) -> list[dict[str, JsonValue]]:
         return cast(list[dict[str, JsonValue]], self.inventory()["features"])
 
+    def legacy_raw_baseline(self) -> Baseline:
+        """Preserve the original raw contract for pre-repair Fillet recovery."""
+        inventory = self.inventory()
+        full = fingerprint([inventory, json.loads(self.configuration_json)])
+        definitions = cast(list[dict[str, JsonValue]], inventory["features"])
+        definitions[-1].pop("suppressed")
+        return self.baseline.model_copy(
+            update={"definitions": fingerprint(definitions), "fingerprint": full}
+        )
 
-def project_modify_evidence(
+
+def project_modify_raw_evidence(
     context: WorkspaceReference,
     microversion: str,
     feature_data: JsonValue,
@@ -57,11 +68,37 @@ def project_modify_evidence(
         after=suppressed,
         pinned_body_microversion=microversion,
     )
+    canonical_inventory(feature_data)  # Validate modeled node slots before any use.
     return ModifyEvidence(
         baseline=baseline,
         inventory_json=json.dumps(feature_data, allow_nan=False),
         configuration_json=json.dumps(configuration, allow_nan=False),
     )
+
+
+def project_modify_evidence(
+    context: WorkspaceReference,
+    microversion: str,
+    feature_data: JsonValue,
+    configuration: JsonValue,
+    body_data: JsonValue,
+) -> ModifyEvidence:
+    raw = project_modify_raw_evidence(
+        context, microversion, feature_data, configuration, body_data
+    )
+    semantic = semantic_inventory(raw.inventory())
+    full_fingerprint = fingerprint([semantic, configuration])
+    inventory = cast(dict[str, JsonValue], semantic["inventory"])
+    definitions = cast(list[dict[str, JsonValue]], inventory["features"])
+    # Phase 9's terminal suppression exclusion is unchanged; all other fields exact.
+    definitions[-1].pop("suppressed")
+    baseline = raw.baseline.model_copy(
+        update={
+            "definitions": fingerprint([definitions, semantic["parameter_profiles"]]),
+            "fingerprint": full_fingerprint,
+        }
+    )
+    return ModifyEvidence(baseline, raw.inventory_json, raw.configuration_json)
 
 
 def verify_operation(
@@ -87,11 +124,12 @@ def verify_operation(
             state["inactive"] = expected["suppressed"]
     configuration = cast(dict[str, JsonValue], json.loads(before.configuration_json))
     configuration["sourceMicroversion"] = marker
-    # Type-sensitive hashes preserve ordering, every raw definition/metadata field,
+    # Type-sensitive semantic hashes preserve ordering and every non-node field,
     # identity, parameter ordering, state coverage and independent configuration.
     # No geometry equivalence is inferred from the independently re-proved body.
     if (
-        fingerprint(inventory) != fingerprint(after.inventory())
+        fingerprint(semantic_inventory(inventory))
+        != fingerprint(semantic_inventory(after.inventory()))
         or fingerprint(configuration)
         != fingerprint(json.loads(after.configuration_json))
         or a.serialization != b.serialization

@@ -49,7 +49,7 @@ def mutate(data: dict[str, Any], category: str) -> None:
     elif category == "target_depth_expression_unexpected":
         depth["expression"] = PRIVATE
     elif category == "target_depth_parameter_metadata_changed":
-        depth["nodeId"] = PRIVATE
+        depth["isInteger"] = False  # Non-node metadata stays write-critical.
     elif category == "other_target_parameter_metadata_changed":
         params[0]["value"] = PRIVATE
     elif category == "feature_states_changed":

@@ -1131,3 +1131,10 @@ for the exact active historical incident identity. No session hash is entered an
 signing out a different current session is unnecessary. Revocation preparation makes
 no provider calls and does not close the fence; reviewed recovery follows only after
 inactivity is confirmed. Tests: test_depth_session_preparation.py and console matrix.
+
+The Phase 16 node repair adds test_modify_semantic_nodes.py. Use synthetic providers
+only; run it with Modify, current-UI, depth, retained-recovery and Phase 9 regressions.
+The legacy fixture constructs a disposable pre-repair raw-bound record in the test DB;
+it must never be copied into an operator/database-edit procedure. Current/legacy
+projection differences and the one-time writes-OFF operator checkpoint are documented
+in [the Phase 16 record](PHASE_16_MODIFY_LIVE_CONFORMANCE.md). No live call is a test.

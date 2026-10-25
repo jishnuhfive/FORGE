@@ -842,3 +842,9 @@ Phase 16 depth-specific administrative closure is implemented and subject to the
 separate operator evidence/authorization procedure. The live record remains fenced;
 recovery was not executed during development. Final human five-operation conformance
 and authority/failure cases remain required before any Phase 17 creation work.
+
+Phase 16 semantic node repair: implementation uses explicit validated provider nodeId
+locations, exact semantic verification and raw-bound retained-depth compatibility.
+Automated verification and the next writes-OFF human recovery checkpoint are recorded
+in [the conformance record](PHASE_16_MODIFY_LIVE_CONFORMANCE.md). Phase 16 live conformance
+remains pending; this repair does not authorize creation work or declare Phase 16 done.

@@ -24,6 +24,7 @@ from forge_api.cad_edits.plans import StoredPlan
 from forge_api.cad_edits.quantity_recovery_evidence import (
     ComparisonFailure,
     DepthRecoveryCapture,
+    approved_historical_baseline,
     check_depth_recovery_state,
     classify_depth_comparison,
     classify_depth_comparisons,
@@ -325,12 +326,13 @@ class DepthEvidenceReader:
                 historical_capture.configuration,
                 historical_capture.bodies,
             )
-            if before.baseline != saved.plan.baseline:
+            approval_baseline = approved_historical_baseline(saved, historical_capture)
+            if approval_baseline != saved.plan.baseline:
                 if not diagnostic:
                     raise DepthRecoveryDenied("historical_baseline_mismatch")
                 historical_mismatch = True
                 historical_differences = baseline_differences(
-                    saved.plan.baseline, before.baseline
+                    saved.plan.baseline, approval_baseline
                 )
             stage = "current_head"
             marker = self._head()

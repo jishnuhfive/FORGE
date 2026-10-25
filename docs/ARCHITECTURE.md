@@ -882,3 +882,11 @@ Exact historical-session revocation is a separate depth operator preparation
 transaction. Shared incident validation/locks are reused; recovery's inactive-session
 check remains mandatory. Frozen private incident pins prevent retargeting between
 inspection, confirmed exact-session revocation and subsequent recovery.
+
+Phase 16 Modify evidence now uses the schema-aware semantic node projection documented
+in [the conformance record](PHASE_16_MODIFY_LIVE_CONFORMANCE.md). Only bounded nodeId
+bookkeeping at explicitly validated feature/parameter/query/suppression slots is
+excluded from semantic digests and exact acknowledgement/post-read equality. Raw
+features still construct provider payloads. New plans carry modify-semantic-nodes-2;
+retained depth approvals must first match their original raw historical baseline.
+No graph, planner, approval, fence or provider-dispatch authority moves.

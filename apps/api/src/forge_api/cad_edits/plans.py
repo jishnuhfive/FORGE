@@ -159,7 +159,9 @@ class ResolvedOperation(Closed):
 
 class ModifyPlan(OwnedAuthority):
     schema_version: Literal["forge-modify-plan-a1"] = "forge-modify-plan-a1"
-    policy_version: Literal["modify-a1-1"] = "modify-a1-1"
+    policy_version: Literal["modify-a1-1", "modify-semantic-nodes-2"] = (
+        "modify-semantic-nodes-2"
+    )
     operations: Annotated[
         tuple[ResolvedOperation, ...], Field(min_length=1, max_length=5)
     ]

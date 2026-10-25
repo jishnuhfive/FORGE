@@ -17,11 +17,16 @@ from forge_api.integrations.onshape.edit_registry import change
 from forge_api.integrations.onshape.modify_evidence import (
     ModifyEvidence,
     project_modify_evidence,
+    project_modify_raw_evidence,
     verify_operation,
+)
+from forge_api.integrations.onshape.semantic_inventory import (
+    canonical_inventory,
+    semantic_inventory,
 )
 
 from .depth_inventory_diagnostics import InventoryDifference, inventory_differences
-from .domain import EditError, fingerprint
+from .domain import Baseline, EditError, fingerprint
 from .plans import ResolvedOperation, StoredPlan
 
 ComparisonFailure = Literal[
@@ -44,6 +49,24 @@ class DepthRecoveryCapture:
     features: JsonValue
     configuration: JsonValue
     bodies: JsonValue
+
+
+def approved_historical_baseline(
+    saved: StoredPlan, historical: DepthRecoveryCapture
+) -> Baseline:
+    """Old retained depth plans bind RAW history first; never rewrite approval."""
+    projector = (
+        project_modify_raw_evidence
+        if saved.plan.policy_version == "modify-a1-1"
+        else project_modify_evidence
+    )
+    return projector(
+        historical.context,
+        historical.microversion,
+        historical.features,
+        historical.configuration,
+        historical.bodies,
+    ).baseline
 
 
 def check_depth_recovery_state(
@@ -75,7 +98,7 @@ def check_depth_recovery_state(
             )
             for c in (historical, current)
         )
-        if before.baseline != plan.baseline:
+        if approved_historical_baseline(saved, historical) != plan.baseline:
             raise EditError("recovery_required")
         verify_operation(before, after, plan.operations[0], after.baseline.microversion)
     except EditError, ValueError, TypeError:
@@ -125,7 +148,8 @@ def classify_depth_comparisons(
             ),
             (
                 "inventory_mismatch",
-                fingerprint(inventory) == fingerprint(after.inventory()),
+                fingerprint(semantic_inventory(inventory))
+                == fingerprint(semantic_inventory(after.inventory())),
             ),
             (
                 "configuration_mismatch",
@@ -164,9 +188,14 @@ def classify_depth_inventory(
         replacement, _ = change(features, operation.target, operation.operation)
         features[operation.target.position - 1] = replacement
         expected["sourceMicroversion"] = marker
-        actual = after.inventory()
-        if fingerprint(expected) == fingerprint(actual):
+        if fingerprint(semantic_inventory(expected)) == fingerprint(
+            semantic_inventory(after.inventory())
+        ):
             return ()
+        expected = canonical_inventory(expected)
+        actual = canonical_inventory(after.inventory())
+        if fingerprint(expected) == fingerprint(actual):
+            return ("target_parameter_type_or_shape_changed",)
         return inventory_differences(expected, actual, operation.target.feature_id) or (
             "unknown_provider_metadata_changed",
         )

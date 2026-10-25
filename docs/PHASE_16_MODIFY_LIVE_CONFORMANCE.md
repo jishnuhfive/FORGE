@@ -3888,3 +3888,85 @@ build, migration-check, compose-check and dependency audits passed. Logs remain
 local under /tmp/depth-consolidated-*. Existing development databases/volumes and
 the real incident were untouched. No real provider calls or live recovery occurred;
 CAD writes remain OFF. Phase 16 live conformance remains unproven.
+
+### Schema-aware semantic node repair — human recovery pending
+
+Controlled evidence now isolates the remaining mismatch to target parameter metadata;
+all reported structural/semantic categories were absent. The strict ordinary profile
+fixes the other metadata values, while nodeId is bounded provider-generated parameter
+bookkeeping. Replacement responses may regenerate those nodes. Binding raw nodeIds
+in semantic inventory equality therefore rejects otherwise exact approved changes.
+This explains the conformance defect; it does not establish the original dispatch
+failure stage or retroactively verify the original 20-to-25 mm execution.
+
+semantic_inventory.py creates a copy and removes ONLY validated nodeId fields at:
+standard top-level Sketch/Extrude/Fillet feature objects, their supported ordinary
+suppressionState object, fully validated Extrude/Fillet parameter objects, and
+supported individual query objects directly inside validated query-list parameters.
+There is no arbitrary recursive deletion. Sketch internals, filter trees, unknown
+containers/keys, featureStates and configuration retain node-named fields exactly.
+Unknown/unsupported parameter profiles keep all raw parameter fields and gain no
+eligibility. Every recognized node slot must remain a nonempty 1–256 character
+string; malformed nodes reject before semantic evidence can be used.
+
+Complete raw features remain available to change()/payload construction, including
+nodeIds and parameter order. Existing complete legacy/current-UI adapter validators
+run before parameter bookkeeping removal. Verification deliberately compares exact
+canonical inventories; acknowledgement feature equality uses the same representation.
+There is no permissive catch after a failed exact comparison. Every other field,
+including quantity/query metadata, remains exact and fresh body/model proof remains
+mandatory. New Modify baseline definitions/full-inventory digests use this semantic
+representation with configuration untouched. Repeated reads differing only in
+proven node bookkeeping are stable at the same immutable revision.
+
+New plans use policy modify-semantic-nodes-2. Old pending modify-a1-1 plans cannot
+execute under the new meaning; their claim rejects before creating a write fence.
+For retained single-depth uncertainty, the explicit legacy helper first reprojects
+fresh historical evidence using the ORIGINAL RAW baseline contract and requires
+complete equality with the original approved baseline. Only then can historical and
+current semantic inventories prove exactly the approved depth change. A mismatch in
+that raw binding still unconditionally denies, even if the difference is a nodeId.
+No stored plan, approval digest or database row is rewritten for compatibility.
+Existing locked ownership, historical-session inactivity, settlement/drain review,
+one-use evidence, final head bracket and release rules remain mandatory. Closure
+still reports original_execution_outcome=execution_uncertain. Pre-repair Fillet
+reconciliation continues using its original raw digests; Phase 9 is unchanged.
+
+Synthetic tests cover each allowed location independently in history/current reads,
+bounded node rejection, meaningful value/query/feature/unknown changes, raw payload
+preservation, regenerated acknowledgement followed by fresh verification, uncertainty
+on acknowledgement/post-read tampering, raw-bound legacy depth closure and denial,
+unchanged legacy Fillet behavior, and rejection of old pending policy claims. The old
+per-role node-rejection tests now require successful validated node-only verification
+AND rejection of unknown nested node-named fields on every role. Diagnostic negatives
+use non-node metadata so they continue testing meaningful mismatches.
+
+CAD writes stayed OFF. No real Onshape calls, real incident access, live approval,
+recovery, merge or deployment occurred during implementation. Remaining human step:
+run the existing reviewed development operator ONCE with writes OFF. Expected closure:
+PASS closure_confirmed original_execution_outcome=execution_uncertain. If the original
+raw binding or exact semantic state cannot be proved, retain the denial/fence; do not
+retry automatically. Phase 16 remains incomplete until controlled live conformance.
+
+The semantic representation also binds the existing parameter validator's profile
+classification. An unsupported raw envelope cannot compare equal to a validated,
+node-cleaned envelope merely because required node fields were omitted. This
+classification is comparison-only and never added to raw provider payloads. Tests
+cover missing required node envelopes at acknowledgement and fresh verification.
+
+Final repair gate: **9,073 API tests passed, zero skips**, including all **75
+PostgreSQL cases**. The repair adds **81 synthetic tests**; final focused semantic,
+current-UI and diagnostic checks passed **1,223 tests**. The broader Modify/Phase 16/
+recovery suite was exercised; its obsolete raw-node rejection expectations were
+replaced with positive validated-node and negative unknown-node/non-node metadata
+checks, then the complete final API suite passed. Frontend: **869 passed**; Modify
+browsers: **45 passed** across Chromium, Firefox and WebKit. make format, lint,
+typecheck (229 Python source/test files and TypeScript), test, build, migration-check,
+compose-check and audits passed. The final schema-classification guard was followed
+by the full final gate. Only the authorized node-only equality expectation changed;
+timeouts, numeric bounds, approval rules and test thresholds remain unchanged. Logs remain local under /tmp/semantic-node-final-*.
+PostgreSQL used only newly isolated loopback/random-port tmpfs containers, removed
+afterward; existing development databases/volumes and the retained real incident
+were untouched. Real recovery and live conformance remain human checkpoints.
+
+PHASE 16 REPAIR READY FOR REAL RECOVERY

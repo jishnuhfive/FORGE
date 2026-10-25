@@ -121,7 +121,12 @@ def reconcile(request: Request, auth: AuthRuntime, handle: str) -> PlanResult:
         current = plan_service._capture(request, binding, provider)
         excluded = {"microversion", "fingerprint", "suppressed"}
         before = plan.baseline.model_dump(exclude=excluded)
-        after = current.baseline.model_dump(exclude=excluded)
+        current_baseline = (
+            current.legacy_raw_baseline()
+            if plan.policy_version == "modify-a1-1"
+            else current.baseline
+        )
+        after = current_baseline.model_dump(exclude=excluded)
         desired = plan.operations[0].operation.type == "SET_SUPPRESSED"
         if before != after or current.baseline.suppressed != desired:
             raise EditError("recovery_required")
