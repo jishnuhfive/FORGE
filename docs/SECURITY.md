@@ -955,3 +955,10 @@ Direct Inspector = Phase 13, Design Ask Forge = Phase 14, Learn Tutor = Phase 15
 Modify remains unmigrated. No topology continuity, engineering correctness or new
 CAD authority; reads remain sequential/non-atomic. Full UI overhaul remains future
 work; Railway remains unhosted. See [Phase 15](PHASE_15_TUTOR_GRAPH_GROUNDING.md).
+
+Depth administrative recovery remains unavailable. The pure
+`quantity_recovery_evidence.check_depth_recovery_state` prerequisite compares
+complete projected historical/current evidence using unchanged exact-effect checks;
+it returns no authority and is not connected to fence release. Independent receipt,
+settlement, capture provenance and transaction controls remain required. See the
+Phase 16 record for the remaining implementation boundary.

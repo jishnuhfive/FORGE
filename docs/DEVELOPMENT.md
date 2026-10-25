@@ -1099,3 +1099,8 @@ questions. Run frozen setup, full API tests including isolated PostgreSQL,
 format/lint/strict types, build/audit and the focused Tutor browser suite. Do not
 resume human Test 3 until the repair gate passes or claim a human pass from these
 fixtures. See the Phase 15 record for the separate reported and automated results.
+
+Depth-recovery prerequisite tests are in `test_quantity_recovery_evidence.py`.
+Use synthetic captures only. This module has no recovery entry point; passing its
+comparison cannot authorize fence release. Run existing recovery/PostgreSQL suites
+unchanged, with a separate disposable database and no real provider calls.

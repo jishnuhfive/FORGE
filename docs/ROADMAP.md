@@ -832,3 +832,8 @@ constraints/dimensions, “teach me how this model was built,” project/challen
 progression, and model-grounded lessons generated from current CAD. Existing Learn
 features do not establish this entire future capability. None is implemented by
 Phase 16, and Learn/graph facts gain no Modify approval or write authority.
+
+Phase 16 remains IN PROGRESS / live NO-GO after the uncertain depth trial. A pure
+exact depth-state comparison prerequisite is implemented; quantity-specific
+administrative closure, historical capture provenance and independent settlement
+review remain blockers. No creation or Learn capability is added by this work.

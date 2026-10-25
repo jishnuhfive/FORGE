@@ -861,3 +861,8 @@ context and CAD evidence must fit the existing byte bound or fail closed.
 Reads remain sequential/non-atomic. No UI redesign, migration or deployment change;
 the full UI overhaul remains future work and Railway remains unhosted. See
 [Phase 15](PHASE_15_TUTOR_GRAPH_GROUNDING.md) for failures, limits and manual validation.
+
+Phase 16 depth-recovery preparation adds a pure historical/current comparison
+prerequisite only. It reuses the Modify evidence projector and exact-effect verifier;
+no reader, route, coordinator or administrative closure consumes it. Existing
+terminal-Fillet recovery remains separate and unchanged.

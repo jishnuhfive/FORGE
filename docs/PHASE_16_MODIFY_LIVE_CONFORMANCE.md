@@ -3392,3 +3392,57 @@ this diagnosis. For any later separately authorized investigation, compare the
 closed trace from the process that actually handled approval with the retained
 audit/record state using read-only, privacy-preserving inspection; do not retry
 the uncertain operation or release the fence based on the measured edge.
+
+## Depth recovery prerequisite preparation (writes OFF)
+
+The completed read-only database investigation found one uncertain fenced record
+and one nearby same-user operational record. Relevant committed events were
+write_dispatch_started at creation +3 seconds and write_uncertain at +4 seconds;
+no provider-acknowledged or verified event committed. Audits have no operation ID.
+This supports failure before durable acknowledgement, including response validation
+or acknowledgement-transaction rollback, without proving a particular predicate.
+No acknowledgement defect has been established; diagnostics and predicates remain.
+
+`quantity_recovery_evidence.py` adds only a pure comparison prerequisite for a
+single explicitly uncertain SET_EXTRUDE_DEPTH. It reprojects complete historical
+and current captures through existing evidence validation, requires the historical
+Baseline to equal the approved plan, and reuses unchanged verify_operation for
+exact depth-only inventory/configuration/state comparison. It performs no I/O,
+returns no authorization/result receipt, and has no route or fence-release path.
+Offline negatives cover wrong depth, unrelated features, metadata/order/configuration,
+revision mismatch, historical mismatch, malformed bodies/inventory and incompatible
+journal/scope. No production caller consumes this component.
+
+A complete quantity closure remains BLOCKED: the existing five-GET recovery reader
+captures current state only, its independently preserved receipt contract describes
+Fillet suppression, and its release policy requires a committed acknowledgement.
+Depth recovery requires a separately reviewed historical immutable-microversion
+capture path, independently preserved depth-operation provenance, and an atomic
+quantity-specific coordinator with stale-evidence, identity/session/fence, replay,
+concurrency and rollback tests. The pure comparison does not supply these controls.
+Existing Fillet closure and orphan recovery remain unchanged and ineligible here.
+Screenshots, measurements, current DB values and elapsed time cannot substitute for
+independent provenance or upstream settlement. No recovery or real Onshape call was
+performed in this task; the original record and fence were not accessed or changed.
+
+Consolidated human sequence: keep all writers OFF and drained; review an independent
+original approval receipt and independent upstream settlement evidence; arrange a
+separately authorized read-only historical/current exact-definition comparison on
+the disposable Part Studio. Stop if those sources are unavailable. Do not release
+the fence until the missing quantity-specific administrative path is implemented,
+reviewed, tested and separately authorized. After such closure, final live conformance
+still requires separate exact-operation previews, cancel-first checks and explicit
+human approval once per operation, using the dispatch diagnostics; uncertainty stops
+that gate without retry. Phase 16 remains IN PROGRESS / live NO-GO.
+
+Preparation gate: 13 new offline prerequisite cases; full API 8,482 passed, no
+skips, including all 42 PostgreSQL cases; frontend 869 passed in 35 files; Modify
+browser matrix 45 passed across Chromium/Firefox/WebKit. make format, lint,
+typecheck (205 Python files and TypeScript projects), build, migration-check,
+compose-check and audit passed. The existing bundle-size warning remains. Only a
+new random-port, loopback-only tmpfs PostgreSQL 18.6 container was used for this
+run and removed afterward; development data/volumes were not used. Logs are local
+under /tmp/forge-depth-*. Existing recovery concurrency/replay/rollback tests passed;
+these do not establish a quantity release implementation. No provider response
+predicate, payload ceiling, adapter, approval, freshness, fence or recovery policy
+was changed. This is prerequisite preparation, not a recovery or live-gate pass.
