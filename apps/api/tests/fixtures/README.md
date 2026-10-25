@@ -73,3 +73,15 @@ all accepted fields, and reject every role/schema/state deviation. The original
 source candidates deliberately remain incomplete and rejected. Neither the
 reconstruction nor mock replacement tests prove real live write conformance; the
 next human writes-OFF exact-match Inspector checkpoint remains mandatory.
+
+`modify_current_query_filters.json` reconstructs all 13 Extrude and 8 Fillet query
+roles from the complete human sanitized evidence supplied for both Inspector
+variants. It contains only official SDK-shaped filter metadata, role names and
+expected counts/depths/query cardinality; no private capture/identities/queries.
+The complete profile combines it with the existing synthetic 50/38-parameter
+fixture. Immutable production trees are separate from this test fixture and never
+compare diagnostic strings. Dormant roles are empty; only the exact direction
+role has depth 9. Full replacement tests preserve every filter/empty list and
+metadata field within the separately authorized 32 KiB wire cap. Historical and
+earlier incomplete/source-derived fixtures remain separate and retain rejection
+for their unsupported fields/states. Real writes remain unproven.

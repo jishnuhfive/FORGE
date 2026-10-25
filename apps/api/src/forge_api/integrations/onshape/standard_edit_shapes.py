@@ -17,6 +17,7 @@ from pydantic import JsonValue
 from forge_api.cad_edits.plans import valid_quantity
 
 from .current_ui_filters import (
+    matches_dormant_query_filter,
     matches_extrude_entities_filter,
     matches_fillet_entities_filter,
 )
@@ -420,12 +421,16 @@ def _validate(
         value = param.get(field)
         extra = set(param) - (BASE_FIELDS | {field})
         if field == "queries" and extra == {"filter"}:
-            # Role is selected before validation. Only these two entities trees
-            # have human evidence; recognition alone never grants authority.
-            accepted = parameter == "entities" and (
-                matches_extrude_entities_filter(param["filter"])
-                if category == "extrude"
-                else matches_fillet_entities_filter(param["filter"])
+            # Explicit category/role authority, never a diagnostic string or a
+            # generic known-node tree. Active filters retain their exact shapes.
+            accepted = (
+                (
+                    matches_extrude_entities_filter(param["filter"])
+                    if category == "extrude"
+                    else matches_fillet_entities_filter(param["filter"])
+                )
+                if parameter == "entities"
+                else matches_dormant_query_filter(category, parameter, param)
             )
             if not accepted:
                 raise ShapeValidationError(
@@ -434,6 +439,8 @@ def _validate(
                     query_filter=unproven_filter_summary(param["filter"]),
                 ) from None
             extra = set()
+            if parameter == "entities" and isinstance(value, list) and len(value) != 1:
+                _reject(parameter, "query_wrong_envelope")
         if extra:
             _reject(parameter, "unexpected_field")
         if not isinstance(value, list):
@@ -470,6 +477,7 @@ def ui_quantity_parameter(
         _reject("parameters", "too_many_parameters")
     category: ShapeCategory = "extrude" if feature_type == "extrude" else "fillet"
     params: dict[StandardId, dict[str, JsonValue]] = {}
+    ordinary_query_profile = False
     for item in raw:
         if not isinstance(item, dict):
             _reject("parameters", "wrong_bt_type")
@@ -482,7 +490,21 @@ def ui_quantity_parameter(
         if key in params:
             _reject("duplicate_parameter", "duplicate_parameter")
         _validate(item, rules[key], key, category=category)
+        ordinary_query_profile = ordinary_query_profile or (
+            key != "entities"
+            and rules[key].bt_type == "BTMParameterQueryList-148"
+            and "filter" in item
+        )
         params[key] = item
+    if ordinary_query_profile:
+        # A current ordinary definition is whole, not a mixture assembled by
+        # dropping serialized dormant parameters/filters into the older profile.
+        for key, rule in rules.items():
+            if key not in params or (
+                rule.bt_type == "BTMParameterQueryList-148"
+                and "filter" not in params[key]
+            ):
+                _reject(key, "missing_required")
     assert isinstance(feature_type, str)
     missing = next(
         (

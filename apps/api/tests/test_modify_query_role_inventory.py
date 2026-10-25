@@ -20,6 +20,9 @@ from test_safe_edit import M0, M1, Provider
 from forge_api.cad_edits import plan_service, plan_storage
 from forge_api.cad_edits.domain import EditError, fingerprint
 from forge_api.db.models import WriteFence, WriteRecord
+from forge_api.integrations.onshape.current_ui_filters import (
+    matches_dormant_query_filter,
+)
 from forge_api.integrations.onshape.dev import query_roles, safe_edit
 from forge_api.integrations.onshape.dev.query_roles import (
     MAX_FEATURE_LOG_CHARS,
@@ -171,7 +174,11 @@ def test_reported_dormant_filter_is_inspected_despite_empty_queries_and_first_fa
     assert "modifiable_entity_only=true" in leaf_states_text(f)
     category: ShapeCategory = "extrude" if position == 2 else "fillet"
     first = diagnose_ui_shape(data["features"][position - 1], category)
-    assert first.failure is not None and first.failure.parameter == key
+    assert matches_dormant_query_filter(category, key, param(data, position, key))
+    # The newly proven first role passes; invented later-role copies still fail.
+    assert first.failure is not None and first.failure.parameter == (
+        "wallShape" if position == 2 else "startPartialEntity"
+    )
     assert first.failure.reason == "query_filter_unproven"
     assert len(report.roles) == len(EXPECTED[position])
     replacement_rejects(data, position)
@@ -600,8 +607,8 @@ def test_inspector_inventory_is_private_read_only_and_adds_zero_gets(
             ] == list(keys)
     assert [s["total_query_roles_discovered"] for s in summaries] == [13, 8, 13, 8]
     assert all(s["all_roles_inspected"] for s in summaries)
-    assert "parameter=surfaceEntities reason=query_filter_unproven" in caplog.text
-    assert "parameter=side1Face reason=query_filter_unproven" in caplog.text
+    assert "parameter=wallShape reason=query_filter_unproven" in caplog.text
+    assert "parameter=startPartialEntity reason=query_filter_unproven" in caplog.text
     assert "safe_edit_probe outcome=eligible_no_proposal_no_write" in caplog.text
     for forbidden_text in (
         HOSTILE,

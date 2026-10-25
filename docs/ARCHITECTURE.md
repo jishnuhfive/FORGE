@@ -707,6 +707,16 @@ also has an absolute 32 KiB ceiling. Full definitions stay intact. Dormant query
 acceptance, response/time budgets and all write authority controls are unchanged.
 See the Phase 16 record for the measured blocker and explicit authorization.
 
+The subsequent complete human 13/13 and 8/8 evidence authorizes exact dormant
+query contracts keyed by category AND caller/provider parameter identity. Typed
+immutable expected trees validate raw fields, not diagnostics. Active roles have
+one query; dormant roles have zero. Only exact extrude/extrudeDirection admits
+its depth-9/17-node shape; all other role ceilings remain 8. Current ordinary
+filtered profiles require every serialized 50/38 parameter and all query filters.
+Fresh definitions stay whole; only the intended field changes. Historical profiles,
+suppression transport, graph boundaries and all approval/fence/verification rules
+remain unchanged. Final same-fixture writes-OFF exact-match is still required.
+
 [Recovery hotfix](MODIFY_RECOVERY_HOTFIX.md) adds session-owned server discovery,
 read-only single-terminal-suppression reconciliation and a deterministic planning
 fast path before AI fallback. `reconciled_current_state` proves present-state

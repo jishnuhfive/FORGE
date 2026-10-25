@@ -1,6 +1,6 @@
 # Phase 16 — controlled real Modify conformance
 
-**IN PROGRESS — PAYLOAD BUDGET REPAIR; CURRENT-UI QUERY CONTRACTS PENDING**
+**IN PROGRESS — CURRENT-UI QUERY CONTRACTS; FINAL WRITES-OFF EXACT-MATCH CHECK REQUIRED**
 
 Initial status: `IN PROGRESS — AUTOMATED CONFORMANCE PREPARATION`.
 
@@ -2854,3 +2854,230 @@ representations, rename and quantity replacement diagnostics, with the probe sti
 eligible_no_proposal_no_write. No additional live read is performed by this repair,
 and no live write, deployment, merge, OAuth/domain/secret change or Phase 17 work
 is authorized. Explicit approval of an exact preview remains mandatory later.
+
+## Complete current ordinary query-role production contracts
+
+Required initial HEAD was verified clean and synchronized at
+8a8c9ccba37dfb1c45be246455fd6199204cfae7. A concrete payload-cap blocker was
+resolved first under separate explicit human authorization and its own full gate:
+99bc6f8022f81b91de400f3f596ff9e369ed0b4d (fixed 32 KiB replacement-only budget;
+ordinary/suppression/public parsing remain 8 KiB). This acceptance change starts
+from that clean pushed commit. CAD writes remain OFF throughout both stages.
+No real fixture read, proposal, approval or mutation is performed by the agent.
+
+### Complete human evidence incorporated
+
+The human reports complete matching evidence in BOTH noSketchGeometry variants
+from the same disposable ordinary Sketch → NEW SOLID BLIND Extrude → constant
+Fillet fixture: Extrude discovered=inspected=13, Fillet discovered=inspected=8,
+all_roles_inspected=true, unrecognized_query_parameters=0,
+parameter_count_capped=false and all malformed/unexpected/uninspected/truncated
+aggregate flags false. Body evidence remains one SOLID / NO_ERROR and the probe
+eligible_no_proposal_no_write, with no proposal/approval/mutation.
+The last remaining failures were surfaceEntities and side1Face /
+query_filter_unproven. Complete role-specific topology and finite leaf semantics
+were supplied with the acceptance request; no guessed hidden tree is used here.
+
+### Exact category / role / query contracts
+
+Production matches parsed provider structures against immutable typed shapes,
+never a diagnostic signature, summary flag, hash or semantic-equivalence heuristic.
+Every binary node requires exactly btType/operand1/operand2 with ordered children.
+Every leaf requires exactly its listed official btType and fields, with actual
+Boolean types and exact enum strings. Missing/null/unknown/additional fields,
+opaque SDK families, wrong types, reassociation, reversed operands and extra nodes
+reject. No tree normalization, synthesis, regeneration or stripping occurs.
+
+Active entities retain their existing exact raw filter predicates: Extrude 13
+nodes/depth 5, Fillet 17/depth 8. Their filter-bearing current profile requires
+exactly one recognized query item. Every dormant role below requires the exact
+provider parameterId matching the explicit caller role/category, queries=[] and
+count zero. Shared immutable shapes for equal trees do not share caller identity;
+each role has a separate mapping entry and mismatched provider identities reject.
+
+The complete contracts are listed below. Local preorder numbers in leaf states
+identify positions in the expected tree, never CAD identities. These diagnostic
+forms are documentation/test expectations only; production validates typed fields.
+
+| Category / role                            | Query items | Nodes / depth | Exact topology                                                                                                                                                                                  | Exact leaf states                                                                                                                                                                                                                                                                                 |
+| ------------------------------------------ | ----------- | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| extrude / entities                         | 1           | 13 / 5        | and(or(and(and(flat_sheet_metal,sketch_object),entity_type),and(and(geometry,flat_sheet_metal),entity_type)),construction)                                                                      | 5:allows=model_and_flattened;6:sketch_object=true,sketch_object_type=any_sketch_object;7:entity_type=face;10:geometry=plane;11:allows=model_only;12:entity_type=face;13:construction=false                                                                                                        |
+| extrude / surfaceEntities                  | 0           | 7 / 4         | and(and(and(entity_type,sketch_object),modifiable_entity_only),construction)                                                                                                                    | 4:entity_type=edge;5:sketch_object=true,sketch_object_type=any_sketch_object;6:modifiable_entity_only=true;7:construction=false                                                                                                                                                                   |
+| extrude / wallShape                        | 0           | 15 / 5        | or(and(and(and(entity_type,geometry),construction),modifiable_entity_only),and(and(and(entity_type,sketch_object),construction),modifiable_entity_only))                                        | 5:entity_type=face;6:geometry=plane;7:construction=false;8:modifiable_entity_only=false;12:entity_type=edge;13:sketch_object=true,sketch_object_type=any_sketch_object;14:construction=false;15:modifiable_entity_only=true                                                                       |
+| extrude / endBoundEntityFace               | 0           | 7 / 4         | or(and(and(entity_type,sketch_object),allow_mesh_geometry),body_type)                                                                                                                           | 4:entity_type=face;5:sketch_object=false,sketch_object_type=not_sketch_object;6:allow_mesh_geometry=true;7:body_type=mate_connector                                                                                                                                                               |
+| extrude / secondDirectionBoundEntityFace   | 0           | 7 / 4         | or(and(and(entity_type,sketch_object),allow_mesh_geometry),body_type)                                                                                                                           | 4:entity_type=face;5:sketch_object=false,sketch_object_type=not_sketch_object;6:allow_mesh_geometry=true;7:body_type=mate_connector                                                                                                                                                               |
+| extrude / endBoundEntityBody               | 0           | 9 / 5         | and(and(and(entity_type,or(body_type,body_type)),sketch_object),allow_mesh_geometry)                                                                                                            | 4:entity_type=body;6:body_type=solid;7:body_type=sheet;8:sketch_object=false,sketch_object_type=not_sketch_object;9:allow_mesh_geometry=true                                                                                                                                                      |
+| extrude / secondDirectionBoundEntityBody   | 0           | 9 / 5         | and(and(and(entity_type,or(body_type,body_type)),sketch_object),allow_mesh_geometry)                                                                                                            | 4:entity_type=body;6:body_type=solid;7:body_type=sheet;8:sketch_object=false,sketch_object_type=not_sketch_object;9:allow_mesh_geometry=true                                                                                                                                                      |
+| extrude / endBoundEntityVertex             | 0           | 3 / 2         | or(entity_type,mate_connector)                                                                                                                                                                  | 2:entity_type=vertex;3:allow_implicit_mate_connector=false,mate_connector_inference_default=false,requires_occurrence=false                                                                                                                                                                       |
+| extrude / secondDirectionBoundEntityVertex | 0           | 3 / 2         | or(entity_type,mate_connector)                                                                                                                                                                  | 2:entity_type=vertex;3:allow_implicit_mate_connector=false,mate_connector_inference_default=false,requires_occurrence=false                                                                                                                                                                       |
+| extrude / extrudeDirection                 | 0           | 17 / 9        | or(or(or(or(geometry,or(geometry,or(geometry,or(geometry,or(geometry,geometry))))),mate_connector),geometry),body_type)                                                                         | 5:geometry=line;7:geometry=circle;9:geometry=arc;11:geometry=cylinder;13:geometry=cone;14:geometry=revolved;15:allow_implicit_mate_connector=false,mate_connector_inference_default=false,requires_occurrence=false;16:geometry=plane;17:body_type=mate_connector                                 |
+| extrude / startOffsetEntity                | 0           | 9 / 5         | or(or(or(and(geometry,entity_type),entity_type),entity_type),body_type)                                                                                                                         | 5:geometry=plane;6:entity_type=face;7:entity_type=edge;8:entity_type=vertex;9:body_type=mate_connector                                                                                                                                                                                            |
+| extrude / booleanScope                     | 0           | 7 / 4         | and(and(and(entity_type,body_type),modifiable_entity_only),allow_mesh_geometry)                                                                                                                 | 4:entity_type=body;5:body_type=solid;6:modifiable_entity_only=true;7:allow_mesh_geometry=true                                                                                                                                                                                                     |
+| extrude / booleanSurfaceScope              | 0           | 9 / 5         | and(and(and(and(entity_type,body_type),modifiable_entity_only),allow_mesh_geometry),sketch_object)                                                                                              | 5:entity_type=body;6:body_type=sheet;7:modifiable_entity_only=true;8:allow_mesh_geometry=true;9:sketch_object=false,sketch_object_type=not_sketch_object                                                                                                                                          |
+| fillet / entities                          | 1           | 17 / 8        | and(and(and(or(and(active_sheet_metal,or(and(entity_type,edge_topology),entity_type)),and(entity_type,sheet_metal_definition_entity_type)),construction),sketch_object),modifiable_entity_only) | 6:active_sheet_metal=false;9:entity_type=edge;10:edge_topology=two_sided,internal_edge=true;11:entity_type=face;13:entity_type=edge;14:sheet_metal_definition_entity_type=vertex;15:construction=false;16:sketch_object=false,sketch_object_type=not_sketch_object;17:modifiable_entity_only=true |
+| fillet / side1Face                         | 0           | 9 / 5         | and(and(and(and(entity_type,construction),sketch_object),modifiable_entity_only),active_sheet_metal)                                                                                            | 5:entity_type=face;6:construction=false;7:sketch_object=false,sketch_object_type=not_sketch_object;8:modifiable_entity_only=true;9:active_sheet_metal=false                                                                                                                                       |
+| fillet / side2Face                         | 0           | 9 / 5         | and(and(and(and(entity_type,construction),sketch_object),modifiable_entity_only),active_sheet_metal)                                                                                            | 5:entity_type=face;6:construction=false;7:sketch_object=false,sketch_object_type=not_sketch_object;8:modifiable_entity_only=true;9:active_sheet_metal=false                                                                                                                                       |
+| fillet / centerFaces                       | 0           | 9 / 5         | and(and(and(and(entity_type,construction),sketch_object),modifiable_entity_only),active_sheet_metal)                                                                                            | 5:entity_type=face;6:construction=false;7:sketch_object=false,sketch_object_type=not_sketch_object;8:modifiable_entity_only=true;9:active_sheet_metal=false                                                                                                                                       |
+| fillet / startPartialEntity                | 0           | 7 / 3         | or(and(entity_type,allow_mesh_geometry),or(entity_type,mate_connector))                                                                                                                         | 3:entity_type=face;4:allow_mesh_geometry=true;6:entity_type=vertex;7:allow_implicit_mate_connector=false,mate_connector_inference_default=false,requires_occurrence=false                                                                                                                         |
+| fillet / endPartialEntity                  | 0           | 7 / 3         | or(and(entity_type,allow_mesh_geometry),or(entity_type,mate_connector))                                                                                                                         | 3:entity_type=face;4:allow_mesh_geometry=true;6:entity_type=vertex;7:allow_implicit_mate_connector=false,mate_connector_inference_default=false,requires_occurrence=false                                                                                                                         |
+| fillet / keepEdges                         | 0           | 9 / 5         | and(and(and(and(entity_type,edge_topology),construction),sketch_object),modifiable_entity_only)                                                                                                 | 5:entity_type=edge;6:edge_topology=two_sided,internal_edge=true;7:construction=false;8:sketch_object=false,sketch_object_type=not_sketch_object;9:modifiable_entity_only=true                                                                                                                     |
+| fillet / smoothCornerExceptions            | 0           | 7 / 4         | and(and(and(entity_type,construction),sketch_object),modifiable_entity_only)                                                                                                                    | 4:entity_type=vertex;5:construction=false;6:sketch_object=false,sketch_object_type=not_sketch_object;7:modifiable_entity_only=true                                                                                                                                                                |
+
+All mesh leaves require allowsMeshGeometry=true. Every mate-connector leaf requires
+allowImplicitMateConnector=false, isMateConnectorInferenceEnabledByDefault=false,
+and requiresOccurrence=false, with no omitted defaults. Body enums remain exact
+SOLID/SHEET/MATE_CONNECTOR in their observed slots. The first wallShape branch
+requires modifiableOnly=false; its second branch requires true. keepEdges requires
+TWO_SIDED and isInternalEdge=true. These exact distinctions cannot be generalized
+from display names, shared classes or inactive feature modes.
+
+### Narrow depth-nine direction handling
+
+Only (extrude, extrudeDirection) selects the fixed 17-node/depth-9 shape and a
+production depth ceiling of 9. Its nested OR geometry order is LINE, CIRCLE, ARC,
+CYLINDER, CONE, REVOLVED, then the explicit mate connector, PLANE and body-type
+MATE_CONNECTOR in the supplied exact topology. It must remain empty while
+hasExtrudeDirection=false. No flattening or sorting of OR operands is accepted.
+All other role ceilings remain 8 and their exact smaller shape depths/counts must
+also match. The 64-node ceiling is unchanged. Generic production rejection
+diagnostics retain depth 8; separate DEV inventory diagnostics retain their
+existing depth-16 bound. Diagnostic completeness never authorizes acceptance.
+
+### Whole representations and compatibility boundaries
+
+The validator checks every supplied parameter against its exact closed type,
+metadata, mode, quantity/query/array contract; nothing is ignored because it is
+dormant. A current ordinary profile containing any dormant filter additionally
+requires every serialized known parameter exactly once (50 Extrude / 38 Fillet)
+and a filter on every query role. Dropping a dormant parameter/filter, or even an
+unrelated serialized optional quantity, cannot create a hybrid partial profile.
+Unknown IDs, duplicates, malformed collections and active richer modes reject.
+
+Previously supported filter-free/current-UI serialization and the existing
+entities-only representation remain explicit compatibility shapes, with their
+existing validation. They are never constructed by projecting a fresh feature
+down: the server copies and validates the actual complete provider definition.
+A failed current filter check raises immediately, with no fallback. Historical
+minimal ID sets and closed nested envelopes are byte-for-byte unchanged; every
+filter still rejects in the historical path and cannot fall through to current UI.
+
+### Preservation and authority review
+
+Both renames, SET_EXTRUDE_DEPTH and SET_FILLET_RADIUS copy the complete fresh
+feature definition. Only name or the approved quantity expression changes. All
+21 query filters, dormant empty query lists, query items, parameter/list ordering,
+node IDs and accepted serialization metadata remain exact. Request byte capacity
+comes solely from the separately approved replacement budget; cap failures still
+reject locally before dispatch. No field is removed to fit a request.
+
+Fresh post-write exact-effect verification is unchanged and compares the entire
+inventory/configuration. Tests reject dormant-filter removal/addition/subtype /
+operand-order/leaf-state deltas for both rename and quantity paths. A synthetic
+HTTP-200 acknowledgement followed by a changed dormant filter becomes
+execution_uncertain, retains the fence, sends no retry and skips subsequent
+operations. Success still requires a valid acknowledgement AND fresh exact proof.
+
+Suppression remains independent: terminal-Fillet state policy and the dedicated
+/features/updates featureId/type/suppressed transport are unchanged. It never
+sends the full parameter/filter definition. Planner/model/ForgeModelGraph gain no
+provider identifiers, parameter IDs, URLs, payload or approval authority. Preview,
+digest, explicit human approval, session/grant/context binding, expiry, one-use
+claim, stale rejection, fence, pre-dispatch freshness, rejectMicroversionSkew,
+post-write reread, uncertainty/recovery and no-retry behavior are unchanged.
+
+### Tests and full gate
+
+All checks passed with real CAD writes OFF; counts overlap:
+
+| Check                                                                   | Result                                                                                                      |
+| ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| New current-query contract suite                                        | **1,247 passed**                                                                                            |
+| Targeted new contracts / original entities / inventory / closure suites | **2,004 passed**                                                                                            |
+| Original strict active-entities suite                                   | **600 passed**, byte-for-byte unchanged                                                                     |
+| Focused Modify / safe-edit / retained / AI-write / standard diagnostics | **6,673 passed**                                                                                            |
+| Full API suite                                                          | **8,235 passed**, including all **42 PostgreSQL cases**, no skips                                           |
+| Frontend suite                                                          | **869 passed** in **35 files**, no skips                                                                    |
+| Modify browser matrix                                                   | **45 passed**, Chromium / Firefox / WebKit, four workers, zero retries                                      |
+| Frozen installs                                                         | npm ci and uv sync --locked verified in the preceding payload-repair gate; dependencies/lockfiles unchanged |
+| Required gate                                                           | make format, lint, typecheck, build, test, migration-check, compose-check, audit passed                     |
+
+There are 1,247 added cases in this acceptance commit, plus 43 in the separate
+payload repair (1,290 total beyond the required initial HEAD). Strict Python
+checking passed across 200 source files; TypeScript checking passed. Audits found
+no known vulnerabilities among audited packages; the unchanged Python audit
+excludes the editable application. No migration drift. The existing bundle-size
+warning remains. VITEST_MAX_WORKERS=2 was an execution-only resource choice;
+repository runners, browser workers/retries, timeouts and thresholds are unchanged.
+
+All CAD was synthetic and all provider transport in-process mocked, with isolated
+settings. PostgreSQL used a fresh healthy loopback-only random-port tmpfs
+container and synthetic credentials; only that container was removed afterward,
+retaining application services/data. Final local Settings confirmed writes OFF.
+Diff/privacy review found only the listed files, with no private CAD, credential,
+environment, dependency, migration or production/deployment configuration change.
+Registry/legacy profiles, write client (including the separate 32/8 KiB budgets),
+planner, approval/fence/recovery and exact-effect verification remain unchanged
+from the payload-repair commit. No new CAD capability or live mutation is claimed.
+
+### Current-query acceptance files
+
+- apps/api/src/forge_api/integrations/onshape/current_ui_filters.py
+- apps/api/src/forge_api/integrations/onshape/standard_edit_shapes.py
+- apps/api/tests/test_modify_current_query_contracts.py
+- apps/api/tests/fixtures/modify_current_query_filters.json
+- apps/api/tests/fixtures/README.md
+- apps/api/tests/test_modify_query_role_inventory.py
+- apps/api/tests/test_modify_query_evidence_closure.py
+- docs/PHASE_16_MODIFY_LIVE_CONFORMANCE.md
+- docs/ROADMAP.md
+- docs/ARCHITECTURE.md
+- docs/SECURITY.md
+- docs/DEVELOPMENT.md
+
+The new fixture reconstructs only public SDK-shaped structures from sanitized
+human role evidence. It is not a raw private CAD capture; identities, query text,
+node IDs and incidental quantities in complete feature tests remain invented.
+Negative tests cover every dormant role and every required leaf field, empty
+query counts, exact topology/order/arity, missing/extra/malformed/opaque/deep nodes,
+role identity and cross-feature substitution. Equal endBound/secondDirection,
+side1Face/side2Face/centerFaces and start/endPartial trees require explicit matching
+caller identities. The direction exception is tested against every other role.
+
+Whole-profile completeness tests remove each of all 88 parameters independently.
+Positive tests cover all four replacements, reversed parameter ordering, full
+payload preservation, cancel then single approval and one-use rejection. A real
+Inspector route test with synthetic GET-only transport proves 13 unchanged reads,
+exact_match for both variants/features, complete 13/13 and 8/8 summaries, the safe
+probe and zero proposal/fence records. No diagnostic data enters its public body.
+
+The original 600 strict active-entities cases remain unchanged. Older synthetic
+inventory tests still reject their deliberately copied/mismatched later filters;
+expected first failures advance to wallShape / startPartialEntity because their
+surfaceEntities / side1Face rows now have exact accepted shapes. Their zero-write,
+privacy, count/bound and whole-feature rejection assertions remain. No assertion,
+timeout or bound is weakened to obtain a pass; the only new depth allowance is
+the human-authorized exact direction role, and the byte repair is separate.
+
+### Exact final human writes-OFF checkpoint
+
+Pull this branch on the development Mac. Keep ENVIRONMENT=development,
+FORGE_SAFE_EDIT_DIAGNOSTICS_ENABLED=true and FORGE_CAD_WRITES_ENABLED=false.
+On the SAME privately confirmed disposable fixture, perform **ONE CAD Inspector
+→ Refresh CAD**. Generate no proposal, approval or mutation.
+
+For BOTH noSketchGeometry variants and BOTH Extrude/Fillet require:
+
+- standard shape outcome=exact_match;
+- parameter_shape_matches_registry=true;
+- replacement=exact_match and rename=exact_match;
+- no query_filter_unproven or any remaining standard-shape failure;
+- complete 13/13 and 8/8 role summaries with clean flags, including direction
+  depth=9 / nodes=17 without clipping;
+- one SOLID / NO_ERROR and safe_edit_probe outcome=eligible_no_proposal_no_write.
+
+Any different result stops advancement; report only the existing sanitized labels,
+counts/flags and closed signatures/states. No raw provider JSON, IDs or query text
+is needed. This automated gate does not claim actual live exact-match or write
+success. Even a successful final read checkpoint does not enable writes or
+approve a mutation: controlled human live preview/approval remains a separate
+stage. No merge, deployment, OAuth/domain/secret change or Phase 17 work occurs.

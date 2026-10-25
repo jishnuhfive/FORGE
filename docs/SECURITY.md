@@ -773,6 +773,17 @@ normalization is allowed. Writes-OFF, approval/claims/fences, stale/microversion
 post-write exact verification, no retry and recovery remain unchanged. This byte
 repair does not accept any previously unproven current-UI role or feature shape.
 
+Complete human role evidence now supports exact parsed current-UI query shapes,
+with closed fields, exact typed leaf values, operand order/arity and fixed counts /
+depths. Category, caller role and provider parameterId must all agree, even for
+equal trees. Dormant lists must be empty; filtered active entities require one item.
+Only the hard-coded direction role selects depth 9; generic production and other
+role ceilings remain 8. New filtered profiles require all 50/38 known parameters
+and every query filter, so omission cannot hide dormant data. No signature/string
+or graph fact grants acceptance. Full-copy exact-effect proof, legacy rejection,
+attribute-only suppression, approval, stale/claims/fences, microversion, uncertainty
+and recovery remain unchanged. The final human read gate still precedes live work.
+
 [Recovery controls](MODIFY_RECOVERY_HOTFIX.md) use the existing authenticated
 same-origin CSRF guard. Recovery returns only same-session consumed status handles
 and safe previews, never approval digests or provider bindings. Reconciliation

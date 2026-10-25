@@ -793,6 +793,15 @@ the bound. There is no setting or model/public request field selecting a budget.
 Keep CAD writes OFF during tests and implementation. Dormant-role acceptance and
 actual live wire-size/conformance validation remain separate pending work.
 
+Complete current ordinary role tests now reconstruct the human 13/13 and 8/8
+filters independently of immutable production contracts. Keep their exact operand
+order, typed fields, empty dormant queries and all serialized parameters intact.
+Do not apply a matching filter to another role by class similarity; even equal
+shapes require the correct caller/provider identity. Only extrudeDirection uses
+the exact depth-9/17-node production exception; diagnostic depth is not authority.
+Use the final Phase 16 writes-OFF exact-match checkpoint after the full gate.
+No automatic proposal, approval or mutation belongs to that checkpoint.
+
 It performs pinned GET reads without proposals or mutations, and adds no
 public diagnostic route/header. It is not invoked by Learn or AI. See
 [the investigation record](PHASE_9_REVIEW.md) before interpreting missing fields;

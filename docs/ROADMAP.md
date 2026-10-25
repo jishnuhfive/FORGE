@@ -587,7 +587,28 @@ READ-ONLY VALIDATED — MERGED INTO MAIN** at `36511d73a7fffd4b219497fe09d2c8d4f
 
 ## Phase 16 — controlled real Modify conformance
 
-**IN PROGRESS — PAYLOAD BUDGET REPAIR; CURRENT-UI QUERY CONTRACTS PENDING**
+**IN PROGRESS — CURRENT-UI QUERY CONTRACTS; FINAL WRITES-OFF EXACT-MATCH CHECK REQUIRED**
+
+Complete human 13/13 Extrude and 8/8 Fillet evidence now supports explicit typed
+production contracts for every current ordinary query role. Active entities require
+one query; all 19 dormant roles require empty queries plus their exact observed
+subtype/operand topology, leaf fields/values, node counts and depth. Equal trees
+retain distinct caller/provider role identities. Only Extrude extrudeDirection
+has a fixed depth-9 / 17-node exception; other production role ceilings stay 8.
+The filtered ordinary profile requires all 50/38 serialized parameters and every
+query filter, without projecting into historical/older profiles. Full preservation
+and all authority/fence/post-write/recovery controls remain unchanged. Suppression
+retains its independent attribute-only transport. The separately authorized
+32 KiB replacement budget was committed first as 99bc6f8; ordinary/public /
+suppression limits remain 8 KiB.
+The query-contract gate passed 1,247 new cases, 2,004 targeted cases, all 600
+unchanged active-entities cases, 6,673 focused cases, all 8,235 API / 869 frontend
+cases (including all 42 PostgreSQL cases, no skips), and 45 Modify browser cases
+across Chromium/Firefox/WebKit. Required format/lint/types/build/test/migration /
+Compose/audit gates passed; lockfiles are unchanged and real writes remain OFF.
+One final same-fixture writes-OFF Inspector refresh must show exact_match for both
+features/variants and replacement/rename diagnostics, with the safe no-proposal /
+no-write probe. Actual live conformance remains unproven; no writes are enabled.
 
 Latest human checkpoint is complete for both variants: 13/13 Extrude and 8/8
 Fillet roles, clean evidence flags, one SOLID / NO_ERROR body, no proposals or

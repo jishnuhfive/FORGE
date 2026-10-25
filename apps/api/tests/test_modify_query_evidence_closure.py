@@ -287,7 +287,7 @@ def test_complete_targets_preserve_old_roles_and_never_grant_eligibility() -> No
             and first.failure.reason == "query_filter_unproven"
         )
         assert first.failure.parameter == (
-            "surfaceEntities" if position == 2 else "side1Face"
+            "wallShape" if position == 2 else "startPartialEntity"
         )
         unchanged = (
             ("entities", "surfaceEntities", "wallShape", "startOffsetEntity")
@@ -434,8 +434,8 @@ def test_one_writes_off_inspector_refresh_can_report_complete_targets_privately(
     assert (
         "allow_mesh_geometry=" in caplog.text and "requires_occurrence=" in caplog.text
     )
-    assert "parameter=surfaceEntities reason=query_filter_unproven" in caplog.text
-    assert "parameter=side1Face reason=query_filter_unproven" in caplog.text
+    assert "parameter=wallShape reason=query_filter_unproven" in caplog.text
+    assert "parameter=startPartialEntity reason=query_filter_unproven" in caplog.text
     assert "safe_edit_probe outcome=eligible_no_proposal_no_write" in caplog.text
     for forbidden in (
         HOSTILE,
