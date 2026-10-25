@@ -3538,3 +3538,137 @@ lockfiles and provider contracts were not changed. Full logs remain local under
 comparison prerequisite, normal Modify execution and payload ceilings are unchanged.
 Implementation verification is not execution of the real recovery or live CAD
 conformance; independent provenance/settlement availability remains a human gate.
+
+## Server-attested disposable development incident policy
+
+The external approval receipt search found none. This policy explicitly trusts
+Forge's server database and code-enforced state transitions for the unique disposable
+local incident; it does NOT treat the database as independent approval evidence.
+It is separate from the stronger independent-receipt path and cannot run in
+production (nor test environment). It does not defend against a privileged coherent
+rewrite of database history. Suspected tampering or ambiguous history must stop
+operator review; an unkeyed stored digest is integrity checking, not authentication.
+
+Code-level approval proof and limits:
+
+- plan_routes.approve applies the authenticated session, exact origin/CSRF and bounded
+  strict body guard, handle grammar and write-enable fence. Its only executor call is
+  plan_service.approve; no model/planner tool exposes this call.
+- plan_service.approve identifies the active session and atomically claims through
+  plan_storage.claim. Ownership/session, strict stored-plan integrity, exact immutable
+  digest, pending/unexpired state, one-use conditional update, fence and claim audit
+  commit together. A claim consumes the preview; it does not renew approval.
+- Claim commits BEFORE current grant/context revalidation. Therefore claim alone
+  cannot prove current CAD authority. A new synthetic route test removes write scope
+  after preview: claim still commits, but dispatch never happens and CAD is untouched.
+- Before durable dispatch, _current rechecks authenticated authority including current
+  connected grant/write scope/generation and exact context binding, expiry and deadline;
+  fresh evidence, semantic preview, payload preflight and head checks must pass.
+  The typed retained uncertain row plus unique claim/dispatch/uncertain audit sequence
+  supports server-attested approval/execution provenance under the trusted-server
+  assumption. Audits themselves contain no operation IDs or digest and are not an
+  independent or cryptographic receipt, nor proof of a physical human at the keyboard.
+  The normal endpoint is human-approval-only by product contract, not a human-detection
+  mechanism. Known human approval plus explicit operator review supplies that context.
+
+ServerAttestedDevelopmentApproval and DevelopmentOperatorReview name this trust
+claim honestly. IndependentDepthApproval and the independent result schema remain
+unchanged. The server-only result additionally labels approval_provenance as
+server_attested_development and audits write_depth_development_recovery/local_only.
+Both results retain original_execution_outcome=execution_uncertain; neither is
+verified_success or restored approval authority. Existing Fillet recovery is untouched.
+
+recover_development_depth_incident accepts only the trusted in-process AuthRuntime
+and DevelopmentIncidentReview. It chooses exactly one fenced incident globally,
+serializes on the owner, derives private pins from strict stored-plan integrity and
+the exact row, and uses the shared locked depth policy and eight-GET reader. The
+operator supplies no opaque IDs/digests. Missing/duplicate/misordered audits, verified
+or other conflicting execution audits, mismatched records/identities/fences, wrong
+operation, unaged record, active old session, absent connected cached read credential,
+non-disposable fixture, missing settlement or undrained writers all deny. Acknowledgement
+is optional but never invented. Production and non-disposable denial is rechecked
+at release. Evidence remains fresh, exact, one-use and bound to one transaction.
+Atomic closure is followed by read-only confirmation of the exact tombstone, matching
+fixed audit and absence of the related fence. Failure or ambiguous/lost completion
+returns a fixed denial with no retry, even if commit actually completed. No browser,
+HTTP/API/AI endpoint or provider-write path is added. A privileged local development
+console launcher supplies the real in-process runtime; it is not a normal-user API.
+
+### One trusted operator procedure for this incident (not executed)
+
+1. Keep writes OFF. Stop/drain the old backend and all other effective writer processes;
+   leave the existing local HTTPS frontend/configuration in place. Review the unique
+   owned disposable incident, accept this server-attested trust policy, establish
+   independent upstream settlement and authorize this administrative closure. The
+   historical session must be hard-expired or revoked via normal auth controls.
+2. From the repository, run exactly this local operator launcher (no opaque pins):
+
+   ```sh
+   cd apps/api
+   uv run --frozen python ../../scripts/depth_incident_operator.py
+   ```
+
+   It refuses non-development or writes-enabled settings before starting anything.
+   It runs the normal backend on 127.0.0.1:8000 without reload, with no origin/domain/
+   OAuth configuration changes and no new recovery route. If that port is occupied,
+   stop and resolve the old backend; do not use a second competing instance.
+
+3. In the existing Forge UI, establish normal authenticated read access in this
+   launcher-owned backend. This populates the actual TokenManager cache through the
+   normal supported auth/read flow; recovery itself never obtains or refreshes a token.
+   A separate interpreter importing app cannot share another process's cache. Once
+   normal read access exists, return to the console and type the exact review phrase
+   DISPOSABLE SETTLED DRAINED AUTHORIZE only if each fact has been independently
+   reviewed. Enter the private settlement facts when prompted (hidden input), the
+   reviewed exact stack URL https://cad.onshape.com/api, and an empty company ID for
+   this personal-stack fixture. No proposal handle, user/session/feature ID or digest
+   is entered or printed. Cancellation/invalid review causes denial with no attempt.
+4. The console invokes the guarded entry once. It derives the unique server pins,
+   validates all audits/relationships, performs at most eight bounded GETs, and closes
+   only on exact agreement. It confirms the committed tombstone/audit/fence state
+   read-only before printing PASS closure_confirmed with the original uncertain
+   outcome. Any failure prints only a fixed DENIED category, never raw exceptions or
+   private data. The launcher then stops its backend; retain the existing database.
+   Do not retry an ambiguous/lost completion. Inspect sanitized status/audit read-only
+   before any separately authorized next action. Missing cached credentials or missing
+   operator evidence means stop; do not paste/export credentials or edit DB rows.
+
+The launcher is private privileged local administration, with explicit console review;
+it supplies no production switch, generic execution facility or normal-user recovery
+mechanism. Starting normal read access does not authorize recovery or any CAD write.
+No launcher or real recovery was executed during implementation/testing.
+
+### Minimal remaining live gate after confirmed closure
+
+Use the same disposable Sketch/Extrude/terminal-Fillet fixture. One case at a time:
+depth, radius, rename, suppress, unsuppress. Each case uses the real Modify UI and
+required fresh evidence/preview: cancel first and confirm unchanged, mint a fresh
+proposal and approve once, wait for exact verified evidence and confirm one mutation
+and unrelated definitions unchanged. Combine rapid double approval with one approved
+case; exactly one mutation is permitted. Restore the fixture manually between cases
+only when needed. Then test stale proposal (manually edit before approval), unsupported
+request, no eligible target and context switch; all must deny CAD mutation. Cancel
+coverage is already included in each operation. Do not add redundant Inspector polls
+or disable any mandatory freshness/head/post-write read. Any uncertainty stops the
+gate without retry. Recovery is not live conformance; Phase 16 remains incomplete.
+
+This development task made ZERO real provider calls and did not access or modify
+the original record/fence, enable writes, execute real recovery, merge or deploy.
+
+### Server-attested policy final automated gate
+
+Full final API: **8,843 passed, zero skips**, including all **74 PostgreSQL cases**
+(42 original, 16 independent-depth and 16 server-attested-depth). The new server
+policy/console matrices add 186 tests. Focused mixed new/existing recovery regression:
+232 passed; console lifecycle/review tests: 10 passed. Counts overlap the full suite.
+Frontend: 869 passed in 35 files. Modify browser matrix: 45 passed across all three
+engines. make format, lint, typecheck (221 Python files plus TypeScript), build,
+migration-check, compose-check and dependency audits passed. The existing bundle
+size warning remains. PostgreSQL used newly isolated loopback random-port tmpfs 18.6
+containers, removed afterward; development DB/volumes were never used for tests.
+Logs remain local under /tmp/server-final-* and /tmp/server-gate-*. No lockfile,
+secret, origin/OAuth configuration, planner, approval, payload ceiling, exact-effect
+predicate or Fillet recovery implementation changed. Independent-depth reference
+serialization/result schema remain unchanged. CAD writes remained OFF and no real
+Onshape request, real closure, original-record/fence mutation, merge or deployment
+occurred. This is implementation verification, not Phase 16 live conformance.

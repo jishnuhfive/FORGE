@@ -81,14 +81,68 @@ class IndependentSettlement(Closed):
     settled: bool
 
 
+class ServerAttestedDevelopmentApproval(Closed):
+    """Trusted server state, explicitly NOT independently preserved evidence."""
+
+    source: Literal["server_attested_development_approval"] = (
+        "server_attested_development_approval"
+    )
+    user: str = Field(min_length=1, max_length=36, repr=False)
+    context: WorkspaceReference = Field(repr=False)
+    plan_digest: Digest = Field(repr=False)
+    record_id: Handle = Field(repr=False)
+    operation: Literal["SET_EXTRUDE_DEPTH"] = "SET_EXTRUDE_DEPTH"
+    quantity: Quantity = Field(repr=False)
+    target_feature_id: str = Field(min_length=1, max_length=256, repr=False)
+    target_position: int = Field(ge=1, le=20)
+
+
+class DevelopmentOperatorReview(Closed):
+    operator_authorized: bool
+    server_attested_policy_accepted: bool
+    disposable_fixture: bool
+    writers_drained: bool
+    upstream_settled: bool
+    stack: str = Field(min_length=1, max_length=255, repr=False)
+    company_id: CadId | None = Field(repr=False)
+    current_generation: str = Field(min_length=1, max_length=36, repr=False)
+
+
+class DevelopmentIncidentReview(Closed):
+    """Only human review input. No historical IDs/digests supplied by operator."""
+
+    operator_authorized: bool
+    server_attested_policy_accepted: bool
+    disposable_fixture: bool
+    writers_drained: bool
+    upstream_settled: bool
+    settlement_review: str = Field(min_length=20, max_length=2048, repr=False)
+    stack: str = Field(min_length=1, max_length=255, repr=False)
+    company_id: CadId | None = Field(repr=False)
+
+
+class ServerAttestedDepthReference(Closed):
+    approval: ServerAttestedDevelopmentApproval = Field(repr=False)
+    settlement: IndependentSettlement = Field(repr=False)
+    historical: HistoricalPlanReference = Field(repr=False)
+    review: DevelopmentOperatorReview = Field(repr=False)
+
+
 class DepthRecoveryReference(Closed):
     settlement: IndependentSettlement = Field(repr=False)
     independent: IndependentDepthApproval = Field(repr=False)
     historical: HistoricalPlanReference = Field(repr=False)
     review: OperatorReview = Field(repr=False)
 
+    @property
+    def approval(self) -> IndependentDepthApproval:
+        return self.independent
 
-def reference_fingerprint(reference: DepthRecoveryReference) -> str:
+
+DepthReference = DepthRecoveryReference | ServerAttestedDepthReference
+
+
+def reference_fingerprint(reference: DepthReference) -> str:
     return fingerprint(reference.model_dump(mode="json"))
 
 
@@ -166,8 +220,17 @@ class DepthRecoveryResult(Closed):
     recovered_at: int = Field(ge=0)
 
 
+class ServerAttestedDepthResult(DepthRecoveryResult):
+    approval_provenance: Literal["server_attested_development"] = (
+        "server_attested_development"
+    )
+
+
+DepthResult = DepthRecoveryResult | ServerAttestedDepthResult
+
+
 def check_evidence(
-    reference: DepthRecoveryReference, evidence: VerifiedDepthRecoveryEvidence
+    reference: DepthReference, evidence: VerifiedDepthRecoveryEvidence
 ) -> None:
     historical = reference.historical
     if (
@@ -175,9 +238,9 @@ def check_evidence(
         or evidence.record_id != historical.record_id
         or evidence.plan_digest != historical.plan_digest
         or evidence.payload_fingerprint != historical.payload_fingerprint
-        or evidence.user != reference.independent.user
+        or evidence.user != reference.approval.user
         or evidence.current_generation != reference.review.current_generation
-        or evidence.context != reference.independent.context
+        or evidence.context != reference.approval.context
         or evidence.baseline.context != evidence.context
         or evidence.head_before != evidence.head_after
         or evidence.baseline.microversion != evidence.head_before
@@ -198,7 +261,7 @@ class _DepthRun:
 
     db: Session
     transaction: SessionTransaction
-    reference: DepthRecoveryReference
+    reference: DepthReference
     raw_payload: str
     saved: StoredPlan
     started: float

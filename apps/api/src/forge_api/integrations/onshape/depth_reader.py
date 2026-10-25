@@ -8,7 +8,7 @@ from pydantic import JsonValue, SecretStr, TypeAdapter
 from forge_api.cad_edits.depth_contracts import (
     CAPTURE_SECONDS,
     DepthRecoveryDenied,
-    DepthRecoveryReference,
+    DepthReference,
     VerifiedDepthRecoveryEvidence,
     reference_fingerprint,
 )
@@ -183,12 +183,12 @@ class DepthEvidenceReader:
 
     def capture(
         self,
-        reference: DepthRecoveryReference,
+        reference: DepthReference,
         saved: StoredPlan,
         *,
         deadline: float | None = None,
     ) -> VerifiedDepthRecoveryEvidence:
-        if self._used or reference.independent.context != self._context:
+        if self._used or reference.approval.context != self._context:
             self.close()
             raise DepthRecoveryDenied("reader_reuse_or_context_mismatch")
         self._used = True
@@ -239,7 +239,7 @@ class DepthEvidenceReader:
                 record_id=historical.record_id,
                 plan_digest=historical.plan_digest,
                 payload_fingerprint=historical.payload_fingerprint,
-                user=reference.independent.user,
+                user=reference.approval.user,
                 current_generation=reference.review.current_generation,
                 context=self._context,
                 baseline=baseline,

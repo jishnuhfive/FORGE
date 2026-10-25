@@ -1111,3 +1111,17 @@ mocked. Run these plus the unchanged Fillet/Modify regressions and full gate wit
 FORGE_TEST_DATABASE_URL pointing only to a disposable database. Real operator use
 is private and separately authorized as documented in the Phase 16 record; never
 invoke it as a test or bootstrap credentials with refresh.
+
+Server-attested depth policy coverage is in test_server_depth_operator/recovery/
+evidence/postgres.py. Fixtures are synthetic; PostgreSQL uses isolated schemas only.
+The private operator entry requires the actual current AuthRuntime with its existing
+cached credential, not a new interpreter importing an unstarted app. Follow the one
+Phase 16 procedure only after separate operator review/authorization; no opaque approval pins
+or external receipt are required for this development-only policy. Do not execute it
+as a diagnostic. Zero real provider calls are needed for implementation/tests.
+
+For the server-attested incident, the tested local launcher is
+`cd apps/api && uv run --frozen python ../../scripts/depth_incident_operator.py`.
+It owns the actual normal backend runtime/cache and shuts down after one reviewed
+attempt; do not run beside an existing backend or use a new interpreter to impersonate
+a live runtime. Follow the Phase 16 procedure. No recovery web endpoint is added.

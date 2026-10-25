@@ -26,8 +26,11 @@ from . import plan_storage
 from .depth_contracts import (
     HANDOFF_SECONDS,
     DepthRecoveryDenied,
-    DepthRecoveryReference,
     DepthRecoveryResult,
+    DepthReference,
+    DepthResult,
+    ServerAttestedDepthReference,
+    ServerAttestedDepthResult,
     VerifiedDepthRecoveryEvidence,
     _DepthRun,
     check_independent,
@@ -59,14 +62,19 @@ _NON_EXECUTION_AUDITS = (
 )
 
 
-def _environment(settings: Settings, reference: DepthRecoveryReference) -> None:
+def _environment(settings: Settings, reference: DepthReference) -> None:
     review = reference.review
     if settings.environment != "development" or settings.forge_cad_writes_enabled:
         raise DepthRecoveryDenied("development_writes_off_required")
     if not all(
         (
             review.operator_authorized,
-            review.independent_receipt_reviewed,
+            (
+                reference.review.server_attested_policy_accepted
+                and reference.review.disposable_fixture
+            )
+            if isinstance(reference, ServerAttestedDepthReference)
+            else reference.review.independent_receipt_reviewed,
             review.writers_drained,
             review.upstream_settled,
             reference.settlement.settled,
@@ -80,13 +88,13 @@ def _environment(settings: Settings, reference: DepthRecoveryReference) -> None:
         raise DepthRecoveryDenied("reviewed_configuration_mismatch")
 
 
-def _audits(db: DatabaseSession, reference: DepthRecoveryReference, at: int) -> None:
+def _audits(db: DatabaseSession, reference: DepthReference, at: int) -> None:
     historical = reference.historical
     events = list(
         db.scalars(
             select(AuditEvent)
             .where(
-                AuditEvent.user_id == reference.independent.user,
+                AuditEvent.user_id == reference.approval.user,
                 AuditEvent.created_at >= historical.created_at,
                 AuditEvent.kind.startswith("write_"),
                 AuditEvent.kind.not_in(_NON_EXECUTION_AUDITS),
@@ -138,16 +146,16 @@ def _eligible(saved: StoredPlan) -> None:
 
 
 def _validate_locked(
-    db: DatabaseSession, settings: Settings, reference: DepthRecoveryReference
+    db: DatabaseSession, settings: Settings, reference: DepthReference
 ) -> tuple[WriteRecord, StoredPlan, OnshapeAuthorization]:
     _environment(settings, reference)
     at = now()
-    historical, independent, review = (
+    historical, approval, review = (
         reference.historical,
-        reference.independent,
+        reference.approval,
         reference.review,
     )
-    user_lock(db, independent.user)
+    user_lock(db, approval.user)
     original = db.scalar(
         select(Session)
         .where(
@@ -158,7 +166,7 @@ def _validate_locked(
     )
     if (
         original is None
-        or original.user_id != independent.user
+        or original.user_id != approval.user
         or original.created_at > historical.created_at
         or (
             original.expires_at > at
@@ -169,7 +177,7 @@ def _validate_locked(
     grant = db.scalar(
         select(OnshapeAuthorization)
         .where(
-            OnshapeAuthorization.user_id == independent.user,
+            OnshapeAuthorization.user_id == approval.user,
         )
         .with_for_update()
         .execution_options(populate_existing=True)
@@ -190,9 +198,9 @@ def _validate_locked(
             "forge.workspace-fence.v1:"
             + review.stack
             + ":"
-            + independent.context.documentId
+            + approval.context.documentId
             + ":"
-            + independent.context.workspaceId
+            + approval.context.workspaceId
         ).encode()
     ).hexdigest()
     if historical.binding.workspace_key != workspace_key:
@@ -201,7 +209,7 @@ def _validate_locked(
         db.scalars(
             select(WriteFence)
             .where(
-                (WriteFence.user_id == independent.user)
+                (WriteFence.user_id == approval.user)
                 | (WriteFence.workspace_key == workspace_key)
                 | (WriteFence.record_id == historical.record_id)
             )
@@ -210,7 +218,7 @@ def _validate_locked(
         )
     )
     if len(related) != 1 or (
-        related[0].user_id != independent.user
+        related[0].user_id != approval.user
         or related[0].workspace_key != workspace_key
         or related[0].record_id != historical.record_id
     ):
@@ -226,7 +234,7 @@ def _validate_locked(
     if (
         record is None
         or record.state != "execution_uncertain"
-        or record.user_id != independent.user
+        or record.user_id != approval.user
         or record.session_hash != historical.binding.session
         or record.digest != historical.plan_digest
         or record.created_at != historical.created_at
@@ -246,14 +254,31 @@ def _validate_locked(
         or fingerprint(saved.model_dump(mode="json")) != historical.payload_fingerprint
     ):
         raise DepthRecoveryDenied("retained_payload_changed")
-    check_independent(independent, saved)
+    if isinstance(reference, ServerAttestedDepthReference):
+        approval = reference.approval
+        op = saved.plan.operations[0] if len(saved.plan.operations) == 1 else None
+        if (
+            approval.user != saved.plan.binding.user
+            or approval.context != saved.plan.binding.context
+            or approval.record_id != saved.plan.proposal_id
+            or approval.plan_digest != fingerprint(saved.plan.model_dump(mode="json"))
+            or op is None
+            or op.operation.type != "SET_EXTRUDE_DEPTH"
+            or approval.operation != op.operation.type
+            or approval.quantity != op.operation.quantity
+            or approval.target_feature_id != op.target.feature_id
+            or approval.target_position != op.target.position
+        ):
+            raise DepthRecoveryDenied("server_approval_mismatch")
+    else:
+        check_independent(reference.independent, saved)
     _eligible(saved)
     # Same-user admission/claim holds user_lock. This is not a global phantom lock.
     if (
         db.scalar(
             select(WriteRecord.id)
             .where(
-                WriteRecord.user_id == independent.user,
+                WriteRecord.user_id == approval.user,
                 WriteRecord.id != historical.record_id,
                 WriteRecord.state.not_in(_CLOSED_STATES),
             )
@@ -269,7 +294,7 @@ def _validate_locked(
 def lock_depth_record(
     db: DatabaseSession,
     settings: Settings,
-    reference: DepthRecoveryReference,
+    reference: DepthReference,
     *,
     started: float,
 ) -> tuple[_DepthRun, str | None]:
@@ -293,7 +318,7 @@ def release_depth_record(
     settings: Settings,
     run: _DepthRun,
     evidence: VerifiedDepthRecoveryEvidence,
-) -> DepthRecoveryResult:
+) -> DepthResult:
     """One exact redacted closure + deletion + fixed audit, or outer rollback.
 
     No transport, token manager, mutation client, or provider callback is accepted.
@@ -309,14 +334,19 @@ def release_depth_record(
     run._current(db)
     if monotonic() - evidence.finished_monotonic > HANDOFF_SECONDS:
         raise DepthRecoveryDenied("evidence_handoff_expired")
-    result = DepthRecoveryResult(recovered_at=now())
+    server_attested = isinstance(reference, ServerAttestedDepthReference)
+    result: DepthResult = (
+        ServerAttestedDepthResult(recovered_at=now())
+        if server_attested
+        else DepthRecoveryResult(recovered_at=now())
+    )
     historical = reference.historical
     updated = list(
         db.scalars(
             update(WriteRecord)
             .where(
                 WriteRecord.id == historical.record_id,
-                WriteRecord.user_id == reference.independent.user,
+                WriteRecord.user_id == reference.approval.user,
                 WriteRecord.session_hash == historical.binding.session,
                 WriteRecord.digest == historical.plan_digest,
                 WriteRecord.created_at == historical.created_at,
@@ -338,7 +368,7 @@ def release_depth_record(
         db.scalars(
             delete(WriteFence)
             .where(
-                WriteFence.user_id == reference.independent.user,
+                WriteFence.user_id == reference.approval.user,
                 WriteFence.workspace_key == historical.binding.workspace_key,
                 WriteFence.record_id == historical.record_id,
             )
@@ -347,6 +377,13 @@ def release_depth_record(
     )
     if len(removed) != 1:
         raise DepthRecoveryDenied("exact_single_fence_required")
-    audit(db, "write_depth_operator_recovery", "local_only", reference.independent.user)
+    audit(
+        db,
+        "write_depth_development_recovery"
+        if server_attested
+        else "write_depth_operator_recovery",
+        "local_only",
+        reference.approval.user,
+    )
     db.flush()
     return result

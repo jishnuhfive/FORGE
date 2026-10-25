@@ -971,3 +971,14 @@ current evidence; raw captures never enter release, storage or logs. One-use
 transaction-local evidence and atomic conditional closure preserve historical
 execution_uncertain. Optional absent acknowledgement is allowed only in this
 separate depth policy; it never proves settlement. Existing Fillet policy is unchanged.
+
+The separate server-attested development incident policy trusts server records/code
+rather than independent approval receipts. Claim alone does not establish current
+grant/context authority: claim precedes _current; dispatch adds that validation.
+Only the unique aged single-depth disposable incident, exact unambiguous audit
+sequence and strict retained plan may enter. Explicit development/disposable/drain/
+operator/independent-settlement review and the existing exact historical/current
+comparison remain mandatory. This policy is not tamper-proof database evidence,
+physical-human detection or production recovery. It has a distinct provenance-labeled
+tombstone/audit and read-only commit confirmation. See Phase 16 for the trusted
+in-process procedure and cache limitation. Independent-depth and Fillet policy remain.

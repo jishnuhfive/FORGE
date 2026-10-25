@@ -871,3 +871,9 @@ The Phase 16 depth-only private operator coordinator now consumes the exact-stat
 prerequisite via an eight-GET historical/current reader and transaction-local
 handoff. It has separate contracts/release policy from Fillet recovery, no public
 entry point and no provider-write capability. See the Phase 16 operator procedure.
+
+Depth recovery also has a separate server-attested disposable-development provenance
+variant. The short private operator entry derives the unique incident's pins inside
+the serialized transaction, reuses exact eight-GET depth capture/release, then confirms
+closure read-only. It adds no normal route/tool/CLI and never acquires/refreshes a token.
+Server-attested provenance is distinct from an independently preserved approval receipt.
