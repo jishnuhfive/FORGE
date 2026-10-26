@@ -1,6 +1,7 @@
 """A stop before the first write is named by a closed category; budgets are per step."""
 
 import json
+from copy import deepcopy
 from types import SimpleNamespace
 from typing import Any, cast
 
@@ -262,3 +263,63 @@ def test_stop_log_carries_only_a_label_and_field_names(
 def test_unsafe_field_names_are_dropped_from_the_label() -> None:
     error = creation_provider.AckRejected("ack_plane", {"ok1", "bad name", "x" * 50})
     assert error.names == ("ok1",)
+
+
+class Libraries(Provider):
+    """Provider that reports `parameterLibraries` on every feature, as Onshape does."""
+
+    def __init__(self, value: Any) -> None:
+        super().__init__()
+        self.value = value
+
+    def handle(self, request: httpx.Request) -> httpx.Response:
+        response = super().handle(request)
+        if request.method != "POST":
+            return response
+        body = json.loads(response.content)
+        body["feature"]["parameterLibraries"] = deepcopy(self.value)
+        self.data["features"][-1]["parameterLibraries"] = deepcopy(self.value)
+        return httpx.Response(200, json=body)
+
+
+def run_creation(harness: Harness, provider: Provider) -> dict[str, Any]:
+    with running(harness, cast(Any, provider)):
+        preview = post(
+            harness, "/api/create/plan", {"context": REF.model_dump(), "brief": BRIEF}
+        ).json()
+        return cast(
+            dict[str, Any],
+            post(
+                harness,
+                f"/api/create/plans/{preview['proposal_id']}/approve",
+                {"digest": preview["digest"], "brief_confirmed": True},
+            ).json(),
+        )
+
+
+def test_documented_empty_parameter_libraries_complete_both_steps(
+    harness: Harness,
+) -> None:
+    p = Libraries([])
+    result = run_creation(harness, p)
+    assert result == {"state": "verified_success", "steps": ["verified_success"] * 2}
+    assert p.writes == 2
+    with harness.runtime.sessions() as db:
+        assert db.scalar(select(WriteFence)) is None
+
+
+@pytest.mark.parametrize(
+    "value",
+    [[{"btType": "BTMParameter-1", "parameterId": "x"}], {}, None, "libs", [[]], 0],
+)
+def test_any_other_parameter_libraries_value_fails_closed_after_one_write(
+    harness: Harness, value: Any
+) -> None:
+    p = Libraries(value)
+    result = run_creation(harness, p)
+    assert result["state"] == "execution_uncertain"
+    assert result["steps"] == ["execution_uncertain", "skipped"]
+    assert p.writes == 1
+    assert uncertain_outcomes(harness) == ["ack_parameter_libraries"]
+    with harness.runtime.sessions() as db:
+        assert db.scalar(select(WriteFence)) is not None

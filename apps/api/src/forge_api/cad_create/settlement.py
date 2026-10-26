@@ -35,7 +35,7 @@ from forge_api.db.models import (
 )
 from forge_api.integrations.onshape.write_client import SafeEditClient
 
-from .evidence import CreationEvidence
+from .evidence import CreationEvidence, difference
 from .models import CreateSketchRect
 from .provider import AckRejected, acknowledge, feature
 from .service import Approval, StoredCreation, load
@@ -64,6 +64,7 @@ _NON_EXECUTION = (
     "write_proposal_cancelled",
 )
 _CAPTURE_SECONDS = 30
+_MAX_CAPTURES = 4  # strict bound: one read set each, no further retry
 
 
 class SettlementDenied(Exception):
@@ -93,6 +94,10 @@ class Observation:
     ack_check: str | None
     ack_fields: tuple[str, ...]
     denial: str | None
+    captures: int = 0
+    instability: str | None = None
+    instability_path: tuple[str, ...] = ()
+    ack_chain: tuple[str, ...] = ()
 
 
 class _GetOnly(httpx.BaseTransport):
@@ -253,21 +258,43 @@ def _observe(
     except ProviderError:
         raise SettlementDenied("cached_read_credential_required") from None
     token = credential.get_secret_value()
+    captured: list[CreationEvidence] = []
     try:
-        first = _capture(runtime.settings, token, approval, transport)
-        second = _capture(runtime.settings, token, approval, transport)
+        # Bounded quiescence: stable means two CONSECUTIVE identical full captures
+        # (marker included). A moving revision or differing content never counts.
+        while len(captured) < _MAX_CAPTURES:
+            captured.append(_capture(runtime.settings, token, approval, transport))
+            if len(captured) > 1 and captured[-1].digest == captured[-2].digest:
+                break
     except SettlementDenied:
         raise
     except EditError as error:
+        # A head that moves inside one read set is a moving revision, not a read error.
         raise SettlementDenied(
             "evidence_unsupported"
             if error.code == "unsupported_target"
+            else "revision_still_moving"
+            if error.code == "model_changed"
             else "evidence_unavailable"
         ) from None
     except Exception:
         raise SettlementDenied("evidence_unavailable") from None
     finally:
         del token, credential
+    first = captured[-1]
+    stable = len(captured) > 1 and first.digest == captured[-2].digest
+    instability: str | None = None
+    path: tuple[str, ...] = ()
+    if not stable:
+        # Report why the last two captures disagree, by category and name-only path.
+        category, path = difference(captured[-2], first)
+        instability = (
+            "revision_still_moving" if category == "marker" else f"{category}_differs"
+        )
+    elif len(captured) > 2:
+        # It settled, but earlier captures disagreed: say what moved first.
+        category, path = difference(captured[0], captured[1])
+        instability = f"settled_after_{category}_change"
     features = cast(list[dict[str, Any]], first.inventory["features"])
     step = approval.plan.steps[0]
     sketch = features[0] if len(features) == 1 else {}
@@ -279,25 +306,36 @@ def _observe(
     advanced = first.parts["marker"] != approval.baseline_parts.marker
     label: str | None = None
     names: tuple[str, ...] = ()
-    if sketch:
+    chain: list[str] = []
+    probe = dict(sketch)
+    for _ in range(4):  # diagnostic only: peel unrecognized top-level keys to see more
+        if not probe:
+            break
         try:
             acknowledge(
                 feature(step, {}),
                 {
                     "microversionSkew": False,
                     "sourceMicroversion": first.marker,
-                    "feature": sketch,
+                    "feature": probe,
                 },
                 cast(CreationEvidence, SimpleNamespace(marker="")),
             )
+            break
         except AckRejected as error:
-            label, names = error.check, error.names
+            chain.append(error.check)
+            if label is None:
+                label, names = error.check, error.names
+            if error.check != "ack_feature_keys" or not error.names:
+                break
+            for name in error.names:
+                probe.pop(name, None)
         except EditError:
-            label = "ack_contract"
-    stable = first.digest == second.digest
+            label = label or "ack_contract"
+            break
     bodies = len(cast(list[Any], first.bodies["bodies"]))
     denial = (
-        "evidence_not_stable"
+        instability
         if not stable
         else "unexpected_feature_set"
         if len(features) != 1
@@ -310,7 +348,18 @@ def _observe(
         else None
     )
     return Observation(
-        stable, len(features), bodies, healthy, advanced, label, names, denial
+        stable,
+        len(features),
+        bodies,
+        healthy,
+        advanced,
+        label,
+        names,
+        denial,
+        len(captured),
+        instability,
+        path,
+        tuple(chain),
     )
 
 

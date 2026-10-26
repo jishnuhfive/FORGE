@@ -35,12 +35,19 @@ from forge_api.main import create_app
 def show(observation: Observation, report: Callable[[str], None]) -> None:
     report(f"features_in_part_studio={observation.feature_count}")
     report(f"solid_bodies={observation.body_count}")
-    report(f"evidence_stable_across_two_captures={observation.stable}")
+    report(f"captures_taken={observation.captures}")
+    report(f"evidence_stable_two_consecutive_captures={observation.stable}")
+    if observation.instability:
+        report(f"evidence_instability={observation.instability}")
+        if observation.instability_path:
+            report("instability_path=" + ".".join(observation.instability_path))
     report(f"revision_advanced_since_approval={observation.revision_advanced}")
     report(
         f"expected_sketch_present_and_healthy={observation.sketch_named_and_healthy}"
     )
     report(f"acknowledgement_check_on_current_sketch={observation.ack_check or 'pass'}")
+    if observation.ack_chain:
+        report("acknowledgement_check_chain=" + ",".join(observation.ack_chain))
     if observation.ack_fields:
         report("unrecognized_provider_fields=" + ",".join(observation.ack_fields))
     report(f"settlement_blocker={observation.denial or 'none'}")

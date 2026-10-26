@@ -317,7 +317,12 @@ def acknowledge(
         "nodeId",
         "entities",
         "constraints",
+        # BTMFeature-134 base property (array of BTMParameter-1, OpenAPI 1.222). Only
+        # the empty array is accepted: it carries no library parameters or semantics.
+        "parameterLibraries",
     }
+    if "parameterLibraries" in actual and actual["parameterLibraries"] != []:
+        raise AckRejected("ack_parameter_libraries")
     if set(actual) - allowed:
         raise AckRejected("ack_feature_keys", set(actual) - allowed)
     suppression = actual.get("suppressionState")

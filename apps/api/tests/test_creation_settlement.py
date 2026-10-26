@@ -329,7 +329,7 @@ def test_unstable_evidence_is_denied(incident: Incident) -> None:
         return original(request)
 
     incident.transport = httpx.MockTransport(drifting)
-    incident.denied("settle", "evidence_not_stable")
+    incident.denied("settle", "inventory_differs")
 
 
 def test_unhealthy_feature_state_is_denied(incident: Incident) -> None:
@@ -404,3 +404,95 @@ def test_expired_placeholders_do_not_block_but_a_live_preview_does(
     with incident.harness.runtime.sessions.begin() as db:
         db.delete(db.get(WriteRecord, "r" * 43))
     assert incident.settle().original_outcome == "execution_uncertain"
+
+
+def test_transient_disagreement_settles_after_bounded_quiescence(
+    incident: Incident,
+) -> None:
+    original = incident.provider.handle
+    reads = {"features": 0}
+
+    def settling(request: httpx.Request) -> httpx.Response:
+        if request.url.path.endswith("/features"):
+            reads["features"] += 1
+            if reads["features"] == 1:
+                incident.provider.data["transient"] = True
+            else:
+                incident.provider.data.pop("transient", None)
+        return original(request)
+
+    incident.transport = httpx.MockTransport(settling)
+    seen = incident.inspect()
+    assert seen.stable and seen.denial is None and seen.captures == 3
+    assert seen.instability == "settled_after_inventory_change"
+    assert seen.instability_path == ("transient", "<present>")
+    assert incident.posts == 1
+
+
+def test_a_revision_that_keeps_moving_never_counts_as_stable_and_is_bounded(
+    incident: Incident,
+) -> None:
+    original = incident.provider.handle
+    reads = {"n": 0}
+
+    def moving(request: httpx.Request) -> httpx.Response:
+        if request.url.path.endswith("currentmicroversion"):
+            reads["n"] += 1  # two head reads bracket each capture
+            marker = f"{(reads['n'] - 1) // 2 + 1:024x}"
+            incident.provider.marker = marker
+            incident.provider.data["sourceMicroversion"] = marker
+        return original(request)
+
+    incident.transport = httpx.MockTransport(moving)
+    seen = incident.inspect()
+    assert not seen.stable and seen.captures == 4  # bounded: never a fifth read set
+    assert seen.denial == seen.instability == "revision_still_moving"
+    assert seen.instability_path == ()
+    incident.denied("settle", "revision_still_moving")
+
+
+def test_a_head_that_moves_inside_one_read_set_is_a_moving_revision(
+    incident: Incident,
+) -> None:
+    original = incident.provider.handle
+    reads = {"n": 0}
+
+    def inside(request: httpx.Request) -> httpx.Response:
+        if request.url.path.endswith("currentmicroversion"):
+            reads["n"] += 1
+            incident.provider.marker = f"{reads['n']:024x}"
+        return original(request)
+
+    incident.transport = httpx.MockTransport(inside)
+    incident.denied("settle", "revision_still_moving")
+
+
+@pytest.mark.parametrize(
+    ("value", "check", "chain"),
+    [
+        ([], None, ()),
+        (
+            [{"btType": "BTMParameter-1"}],
+            "ack_parameter_libraries",
+            ("ack_parameter_libraries",),
+        ),
+    ],
+)
+def test_inspection_classifies_parameter_libraries(
+    incident: Incident, value: Any, check: str | None, chain: tuple[str, ...]
+) -> None:
+    incident.provider.data["features"][0]["parameterLibraries"] = value
+    seen = incident.inspect()
+    assert seen.ack_check == check and seen.ack_chain == chain
+
+
+def test_inspection_peels_unknown_keys_to_show_what_fails_next(
+    incident: Incident,
+) -> None:
+    feature = incident.provider.data["features"][0]
+    feature["bogusProviderKey"] = 1
+    feature["constraints"] = [{"btType": "BTMSketchConstraint-2"}]
+    seen = incident.inspect()
+    assert seen.ack_check == "ack_feature_keys"
+    assert seen.ack_chain == ("ack_feature_keys", "ack_constraints")
+    assert seen.ack_fields == ("bogusProviderKey",)

@@ -1,5 +1,6 @@
 """Creation evidence has no existing feature target. All raw data stays ephemeral."""
 
+import re
 from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any
@@ -114,6 +115,44 @@ class CreationEvidence:
     def require_empty(self) -> None:
         if self.inventory["features"] or self.bodies["bodies"]:
             raise EditError("unsupported_target")
+
+
+_SEGMENT = re.compile(r"[A-Za-z][A-Za-z0-9]{0,39}")
+
+
+def _first_path(a: Any, b: Any, path: tuple[str, ...] = ()) -> tuple[str, ...] | None:
+    """First differing key path; list positions become '[]', values never appear."""
+    if type(a) is not type(b):
+        return path or ("<root>",)
+    if isinstance(a, dict):
+        for key in sorted(set(a) | set(b)):
+            name = key if _SEGMENT.fullmatch(key) else "<key>"
+            if key not in a or key not in b:
+                return (*path, name, "<present>")[:8]
+            found = _first_path(a[key], b[key], (*path, name))
+            if found is not None:
+                return found[:8]
+        return None
+    if isinstance(a, list):
+        if len(a) != len(b):
+            return (*path, "[]", "<length>")[:8]
+        for x, y in zip(a, b, strict=True):
+            found = _first_path(x, y, (*path, "[]"))
+            if found is not None:
+                return found[:8]
+        return None
+    return None if a == b else (path or ("<root>",))
+
+
+def difference(a: CreationEvidence, b: CreationEvidence) -> tuple[str, tuple[str, ...]]:
+    """First differing category and a name-only path; ('none', ()) when identical."""
+    if a.marker != b.marker:
+        return "marker", ()
+    for name in ("inventory", "configuration", "bodies"):
+        found = _first_path(getattr(a, name), getattr(b, name))
+        if found is not None:
+            return name, found
+    return "none", ()
 
 
 def verify_added(

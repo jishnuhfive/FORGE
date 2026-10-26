@@ -145,3 +145,23 @@ Extrude and no solid body. It is not a route, AI tool or general recovery framew
   preview) do not count as a conflicting operation; any claimable or in-flight record
   does. Open `admission` rows sit until the next cleanup, which is the likely cause of
   earlier `conflicting_user_operation` denials in other recovery paths.
+
+## Acknowledgement contract: `parameterLibraries` and evidence stability
+
+- Official OpenAPI (1.222.91980) defines `parameterLibraries` as an array of
+  `BTMParameter-1` on `BTMFeature-134`, which `BTMSketch-151` extends (so it can
+  appear on any feature in both POST acknowledgements and GET inventories; only the
+  GET was observed live). The schema gives no semantics beyond library parameter
+  entries. Only the EMPTY array is accepted (it carries no library parameters); any
+  other value fails closed as `ack_parameter_libraries`. Other undeclared
+  `BTMFeature-134` properties (`variableStudioReference`, `mateConnectorFeature`,
+  `importMicroversion`) are still rejected until observed.
+- Settlement `inspect` now takes up to four consecutive read sets (no more) and
+  calls the evidence stable only when two consecutive captures match in full, marker
+  included. Otherwise it reports `revision_still_moving` (marker differs, or the head
+  moved inside one read set) or `<category>_differs` with a name-only path
+  (`inventory`/`configuration`/`bodies`, list positions as `[]`, never values), and
+  `settled_after_<category>_change` when it settled late. It also reports the
+  acknowledgement check chain, peeling only unrecognized top-level keys diagnostically.
+- No comparison ignores a field. Whether any field is non-semantic is decided only
+  after `inspect` names it.
