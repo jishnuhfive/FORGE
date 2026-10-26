@@ -1,6 +1,7 @@
 import { isLesson } from './lesson';
 import type { Lesson } from './lesson';
 import { mountingBracket } from './bracket';
+import { mountingPlate } from './plate';
 import { sketchToSolid } from './sample';
 
 export type LessonResource =
@@ -11,10 +12,18 @@ export type LessonResource =
 export function loadLesson(
   id: string | null,
   source: (id: string) => unknown = (id) =>
-    id === 'mounting-bracket' ? mountingBracket : sketchToSolid,
+    id === 'mounting-bracket'
+      ? mountingBracket
+      : id === 'mounting-plate'
+        ? mountingPlate
+        : sketchToSolid,
 ): LessonResource {
   if (id === null) return { status: 'empty' };
-  if (id !== 'sketch-to-solid' && id !== 'mounting-bracket')
+  if (
+    id !== 'sketch-to-solid' &&
+    id !== 'mounting-bracket' &&
+    id !== 'mounting-plate'
+  )
     return { status: 'unavailable' };
   try {
     const value = source(id);
@@ -27,3 +36,4 @@ export function loadLesson(
 }
 export const sampleResource = loadLesson('sketch-to-solid');
 export const bracketResource = loadLesson('mounting-bracket');
+export const plateResource = loadLesson('mounting-plate');

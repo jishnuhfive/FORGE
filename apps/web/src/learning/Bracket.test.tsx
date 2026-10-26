@@ -78,7 +78,7 @@ function open(state: ClientState = connected, auth: Me = me) {
   );
   fireEvent.click(screen.getByRole('radio', { name: /^Beginner/ }));
   fireEvent.click(
-    screen.getByRole('radio', { name: 'Complete a guided project' }),
+    screen.getByRole('radio', { name: 'Build a mounting bracket' }),
   );
   fireEvent.click(screen.getByRole('button', { name: /^Review/ }));
   fireEvent.click(screen.getByRole('button', { name: 'Begin lesson' }));
@@ -443,7 +443,7 @@ describe('lesson selection in the workspace', () => {
     });
     fireEvent.click(screen.getByRole('radio', { name: /^Beginner/ }));
     fireEvent.click(
-      screen.getByRole('radio', { name: 'Complete a guided project' }),
+      screen.getByRole('radio', { name: 'Build a mounting bracket' }),
     );
     fireEvent.click(screen.getByRole('button', { name: /^Review/ }));
     expect(

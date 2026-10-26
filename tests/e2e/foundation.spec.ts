@@ -71,7 +71,7 @@ for (const width of [320, 380, 480, 1280]) {
     await page
       .getByRole('radio', { name: 'Learn CAD fundamentals', exact: true })
       .check();
-    await page.getByRole('button', { name: 'Review sample lesson' }).click();
+    await page.getByRole('button', { name: 'Review lesson' }).click();
     await page.getByRole('button', { name: 'Begin lesson' }).click();
     await expect(
       page.getByText(/Forge isn’t checking the model/),

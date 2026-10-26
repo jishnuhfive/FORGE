@@ -9,7 +9,7 @@ import json
 
 from forge_api.step_checks.bracket import STEPS
 
-from .catalog import LESSON_TITLE, CatalogStep
+from .catalog import LESSON_TITLES, CatalogStep
 from .evidence_token import VerifiedCheck
 from .models import HelpStyle, LearnerHints
 
@@ -62,7 +62,8 @@ def build_context(
         }
     return {
         "lesson": {
-            "title": LESSON_TITLE,
+            "title": LESSON_TITLES[step.lesson],
+            "reference_dimensions": step.lesson == "mounting-plate",
             "is_transfer_challenge": step.transfer,
             "step": {
                 "id": step.id,

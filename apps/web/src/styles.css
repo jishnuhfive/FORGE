@@ -2195,3 +2195,23 @@ ul.compact-list {
 .guide-controls li {
   color: var(--muted);
 }
+
+.tutor-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-block: 8px;
+}
+.tutor-suggestions .button {
+  max-inline-size: 100%;
+  white-space: normal;
+  text-align: start;
+}
+.tutor-limits {
+  margin-block: 8px;
+}
+.tutor-limits > summary {
+  cursor: pointer;
+  color: var(--text-muted, inherit);
+  font-size: 0.875rem;
+}

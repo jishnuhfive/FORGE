@@ -19,6 +19,8 @@ import type {
 } from './tutorApi';
 
 const MAX_EXCHANGES = 3;
+// Canned follow-ups. The learner still chooses to send each one.
+const followUps = ['Say that more simply.', 'Go into more technical detail.'];
 const outcomeWord: Record<CheckWord, string> = {
   verified: 'Verified',
   not_met: 'Not yet',
@@ -87,16 +89,18 @@ export function TutorAnswerBlock({ answer }: { answer: TutorAnswerView }) {
         </section>
       )}
       {answer.unknowns.length > 0 && (
-        <section className="check-findings" aria-label="Still unknown">
-          <h3>Still unknown</h3>
-          <ul>
-            {answer.unknowns.map((item, index) => (
-              <li key={index}>
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
+        <details className="tutor-limits">
+          <summary>Still unknown ({answer.unknowns.length})</summary>
+          <section className="check-findings" aria-label="Still unknown">
+            <ul>
+              {answer.unknowns.map((item, index) => (
+                <li key={index}>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </details>
       )}
       {answer.next_action && (
         <p className="tutor-next">
@@ -169,11 +173,13 @@ export function TutorPanel({
   const session = learning?.session;
   if (
     !lesson ||
-    lesson.id !== 'mounting-bracket' ||
+    (lesson.id !== 'mounting-bracket' && lesson.id !== 'mounting-plate') ||
     !session ||
     !('profile' in session)
   )
     return null;
+  const lessonId =
+    lesson.id === 'mounting-plate' ? 'mounting-plate' : 'mounting-bracket';
   const transfer =
     lesson.transfer?.steps.some((s) => s.id === step.id) ?? false;
   const token = interaction.evidenceToken ?? null;
@@ -208,7 +214,7 @@ export function TutorPanel({
     try {
       const answer = await askTutor(
         {
-          lessonId: 'mounting-bracket',
+          lessonId,
           stepId: step.id,
           question: text,
           history,
@@ -297,6 +303,36 @@ export function TutorPanel({
               <TutorAnswerBlock answer={exchange.answer} />
             </div>
           ))}
+          <div className="tutor-suggestions" aria-label="Quick questions">
+            {exchanges.length > 0 &&
+              followUps.map((text) => (
+                <Button
+                  key={text}
+                  tabIndex={0}
+                  type="button"
+                  variant="ghost"
+                  className="glass-action"
+                  disabled={sending}
+                  onClick={() => void send(text)}
+                >
+                  {text}
+                </Button>
+              ))}
+            {exchanges.length === 0 &&
+              (step.askPrompts ?? []).map((text) => (
+                <Button
+                  key={text}
+                  tabIndex={0}
+                  type="button"
+                  variant="ghost"
+                  className="glass-action"
+                  disabled={sending}
+                  onClick={() => void send(text)}
+                >
+                  {text}
+                </Button>
+              ))}
+          </div>
           <form className="tutor-form" onSubmit={submit}>
             <label htmlFor={field}>Ask about this step</label>
             <textarea

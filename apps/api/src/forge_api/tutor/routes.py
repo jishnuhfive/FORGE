@@ -81,7 +81,8 @@ async def tutor(request: Request, auth: Runtime) -> Response:
     except ValueError, UnicodeError, TimeoutError:
         # Default validation errors would echo the learner's private question.
         raise HTTPException(400, "invalid_request") from None
-    if value.step_id not in CATALOG:
+    step = CATALOG.get(value.step_id)
+    if step is None or step.lesson != value.lesson_id:
         raise HTTPException(400, "invalid_request")
     if not auth.settings.ai_configured:
         raise HTTPException(503, "not_configured")

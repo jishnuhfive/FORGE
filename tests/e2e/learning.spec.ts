@@ -19,7 +19,7 @@ async function setup(page: Page) {
   await page
     .getByRole('radio', { name: 'Learn CAD fundamentals', exact: true })
     .check();
-  await page.getByRole('button', { name: 'Review sample lesson' }).click();
+  await page.getByRole('button', { name: 'Review lesson' }).click();
 }
 async function begin(page: Page) {
   await setup(page);
@@ -98,7 +98,7 @@ for (const width of [320, 360, 380, 400, 480, 640]) {
     await page
       .getByRole('radio', { name: 'Learn CAD fundamentals', exact: true })
       .check();
-    await page.getByRole('button', { name: 'Review sample lesson' }).click();
+    await page.getByRole('button', { name: 'Review lesson' }).click();
     await capture('C-introduction');
     await page.getByRole('button', { name: 'Begin lesson' }).click();
     await capture('D-active');

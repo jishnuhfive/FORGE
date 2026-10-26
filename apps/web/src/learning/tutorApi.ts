@@ -147,7 +147,7 @@ export function parseTutorAnswer(value: unknown): TutorAnswerView {
 }
 
 export interface TutorQuestion {
-  lessonId: 'mounting-bracket';
+  lessonId: 'mounting-bracket' | 'mounting-plate';
   stepId: string;
   question: string;
   history: TutorMessage[];

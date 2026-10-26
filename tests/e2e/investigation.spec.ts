@@ -127,7 +127,7 @@ async function open(page: Page, replies: object[]) {
   await frame.getByRole('tab', { name: 'Learn', exact: true }).click();
   await frame.getByRole('radio', { name: /^Beginner/ }).check();
   await frame
-    .getByRole('radio', { name: 'Complete a guided project', exact: true })
+    .getByRole('radio', { name: 'Build a mounting bracket', exact: true })
     .check();
   await frame.getByRole('button', { name: /^Review/ }).click();
   await frame.getByRole('button', { name: 'Begin lesson' }).click();

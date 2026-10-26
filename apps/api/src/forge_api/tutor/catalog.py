@@ -18,9 +18,14 @@ class CatalogStep:
     why: str
     concepts: tuple[str, ...]
     transfer: bool = False
+    lesson: str = "mounting-bracket"
 
 
 LESSON_TITLE = "Mounting bracket"
+LESSON_TITLES = {
+    "mounting-bracket": LESSON_TITLE,
+    "mounting-plate": "Mounting plate",
+}
 CATALOG: dict[str, CatalogStep] = {
     step.id: step
     for step in (
@@ -79,6 +84,71 @@ CATALOG: dict[str, CatalogStep] = {
         ),
     )
 }
+
+# Mirrors apps/web/src/learning/plate.ts by stable step id (a test fails on drift).
+# None of these steps has a deterministic checker: nothing here can be "verified".
+# Dimensions are authored reference values for the lesson's example plate, never
+# measurements of the learner's model.
+_PLATE = "mounting-plate"
+PLATE_STEPS: tuple[CatalogStep, ...] = (
+    CatalogStep(
+        "plate-sketch",
+        "Sketch the plate outline",
+        "Draw the flat outline the plate is built from.",
+        "A sketch is a flat 2D drawing. A closed outline (a profile) says what shape "
+        "the part has seen from above. It has no thickness yet.",
+        ("sketch", "closed profile"),
+        lesson=_PLATE,
+    ),
+    CatalogStep(
+        "plate-extrude",
+        "Extrude the outline into a plate",
+        "Give the outline thickness so it becomes a solid.",
+        "Extrude pushes a closed profile along one direction. The sketch decides the "
+        "outline; the Extrude decides how thick the solid is.",
+        ("extrude", "solid body", "depth versus outline"),
+        lesson=_PLATE,
+    ),
+    CatalogStep(
+        "plate-hole-sketch",
+        "Sketch where the holes go",
+        "Mark the hole positions and size on the plate.",
+        "A second sketch on the plate's face records where the holes go and how big "
+        "they are. Sketching alone removes no material.",
+        ("sketch on a face", "hole position"),
+        lesson=_PLATE,
+    ),
+    CatalogStep(
+        "plate-remove",
+        "Cut the holes with Extrude Remove",
+        "Remove material through the plate using the circles.",
+        "A hole is missing material. Remove cuts the sketch shape out of the existing "
+        "solid, while Add or New would build material instead.",
+        ("remove", "through all", "add versus remove"),
+        lesson=_PLATE,
+    ),
+    CatalogStep(
+        "plate-fillet",
+        "Round the top edges with a Fillet",
+        "Soften the sharp outer top edges.",
+        "A fillet rounds an edge. It is the last feature, so suppressing it (turning "
+        "it off without deleting it) brings back the sharp edges without changing "
+        "the plate or its holes.",
+        ("fillet", "suppress", "feature order"),
+        lesson=_PLATE,
+    ),
+    CatalogStep(
+        "plate-review",
+        "Read the feature tree as a story",
+        "See how the five operations build on one another.",
+        "Each feature uses what came before: a sketch feeds an Extrude and later "
+        "features refine the shape. Knowing the order shows which feature to edit; "
+        "thickness is the first Extrude's depth.",
+        ("feature order", "which feature controls what"),
+        lesson=_PLATE,
+    ),
+)
+CATALOG.update({step.id: step for step in PLATE_STEPS})
 # A catalog step without a checker (review) is fine; a step the checker owns must
 # exist here so the tutor never reasons about a step it has no content for.
 assert set(STEPS) <= set(CATALOG), "tutor catalog is missing a checked step"

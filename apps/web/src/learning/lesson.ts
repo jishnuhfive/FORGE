@@ -82,6 +82,8 @@ export interface LessonStep {
   expectation?: PredictionPrompt;
   // Authored mistake investigations, opened only by a blocking deterministic result.
   investigations?: Investigation[];
+  // One-tap tutor questions for this step; the learner still chooses to send one.
+  askPrompts?: string[];
   future?: {
     requirements?: LessonRequirement[];
     mistakeInvestigation?: { prompt: string };
@@ -98,6 +100,8 @@ export interface Lesson {
   steps: LessonStep[];
   completionMessage?: string;
   followUpChallenge?: { title: string; prompt: string };
+  // Replaces the generic 'sample lesson' progress wording where nothing is checked.
+  progressNote?: string;
   // A separate, more independent follow-up with its own progress.
   transfer?: TransferChallenge;
 }
@@ -224,7 +228,14 @@ function isStep(value: unknown): value is LessonStep {
     !record(
       value,
       ['id', 'title', 'objective', 'instruction', 'why', 'hints', 'completion'],
-      ['vocabulary', 'future', 'check', 'expectation', 'investigations'],
+      [
+        'vocabulary',
+        'future',
+        'check',
+        'expectation',
+        'investigations',
+        'askPrompts',
+      ],
     )
   )
     return false;
@@ -244,6 +255,16 @@ function isStep(value: unknown): value is LessonStep {
   )
     return false;
   if (Object.hasOwn(v, 'expectation') && !isPredictionPrompt(v.expectation))
+    return false;
+  if (
+    Object.hasOwn(v, 'askPrompts') &&
+    !list(
+      v.askPrompts,
+      (item): item is string => text(item) && item.length <= 160,
+      1,
+      4,
+    )
+  )
     return false;
   if (Object.hasOwn(v, 'investigations')) {
     if (
@@ -321,7 +342,7 @@ export function isLesson(value: unknown): value is Lesson {
         'prerequisites',
         'steps',
       ],
-      ['completionMessage', 'followUpChallenge', 'transfer'],
+      ['completionMessage', 'followUpChallenge', 'transfer', 'progressNote'],
     )
   )
     return false;
@@ -337,6 +358,7 @@ export function isLesson(value: unknown): value is Lesson {
     list(v.steps, isStep, 1) &&
     uniqueIds(v.steps) &&
     (!Object.hasOwn(v, 'completionMessage') || text(v.completionMessage)) &&
+    (!Object.hasOwn(v, 'progressNote') || text(v.progressNote)) &&
     (!Object.hasOwn(v, 'transfer') || isTransfer(v.transfer, v.steps)) &&
     (!Object.hasOwn(v, 'followUpChallenge') ||
       (record(v.followUpChallenge, ['title', 'prompt']) &&

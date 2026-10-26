@@ -183,12 +183,17 @@ def test_every_checked_step_has_tutor_content() -> None:
 
 
 def test_the_server_catalog_matches_the_authored_lesson_step_ids() -> None:
-    source = (
-        Path(__file__).resolve().parents[3] / "apps/web/src/learning/bracket.ts"
-    ).read_text(encoding="utf-8")
-    authored = re.findall(r"^\s{6,10}id: '([a-z-]+)',\s*$", source, re.MULTILINE)
-    steps = [i for i in authored if i in CATALOG]
-    assert set(steps) == set(CATALOG), "tutor catalog drifted from bracket.ts"
+    root = Path(__file__).resolve().parents[3] / "apps/web/src/learning"
+    for lesson, name in (
+        ("mounting-bracket", "bracket.ts"),
+        ("mounting-plate", "plate.ts"),
+    ):
+        source = (root / name).read_text(encoding="utf-8")
+        authored = re.findall(r"^\s{4,10}id: '([a-z-]+)',\s*$", source, re.MULTILINE)
+        owned = {i for i, step in CATALOG.items() if step.lesson == lesson}
+        steps = [i for i in authored if i in CATALOG and CATALOG[i].lesson == lesson]
+        assert set(steps) == owned, f"tutor catalog drifted from {name}"
+        assert owned
 
 
 # --- context -------------------------------------------------------------------

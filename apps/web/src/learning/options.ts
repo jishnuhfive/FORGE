@@ -22,6 +22,9 @@ export const experienceOptions: {
 ];
 export const goalOptions: { id: LearningGoal; title: string }[] = [
   { id: 'fundamentals', title: 'Learn CAD fundamentals' },
-  { id: 'guided-project', title: 'Complete a guided project' },
-  { id: 'design-reasoning', title: 'Understand why CAD operations are used' },
+  { id: 'guided-project', title: 'Build a mounting bracket' },
+  {
+    id: 'design-reasoning',
+    title: 'Follow a mounting plate from sketch to fillet',
+  },
 ];

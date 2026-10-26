@@ -160,7 +160,9 @@ function LearnWorkspace() {
               ? checkable
                 ? 'You build the model yourself. When you ask, Forge checks the parts of it that it can read.'
                 : 'This short fundamentals sample prepares you for future guided projects.'
-              : 'Start with this short fundamentals sample.'}
+              : lesson.progressNote
+                ? 'You build the plate yourself in Onshape. Forge explains why each operation is used.'
+                : 'Start with this short fundamentals sample.'}
           </p>
           <section className="learning-section">
             <h2>What you’ll explore</h2>
@@ -215,9 +217,11 @@ function LearnWorkspace() {
           <LessonProgress session={state} lesson={lesson} />
           <div className="learning-continuation">
             <p className="muted small">
-              {checkable
-                ? 'Marking a step done records your own progress. It is separate from what Forge verifies.'
-                : 'Forge isn’t checking the model in this sample lesson. Marking a step done records your own progress.'}
+              {lesson.progressNote
+                ? lesson.progressNote
+                : checkable
+                  ? 'Marking a step done records your own progress. It is separate from what Forge verifies.'
+                  : 'Forge isn’t checking the model in this sample lesson. Marking a step done records your own progress.'}
             </p>
             {interaction.completed && (
               <p role="status">Step marked done by you.</p>
@@ -238,7 +242,7 @@ function LearnWorkspace() {
                   : 'Next step'
                 : 'Mark step done'}
             </Button>
-            {!checkable && (
+            {!checkable && !lesson.progressNote && (
               <p className="muted small">
                 Model checking becomes available in supported guided projects.
               </p>
@@ -253,7 +257,9 @@ function LearnWorkspace() {
           <p className="muted">
             {checkable
               ? 'This summary reflects your lesson interactions, the steps you marked done and the steps Forge verified when you asked. Forge could not check dimensions, units, mass, fit or strength, and a verified step is not a guarantee that your design is correct.'
-              : 'This summary reflects your lesson interactions and steps you marked done. Forge did not inspect or check your CAD model.'}
+              : lesson.progressNote
+                ? 'This summary reflects your lesson interactions and the steps you marked done. Forge verified nothing in this lesson; it only read your model if you asked the tutor about it.'
+                : 'This summary reflects your lesson interactions and steps you marked done. Forge did not inspect or check your CAD model.'}
           </p>
           {lesson.followUpChallenge && (
             <section className="learning-section">

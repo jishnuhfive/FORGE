@@ -868,3 +868,17 @@ Top rectangle → additive blind Extrude, behind explicit whole-plan human appro
 the write flag. Full face-based circle/REMOVE execution remains planned pending its
 current-v17 contract capture. This does not declare Level-3 or Phase 16 live conformance
 complete. See SUBMISSION_CREATION.md for exact limits and human validation.
+
+## Phase 19C: mounting-plate Learn lesson
+
+A second Learn lesson, `mounting-plate` (sketch → Extrude → hole sketch → Extrude
+Remove → Fillet → feature-tree review), is selectable from setup. Every step is
+learner-reported: there is no deterministic checker, so nothing is "Verified".
+Dimensions in the lesson text belong to an authored reference plate and are never
+presented as measurements of the learner's model. Each step has an interactive
+prediction question and one-tap tutor questions; the tutor catalog
+(`apps/api/src/forge_api/tutor/catalog.py`) mirrors `plate.ts` by step id (a test
+fails on drift), rejects steps asked under the wrong lesson, and the tutor policy now
+asks for short answers adapted to the learner's stated experience. The tutor reads the
+learner's Part Studio only when asked, and only server-owned evidence is shown as
+observed.

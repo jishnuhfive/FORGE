@@ -147,7 +147,7 @@ function open(state: ClientState = connected(), auth: Me = me) {
   const view = render(tree(state, auth));
   fireEvent.click(screen.getByRole('radio', { name: /^Beginner/ }));
   fireEvent.click(
-    screen.getByRole('radio', { name: 'Complete a guided project' }),
+    screen.getByRole('radio', { name: 'Build a mounting bracket' }),
   );
   fireEvent.click(screen.getByRole('button', { name: /^Review/ }));
   fireEvent.click(screen.getByRole('button', { name: 'Begin lesson' }));
@@ -374,6 +374,7 @@ describe('answers and errors', () => {
     expect(
       within(observed).getByText('Forge sees no active extrude feature yet.'),
     ).toBeVisible();
+    fireEvent.click(screen.getByText(/^Still unknown \(1\)/));
     expect(
       within(screen.getByRole('region', { name: 'Still unknown' })).getByText(
         'Cannot read a thickness.',

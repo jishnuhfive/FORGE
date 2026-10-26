@@ -68,7 +68,7 @@ export function LearnerSetup({
           disabled={!experience || !goal}
           onClick={() => dispatch({ type: 'review' })}
         >
-          Review sample lesson
+          Review lesson
         </Button>
         <p className="muted small">
           Your choices and progress stay in this running panel. Closing or

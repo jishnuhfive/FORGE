@@ -173,7 +173,7 @@ async function open(
   await frame.getByRole('tab', { name: 'Learn', exact: true }).click();
   await frame.getByRole('radio', { name: /^Beginner/ }).check();
   await frame
-    .getByRole('radio', { name: 'Complete a guided project', exact: true })
+    .getByRole('radio', { name: 'Build a mounting bracket', exact: true })
     .check();
   await frame.getByRole('button', { name: /^Review/ }).click();
   await frame.getByRole('button', { name: 'Begin lesson' }).click();
@@ -222,6 +222,7 @@ test('A: a failing check, then Ask Forge explains without changing anything', as
   await expect(
     observed.getByText('Forge sees no active extrude feature yet.'),
   ).toBeVisible();
+  await frame.getByText(/^Still unknown \(\d+\)/).click();
   await expect(
     frame.getByRole('region', { name: 'Still unknown' }),
   ).toBeVisible();
@@ -408,6 +409,7 @@ test('F: the tutor is usable at 320px with reduced motion, no overflow and no ax
   await expect(
     frame.getByRole('region', { name: 'What Forge observed' }),
   ).toBeVisible();
+  await frame.getByText(/^Still unknown \(\d+\)/).click();
   await expect(
     frame.getByRole('region', { name: 'Still unknown' }),
   ).toBeVisible();

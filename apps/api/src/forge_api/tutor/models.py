@@ -8,6 +8,7 @@ from forge_api.ai.models import StrictModel
 from forge_api.integrations.onshape.contracts import WorkspaceReference
 
 LESSON_ID = "mounting-bracket"
+LESSON_IDS = ("mounting-bracket", "mounting-plate")
 Experience = Literal["beginner", "some-experience", "comfortable"]
 Goal = Literal["fundamentals", "guided-project", "design-reasoning"]
 Guidance = Literal["full", "reduced", "independent"]
@@ -42,7 +43,7 @@ class TutorMessage(StrictModel):
 
 
 class TutorRequest(StrictModel):
-    lesson_id: Literal["mounting-bracket"]
+    lesson_id: Literal["mounting-bracket", "mounting-plate"]
     step_id: Annotated[str, Field(min_length=1, max_length=64)]
     question: Annotated[str, Field(min_length=1, max_length=600)]
     history: list[TutorMessage] = Field(max_length=6)

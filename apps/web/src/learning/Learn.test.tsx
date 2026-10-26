@@ -11,7 +11,7 @@ function choose() {
   fireEvent.click(
     screen.getByRole('radio', { name: 'Learn CAD fundamentals' }),
   );
-  fireEvent.click(screen.getByRole('button', { name: 'Review sample lesson' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Review lesson' }));
 }
 function start() {
   choose();
@@ -54,7 +54,7 @@ describe('learning workspace', () => {
     ).toBeVisible();
     expect(screen.getAllByRole('radio')).toHaveLength(3);
     expect(
-      screen.getByRole('button', { name: 'Review sample lesson' }),
+      screen.getByRole('button', { name: 'Review lesson' }),
     ).toBeDisabled();
     expect(
       screen.queryByText('What would you like to work toward?'),
@@ -79,11 +79,9 @@ describe('learning workspace', () => {
     render(<Learn />);
     fireEvent.click(screen.getByRole('radio', { name: /^Comfortable/ }));
     fireEvent.click(
-      screen.getByRole('radio', { name: 'Complete a guided project' }),
+      screen.getByRole('radio', { name: 'Build a mounting bracket' }),
     );
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Review sample lesson' }),
-    );
+    fireEvent.click(screen.getByRole('button', { name: 'Review lesson' }));
     expect(screen.getByText(/Focus on the reasoning/)).toBeVisible();
     expect(
       screen.getByText(/prepares you for future guided projects/),
