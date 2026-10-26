@@ -29,7 +29,7 @@ async function markAndAdvance(page: Page, last = false) {
   await page
     .getByRole('button', { name: 'Mark step done', exact: true })
     .click();
-  await expect(page.getByRole('status')).toHaveText('Step marked done by you.');
+  await expect(page.getByRole('status')).toHaveText('Marked complete by you.');
   await page
     .getByRole('button', {
       name: last ? 'View completion summary' : 'Next step',

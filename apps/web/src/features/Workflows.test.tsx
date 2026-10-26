@@ -31,10 +31,12 @@ describe('Prompt composer', () => {
     );
     expect(screen.getByRole('button', { name: 'Send prompt' })).toBeDisabled();
     fireEvent.click(
-      screen.getByRole('button', { name: 'Design a NEMA 17 motor mount.' }),
+      screen.getByRole('button', {
+        name: 'How do I model a NEMA 17 motor mount in Onshape?',
+      }),
     );
     expect(screen.getByLabelText('Prompt')).toHaveValue(
-      'Design a NEMA 17 motor mount.',
+      'How do I model a NEMA 17 motor mount in Onshape?',
     );
     expect(screen.getByLabelText('Prompt')).toHaveFocus();
     expect(submit).not.toHaveBeenCalled();

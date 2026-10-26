@@ -2,16 +2,16 @@ import { Button, Dialog } from '@forge/design-system';
 
 const steps = [
   [
-    'Ask about the model',
-    'Understand features, parts and the evidence Forge can inspect.',
+    'Design it',
+    'Ask how to model something and get clear, step-by-step Onshape instructions you follow yourself.',
   ],
   [
-    'Review what is known',
-    'Open Evidence for observations. Unknowns and unverified guidance stay explicit.',
+    'Modify it',
+    'Describe a supported change to your model. Review the exact plan, approve it, and Forge verifies the result.',
   ],
   [
-    'Stay in control',
-    'Analysis starts only when you send. Sending shares your question, recent conversation and bounded CAD evidence with the configured AI service. Your CAD remains unchanged.',
+    'Understand it',
+    'Learn with guided lessons, predictions and hints, and ask Forge when you are stuck.',
   ],
 ];
 
@@ -29,7 +29,7 @@ export function Onboarding({
         if (!value) onClose();
       }}
       title="Welcome to Forge"
-      description="AI engineering inside Onshape. Understand your model with evidence you can review."
+      description="Design it. Modify it. Understand it."
     >
       <ol className="onboarding-steps">
         {steps.map(([title, description], i) => (
@@ -45,8 +45,8 @@ export function Onboarding({
         ))}
       </ol>
       <div className="notice">
-        Forge reads CAD and offers guidance. CAD changes and engineering
-        validation are unavailable.
+        Forge only changes your CAD after you approve an exact plan, and checks
+        the result afterwards. Engineering validation is not a certification.
       </div>
       <div className="action-bar">
         <Button variant="primary" onClick={onClose}>

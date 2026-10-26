@@ -149,12 +149,23 @@ function Limits({ items }: { items: string[] }) {
 export function AnswerContent({
   result,
   prompt = '',
+  onAsk,
+  askDisabled = false,
 }: {
   result: Answer;
   prompt?: string;
+  onAsk?: (question: string) => void;
+  askDisabled?: boolean;
 }) {
   if (result.guide)
-    return <GuideView guide={result.guide} note={result.uncertainties[0]} />;
+    return (
+      <GuideView
+        guide={result.guide}
+        note={result.uncertainties[0]}
+        onAsk={onAsk}
+        askDisabled={askDisabled}
+      />
+    );
   const friendly = friendlyAnswer(result, prompt);
   const summary = friendly ? null : modelSummary(result);
   const title =
@@ -282,7 +293,13 @@ export function AnswerContent({
           <p className="draft-text">{result.explanation}</p>
         </section>
       )}
-      {!friendly && <Supplementary result={result} />}
+      {!friendly && (
+        <Supplementary
+          result={result}
+          onAsk={onAsk}
+          askDisabled={askDisabled}
+        />
+      )}
       {!friendly &&
         result.evidence.length > 0 &&
         result.follow_up_questions.length === 0 && (
@@ -294,7 +311,15 @@ export function AnswerContent({
   );
 }
 
-function Supplementary({ result }: { result: Answer }) {
+function Supplementary({
+  result,
+  onAsk,
+  askDisabled = false,
+}: {
+  result: Answer;
+  onAsk?: (question: string) => void;
+  askDisabled?: boolean;
+}) {
   return (
     <>
       {result.discussion.trim() &&
@@ -315,11 +340,23 @@ function Supplementary({ result }: { result: Answer }) {
         </section>
       )}
       {result.follow_up_questions.length > 0 && (
-        <section className="answer-guidance">
+        <section className="answer-guidance answer-followups">
           <h3>To explore next</h3>
           <ul>
             {result.follow_up_questions.map((item, index) => (
-              <li key={index}>{item}</li>
+              <li key={index}>
+                {onAsk ? (
+                  <button
+                    type="button"
+                    disabled={askDisabled}
+                    onClick={() => onAsk(item)}
+                  >
+                    {item}
+                  </button>
+                ) : (
+                  item
+                )}
+              </li>
             ))}
           </ul>
         </section>
@@ -471,7 +508,16 @@ export function Analysis({
               <span className="sr-only">You</span>
               <p className="draft-text">{exchange.prompt}</p>
             </div>
-            <AnswerContent result={exchange.result} prompt={exchange.prompt} />
+            <AnswerContent
+              result={exchange.result}
+              prompt={exchange.prompt}
+              onAsk={
+                index === exchanges.length - 1
+                  ? (question) => void send(question)
+                  : undefined
+              }
+              askDisabled={stage !== null || cooling}
+            />
           </article>
         ))}
         {stage && exchanges.length > 0 && (

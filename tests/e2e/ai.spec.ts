@@ -572,12 +572,17 @@ test('modeling guide is readable, accessible and never overflows at 320px', asyn
   await expect(
     h.frame.getByRole('list', { name: 'Modeling steps' }),
   ).toBeVisible();
-  await h.frame.getByText('Why this step matters').first().click();
+  await h.frame.getByText('Why this matters').first().click();
   expect(
     await h.child.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
+  // The mode switcher tucks away while the pane is scrolled; audit it in view.
+  await h.child.evaluate(() => {
+    document.querySelector('.workspace-pane')!.scrollTop = 0;
+  });
+  await page.waitForTimeout(400);
   expect(
     (
       await new AxeBuilder({ page })

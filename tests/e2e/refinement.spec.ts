@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdir } from 'node:fs/promises';
 import { signedIn } from './auth-fixtures';
@@ -10,6 +11,19 @@ import {
   faceSelection,
   edgeSelection,
 } from '../../apps/web/src/onshape/__fixtures__/selection';
+
+// The mode switcher tucks away while the pane is scrolled and eases its colours on
+// change; audit it in view and at rest.
+async function settleNav(page: Page) {
+  for (const frame of page.frames())
+    await frame
+      .evaluate(() => {
+        const pane = document.querySelector('.workspace-pane');
+        if (pane) pane.scrollTop = 0;
+      })
+      .catch(() => undefined);
+  await page.waitForTimeout(450);
+}
 
 const output = '.cache/phase6.5-final';
 const query = `documentId=${'a'.repeat(24)}&workspaceOrVersion=w&workspaceOrVersionId=${'b'.repeat(24)}&elementId=${'c'.repeat(24)}&server=https://cad.onshape.com`;
@@ -32,6 +46,7 @@ for (const view of ['Material comparison', 'Logo candidates']) {
         .getByRole('heading', { name: 'Material comparison', exact: true })
         .click();
     }
+    await settleNav(page);
     expect(
       (
         await new AxeBuilder({ page })
@@ -183,6 +198,7 @@ for (const width of [320, 380, 480]) {
     });
     await expect(input).toBeInViewport();
     await expect(frame.locator('.app-header')).toBeInViewport();
+    await settleNav(page);
     expect(
       (
         await new AxeBuilder({ page })
@@ -239,6 +255,7 @@ test('refinement opaque and motion reductions preserve composition and zero idle
           .filter((animation) => animation.playState === 'running').length,
     ),
   ).toBe(0);
+  await settleNav(page);
   expect(
     (
       await new AxeBuilder({ page })

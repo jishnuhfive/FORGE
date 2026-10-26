@@ -29,7 +29,9 @@ describe('Forge application foundation', () => {
     expect(
       screen.getByRole('dialog', { name: 'Welcome to Forge' }),
     ).toBeVisible();
-    expect(screen.getByText(/AI engineering inside Onshape/)).toBeVisible();
+    expect(
+      screen.getByText('Design it. Modify it. Understand it.'),
+    ).toBeVisible();
     dismissIntro();
     expect(screen.getByRole('main')).toBeVisible();
     expect(screen.getByRole('link', { name: 'Forge workspace' })).toBeVisible();
@@ -40,6 +42,31 @@ describe('Forge application foundation', () => {
       }),
     ).toBeVisible();
     expect(screen.getByText('Local design draft')).toBeVisible();
+  });
+  it('offers no automatic Create entry point in any mode or in the introduction', () => {
+    render(<App />);
+    const absent = () => {
+      expect(
+        screen.queryByRole('button', { name: /^create$/i }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('tab', { name: /create/i }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('group', { name: 'Design mode' }),
+      ).not.toBeInTheDocument();
+      expect(screen.queryByText(/^Create$/)).not.toBeInTheDocument();
+    };
+    // First-run introduction.
+    absent();
+    dismissIntro();
+    for (const name of ['Design', 'Modify', 'Learn']) {
+      fireEvent.mouseDown(screen.getByRole('tab', { name }), { button: 0 });
+      absent();
+    }
+    expect(
+      screen.getByRole('tablist', { name: 'Engineering mode' }).children,
+    ).toHaveLength(4); // pill + three modes
   });
   it('persists skipped onboarding and does not reopen on a new mount', () => {
     const first = render(<App />);

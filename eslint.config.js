@@ -13,6 +13,7 @@ export default tseslint.config(
       '**/.uv-cache/**',
       '**/.npm-cache/**',
       '**/.cache/**',
+      '.claude/**',
       '**/.playwright/**',
       'playwright-report/**',
       'test-results/**',

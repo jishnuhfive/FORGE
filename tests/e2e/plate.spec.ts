@@ -1,6 +1,20 @@
 import { expect, test } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { authenticatedFixture } from './auth-fixtures';
+
+// The mode switcher tucks away while the pane is scrolled and eases its colours on
+// change; audit it in view and at rest.
+async function settleNav(page: Page) {
+  for (const frame of page.frames())
+    await frame
+      .evaluate(() => {
+        const pane = document.querySelector('.workspace-pane');
+        if (pane) pane.scrollTop = 0;
+      })
+      .catch(() => undefined);
+  await page.waitForTimeout(450);
+}
 
 test('mounting plate lesson is readable, honest and accessible at 320px', async ({
   page,
@@ -35,6 +49,7 @@ test('mounting plate lesson is readable, honest and accessible at 320px', async 
       document.documentElement.clientWidth,
   );
   expect(overflow).toBe(false);
+  await settleNav(page);
   const results = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
     .analyze();

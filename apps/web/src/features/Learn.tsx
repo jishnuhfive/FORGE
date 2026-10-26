@@ -123,11 +123,34 @@ function LearnWorkspace() {
           Reset lesson
         </Button>
       </div>
-      {active && (
-        <p className="muted small">
-          Step {'stepIndex' in state ? state.stepIndex + 1 : 1} of{' '}
-          {lesson.steps.length}
-        </p>
+      {active && state.phase === 'active' && (
+        <div className="step-rail">
+          <ol className="step-dots" aria-label="Lesson steps">
+            {lesson.steps.map((step, index) => (
+              <li
+                key={step.id}
+                data-state={
+                  index === state.stepIndex
+                    ? 'current'
+                    : state.interactions[index]?.completed
+                      ? 'done'
+                      : 'todo'
+                }
+                aria-current={index === state.stepIndex ? 'step' : undefined}
+              >
+                <span className="sr-only">
+                  {step.title}
+                  {state.interactions[index]?.completed
+                    ? ', marked complete by you'
+                    : ''}
+                </span>
+              </li>
+            ))}
+          </ol>
+          <p className="muted small">
+            Step {state.stepIndex + 1} of {lesson.steps.length}
+          </p>
+        </div>
       )}
       <h1 ref={heading} tabIndex={-1} className="learning-title">
         {title}
@@ -224,7 +247,7 @@ function LearnWorkspace() {
                   : 'Forge isn’t checking the model in this sample lesson. Marking a step done records your own progress.'}
             </p>
             {interaction.completed && (
-              <p role="status">Step marked done by you.</p>
+              <p role="status">Marked complete by you.</p>
             )}
             <Button
               tabIndex={0}
@@ -324,7 +347,7 @@ function LearnWorkspace() {
                     separate from what Forge verifies.
                   </p>
                   {challengeInteraction.completed && (
-                    <p role="status">Challenge marked done by you.</p>
+                    <p role="status">Marked complete by you.</p>
                   )}
                   <Button
                     tabIndex={0}

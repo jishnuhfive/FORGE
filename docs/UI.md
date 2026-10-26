@@ -379,8 +379,45 @@ remains read-only and student-operated, independently of Modify availability.
 
 ## Phase 11 Ask Forge
 
-A collapsed "Ask Forge" disclosure after the check result and investigation on Mounting Bracket steps and the
+(Phase 19D replaced the inline disclosure with the floating launcher and chat described below.) A collapsed "Ask Forge" disclosure after the check result and investigation on Mounting Bracket steps and the
 transfer challenge. One question field (600 characters, Ctrl/Cmd+Enter), Stop, polite status, fixed-copy alerts that
 always say the lesson still works, and answers rendered explanation-first with server-worded "What Forge observed",
 "Still unknown", "Next thing to try" and notes. The conversation is cleared on step, document, login or lesson change.
 Tested at 320 px, light/dark, reduced motion and with axe.
+
+## Phase 19D product design transformation
+
+**Direction.** Operate-mode product UI: one dark-first, restrained system with a single blue accent, solid recessed
+tracks and raised pills instead of decorative glass, and 12-20px rounded shapes. It reads correctly with all motion
+disabled. Typography stays on the system sans stack; no external fonts were added.
+
+**Brand.** The mark is an F cut from a sketch profile. Stem and two arms share one sheared end (the extrude
+direction) and a dot in the negative space marks the sketch origin. Sources are `apps/web/public/brand/forge-mark.svg`
+(colour), `forge-mark-mono.svg` (currentColor), `forge-wordmark.svg`, and `forge-icon.svg` (favicon tile); the
+`ForgeMark` component mirrors the same paths and a test keeps them identical. It stays legible at 16-24px.
+
+**Mode switcher.** `Tabs` (Radix, unchanged semantics and keyboard) now drives one raised pill with a velocity-preserving
+spring (`useSegmentIndicator`: stiffness 560, damping 38, a small stretch capped at 14px while moving). Selection
+changes immediately; the animation is presentation only, retargets mid-flight from its live position, and snaps
+under `prefers-reduced-motion` or `data-motion="reduced"`. A press on the selected segment compresses the pill.
+
+**Motion vocabulary.** Buttons, choice cards, chips and disclosures compress to about 97% on press (90ms) and return on
+the `--ease-spring` curve (a sampled `linear()` spring with one small overshoot). Animations never gate business
+logic; Modify approval is still a single dispatch regardless of clicks.
+
+**Create.** The automatic Create mode is no longer rendered anywhere: Design opens straight into Ask. The Creation
+backend, client module, records and recovery are untouched and unreachable from the UI. History still reports
+earlier activity honestly.
+
+**Design → Ask.** Ordinary questions are short conversational answers. Modeling guides show a title, one-sentence summary,
+dimension chips and then numbered steps with the first step open; "Done, next step" advances and tracks the reader's
+own progress (never CAD verification), and "Show all steps" expands everything. Mistakes and the checklist are
+collapsible; follow-ups are one-tap questions. The model policies carry a short `VOICE` paragraph for brevity.
+
+**Modify.** A Request → Plan → Review → Approve → Verify rail, a tone-coded status block, the user's request, and a
+Now → After approval comparison from the server's operation data. After an attempt the second chip becomes Verified now
+(server `verified_success` only), Intended, unconfirmed, or Not applied.
+
+**Learn.** A segmented step rail and "Marked complete by you." wording. Ask Forge is a floating launcher that expands
+from its corner into a non-modal chat (Escape or Minimize returns focus to the launcher; the conversation and unsent
+draft survive minimizing and clear on step, document or login change).

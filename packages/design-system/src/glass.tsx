@@ -114,6 +114,11 @@ export function GlassSurface({
   );
 }
 
+/**
+ * The FORGE mark: an F cut from a sketch profile. Both arms end on the same shear
+ * (the extrude direction); the dot is the sketch origin left in the negative space.
+ * Mirrors public/brand/forge-mark.svg.
+ */
 export function ForgeMark({ className = '' }: { className?: string }) {
   return (
     <svg
@@ -123,18 +128,10 @@ export function ForgeMark({ className = '' }: { className?: string }) {
       aria-hidden="true"
       focusable="false"
     >
-      <path
-        className="mark-plane mark-plane--sketch"
-        d="M4 8 21 3 28 9 11 14Z"
-      />
-      <path
-        className="mark-plane mark-plane--extrude"
-        d="M4 12 11 17 11 29 4 24Z"
-      />
-      <path
-        className="mark-plane mark-plane--object"
-        d="M13 17 22 14 27 19 13 23Z"
-      />
+      <path className="mark-stem" d="M5 4h6v24H5Z" />
+      <path className="mark-arm" d="M13 4h14l-3.5 6H13Z" />
+      <path className="mark-arm mark-arm--mid" d="M13 14h10l-3.5 6H13Z" />
+      <circle className="mark-origin" cx="22" cy="25" r="3" />
     </svg>
   );
 }

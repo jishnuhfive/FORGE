@@ -160,6 +160,21 @@ def test_policy_forbids_invented_dimensions_and_claims_about_the_model() -> None
         assert text in GUIDE_POLICY
 
 
+def test_policies_ask_for_short_beginner_friendly_answers_without_weakening_limits() -> (
+    None
+):
+    from forge_api.ai.policy import POLICY
+
+    for policy in (POLICY, GUIDE_POLICY):
+        assert "VOICE:" in policy
+        assert "beginner" in policy
+    # Brevity guidance sits beside, never instead of, the grounding rules.
+    assert "Never invent dimensions" in GUIDE_POLICY
+    assert "NO tools" in GUIDE_POLICY
+    assert "Brevity never relaxes grounding" in POLICY
+    assert "HARD UNKNOWN" in POLICY
+
+
 def test_existing_model_question_inspects_and_keeps_explanation_separate(
     harness: Harness,
 ) -> None:

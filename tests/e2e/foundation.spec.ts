@@ -42,11 +42,13 @@ for (const width of [320, 380, 480, 1280]) {
       page.getByRole('button', { name: 'Send prompt' }),
     ).toBeDisabled();
     await page
-      .getByRole('button', { name: 'Design a NEMA 17 motor mount.' })
+      .getByRole('button', {
+        name: 'How do I model a NEMA 17 motor mount in Onshape?',
+      })
       .click();
     await expect(page.getByLabel('Design prompt')).toBeFocused();
     await expect(page.getByLabel('Design prompt')).toHaveValue(
-      'Design a NEMA 17 motor mount.',
+      'How do I model a NEMA 17 motor mount in Onshape?',
     );
     await page.getByLabel('Design prompt').press('Control+Enter');
     await expect(page.getByText('Your local draft')).toBeVisible();

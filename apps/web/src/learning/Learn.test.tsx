@@ -174,7 +174,7 @@ describe('learning workspace', () => {
     start();
     done();
     expect(screen.getByRole('status')).toHaveTextContent(
-      'Step marked done by you.',
+      'Marked complete by you.',
     );
     expect(screen.getByText('Steps completed: 1 of 3')).toBeVisible();
     fireEvent.click(screen.getByRole('button', { name: 'Next step' }));

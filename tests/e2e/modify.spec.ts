@@ -386,6 +386,11 @@ test('B2 320px preview is accessible without horizontal overflow', async ({
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
+  // The mode switcher tucks away while the pane is scrolled; audit it in view.
+  await actualFrame.evaluate(() => {
+    document.querySelector('.workspace-pane')!.scrollTop = 0;
+  });
+  await page.waitForTimeout(400);
   expect(
     (
       await new AxeBuilder({ page })

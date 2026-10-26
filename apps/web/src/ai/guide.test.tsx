@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { OnshapeClientContext } from '../onshape/model';
 import { Analysis } from './Analysis';
@@ -41,7 +41,10 @@ function stub(...results: (object | Response)[]) {
   vi.stubGlobal('fetch', fetch);
   return fetch;
 }
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.useRealTimers();
+  vi.unstubAllGlobals();
+});
 
 describe('Design → Ask modeling guidance', () => {
   it('renders a numbered guide with controls, checks, mistakes and checklist', async () => {
@@ -72,12 +75,70 @@ describe('Design → Ask modeling guidance', () => {
     expect(screen.queryByRole('button', { name: 'Evidence' })).toBeNull();
   });
 
+  it('opens one step first, keeps every step in the document and advances on demand', async () => {
+    stub(syntheticGuideAnswer);
+    mount();
+    ask('Walk me through making a 60 × 40 × 10 mm plate');
+    const steps = await screen.findByRole('list', { name: 'Modeling steps' });
+    const headers = within(steps)
+      .getAllByRole('button')
+      .filter((button) => button.hasAttribute('aria-expanded'));
+    expect(headers.map((h) => h.getAttribute('aria-expanded'))).toEqual([
+      'true',
+      'false',
+    ]);
+    // Collapsed content is inert for every reader but still part of the page.
+    const second = headers[1]!.getAttribute('aria-controls')!;
+    expect(document.getElementById(second)).toHaveAttribute('inert');
+    expect(screen.getByText('0 of 2 done')).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: /Done, next step/ }));
+    expect(screen.getByText('1 of 2 done')).toBeVisible();
+    expect(headers[0]).toHaveAttribute('aria-expanded', 'false');
+    expect(headers[1]).toHaveAttribute('aria-expanded', 'true');
+    expect(document.getElementById(second)).not.toHaveAttribute('inert');
+    // Progress is the reader's own mark, never a CAD verification.
+    expect(
+      screen.getByRole('progressbar', {
+        name: 'Your progress through the steps',
+      }),
+    ).toHaveAttribute('aria-valuetext', '1 of 2 steps marked done by you');
+    fireEvent.click(screen.getByRole('button', { name: 'Show all steps' }));
+    expect(
+      headers.every((h) => h.getAttribute('aria-expanded') === 'true'),
+    ).toBe(true);
+    fireEvent.click(screen.getByRole('button', { name: 'Collapse all' }));
+    expect(
+      headers.some((h) => h.getAttribute('aria-expanded') === 'true'),
+    ).toBe(false);
+  });
+  it('turns follow-up suggestions into one-tap questions that stay in guidance', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const fetch = stub(syntheticGuideAnswer, syntheticGuideAnswer);
+    mount();
+    ask('Walk me through making a plate');
+    await screen.findByRole('list', { name: 'Modeling steps' });
+    const chip = screen.getByRole('button', {
+      name: syntheticGuide.follow_ups[0]!,
+    });
+    // The server's request cooldown disables the chip instead of silently ignoring it.
+    expect(chip).toBeDisabled();
+    act(() => {
+      vi.advanceTimersByTime(6000);
+    });
+    expect(chip).toBeEnabled();
+    fireEvent.click(chip);
+    await vi.waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
+    const body = JSON.parse(fetch.mock.calls[1]![1].body as string);
+    expect(body.prompt ?? body.message ?? JSON.stringify(body)).toContain(
+      syntheticGuide.follow_ups[0]!,
+    );
+  });
   it('keeps the rationale collapsed until requested', async () => {
     stub(syntheticGuideAnswer);
     mount();
     ask('Walk me through it');
     await screen.findByRole('list', { name: 'Modeling steps' });
-    const [first] = screen.getAllByText('Why this step matters');
+    const [first] = screen.getAllByText('Why this matters');
     const details = first!.closest('details')!;
     expect(details.open).toBe(false);
     fireEvent.click(first!);

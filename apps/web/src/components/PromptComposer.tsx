@@ -3,8 +3,8 @@ import { ArrowUp, CornerDownLeft, Info, Scan, Square } from 'lucide-react';
 import { useId, useLayoutEffect, useRef, useState } from 'react';
 
 const defaults = [
-  'Design a NEMA 17 motor mount.',
-  'Create a carriage for two 8 mm rails.',
+  'How do I model a NEMA 17 motor mount in Onshape?',
+  'Walk me through modeling a carriage for two 8 mm rails.',
   'Help me design a belt-driven camera slider.',
 ];
 export function PromptComposer({

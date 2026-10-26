@@ -57,7 +57,7 @@ export function Shell({
                 label: 'About Forge',
                 onSelect: () =>
                   onNotify(
-                    'Forge inspects and explains your CAD. Changes are planned; no engineering validation has run.',
+                    'Forge teaches modeling, explains your CAD, and changes it only after you approve an exact plan. It is not an engineering certification.',
                   ),
               },
             ]}
@@ -123,7 +123,8 @@ export function Shell({
         </p>
         <p className="muted small">
           Selection changes and CAD inspection do not start AI analysis. No
-          engineering validation has run. Forge cannot change CAD.
+          engineering validation has run. Forge changes CAD only in Modify,
+          after you approve an exact plan.
         </p>
         <a
           className="text-link"

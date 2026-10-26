@@ -188,6 +188,11 @@ async function ready() {
 const approveClick = () =>
   fireEvent.click(screen.getByRole('button', { name: /Approve \d changes?/ }));
 
+const rowsOutcome = () =>
+  [...document.querySelectorAll('.modify-change')].map((row) =>
+    row.getAttribute('data-outcome'),
+  );
+
 describe('live natural-language Modify', () => {
   it.each([
     'write_disabled',
@@ -317,6 +322,46 @@ describe('live natural-language Modify', () => {
         screen.getByRole('list', { name: 'Planned changes' }),
       ).getAllByText('Verified'),
     ).toHaveLength(3);
+  });
+  it('frames before and after honestly: review, then verified only on server verification', async () => {
+    await ready();
+    const flow = screen.getByRole('list', { name: 'Modify progress' });
+    expect(within(flow).getByText('Review')).toHaveAttribute(
+      'aria-current',
+      'step',
+    );
+    const rows = () =>
+      [...document.querySelectorAll('.modify-change')].map((row) =>
+        row.getAttribute('data-outcome'),
+      );
+    expect(rows()).toEqual(['review', 'review', 'review']);
+    approveClick();
+    await screen.findByRole('heading', { name: 'Plan verified' });
+    expect(rows()).toEqual(['verified', 'verified', 'verified']);
+    expect(
+      document.querySelector('.modify-summary')?.getAttribute('data-tone'),
+    ).toBe('success');
+    expect(within(flow).getByText('Verify')).toHaveAttribute(
+      'aria-current',
+      'step',
+    );
+  });
+  it('never styles an unconfirmed result as success', async () => {
+    approval = async () =>
+      ndjson([
+        { type: 'progress', operation: 1, total: 3, stage: 'executing' },
+      ]);
+    await ready();
+    approveClick();
+    await screen.findByRole('heading', {
+      name: 'Forge could not confirm the final result.',
+    });
+    expect(
+      document.querySelector('.modify-summary')?.getAttribute('data-tone'),
+    ).toBe('uncertain');
+    expect(rowsOutcome()).not.toContain('verified');
+    expect(rowsOutcome()[0]).toBe('uncertain');
+    expect(screen.queryByText('Plan verified')).toBeNull();
   });
   it.each([1, 5])(
     'verifies a complete %i-operation stream within its bounds',

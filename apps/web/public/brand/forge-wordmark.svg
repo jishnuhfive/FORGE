@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 32" fill="currentColor" role="img" aria-label="FORGE">
+  <title>FORGE</title>
+  <path d="M5 4h6v24H5Z"/>
+  <path d="M13 4h14l-3.5 6H13Z"/>
+  <path d="M13 14h10l-3.5 6H13Z"/>
+  <circle cx="22" cy="25" r="3"/>
+  <text x="40" y="22.5" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif" font-size="17" font-weight="650" letter-spacing="3.4">FORGE</text>
+</svg>

@@ -631,3 +631,77 @@ describe('accessibility', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });
+
+describe('expandable Ask Forge chat', () => {
+  const launcher = () => screen.getByRole('button', { name: /^Ask Forge$/ });
+  it('opens from the launcher as a non-modal chat that names the step and focuses the composer', async () => {
+    open();
+    expect(
+      screen.queryByRole('dialog', { name: 'Ask Forge chat' }),
+    ).not.toBeInTheDocument();
+    fireEvent.click(launcher());
+    const sheet = screen.getByRole('dialog', { name: 'Ask Forge chat' });
+    expect(sheet).toHaveAttribute('aria-modal', 'false');
+    expect(within(sheet).getByText(/^Step 1 · /)).toBeVisible();
+    expect(launcher()).toHaveAttribute('aria-expanded', 'true');
+    await waitFor(() =>
+      expect(screen.getByLabelText('Ask about this step')).toHaveFocus(),
+    );
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+  it('keeps the whole conversation when minimized and reopened, and returns focus', async () => {
+    open();
+    ask('Why extrude?');
+    send();
+    await screen.findByText('An extrusion gives a sketch depth.');
+    fireEvent.click(screen.getByRole('button', { name: 'Minimize Ask Forge' }));
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('dialog', { name: 'Ask Forge chat' }),
+      ).not.toBeInTheDocument(),
+    );
+    await waitFor(() => expect(launcher()).toHaveFocus());
+    expect(launcher()).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(launcher());
+    expect(screen.getByText('Why extrude?')).toBeVisible();
+    expect(
+      screen.getByText('An extrusion gives a sketch depth.'),
+    ).toBeVisible();
+    // Reopening never re-asks.
+    expect(tutorCalls).toHaveLength(1);
+  });
+  it('minimizes on Escape without discarding an unsent draft', async () => {
+    open();
+    ask('A half-written question');
+    fireEvent.keyDown(screen.getByLabelText('Ask about this step'), {
+      key: 'Escape',
+    });
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('dialog', { name: 'Ask Forge chat' }),
+      ).not.toBeInTheDocument(),
+    );
+    fireEvent.click(launcher());
+    expect(screen.getByLabelText('Ask about this step')).toHaveValue(
+      'A half-written question',
+    );
+    expect(tutorCalls).toHaveLength(0);
+  });
+  it('offers follow-up chips after an answer and sends one only when chosen', async () => {
+    open();
+    ask('Why extrude?');
+    send();
+    await screen.findByText('An extrusion gives a sketch depth.');
+    expect(tutorCalls).toHaveLength(1);
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Say that more simply.' }),
+    );
+    await waitFor(() => expect(tutorCalls).toHaveLength(2));
+    expect(body(1).question).toBe('Say that more simply.');
+    // The conversation so far travels with the follow-up.
+    expect(body(1).history.map((item) => item.role)).toEqual([
+      'user',
+      'assistant',
+    ]);
+  });
+});

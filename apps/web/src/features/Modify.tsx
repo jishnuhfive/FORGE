@@ -74,6 +74,24 @@ export function Modify({
     />
   );
 }
+// How a planned change is framed beside its before/after values. Presentation only:
+// "verified" appears solely for a server-reported verified_success.
+function outcomeOf(
+  state: OperationState | undefined,
+  uncertain: boolean | undefined,
+  finished: boolean,
+) {
+  if (state === 'verified_success') return 'verified';
+  if (state === 'execution_uncertain' || (uncertain && state === 'pending'))
+    return 'uncertain';
+  if (
+    state === 'write_failed' ||
+    state === 'rejected_stale' ||
+    (finished && state === 'skipped')
+  )
+    return 'not-applied';
+  return 'review';
+}
 const stateLabels: Record<OperationState, string> = {
   pending: 'Awaiting execution',
   checking: 'Checking…',
@@ -325,12 +343,58 @@ function ModifyFlow({
       'write_failed',
       'cancelled',
     ].includes(result.state);
+  // Presentation only: where the learner is in Request → Plan → Review →
+  // Approve → Verify. Nothing here gates or triggers an action.
+  const phase =
+    busy === 'planning'
+      ? 1
+      : !preview
+        ? 0
+        : result?.state === 'verified_success'
+          ? 4
+          : result || attempted
+            ? busy === 'approving' || inFlight || uncertain
+              ? 3
+              : 4
+            : busy === 'approving'
+              ? 3
+              : 2;
+  const tone =
+    busy || inFlight
+      ? 'progress'
+      : uncertain
+        ? 'uncertain'
+        : result?.state === 'verified_success'
+          ? 'success'
+          : result?.state === 'rejected_stale'
+            ? 'stale'
+            : result?.state === 'cancelled'
+              ? 'neutral'
+              : result?.state === 'write_failed' ||
+                  result?.state === 'partial_failure'
+                ? 'failed'
+                : undefined;
   return (
     <div className="feature modify-feature">
       <div className="feature-heading">
         <h1>Modify</h1>
         <p>Describe a change. Review the exact plan before Forge applies it.</p>
       </div>
+      <ol className="modify-flow" aria-label="Modify progress">
+        {['Request', 'Plan', 'Review', 'Approve', 'Verify'].map(
+          (label, index) => (
+            <li
+              key={label}
+              data-state={
+                index < phase ? 'done' : index === phase ? 'current' : 'todo'
+              }
+              aria-current={index === phase ? 'step' : undefined}
+            >
+              {label}
+            </li>
+          ),
+        )}
+      </ol>
       <p className="muted small">
         Rename supported features, change an Extrude depth or Fillet radius, or
         suppress or unsuppress the final Fillet. Up to five changes per plan.
@@ -463,6 +527,7 @@ function ModifyFlow({
         aria-live="polite"
         aria-atomic="true"
         className="modify-summary"
+        data-tone={tone}
       >
         {busy && <p>{busyLabels[busy]}</p>}
         {result?.state === 'verified_success' && (
@@ -531,6 +596,12 @@ function ModifyFlow({
           <h2>
             {attempted || result ? 'Reviewed changes' : 'Plan ready for review'}
           </h2>
+          {intent.trim() && (
+            <p className="modify-asked">
+              <span className="muted small">You asked</span>
+              {intent.trim()}
+            </p>
+          )}
           <ol className="modify-operations" aria-label="Planned changes">
             {preview.operations.map((operation, i) => (
               <li key={i}>
@@ -554,7 +625,10 @@ function ModifyFlow({
                   {operation.feature_type === 'extrude' ? 'Extrude' : 'Fillet'}{' '}
                   · position {operation.position}
                 </p>
-                <dl className="context-list">
+                <dl
+                  className="context-list modify-change"
+                  data-outcome={outcomeOf(states[i], uncertain, !!result)}
+                >
                   <div>
                     <dt>{operation.field}</dt>
                     <dd>

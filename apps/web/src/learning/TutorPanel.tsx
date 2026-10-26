@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import type { FormEvent, KeyboardEvent } from 'react';
-import { Button, StatusBadge } from '@forge/design-system';
-import { ChevronRight } from 'lucide-react';
+import { Button, ForgeMark, StatusBadge } from '@forge/design-system';
+import { ArrowUp, Minus, Square } from 'lucide-react';
 import { useAuth } from '../auth/context';
 import { useOnshapeContext } from '../onshape/store';
 import { statusLabel, statusTone } from './checkStatus';
@@ -159,6 +159,13 @@ export function TutorPanel({
   const client = useOnshapeContext();
   const learning = useLearning();
   const [open, setOpen] = useState(false);
+  // The sheet stays mounted briefly after minimizing so it can fold back into the
+  // launcher. Conversation state lives in this component, not in the sheet.
+  const [present, setPresent] = useState(false);
+  const launcher = useRef<HTMLButtonElement | null>(null);
+  const composer = useRef<HTMLTextAreaElement | null>(null);
+  const scroller = useRef<HTMLDivElement | null>(null);
+  const settle = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [draft, setDraft] = useState('');
   const [exchanges, setExchanges] = useState<Exchange[]>([]);
   const [sending, setSending] = useState(false);
@@ -168,7 +175,19 @@ export function TutorPanel({
   const controller = useRef<AbortController | null>(null);
   const panel = useId();
   const field = useId();
-  useEffect(() => () => controller.current?.abort(), []);
+  useEffect(
+    () => () => {
+      controller.current?.abort();
+      if (settle.current) clearTimeout(settle.current);
+    },
+    [],
+  );
+  const turns = exchanges.length;
+  useEffect(() => {
+    const node = scroller.current;
+    if (node && turns > 0)
+      node.scrollTo?.({ top: node.scrollHeight, behavior: 'smooth' });
+  }, [turns]);
   const lesson = learning?.lesson;
   const session = learning?.session;
   if (
@@ -269,124 +288,195 @@ export function TutorPanel({
     }
   }
   const empty = draft.trim().length === 0;
+  const quiet = () =>
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true ||
+    document.querySelector('[data-motion="reduced"]') !== null;
+  function expand() {
+    if (settle.current) clearTimeout(settle.current);
+    setPresent(true);
+    setOpen(true);
+    // The composer exists after this commit; focus it for immediate typing.
+    requestAnimationFrame(() => composer.current?.focus());
+  }
+  function minimize() {
+    setOpen(false);
+    // The launcher is hidden while expanded; focus it once it is visible again.
+    requestAnimationFrame(() => launcher.current?.focus());
+    if (settle.current) clearTimeout(settle.current);
+    settle.current = setTimeout(() => setPresent(false), quiet() ? 0 : 220);
+  }
+  function sheetKey(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === 'Escape' && !event.defaultPrevented) {
+      event.stopPropagation();
+      minimize();
+    }
+  }
+  const stepNumber = lesson.steps.findIndex((item) => item.id === step.id);
+  const where =
+    stepNumber >= 0 ? `Step ${stepNumber + 1} · ${step.title}` : step.title;
+  const suggestions =
+    exchanges.length > 0 ? followUps : (step.askPrompts ?? []);
   return (
     <section className="learning-tutor" aria-label="Ask Forge">
-      <Button
-        tabIndex={0}
-        variant="ghost"
-        className="glass-action"
+      <button
+        ref={launcher}
+        type="button"
+        className="ask-launcher"
         aria-expanded={open}
-        aria-controls={open ? panel : undefined}
-        onClick={() => setOpen((value) => !value)}
+        aria-controls={present ? panel : undefined}
+        aria-haspopup="dialog"
+        onClick={() => (open ? minimize() : expand())}
       >
-        Ask Forge
-        <ChevronRight
-          size={14}
-          className={`disclosure-icon ${open ? 'is-open' : ''}`}
-          aria-hidden="true"
-        />
-      </Button>
-      {open && (
-        <div id={panel} className="learning-reveal">
-          <p className="muted small">
-            Using: this step{token ? ' and your latest check result' : ''}.{' '}
-            {hasContext
-              ? 'Forge reads your model only if your question needs it.'
-              : tutorMessages.context_unavailable}
-          </p>
-          {exchanges.map((exchange, index) => (
-            <div key={index} className="tutor-exchange">
-              <p className="tutor-asked">
-                <span className="muted">You asked</span>
-                {exchange.question}
-              </p>
-              <TutorAnswerBlock answer={exchange.answer} />
+        <ForgeMark />
+        <span>Ask Forge</span>
+        {turns > 0 && (
+          <span className="ask-count" aria-hidden="true">
+            {turns}
+          </span>
+        )}
+      </button>
+      {present && (
+        <div
+          id={panel}
+          className="ask-sheet"
+          role="dialog"
+          aria-modal="false"
+          aria-label="Ask Forge chat"
+          data-state={open ? 'open' : 'closing'}
+          onKeyDown={sheetKey}
+        >
+          <header className="ask-header">
+            <ForgeMark />
+            <div>
+              <h2>Ask Forge</h2>
+              <p>{where}</p>
             </div>
-          ))}
-          <div className="tutor-suggestions" aria-label="Quick questions">
-            {exchanges.length > 0 &&
-              followUps.map((text) => (
-                <Button
-                  key={text}
-                  tabIndex={0}
-                  type="button"
-                  variant="ghost"
-                  className="glass-action"
-                  disabled={sending}
-                  onClick={() => void send(text)}
-                >
-                  {text}
-                </Button>
-              ))}
-            {exchanges.length === 0 &&
-              (step.askPrompts ?? []).map((text) => (
-                <Button
-                  key={text}
-                  tabIndex={0}
-                  type="button"
-                  variant="ghost"
-                  className="glass-action"
-                  disabled={sending}
-                  onClick={() => void send(text)}
-                >
-                  {text}
-                </Button>
-              ))}
-          </div>
-          <form className="tutor-form" onSubmit={submit}>
-            <label htmlFor={field}>Ask about this step</label>
-            <textarea
-              id={field}
-              rows={3}
-              maxLength={600}
-              value={draft}
-              disabled={sending}
-              onChange={(event) => setDraft(event.target.value)}
-              onKeyDown={key}
-              placeholder="For example: Why isn’t my second part showing up?"
-            />
-            <div className="action-bar">
-              <Button
-                tabIndex={0}
-                type="submit"
-                variant="primary"
-                className="check-action"
-                aria-disabled={empty || sending}
-              >
-                Send
-              </Button>
-              {sending && (
-                <Button tabIndex={0} type="button" onClick={stop}>
-                  Stop request
-                </Button>
-              )}
-            </div>
-            <p className="muted small">
-              Ctrl+Enter to send. Forge asks the AI only when you send.
+            <Button
+              variant="ghost"
+              className="ask-minimize"
+              aria-label="Minimize Ask Forge"
+              onClick={minimize}
+            >
+              <Minus size={16} aria-hidden="true" />
+            </Button>
+          </header>
+          <div className="ask-scroll" ref={scroller}>
+            <p className="ask-context">
+              Using this step{token ? ' and your latest check result' : ''}.{' '}
+              {hasContext
+                ? 'Forge reads your model only if your question needs it.'
+                : tutorMessages.context_unavailable}
             </p>
-          </form>
-          <div role="status" aria-live="polite">
-            {sending && <p>{stageText[stage]}</p>}
-          </div>
-          {error && (
-            <div role="alert" className="tutor-error">
-              <p>{tutorMessages[error.code]}</p>
-              <p className="muted small">
-                Your lesson, hints and Check my step still work.
+            {exchanges.length === 0 && !sending && (
+              <p className="ask-empty">
+                Stuck, or just curious? Ask about this step in your own words.
               </p>
-              {error.code !== 'cancelled' && lastQuestion && (
-                <Button
-                  tabIndex={0}
-                  type="button"
-                  variant="ghost"
-                  className="glass-action"
-                  onClick={() => void send(lastQuestion)}
-                >
-                  Try again
-                </Button>
+            )}
+            {exchanges.map((exchange, index) => (
+              <div key={index} className="tutor-exchange">
+                <p className="tutor-asked">
+                  <span className="sr-only">You asked</span>
+                  {exchange.question}
+                </p>
+                <div className="ask-reply">
+                  <TutorAnswerBlock answer={exchange.answer} />
+                </div>
+              </div>
+            ))}
+            <div role="status" aria-live="polite">
+              {sending && (
+                <p className="ask-thinking">
+                  <span className="ask-dots" aria-hidden="true">
+                    <i />
+                    <i />
+                    <i />
+                  </span>
+                  {stageText[stage]}
+                </p>
               )}
             </div>
-          )}
+            {error && (
+              <div role="alert" className="tutor-error">
+                <p>{tutorMessages[error.code]}</p>
+                <p className="muted small">
+                  Your lesson, hints and Check my step still work.
+                </p>
+                {error.code !== 'cancelled' && lastQuestion && (
+                  <Button
+                    tabIndex={0}
+                    type="button"
+                    variant="ghost"
+                    className="glass-action"
+                    onClick={() => void send(lastQuestion)}
+                  >
+                    Try again
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="ask-footer">
+            {suggestions.length > 0 && (
+              <div className="tutor-suggestions" aria-label="Quick questions">
+                {suggestions.map((text) => (
+                  <Button
+                    key={text}
+                    tabIndex={0}
+                    type="button"
+                    variant="ghost"
+                    className="glass-action"
+                    disabled={sending}
+                    onClick={() => void send(text)}
+                  >
+                    {text}
+                  </Button>
+                ))}
+              </div>
+            )}
+            <form className="tutor-form" onSubmit={submit}>
+              <label className="sr-only" htmlFor={field}>
+                Ask about this step
+              </label>
+              <textarea
+                ref={composer}
+                id={field}
+                rows={1}
+                maxLength={600}
+                value={draft}
+                disabled={sending}
+                onChange={(event) => setDraft(event.target.value)}
+                onKeyDown={key}
+                placeholder="Ask about this step…"
+              />
+              <div className="ask-actions">
+                {sending && (
+                  <Button
+                    tabIndex={0}
+                    type="button"
+                    variant="ghost"
+                    className="ask-send"
+                    aria-label="Stop request"
+                    onClick={stop}
+                  >
+                    <Square size={12} aria-hidden="true" />
+                  </Button>
+                )}
+                <Button
+                  tabIndex={0}
+                  type="submit"
+                  variant="primary"
+                  className="ask-send"
+                  aria-label="Send"
+                  aria-disabled={empty || sending}
+                >
+                  <ArrowUp size={16} aria-hidden="true" />
+                </Button>
+              </div>
+            </form>
+            <p className="ask-hint">
+              Ctrl+Enter sends · AI runs only when you send
+            </p>
+          </div>
         </div>
       )}
     </section>

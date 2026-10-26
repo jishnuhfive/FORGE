@@ -78,6 +78,24 @@
   --motion-disclosure: 280ms;
   --motion-intro: 420ms;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* A critically-damped-ish spring sampled as an easing: one small overshoot. */
+  --ease-spring: linear(
+    0,
+    0.16 3%,
+    0.52 8%,
+    0.82 14%,
+    0.99 20%,
+    1.045 26%,
+    1.05 30%,
+    1.025 38%,
+    1.004 48%,
+    0.998 60%,
+    1
+  );
+  --press-scale: 0.97;
+  --track: #0b0e13;
+  --pill: #232a35;
+  --pill-edge: rgb(255 255 255 / 10%);
   --focus-ring: 2px solid var(--accent);
   --focus-offset: 3px;
   --z-base: 0;
@@ -90,6 +108,9 @@
 }
 [data-theme='light'] {
   color-scheme: light;
+  --track: #e4e8ee;
+  --pill: #ffffff;
+  --pill-edge: rgb(12 20 34 / 8%);
   --background: #f5f6f8;
   --surface: #ffffff;
   --panel: #f1f3f6;

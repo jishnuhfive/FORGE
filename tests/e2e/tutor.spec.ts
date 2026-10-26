@@ -379,9 +379,11 @@ test('keyboard operation and the cancel control', async ({ page }) => {
   const toggle = frame.getByRole('button', { name: /^Ask Forge$/ });
   await toggle.focus();
   await page.keyboard.press('Enter');
-  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(
+    frame.getByRole('dialog', { name: 'Ask Forge chat' }),
+  ).toBeVisible();
   const field = frame.getByLabel('Ask about this step');
-  await field.focus();
+  await expect(field).toBeFocused();
   await page.keyboard.type('What does extrude mean?');
   await page.keyboard.press('Control+Enter');
   await expect(frame.getByText('Reading your question…')).toBeVisible();

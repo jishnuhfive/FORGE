@@ -8,6 +8,8 @@ dist/
 .uv-cache/
 .npm-cache/
 .playwright/
+.claude/
+skills-lock.json
 coverage/
 playwright-report/
 test-results/

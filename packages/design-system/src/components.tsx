@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import type { CSSProperties } from 'react';
-import { GlassSurface } from './glass';
+import { useSegmentIndicator } from './useSegmentIndicator';
 import { useScrollNavigation } from './useScrollNavigation';
 import type {
   ButtonHTMLAttributes,
@@ -166,7 +166,9 @@ export function Tabs({
   scrollContainerRef?: RefObject<HTMLElement | null>;
 }) {
   const navigation = useRef<HTMLDivElement | null>(null);
+  const pill = useRef<HTMLSpanElement | null>(null);
   useScrollNavigation(scrollContainerRef, navigation, value);
+  useSegmentIndicator(navigation, pill, value);
   return (
     <TabsPrimitive.Root
       value={value}
@@ -174,7 +176,7 @@ export function Tabs({
       className="tabs-root"
     >
       <TabsPrimitive.List asChild aria-label={label}>
-        <GlassSurface
+        <div
           className="tabs-list"
           ref={navigation}
           data-scroll-navigation={scrollContainerRef ? '' : undefined}
@@ -187,7 +189,9 @@ export function Tabs({
             } as CSSProperties
           }
         >
-          <span className="tabs-indicator" aria-hidden="true" />
+          <span className="tabs-indicator" ref={pill} aria-hidden="true">
+            <span className="tabs-pill" />
+          </span>
           {items.map((item) => (
             <TabsPrimitive.Trigger
               className="tab"
@@ -198,7 +202,7 @@ export function Tabs({
               {item.label}
             </TabsPrimitive.Trigger>
           ))}
-        </GlassSurface>
+        </div>
       </TabsPrimitive.List>
       {items.map((item) => (
         <TabsPrimitive.Content
