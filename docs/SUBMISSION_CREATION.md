@@ -168,19 +168,22 @@ Extrude and no solid body. It is not a route, AI tool or general recovery framew
 
 ## Selection `filter` on query parameters
 
-Live inspection of the stored sketch reported `ack_plane` with the unrecognized field
-`filter` on `sketchPlane`. OpenAPI 1.222 declares `BTMParameterQueryList-148.filter`
-as a `BTQueryFilter-183` (the picker restriction the UI applies to the parameter);
-the selection the feature evaluates is `queries`, still verified exactly (Top-plane
-query string, featureId, deterministic ids, node ids). `cad_create/plane_filter.py`
-accepts a `filter` only as a bounded And/Or tree over a closed set of leaf filters with
-exactly their own fields and literal values (the Phase 16 Extrude `entities` shape is
-a member). Anything else fails closed (`ack_plane_filter`, `ack_extrude_filter`).
-Caveat: the exact sketch-plane filter value was never captured (only the key name),
-so this is a vocabulary check, not an exact contract; in development the accepted
-structure is logged (`creation_filter`) for review. Valid filters are ignored only when
-comparing an acknowledgement with the fresh reread, since one may carry it and the
-other not; invalid ones are kept and cannot match.
+Two live attempts stopped on the stored/acknowledged `sketchPlane` parameter's
+`filter` (`ack_plane`, then `ack_plane_filter`). OpenAPI 1.222 declares it as a
+`BTQueryFilter-183`: the picker restriction the UI applies; the selection the feature
+evaluates is `queries`, still verified exactly (Top-plane query, feature id,
+deterministic ids, node ids). `cad_create/plane_filter.py` now checks a filter against
+the provider contract: a bounded tree of `BTAndFilter-110`, `BTOrFilter-167`,
+`BTNotFilter-165` and the schema-declared leaf filters whose only fields are booleans
+or enums (generated from the public schema; `UNKNOWN`, free strings such as feature
+ids, and vectors are excluded), each with exactly its declared fields and literal
+values. Anything else fails closed (`ack_plane_filter`, `ack_extrude_filter`). The exact
+sketch-plane value is still not captured in the repository; the development log line
+`creation_stop` carries a value-free structure label (type, field and enum words only)
+for a rejected filter, `creation_filter` for an accepted one, and settlement `inspect`
+prints `selection_filter_structure=` for the stored sketch. Valid filters are ignored
+only when comparing an acknowledgement with the fresh reread; invalid ones are kept and
+cannot match.
 
 The Extrude acknowledgement no longer reuses the Modify historical validator, which
 rejects every provider-managed field (node ids, filters, bookkeeping defaults). A local

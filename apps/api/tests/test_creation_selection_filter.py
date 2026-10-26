@@ -37,17 +37,75 @@ def to_json(shape: Any) -> dict[str, Any]:
     return {"btType": shape.bt_type, **dict(shape.fields)}
 
 
-def test_the_extrude_entities_filter_observed_live_in_phase_16_is_accepted() -> None:
-    assert plane_filter.valid_selection_filter(to_json(ui._EXTRUDE))
-    # Fillet and dormant-role shapes use leaves outside this vocabulary on purpose.
-    assert not plane_filter.valid_selection_filter(to_json(ui._FILLET))
+def test_every_filter_shape_observed_live_in_phase_16_is_accepted() -> None:
+    for shape in (
+        ui._EXTRUDE,
+        ui._FILLET,
+        *(c.shape for c in ui._DORMANT_ROLES.values()),
+    ):
+        assert plane_filter.valid_selection_filter(to_json(shape))
 
 
-def test_plane_filter_shape_is_accepted_and_described_without_identities() -> None:
+def test_schema_declared_leaves_not_in_the_old_vocabulary_are_accepted() -> None:
+    flattened = {
+        "btType": "BTAndFilter-110",
+        "operand1": PLANE_FILTER,
+        "operand2": {
+            "btType": "BTNotFilter-165",
+            "operand": {
+                "btType": "BTAllowFlattenedGeometryFilter-2140",
+                "allowsFlattenedGeometry": True,
+            },
+        },
+    }
+    assert plane_filter.valid_selection_filter(flattened)
+
+
+@pytest.mark.parametrize(
+    "leaf",
+    [
+        {
+            "btType": "BTFeatureFilter-127",
+            "exclusion": "EXCLUDE_THIS",
+            "featureId": "F",
+        },
+        {"btType": "BTFeatureTypeFilter-962", "featureType": "extrude"},
+        {"btType": "BTPlaneOrientationFilter-1700", "normal": {"x": 0, "y": 0, "z": 1}},
+        {"btType": "BTEntityTypeFilter-124", "entityType": "UNKNOWN"},
+        {"btType": "BTGeometryFilter-130", "geometryType": "plane"},
+        {"btType": "BTAllowFlattenedGeometryFilter-2140", "allowsFlattenedGeometry": 1},
+        {"btType": "BTAllowFlattenedGeometryFilter-2140"},
+    ],
+)
+def test_leaves_with_free_strings_vectors_unknown_enums_or_wrong_types_are_rejected(
+    leaf: dict[str, Any],
+) -> None:
+    assert not plane_filter.valid_selection_filter(leaf)
+
+
+def test_structure_labels_are_value_free_and_bounded() -> None:
+    text = plane_filter.structure(
+        {
+            "btType": "BTAndFilter-110",
+            "operand1": {"btType": "BTFeatureFilter-127", "featureId": "F4k9x-secret"},
+            "operand2": {"btType": "weird type!", "bad key!": 12.5, "ok": [True, "x"]},
+        }
+    )
+    assert "secret" not in text and "12.5" not in text
+    assert "operand1=BTFeatureFilter-127{featureId=<str>}" in text
+    assert "<type>{<key>=<value>,ok=[true,<str>]}" in text
+    assert (
+        len(plane_filter.structure({"btType": "BTAndFilter-110", "n": [{}] * 500}))
+        <= 700
+    )
+
+
+def test_plane_filter_shape_is_accepted_and_labelled() -> None:
     assert plane_filter.valid_selection_filter(PLANE_FILTER)
-    text = plane_filter.describe(PLANE_FILTER)
-    assert text.startswith("And(EntityType[entityType=FACE],Or(")
-    assert plane_filter.describe({"btType": "Unknown-1"}) == "<invalid>"
+    text = plane_filter.structure(PLANE_FILTER)
+    assert text.startswith(
+        "BTAndFilter-110{operand1=BTEntityTypeFilter-124{entityType=FACE}"
+    )
 
 
 def mutated(change: Any) -> dict[str, Any]:
@@ -64,6 +122,7 @@ def mutated(change: Any) -> dict[str, Any]:
         "FACE",
         {},
         {"btType": "BTNotFilter-165", "operand": {}},
+        {"btType": "BTNotFilter-165", "operand1": PLANE_FILTER},
         mutated(lambda f: f.update(extra=1)),
         mutated(lambda f: f.pop("operand2")),
         mutated(lambda f: f["operand1"].update(entityType="WIRE")),
@@ -207,3 +266,37 @@ def test_accepted_filter_structure_is_logged_in_development_only(
                 client._log_filters(feature)
         assert len(caplog.messages) == expected
     assert "FACE" in caplog.messages[0] if caplog.messages else True
+
+
+def test_a_rejected_filter_carries_only_a_value_free_structure_label() -> None:
+    from forge_api.cad_create import provider as creation_provider
+
+    with pytest.raises(creation_provider.AckRejected) as error:
+        creation_provider._managed_extras(
+            {
+                "btType": "BTMParameterQueryList-148",
+                "parameterId": "sketchPlane",
+                "queries": [],
+                "filter": {"btType": "BTMadeUpFilter-1", "featureId": "F-secret"},
+            },
+            "ack_plane",
+            "ack_plane_filter",
+        )
+    assert error.value.check == "ack_plane_filter"
+    assert error.value.detail == "BTMadeUpFilter-1{featureId=<str>}"
+    assert "secret" not in error.value.detail
+
+
+def test_stop_log_includes_the_structure_detail(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    from types import SimpleNamespace
+
+    from forge_api.cad_create import provider as creation_provider
+
+    client = creation_provider.CreationClient(
+        cast(Any, SimpleNamespace(_development=True)), cast(Any, None)
+    )
+    with caplog.at_level("WARNING", logger="forge.creation"):
+        client.note_failure("ack_plane_filter", (), "BTMadeUpFilter-1{}")
+    assert '"detail": "BTMadeUpFilter-1{}"' in caplog.messages[0]

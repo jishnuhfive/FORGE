@@ -22,7 +22,7 @@ from .models import (
     ExtrudeNew,
     ExtrudeRemove,
 )
-from .plane_filter import describe, valid_selection_filter
+from .plane_filter import structure, valid_selection_filter
 
 
 class AckRejected(EditError):
@@ -32,9 +32,12 @@ class AckRejected(EditError):
     so a rejection can be located without exposing CAD data.
     """
 
-    def __init__(self, check: str, names: set[str] | None = None) -> None:
+    def __init__(
+        self, check: str, names: set[str] | None = None, detail: str = ""
+    ) -> None:
         super().__init__("verification_failed")
         self.check = check
+        self.detail = detail
         self.names = tuple(
             sorted(
                 n
@@ -48,11 +51,16 @@ class StopLabelled(EditError):
     """Wraps a failure with its closed label, keeping the original closed code."""
 
     def __init__(
-        self, check: str, cause: EditError, names: tuple[str, ...] = ()
+        self,
+        check: str,
+        cause: EditError,
+        names: tuple[str, ...] = (),
+        detail: str = "",
     ) -> None:
         super().__init__(cause.code, cause.status)
         self.check = check
         self.names = names
+        self.detail = detail
 
 
 def read(provider: SafeEditClient, context: WorkspaceReference) -> CreationEvidence:
@@ -299,7 +307,7 @@ def _managed_extras(param: dict[str, Any], reject: str, filter_reject: str) -> N
     if node is not None and (not isinstance(node, str) or not 1 <= len(node) <= 256):
         raise AckRejected(reject)
     if "filter" in param and not valid_selection_filter(param["filter"]):
-        raise AckRejected(filter_reject)
+        raise AckRejected(filter_reject, detail=structure(param["filter"]))
 
 
 def acknowledge(
@@ -481,17 +489,24 @@ class CreationClient:
                     json.dumps(
                         {
                             "parameter": str(param.get("parameterId"))[:40],
-                            "structure": describe(param["filter"]),
+                            "structure": structure(param["filter"]),
                         }
                     ),
                 )
 
-    def note_failure(self, label: str, names: tuple[str, ...] = ()) -> None:
-        """Keep the closed label for the audit and, in development, a field-name log."""
+    def note_failure(
+        self, label: str, names: tuple[str, ...] = (), detail: str = ""
+    ) -> None:
+        """Keep the closed label for the audit and, in development, a sanitized log.
+
+        `detail` is only ever a value-free structure label (type, field and enum
+        words), for example of a rejected selection filter.
+        """
         self.last_rejection = label
         if self.provider._development:
             logging.getLogger("forge.creation").warning(
-                "creation_stop %s", json.dumps({"check": label, "fields": names})
+                "creation_stop %s",
+                json.dumps({"check": label, "fields": names, "detail": detail}),
             )
 
     def _renew(self) -> None:
@@ -537,6 +552,6 @@ class CreationClient:
                 self._log_filters(ack)
             return marker, ack
         except AckRejected as error:
-            raise StopLabelled(error.check, error, error.names) from None
+            raise StopLabelled(error.check, error, error.names, error.detail) from None
         except EditError as error:
             raise StopLabelled("ack_contract", error) from None

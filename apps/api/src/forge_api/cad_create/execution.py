@@ -82,7 +82,7 @@ def execute(
                     if getattr(error, "code", "") == "model_changed"
                     else stage
                 )
-                note(label, getattr(error, "names", ()))
+                note(label, getattr(error, "names", ()), getattr(error, "detail", ""))
             states[i] = "execution_uncertain" if dispatched else "rejected"
             states[i + 1 :] = ["skipped"] * (len(states) - i - 1)
             result = ExecutionResult(

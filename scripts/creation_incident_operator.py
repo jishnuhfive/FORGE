@@ -48,6 +48,8 @@ def show(observation: Observation, report: Callable[[str], None]) -> None:
     report(f"acknowledgement_check_on_current_sketch={observation.ack_check or 'pass'}")
     if observation.ack_chain:
         report("acknowledgement_check_chain=" + ",".join(observation.ack_chain))
+    for text in observation.filter_structures:
+        report("selection_filter_structure=" + text)
     if observation.ack_fields:
         report("unrecognized_provider_fields=" + ",".join(observation.ack_fields))
     report(f"settlement_blocker={observation.denial or 'none'}")

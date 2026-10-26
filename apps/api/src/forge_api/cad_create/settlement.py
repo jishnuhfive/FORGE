@@ -37,6 +37,7 @@ from forge_api.integrations.onshape.write_client import SafeEditClient
 
 from .evidence import CreationEvidence, difference
 from .models import CreateSketchRect
+from .plane_filter import structure
 from .provider import AckRejected, acknowledge, feature
 from .service import Approval, StoredCreation, load
 
@@ -98,6 +99,7 @@ class Observation:
     instability: str | None = None
     instability_path: tuple[str, ...] = ()
     ack_chain: tuple[str, ...] = ()
+    filter_structures: tuple[str, ...] = ()
 
 
 class _GetOnly(httpx.BaseTransport):
@@ -360,6 +362,11 @@ def _observe(
         instability,
         path,
         tuple(chain),
+        tuple(
+            structure(p["filter"])
+            for p in cast(list[Any], sketch.get("parameters", []))[:4]
+            if isinstance(p, dict) and "filter" in p
+        ),
     )
 
 

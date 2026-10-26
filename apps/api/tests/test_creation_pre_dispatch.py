@@ -256,7 +256,8 @@ def test_stop_log_carries_only_a_label_and_field_names(
         client.note_failure("ack_feature_keys", ("bogusProviderKey",))
     assert client.last_rejection == "ack_feature_keys"
     assert caplog.messages == [
-        'creation_stop {"check": "ack_feature_keys", "fields": ["bogusProviderKey"]}'
+        'creation_stop {"check": "ack_feature_keys", '
+        '"fields": ["bogusProviderKey"], "detail": ""}'
     ]
 
 

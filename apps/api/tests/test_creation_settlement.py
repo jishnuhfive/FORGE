@@ -496,3 +496,23 @@ def test_inspection_peels_unknown_keys_to_show_what_fails_next(
     assert seen.ack_check == "ack_feature_keys"
     assert seen.ack_chain == ("ack_feature_keys", "ack_constraints")
     assert seen.ack_fields == ("bogusProviderKey",)
+
+
+def test_inspection_reports_the_stored_selection_filter_structure_only(
+    incident: Incident,
+) -> None:
+    feature = incident.provider.data["features"][0]
+    feature["parameters"][0]["filter"] = {
+        "btType": "BTAndFilter-110",
+        "operand1": {"btType": "BTEntityTypeFilter-124", "entityType": "FACE"},
+        "operand2": {
+            "btType": "BTFeatureFilter-127",
+            "featureId": "F-secret",
+            "exclusion": "EXCLUDE_THIS",
+        },
+    }
+    seen = incident.inspect()
+    assert seen.ack_check == "ack_plane_filter"
+    (label,) = seen.filter_structures
+    assert label.startswith("BTAndFilter-110{") and "secret" not in label
+    assert "operand1=BTEntityTypeFilter-124{entityType=FACE}" in label
