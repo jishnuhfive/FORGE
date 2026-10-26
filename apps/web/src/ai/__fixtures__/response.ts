@@ -167,3 +167,50 @@ export const syntheticOverview: Answer = {
     },
   ],
 };
+
+// Invented general guidance; the server sends it with no evidence.
+export const syntheticGuide: NonNullable<Answer['guide']> = {
+  kind: 'guide',
+  safety: 'safe',
+  title: 'Rectangular mounting plate',
+  summary: 'A 60 × 40 × 10 mm plate with two 8 mm holes.',
+  key_dimensions: ['60 mm long', '40 mm wide', '10 mm thick', '8 mm holes'],
+  assumptions: ['Hole positions were not given; assumed 10 mm from each end.'],
+  questions: [],
+  steps: [
+    {
+      title: 'Sketch the outline',
+      action: 'Create a sketch on the Top plane and draw a rectangle.',
+      controls: ['Sketch tool', 'Top plane', 'Corner rectangle'],
+      parameters: ['60 mm', '40 mm'],
+      check: 'The sketch is fully dimensioned and shows no blue lines.',
+      why: 'Full constraints keep later edits predictable.',
+    },
+    {
+      title: 'Cut the holes',
+      action: 'Extrude the two circles with Remove.',
+      controls: ['Extrude', 'Operation: Remove', 'End type: Through all'],
+      parameters: ['8 mm diameter'],
+      check: 'Two holes are visible in the feature tree preview.',
+      why: 'Remove subtracts material from the plate instead of adding a pin.',
+    },
+  ],
+  explanation: '',
+  mistakes: ['Extruding the holes with Add instead of Remove.'],
+  checklist: ['Two 8 mm holes pass through the plate.'],
+  follow_ups: ['Should the plate have rounded corners?'],
+};
+export const syntheticGuideAnswer: Answer = {
+  answer: 'Modeling guide: Rectangular mounting plate\n1. Sketch the outline',
+  evidence: [],
+  uncertainties: [
+    'General Onshape guidance. Forge did not read your Part Studio for this and made no CAD changes. Follow the steps yourself in Onshape.',
+  ],
+  discussion: '',
+  assumptions: [],
+  follow_up_questions: [],
+  capability_state: 'read_only',
+  captured_at: null,
+  explanation: '',
+  guide: syntheticGuide,
+};

@@ -4,7 +4,7 @@ import json
 from dataclasses import dataclass
 from typing import Protocol
 
-from .models import HistoryMessage, ModelAnswer
+from .models import HistoryMessage, ModelAnswer, ModelingGuide
 
 
 @dataclass(frozen=True, repr=False)
@@ -37,4 +37,8 @@ class AiProvider(Protocol):
         self, evidence: str, *, request_id: str
     ) -> ModelAnswer:
         """One continuation, no tools. State dies with this provider instance."""
+        ...
+
+    async def compose_guide(self, task: AgentTask, *, request_id: str) -> ModelingGuide:
+        """One tool-free round of general Onshape guidance. No CAD is read."""
         ...

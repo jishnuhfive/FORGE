@@ -588,3 +588,28 @@ commands over fresh safe target options before invoking the B1 provider fallback
 Both paths still use the same A1 validators and prepare boundary; neither can
 approve or write. Modify has its own default-high reasoning effort. Uncertainty
 recovery is server-owned and read-only, never an AI tool or retry authority.
+
+## Design → Ask modeling guidance (Phase 19A)
+
+Ask now serves two read-only uses through the same `/api/ai/ask` route, provider,
+transport, budgets and error mapping:
+
+- **Questions about the open model** keep the evidence path. The model still selects
+  server-owned fact IDs; Forge renders the statements and statuses. A new optional
+  `explanation` (at most 1,800 characters) carries model-written general explanation,
+  recommendations and predictions. It is stored beside, never inside, the evidence,
+  is dropped for selected-face/edge questions, and the browser labels it "general,
+  not verified CAD".
+- **Instructions for building something in Onshape** are routed by a deterministic
+  server check (`ai/guide.py:guide_request`): explicit how-to/walkthrough requests,
+  general modeling-concept comparisons and follow-ups to a previous guide, unless
+  the prompt refers to the user's own model. This round has no tools and reads no
+  CAD, so it works with an empty Part Studio. One strict structured response
+  (`ModelingGuide`) is parsed and validated; unknown keys, a "guide" with fewer than
+  two steps, or a clarification with no question are rejected as `invalid_response`.
+  The result has no evidence and no capture time and is labelled general guidance.
+
+Guides never invoke Forge capabilities: the user performs every step in Onshape. The
+policy forbids invented dimensions; missing material values become questions or
+labelled assumptions. Not covered (planned): a model-based classifier for ambiguous
+routing, verifying a guide against the user's finished geometry, and any execution.

@@ -40,6 +40,29 @@ export const stages = {
 export type Stage = keyof typeof stages;
 export type Selection = 'none' | 'FACE' | 'EDGE' | 'unknown';
 export type HistoryMessage = { role: 'user' | 'assistant'; content: string };
+export interface GuideStep {
+  title: string;
+  action: string;
+  controls: string[];
+  parameters: string[];
+  check: string;
+  why: string;
+}
+/** Model-written general Onshape guidance. Never CAD evidence. */
+export interface Guide {
+  kind: 'guide' | 'clarification' | 'explanation';
+  safety: 'safe' | 'refuse';
+  title: string;
+  summary: string;
+  key_dimensions: string[];
+  assumptions: string[];
+  questions: string[];
+  steps: GuideStep[];
+  explanation: string;
+  mistakes: string[];
+  checklist: string[];
+  follow_ups: string[];
+}
 export interface Answer {
   answer: string;
   evidence: {
@@ -53,6 +76,9 @@ export interface Answer {
   follow_up_questions: string[];
   capability_state: 'read_only';
   captured_at: string | null;
+  /** General explanation written by the model; separate from evidence. */
+  explanation?: string;
+  guide?: Guide | null;
 }
 export class AiError extends Error {
   constructor(
@@ -65,15 +91,69 @@ export class AiError extends Error {
 function text(value: unknown, max: number): value is string {
   return typeof value === 'string' && value.length <= max;
 }
-function texts(value: unknown, count: number) {
+function texts(value: unknown, count: number, max = 600) {
   return (
     Array.isArray(value) &&
     value.length <= count &&
-    value.every((v) => text(v, 600))
+    value.every((v) => text(v, max))
   );
 }
+const guideKeys = [
+  'kind',
+  'safety',
+  'title',
+  'summary',
+  'key_dimensions',
+  'assumptions',
+  'questions',
+  'steps',
+  'explanation',
+  'mistakes',
+  'checklist',
+  'follow_ups',
+] as const;
+const stepKeys = [
+  'title',
+  'action',
+  'controls',
+  'parameters',
+  'check',
+  'why',
+] as const;
+export function parseGuide(value: unknown): Guide {
+  const data = object(value, guideKeys);
+  if (
+    !['guide', 'clarification', 'explanation'].includes(data.kind as string) ||
+    !['safe', 'refuse'].includes(data.safety as string) ||
+    !text(data.title, 400) ||
+    !text(data.summary, 900) ||
+    !text(data.explanation, 2500) ||
+    !texts(data.key_dimensions, 8, 400) ||
+    !texts(data.assumptions, 5, 400) ||
+    !texts(data.questions, 4, 400) ||
+    !texts(data.mistakes, 5, 400) ||
+    !texts(data.checklist, 8, 400) ||
+    !texts(data.follow_ups, 3, 400) ||
+    !Array.isArray(data.steps) ||
+    data.steps.length > 12
+  )
+    throw new AiError('invalid_response');
+  for (const raw of data.steps) {
+    const step = object(raw, stepKeys);
+    if (
+      !text(step.title, 400) ||
+      !text(step.action, 900) ||
+      !text(step.check, 900) ||
+      !text(step.why, 900) ||
+      !texts(step.controls, 6, 400) ||
+      !texts(step.parameters, 6, 400)
+    )
+      throw new AiError('invalid_response');
+  }
+  return data as unknown as Guide;
+}
 export function parseAnswer(value: unknown): Answer {
-  const data = object(value, [
+  const base = [
     'answer',
     'evidence',
     'uncertainties',
@@ -82,7 +162,17 @@ export function parseAnswer(value: unknown): Answer {
     'follow_up_questions',
     'capability_state',
     'captured_at',
-  ]);
+  ];
+  // Older and newer servers differ only by these two additive keys.
+  const extended =
+    !!value &&
+    typeof value === 'object' &&
+    'guide' in value &&
+    'explanation' in value;
+  const data = object(
+    value,
+    extended ? [...base, 'explanation', 'guide'] : base,
+  );
   if (
     !text(data.answer, 30000) ||
     !text(data.discussion, 1600) ||
@@ -100,6 +190,10 @@ export function parseAnswer(value: unknown): Answer {
     data.evidence.length > 12
   )
     throw new AiError('invalid_response');
+  if (extended) {
+    if (!text(data.explanation, 2500)) throw new AiError('invalid_response');
+    if (data.guide !== null) parseGuide(data.guide);
+  }
   for (const value of data.evidence) {
     const item = object(value, ['id', 'statement', 'status']);
     if (

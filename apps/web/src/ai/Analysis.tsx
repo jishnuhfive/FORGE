@@ -8,6 +8,7 @@ import type { OnshapeClientContext } from '../onshape/model';
 import { modelSummary, responseTitle } from './presentation';
 import { contextualLimits, friendlyAnswer } from './friendly';
 import { AiError, askForge, messages, stages } from './api';
+import { GuideView } from './GuideView';
 import type {
   Answer,
   ErrorCode,
@@ -152,6 +153,8 @@ export function AnswerContent({
   result: Answer;
   prompt?: string;
 }) {
+  if (result.guide)
+    return <GuideView guide={result.guide} note={result.uncertainties[0]} />;
   const friendly = friendlyAnswer(result, prompt);
   const summary = friendly ? null : modelSummary(result);
   const title =
@@ -273,6 +276,12 @@ export function AnswerContent({
         uncertainties={result.uncertainties}
         supplementary={friendly ? result : undefined}
       />
+      {result.explanation?.trim() && (
+        <section className="answer-guidance explanation">
+          <h3>Explanation · general, not verified CAD</h3>
+          <p className="draft-text">{result.explanation}</p>
+        </section>
+      )}
       {!friendly && <Supplementary result={result} />}
       {!friendly &&
         result.evidence.length > 0 &&
@@ -325,7 +334,7 @@ export function AnalysisEmpty({ mark }: { mark?: ReactNode }) {
       {mark ?? <ForgeMark />}
       <div>
         <h2>Ask about this Part Studio</h2>
-        <p>Read the model. Understand the next step.</p>
+        <p>Read the model, or ask how to build something in Onshape.</p>
       </div>
     </div>
   );
@@ -525,7 +534,7 @@ export function Analysis({
         showSuggestions={exchanges.length === 0}
         suggestions={[
           "What's in this model?",
-          'Explain the selected face',
+          'Walk me through making a 60 × 40 × 10 mm plate with two 8 mm holes',
           'How would you approach modifying this?',
         ]}
         privacy="Your prompt, recent conversation and bounded CAD evidence go to the configured AI service only on send. This conversation stays in this panel’s memory; provider retention policies apply."

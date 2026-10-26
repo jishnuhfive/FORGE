@@ -9,7 +9,14 @@ from forge_api.core.config import Settings
 from forge_api.integrations.onshape.client import bounded_json
 
 from .diagnostics import Reason
-from .models import AiError, ModelAnswer, ToolArguments
+from .guide import (
+    GUIDE_POLICY,
+    MAX_GUIDE_CHARS,
+    guide_messages,
+    parse_guide,
+    strict_schema,
+)
+from .models import AiError, ModelAnswer, ModelingGuide, ToolArguments
 from .output import parse_model_answer
 from .policy import FIRST_ROUND, POLICY
 from .provider import AgentTask, task_messages
@@ -18,6 +25,7 @@ from .transport import GROQ_ENDPOINT, post_json
 # Smaller than OpenAI's budgets to accommodate Groq's shared free-tier capacity.
 INSPECTION_TOKENS = 1024
 ANSWER_TOKENS = 2048
+GUIDE_TOKENS = 6000
 MAX_INPUT_BYTES = 32768
 TOOL = {
     "type": "function",
@@ -258,3 +266,38 @@ class GroqProvider:
         ):
             raise AiError("invalid_response", reason=Reason.FINAL_CONTENT_INVALID)
         return parse_model_answer(content)
+
+    async def compose_guide(self, task: AgentTask, *, request_id: str) -> ModelingGuide:
+        """Tool-free structured round; the model never sees or requests CAD here."""
+        if self._started:
+            raise AiError("invalid_response", reason=Reason.TOOL_LOOP_STATE_ERROR)
+        self._started = True
+        result = message(
+            await self._request(
+                {
+                    "messages": [
+                        {"role": "system", "content": GUIDE_POLICY},
+                        *guide_messages(task.prompt, list(task.history)),
+                    ],
+                    "max_completion_tokens": GUIDE_TOKENS,
+                    "response_format": {
+                        "type": "json_schema",
+                        "json_schema": {
+                            "name": "forge_guide",
+                            "strict": True,
+                            "schema": strict_schema(),
+                        },
+                    },
+                },
+                request_id,
+            ),
+            tool=False,
+        )
+        content = result.get("content")
+        if (
+            result.get("tool_calls")
+            or not isinstance(content, str)
+            or len(content) > MAX_GUIDE_CHARS
+        ):
+            raise AiError("invalid_response", reason=Reason.FINAL_CONTENT_INVALID)
+        return parse_guide(content)

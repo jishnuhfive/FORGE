@@ -6,6 +6,7 @@ from forge_api.integrations.onshape.inspector import CadInspector
 
 from .evidence import project, resolve, resolve_write
 from .grounding import GroundedCad
+from .guide import guide_answer, guide_request
 from .models import AiAnswer, AiRequest
 from .policy import REFUSAL, blocked
 from .presentation import GENERAL_REPLY_NOTE, mentions_model
@@ -38,6 +39,15 @@ async def run_agent(
         }
         return
     await ensure_active()
+    if guide_request(request.prompt, list(request.history)):
+        # General modeling guidance: no CAD is read and no tool exists in this round.
+        yield {"type": "progress", "stage": "preparing"}
+        guide = await adapter.compose_guide(
+            AgentTask(request.prompt, tuple(request.history)), request_id=request_id
+        )
+        await ensure_active()
+        yield {"type": "result", "result": guide_answer(guide).model_dump()}
+        return
     if write_request(request.prompt):
         # Unavailable actions must not force a provider to invent a tool call.
         # Still inspect through the same session/context-authorized read boundary.

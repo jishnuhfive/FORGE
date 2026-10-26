@@ -23,7 +23,7 @@ from forge_api.ai.groq import (
     TOOL,
     GroqProvider,
 )
-from forge_api.ai.models import AiError, AiRequest, ModelAnswer
+from forge_api.ai.models import AiError, AiRequest, ModelAnswer, ModelingGuide
 from forge_api.ai.policy import FIRST_ROUND, POLICY
 from forge_api.ai.provider import AgentTask
 from forge_api.ai.providers import create_provider
@@ -575,6 +575,11 @@ def test_agent_accepts_provider_neutral_implementation_without_http() -> None:
                 question_ids=[],
                 safety="safe",
             )
+
+        async def compose_guide(
+            self, task: AgentTask, *, request_id: str
+        ) -> ModelingGuide:
+            raise AssertionError("a question about the model is never a guide")
 
     async def evaluate() -> None:
         provider = FakeProvider()

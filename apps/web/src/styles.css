@@ -2111,3 +2111,87 @@ ul.compact-list {
   margin: 0;
   text-align: right;
 }
+
+.guide {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.guide-summary {
+  margin: var(--space-3) 0;
+}
+.guide-block {
+  margin-top: var(--space-4);
+  color: var(--muted);
+  font-size: var(--text-control);
+}
+.guide-block h3,
+.guide-step h3 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-control);
+  font-weight: var(--weight-semibold);
+}
+.guide ul,
+.guide ol {
+  margin: 0;
+  padding-left: var(--space-5);
+}
+.guide-steps {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  padding-left: 0;
+  list-style: none;
+  counter-reset: guide-step;
+}
+.guide-step {
+  counter-increment: guide-step;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  font-size: var(--text-control);
+}
+.guide-step h3::before {
+  content: counter(guide-step) '. ';
+  color: var(--tertiary);
+}
+.guide-step p {
+  margin: 0 0 var(--space-2);
+}
+.guide-controls,
+.guide-parameters {
+  margin-bottom: var(--space-2);
+}
+.guide-step summary {
+  cursor: pointer;
+  min-height: var(--control);
+  display: flex;
+  align-items: center;
+  color: var(--muted);
+}
+.guide-note {
+  margin-top: var(--space-4);
+}
+.guide-controls,
+.guide-parameters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  padding-left: 0;
+  list-style: none;
+}
+.guide-controls li,
+.guide-parameters li {
+  max-width: 100%;
+  padding: 2px var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  font-size: var(--text-caption);
+  overflow-wrap: anywhere;
+}
+.guide-parameters li {
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.guide-controls li {
+  color: var(--muted);
+}

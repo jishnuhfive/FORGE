@@ -5,6 +5,7 @@ import { signedIn, signedOut } from './auth-fixtures';
 import {
   resultStream,
   syntheticAnswer,
+  syntheticGuideAnswer,
   syntheticSelectionAnswer,
   syntheticWriteAnswer,
 } from '../../apps/web/src/ai/__fixtures__/response';
@@ -21,7 +22,7 @@ test.afterEach(async ({ page }) => {
 });
 
 const query = `documentId=${'a'.repeat(24)}&workspaceOrVersion=w&workspaceOrVersionId=${'b'.repeat(24)}&elementId=${'c'.repeat(24)}&server=https://cad.onshape.com`;
-async function panel(page: Page) {
+async function panel(page: Page, reply = syntheticAnswer) {
   const asks: Record<string, unknown>[] = [];
   let account: typeof signedIn | typeof signedOut = signedIn;
   await page.addInitScript(() =>
@@ -41,7 +42,7 @@ async function panel(page: Page) {
       );
       await route.fulfill({
         contentType: 'application/x-ndjson',
-        body: resultStream(),
+        body: resultStream(reply),
       });
     } else if (url.pathname === '/api/onshape/part-studio/inspector')
       await route.fulfill({ json: inspectorFixture() });
@@ -555,3 +556,38 @@ for (const [selection, message] of [
       'Extrude 1',
     );
   });
+
+test('modeling guide is readable, accessible and never overflows at 320px', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 900 });
+  const h = await panel(page, syntheticGuideAnswer);
+  await h.frame
+    .getByLabel('Design prompt')
+    .fill('Walk me through making a 60 × 40 × 10 mm plate with two 8 mm holes');
+  await h.frame.getByLabel('Design prompt').press('Control+Enter');
+  await expect(
+    h.frame.getByRole('heading', { name: 'Rectangular mounting plate' }),
+  ).toBeVisible();
+  await expect(
+    h.frame.getByRole('list', { name: 'Modeling steps' }),
+  ).toBeVisible();
+  await h.frame.getByText('Why this step matters').first().click();
+  expect(
+    await h.child.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  expect(
+    (
+      await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+        .analyze()
+    ).violations,
+  ).toEqual([]);
+  await page.screenshot({
+    path: '.cache/phase19a/guide-320.png',
+    fullPage: true,
+  });
+  expect(h.asks).toHaveLength(1);
+});

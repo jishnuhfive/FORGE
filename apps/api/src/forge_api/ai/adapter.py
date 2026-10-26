@@ -13,7 +13,14 @@ from forge_api.core.config import Settings
 from forge_api.integrations.onshape.client import bounded_json
 
 from .diagnostics import Reason
-from .models import AiError, ModelAnswer, ToolArguments
+from .guide import (
+    GUIDE_POLICY,
+    MAX_GUIDE_CHARS,
+    guide_messages,
+    parse_guide,
+    strict_schema,
+)
+from .models import AiError, ModelAnswer, ModelingGuide, ToolArguments
 from .output import parse_model_answer
 from .policy import POLICY
 from .provider import AgentTask, task_messages
@@ -214,3 +221,71 @@ class ResponsesAdapter:
         return parse_step(
             await post_json(self._transport, OPENAI_ENDPOINT, key, payload, request_id)
         )
+
+    async def compose_guide(self, task: AgentTask, *, request_id: str) -> ModelingGuide:
+        """Tool-free structured round; the model never sees or requests CAD here."""
+        if self._started:
+            raise AiError("invalid_response", reason=Reason.TOOL_LOOP_STATE_ERROR)
+        self._started = True
+        key = self._settings.openai_api_key
+        if key is None:
+            raise AiError("not_configured")
+        payload: dict[str, object] = {
+            "model": self._settings.forge_openai_model,
+            "reasoning": {"effort": self._settings.forge_openai_reasoning_effort},
+            "store": False,
+            "background": False,
+            "stream": False,
+            "instructions": GUIDE_POLICY,
+            "input": guide_messages(task.prompt, list(task.history)),
+            "max_output_tokens": MAX_OUTPUT_TOKENS,
+            "text": {
+                "format": {
+                    "type": "json_schema",
+                    "name": "forge_guide",
+                    "strict": True,
+                    "schema": strict_schema(),
+                }
+            },
+        }
+        value = await post_json(
+            self._transport, OPENAI_ENDPOINT, key, payload, request_id
+        )
+        if not isinstance(value, dict) or value.get("status") != "completed":
+            raise AiError(
+                "incomplete"
+                if isinstance(value, dict) and value.get("status") == "incomplete"
+                else "invalid_response"
+            )
+        output = value.get("output")
+        if not isinstance(output, list) or not 1 <= len(output) <= 8:
+            raise AiError("invalid_response")
+        text: str | None = None
+        for item in output:
+            if not isinstance(item, dict) or item.get("type") == "function_call":
+                raise AiError("invalid_response")
+            if item.get("type") != "message":
+                continue  # opaque reasoning items are never read or replayed
+            content = item.get("content")
+            if (
+                text is not None
+                or item.get("role") != "assistant"
+                or item.get("status") != "completed"
+                or not isinstance(content, list)
+                or len(content) != 1
+                or not isinstance(content[0], dict)
+            ):
+                raise AiError("invalid_response")
+            if content[0].get("type") == "refusal":
+                raise AiError("refused")
+            body = content[0].get("text")
+            if (
+                content[0].get("type") != "output_text"
+                or not isinstance(body, str)
+                or len(body) > MAX_GUIDE_CHARS
+            ):
+                raise AiError("invalid_response")
+            text = body
+        if text is None:
+            raise AiError("invalid_response")
+        return parse_guide(text)

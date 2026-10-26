@@ -1,6 +1,6 @@
 """Strict internal and browser contracts. Model-selected facts are resolved by Forge."""
 
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -67,13 +67,27 @@ class ToolArguments(StrictModel):
     pass
 
 
+def _require_explanation(schema: dict[str, Any]) -> None:
+    # Strict structured output needs every property required; the Python default
+    # keeps older callers and fixtures valid.
+    schema["required"] = [*schema.get("required", []), "explanation"]
+
+
 class ModelAnswer(StrictModel):
+    model_config = ConfigDict(
+        extra="forbid",
+        strict=True,
+        hide_input_in_errors=True,
+        json_schema_extra=_require_explanation,
+    )
     # The model selects canonical facts; it cannot author a verified CAD claim.
     fact_ids: list[Annotated[str, Field(max_length=64)]] = Field(max_length=12)
     suggestion_ids: list[SuggestionId] = Field(max_length=3)
     assumption_ids: list[AssumptionId] = Field(max_length=3)
     question_ids: list[QuestionId] = Field(max_length=3)
     safety: Literal["safe", "refuse"]
+    # General engineering explanation of the selected facts; never a CAD fact.
+    explanation: Annotated[str, Field(max_length=1800)] = ""
 
 
 class Fact(StrictModel):
@@ -89,6 +103,41 @@ class Fact(StrictModel):
         return value.strip()
 
 
+Line = Annotated[str, Field(min_length=1, max_length=400)]
+Block = Annotated[str, Field(min_length=1, max_length=900)]
+
+
+class GuideStep(StrictModel):
+    title: Line
+    action: Block
+    # Exact Onshape controls: tool names, the plane/face/region to pick, options.
+    controls: list[Line] = Field(max_length=6)
+    # Values the user enters. Only dimensions the user gave or labelled assumptions.
+    parameters: list[Line] = Field(max_length=6)
+    check: Block
+    why: Block
+
+
+class ModelingGuide(StrictModel):
+    kind: Literal["guide", "clarification", "explanation"]
+    safety: Literal["safe", "refuse"]
+    title: Line
+    summary: Block
+    key_dimensions: list[Line] = Field(max_length=8)
+    assumptions: list[Line] = Field(max_length=5)
+    questions: list[Line] = Field(max_length=4)
+    steps: list[GuideStep] = Field(max_length=12)
+    explanation: Annotated[str, Field(max_length=2500)]
+    mistakes: list[Line] = Field(max_length=5)
+    checklist: list[Line] = Field(max_length=8)
+    follow_ups: list[Line] = Field(max_length=3)
+
+    @field_validator("title", "summary", "explanation", mode="after")
+    @classmethod
+    def printable(cls, value: str) -> str:
+        return value.strip()
+
+
 class AiAnswer(StrictModel):
     answer: Annotated[str, Field(max_length=30000)]
     evidence: list[Fact] = Field(max_length=12)
@@ -98,6 +147,9 @@ class AiAnswer(StrictModel):
     follow_up_questions: list[ShortText] = Field(max_length=3)
     capability_state: Literal["read_only"] = "read_only"
     captured_at: str | None
+    # Model-written and never CAD evidence; the browser labels both as such.
+    explanation: Annotated[str, Field(max_length=2500)] = ""
+    guide: ModelingGuide | None = None
 
 
 class AiError(Exception):

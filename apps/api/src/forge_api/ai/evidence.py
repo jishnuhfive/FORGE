@@ -319,6 +319,9 @@ def resolve(
             if selected_question
             else [QUESTIONS[i] for i in answer.question_ids],
             captured_at=captured_at,
+            explanation=""
+            if selected_question or answer.safety == "refuse"
+            else answer.explanation.strip(),
         )
     except ValueError:
         raise AiError(
