@@ -165,3 +165,24 @@ Extrude and no solid body. It is not a route, AI tool or general recovery framew
   acknowledgement check chain, peeling only unrecognized top-level keys diagnostically.
 - No comparison ignores a field. Whether any field is non-semantic is decided only
   after `inspect` names it.
+
+## Selection `filter` on query parameters
+
+Live inspection of the stored sketch reported `ack_plane` with the unrecognized field
+`filter` on `sketchPlane`. OpenAPI 1.222 declares `BTMParameterQueryList-148.filter`
+as a `BTQueryFilter-183` (the picker restriction the UI applies to the parameter);
+the selection the feature evaluates is `queries`, still verified exactly (Top-plane
+query string, featureId, deterministic ids, node ids). `cad_create/plane_filter.py`
+accepts a `filter` only as a bounded And/Or tree over a closed set of leaf filters with
+exactly their own fields and literal values (the Phase 16 Extrude `entities` shape is
+a member). Anything else fails closed (`ack_plane_filter`, `ack_extrude_filter`).
+Caveat: the exact sketch-plane filter value was never captured (only the key name),
+so this is a vocabulary check, not an exact contract; in development the accepted
+structure is logged (`creation_filter`) for review. Valid filters are ignored only when
+comparing an acknowledgement with the fresh reread, since one may carry it and the
+other not; invalid ones are kept and cannot match.
+
+The Extrude acknowledgement no longer reuses the Modify historical validator, which
+rejects every provider-managed field (node ids, filters, bookkeeping defaults). A local
+check requires the same parameter ids, the same semantic values, `isInteger` false, a
+valid quantity, and only declared bookkeeping/filter extras.

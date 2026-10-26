@@ -11,6 +11,8 @@ from forge_api.cad_edits.domain import EditError, fingerprint
 from forge_api.integrations.onshape.contracts import CadId
 from forge_api.integrations.onshape.semantic_inventory import canonical_feature
 
+from .plane_filter import valid_selection_filter
+
 
 class VerifyRejected(EditError):
     """Fresh post-write verification failed one named check (closed label)."""
@@ -155,6 +157,27 @@ def difference(a: CreationEvidence, b: CreationEvidence) -> tuple[str, tuple[str
     return "none", ()
 
 
+def _unfiltered(feature: dict[str, Any]) -> dict[str, Any]:
+    """Drop only valid provider-managed selection filters before comparing features.
+
+    The filter is a UI picker restriction that may appear in a reread but not in a
+    POST acknowledgement (or conversely); the selection itself is the compared
+    ``queries``. An invalid filter is kept, so it can never match or hide a change.
+    """
+    if feature.get("featureType") not in ("newSketch", "extrude"):
+        return feature
+    result = deepcopy(feature)
+    for param in result.get("parameters", []):
+        if (
+            isinstance(param, dict)
+            and param.get("btType") == "BTMParameterQueryList-148"
+            and "filter" in param
+            and valid_selection_filter(param["filter"])
+        ):
+            del param["filter"]
+    return result
+
+
 def verify_added(
     before: CreationEvidence,
     after: CreationEvidence,
@@ -186,7 +209,10 @@ def verify_added(
     expected["featureStates"] = states
 
     def semantic(inv: dict[str, Any]) -> dict[str, Any]:
-        return {**inv, "features": [canonical_feature(f) for f in inv["features"]]}
+        return {
+            **inv,
+            "features": [canonical_feature(_unfiltered(f)) for f in inv["features"]],
+        }
 
     if acknowledged.get("featureType") == "newSketch":
         expected_bodies = deepcopy(before.bodies)

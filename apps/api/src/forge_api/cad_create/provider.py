@@ -8,6 +8,7 @@ from time import monotonic
 from typing import Any, cast
 
 from forge_api.cad_edits.domain import EditError
+from forge_api.cad_edits.plans import valid_quantity
 from forge_api.integrations.onshape.contracts import WorkspaceReference
 from forge_api.integrations.onshape.write_client import SafeEditClient
 
@@ -21,6 +22,7 @@ from .models import (
     ExtrudeNew,
     ExtrudeRemove,
 )
+from .plane_filter import describe, valid_selection_filter
 
 
 class AckRejected(EditError):
@@ -267,6 +269,39 @@ def _sketch_entities(expected: list[dict[str, Any]], actual: Any) -> None:
                 raise AckRejected("ack_entity_fields")
 
 
+_BASE_KEYS = {"btType", "parameterId", "nodeId"}
+_BY_TYPE = {
+    "BTMParameterEnum-145": {"enumName", "value"},
+    "BTMParameterQuantity-147": {"expression", "isInteger"},
+    "BTMParameterQueryList-148": {"queries", "filter"},
+}
+_BOOKKEEPING = (
+    ("parameterName", ""),
+    ("valueString", ""),
+    ("libraryRelationType", "DEFAULT"),
+    ("importMicroversion", 0),
+)
+
+
+def _managed_extras(param: dict[str, Any], reject: str, filter_reject: str) -> None:
+    """Only declared bookkeeping at its documented default, a node id, and a valid
+    selection filter may accompany a parameter's semantic fields."""
+    from forge_api.cad_edits.domain import fingerprint
+
+    allowed = _BASE_KEYS | _BY_TYPE.get(str(param.get("btType")), set())
+    allowed |= {name for name, _ in _BOOKKEEPING}
+    if set(param) - allowed:
+        raise AckRejected(reject, set(param) - allowed)
+    for name, default in _BOOKKEEPING:
+        if name in param and fingerprint(param[name]) != fingerprint(default):
+            raise AckRejected(reject)
+    node = param.get("nodeId")
+    if node is not None and (not isinstance(node, str) or not 1 <= len(node) <= 256):
+        raise AckRejected(reject)
+    if "filter" in param and not valid_selection_filter(param["filter"]):
+        raise AckRejected(filter_reject)
+
+
 def acknowledge(
     sent: dict[str, Any], data: Any, before: CreationEvidence
 ) -> tuple[str, dict[str, Any]]:
@@ -344,34 +379,22 @@ def acknowledge(
     if len(by_id) != len(params):
         raise AckRejected("ack_parameters")
     if sent["featureType"] == "extrude":
-        # Existing closed NEW/SOLID/BLIND quantity/default-mode contract, unchanged.
-        from forge_api.integrations.onshape.edit_registry import quantity_parameter
-
-        quantity_parameter(actual, "SET_EXTRUDE_DEPTH")
+        # The Modify Extrude validator rejects every provider-managed field this
+        # service may legitimately add; use the same strictness locally instead.
+        if set(by_id) != {p["parameterId"] for p in sent["parameters"]}:
+            raise AckRejected("ack_parameters")
+        for received in by_id.values():
+            _managed_extras(received, "ack_parameters", "ack_extrude_filter")
+        depth = by_id["depth"]
+        try:
+            valid_quantity(depth.get("expression"))
+        except ValueError, TypeError:
+            raise AckRejected("ack_parameters") from None
+        if depth.get("isInteger", False) is not False:
+            raise AckRejected("ack_parameters")
     else:
         plane = by_id.get("sketchPlane", {})
-        unknown_plane = set(plane) - {
-            "btType",
-            "parameterId",
-            "queries",
-            "nodeId",
-            "importMicroversion",
-            "parameterName",
-            "valueString",
-            "libraryRelationType",
-        }
-        if unknown_plane:
-            raise AckRejected("ack_plane", unknown_plane)
-        for field, default_value in (
-            ("parameterName", ""),
-            ("valueString", ""),
-            ("libraryRelationType", "DEFAULT"),
-            ("importMicroversion", 0),
-        ):
-            if field in plane and fingerprint(plane[field]) != fingerprint(
-                default_value
-            ):
-                raise AckRejected("ack_plane")
+        _managed_extras(plane, "ack_plane", "ack_plane_filter")
         if set(by_id) != {"sketchPlane"}:
             raise AckRejected("ack_parameters")
         if fingerprint(actual.get("constraints")) != fingerprint(sent["constraints"]):
@@ -449,6 +472,20 @@ class CreationClient:
         self.context = context
         self.last_rejection: str | None = None
 
+    def _log_filters(self, feature: dict[str, Any]) -> None:
+        """Development only: log the accepted selection-filter structure for review."""
+        for param in feature.get("parameters", []):
+            if isinstance(param, dict) and "filter" in param:
+                logging.getLogger("forge.creation").info(
+                    "creation_filter %s",
+                    json.dumps(
+                        {
+                            "parameter": str(param.get("parameterId"))[:40],
+                            "structure": describe(param["filter"]),
+                        }
+                    ),
+                )
+
     def note_failure(self, label: str, names: tuple[str, ...] = ()) -> None:
         """Keep the closed label for the audit and, in development, a field-name log."""
         self.last_rejection = label
@@ -495,7 +532,10 @@ class CreationClient:
         except EditError as error:
             raise StopLabelled("post_transport", error) from None
         try:
-            return acknowledge(body["feature"], result, before)
+            marker, ack = acknowledge(body["feature"], result, before)
+            if self.provider._development:
+                self._log_filters(ack)
+            return marker, ack
         except AckRejected as error:
             raise StopLabelled(error.check, error, error.names) from None
         except EditError as error:
